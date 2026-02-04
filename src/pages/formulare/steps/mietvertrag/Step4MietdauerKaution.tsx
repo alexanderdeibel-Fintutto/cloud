@@ -1,12 +1,10 @@
 
 
-import * as React from 'react'
 import { Calendar, Shield, AlertTriangle, Info, Check } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,

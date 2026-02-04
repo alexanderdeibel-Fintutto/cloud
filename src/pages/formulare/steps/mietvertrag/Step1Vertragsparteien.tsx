@@ -1,12 +1,9 @@
-
-
-import * as React from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { PersonField, type PersonData } from '@/components/fields/PersonField'
-import { AddressField, type AddressData } from '@/components/fields/AddressField'
+import { AddressField } from '@/components/fields/AddressField'
 import { IBANField } from '@/components/fields/IBANField'
 import { MietvertragData, EMPTY_PERSON } from '@/types/mietvertrag'
 

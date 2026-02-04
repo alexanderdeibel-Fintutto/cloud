@@ -1,13 +1,11 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Building2, Calculator, Info, MapPin, Euro, TrendingUp, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Building2, Calculator, Info, MapPin, TrendingUp, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,

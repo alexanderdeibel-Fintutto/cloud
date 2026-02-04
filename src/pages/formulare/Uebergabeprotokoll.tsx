@@ -6,8 +6,7 @@ import {
   Gauge,
   Key,
   ClipboardCheck,
-  FileSignature,
-  Check
+  FileSignature
 } from 'lucide-react'
 import { FormWizard, WizardStep } from '@/components/wizard/FormWizard'
 import { useToast } from '@/hooks/use-toast'

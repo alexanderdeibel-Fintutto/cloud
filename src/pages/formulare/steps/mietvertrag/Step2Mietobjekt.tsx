@@ -1,6 +1,5 @@
 
 
-import * as React from 'react'
 import { Home, Maximize2, Layers, ParkingCircle, TreePine, ChefHat } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { AddressField } from '@/components/fields/AddressField'
-import { CurrencyField } from '@/components/fields/CurrencyField'
 import { AIFieldHelper } from '@/components/ai/AIFieldHelper'
 import { MietvertragData } from '@/types/mietvertrag'
 

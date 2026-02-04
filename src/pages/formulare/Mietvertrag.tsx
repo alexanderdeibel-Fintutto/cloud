@@ -6,12 +6,11 @@ import {
   Euro,
   Calendar,
   FileText,
-  Check,
-  Sparkles
+  Check
 } from 'lucide-react'
 import { FormWizard, WizardStep } from '@/components/wizard/FormWizard'
 import { useToast } from '@/hooks/use-toast'
-import { MietvertragData, INITIAL_MIETVERTRAG, EMPTY_PERSON, EMPTY_SIGNATURE } from '@/types/mietvertrag'
+import { MietvertragData, INITIAL_MIETVERTRAG } from '@/types/mietvertrag'
 
 // Step Components
 import { Step1Vertragsparteien } from '@/pages/formulare/steps/mietvertrag/Step1Vertragsparteien'

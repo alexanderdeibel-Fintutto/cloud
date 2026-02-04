@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Plus, Trash2, ChevronDown, ChevronUp, Home, AlertCircle } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -86,13 +86,11 @@ function ZustandButton({
 
 function RaumKarte({
   raum,
-  index,
   onChange,
   onRemove,
   canRemove
 }: {
   raum: RaumZustandData
-  index: number
   onChange: (field: keyof RaumZustandData, value: any) => void
   onRemove: () => void
   canRemove: boolean
@@ -284,7 +282,6 @@ export function Step4Raeume({ data, onChange }: Step4Props) {
           <RaumKarte
             key={index}
             raum={raum}
-            index={index}
             onChange={(field, value) => handleRaumChange(index, field, value)}
             onRemove={() => handleRemoveRaum(index)}
             canRemove={data.raeume.length > 1}

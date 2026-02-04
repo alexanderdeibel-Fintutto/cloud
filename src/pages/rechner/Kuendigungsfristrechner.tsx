@@ -1,14 +1,13 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Calendar, Calculator, Info, AlertCircle } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { formatDate } from '@/lib/utils'
 import { differenceInMonths, differenceInYears, addMonths, setDate, format, startOfMonth, endOfMonth } from 'date-fns'
 import { de } from 'date-fns/locale'
 
@@ -52,7 +51,6 @@ export default function KuendigungsfristRechnerPage() {
     }
 
     // Nächstmöglicher Kündigungstermin (zum Monatsende, Zugang bis 3. Werktag)
-    const zugangsFrist = setDate(kuendigung, 3) // Bis zum 3. Werktag
     let wirksamerMonat: Date
 
     if (kuendigung.getDate() <= 3) {

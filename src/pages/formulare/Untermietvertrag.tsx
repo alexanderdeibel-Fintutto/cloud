@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Key, Info, CheckCircle2, Download, AlertTriangle, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Key, Info, Download, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,14 +9,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { AddressField } from '@/components/fields/AddressField'
-import { PersonField } from '@/components/fields/PersonField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
-import { SignatureField } from '@/components/fields/SignatureField'
-import { AIFieldHelper } from '@/components/ai/AIFieldHelper'
+import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { generateUntermietvertragPDF } from '@/lib/pdf/untermietvertrag-pdf'
@@ -109,8 +107,8 @@ interface UntermietvertragData {
   sonderkuendigungsrecht: string
 
   // Unterschriften
-  unterschriftHauptmieter: string
-  unterschriftUntermieter: string
+  unterschriftHauptmieter: SignatureData
+  unterschriftUntermieter: SignatureData
   unterschriftDatum: string
   unterschriftOrt: string
 }
@@ -174,8 +172,8 @@ const initialData: UntermietvertragData = {
   besuchsregelung: '',
   kuendigungsfrist: '3monate',
   sonderkuendigungsrecht: '',
-  unterschriftHauptmieter: '',
-  unterschriftUntermieter: '',
+  unterschriftHauptmieter: { imageData: null, signerName: '', signedAt: null },
+  unterschriftUntermieter: { imageData: null, signerName: '', signedAt: null },
   unterschriftDatum: '',
   unterschriftOrt: '',
 }
@@ -255,8 +253,8 @@ export default function UntermietvertragPage() {
         reinigungspflicht: data.reinigungspflicht,
         besuchsregelung: data.besuchsregelung,
         kuendigungsfrist: data.kuendigungsfrist,
-        unterschriftHauptmieter: data.unterschriftHauptmieter,
-        unterschriftUntermieter: data.unterschriftUntermieter,
+        unterschriftHauptmieter: data.unterschriftHauptmieter.imageData || '',
+        unterschriftUntermieter: data.unterschriftUntermieter.imageData || '',
         unterschriftDatum: data.unterschriftDatum,
         unterschriftOrt: data.unterschriftOrt
       })
@@ -339,11 +337,16 @@ export default function UntermietvertragPage() {
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Hauptmieter (Untervermieter)
-                    <AIFieldHelper
-                      fieldName="Hauptmieter"
-                      context="Der Hauptmieter ist der eigentliche Mieter der Wohnung und wird hier zum Untervermieter."
-                      legalReference="§ 540 BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Der Hauptmieter ist der eigentliche Mieter der Wohnung und wird hier zum Untervermieter (§ 540 BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
                   <div>
                     <Label>Name des Hauptmieters</Label>
@@ -385,11 +388,16 @@ export default function UntermietvertragPage() {
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Untermieter
-                    <AIFieldHelper
-                      fieldName="Untermieter"
-                      context="Der Untermieter mietet einen Teil der Wohnung vom Hauptmieter."
-                      legalReference="§ 540 BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Der Untermieter mietet einen Teil der Wohnung vom Hauptmieter (§ 540 BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
                   <div>
                     <Label>Name des Untermieters</Label>
@@ -457,11 +465,16 @@ export default function UntermietvertragPage() {
                   <div>
                     <Label className="flex items-center gap-2">
                       Name des Vermieters (Eigentümer)
-                      <AIFieldHelper
-                        fieldName="Vermieter"
-                        context="Der Vermieter des Hauptmietvertrags muss der Untervermietung zustimmen."
-                        legalReference="§ 540 BGB"
-                      />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Info className="h-4 w-4 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">Der Vermieter des Hauptmietvertrags muss der Untervermietung zustimmen (§ 540 BGB).</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </Label>
                     <Input
                       value={data.vermieterName}
@@ -551,11 +564,16 @@ Mit freundlichen Grüßen
                 <div className="space-y-4">
                   <Label className="flex items-center gap-2">
                     Untervermieteter Teil
-                    <AIFieldHelper
-                      fieldName="Untervermieteter Teil"
-                      context="Geben Sie an, welcher Teil der Wohnung untervermietet wird."
-                      legalReference="§ 540 BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Geben Sie an, welcher Teil der Wohnung untervermietet wird (§ 540 BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </Label>
                   <RadioGroup
                     value={data.untervermieteterTeil}
@@ -629,11 +647,16 @@ Mit freundlichen Grüßen
                 <div className="space-y-4">
                   <Label className="flex items-center gap-2">
                     Möblierungsgrad
-                    <AIFieldHelper
-                      fieldName="Möblierung"
-                      context="Bei möblierter Untervermietung kann ein Möblierungszuschlag verlangt werden."
-                      legalReference="Rechtsprechung zur Möblierung"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Bei möblierter Untervermietung kann ein Möblierungszuschlag verlangt werden.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </Label>
                   <RadioGroup
                     value={data.moebliertGrad}
@@ -704,11 +727,16 @@ Mit freundlichen Grüßen
                       <div>
                         <Label className="flex items-center gap-2">
                           Befristungsgrund
-                          <AIFieldHelper
-                            fieldName="Befristungsgrund"
-                            context="Bei Wohnraum muss ein sachlicher Grund für die Befristung vorliegen."
-                            legalReference="§ 575 BGB"
-                          />
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Info className="h-4 w-4 text-muted-foreground" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs">Bei Wohnraum muss ein sachlicher Grund für die Befristung vorliegen (§ 575 BGB).</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </Label>
                         <Textarea
                           value={data.befristungsgrund}
@@ -738,24 +766,30 @@ Mit freundlichen Grüßen
                     <div>
                       <Label className="flex items-center gap-2">
                         Untermiete (Kaltmiete)
-                        <AIFieldHelper
-                          fieldName="Untermiete"
-                          context="Die Untermiete sollte angemessen sein und nicht deutlich über der anteiligen Hauptmiete liegen."
-                          legalReference="§ 5 WiStG (Mietwucher)"
-                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Die Untermiete sollte angemessen sein (§ 5 WiStG).</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </Label>
                       <CurrencyField
+                        label="Untermiete (Kaltmiete)"
                         value={data.untermiete}
-                        onChange={(v) => updateData({ untermiete: v })}
+                        onChange={(v) => updateData({ untermiete: v ?? 0 })}
                       />
                     </div>
 
                     {data.moebliertGrad !== 'unmoebliert' && (
                       <div>
-                        <Label>Möblierungszuschlag</Label>
                         <CurrencyField
+                          label="Möblierungszuschlag"
                           value={data.moeblierungszuschlag}
-                          onChange={(v) => updateData({ moeblierungszuschlag: v })}
+                          onChange={(v) => updateData({ moeblierungszuschlag: v ?? 0 })}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           Üblich: ca. 2% des Zeitwerts der Möbel pro Monat
@@ -785,10 +819,10 @@ Mit freundlichen Grüßen
 
                     {data.nebenkostenart === 'pauschale' ? (
                       <div>
-                        <Label>Nebenkostenpauschale</Label>
                         <CurrencyField
+                          label="Nebenkostenpauschale"
                           value={data.nebenkostenPauschale}
-                          onChange={(v) => updateData({ nebenkostenPauschale: v })}
+                          onChange={(v) => updateData({ nebenkostenPauschale: v ?? 0 })}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           Keine Nachzahlung, keine Rückerstattung
@@ -796,10 +830,10 @@ Mit freundlichen Grüßen
                       </div>
                     ) : (
                       <div>
-                        <Label>Nebenkostenvorauszahlung</Label>
                         <CurrencyField
+                          label="Nebenkostenvorauszahlung"
                           value={data.nebenkostenVorauszahlung}
-                          onChange={(v) => updateData({ nebenkostenVorauszahlung: v })}
+                          onChange={(v) => updateData({ nebenkostenVorauszahlung: v ?? 0 })}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           Jährliche Abrechnung
@@ -849,19 +883,24 @@ Mit freundlichen Grüßen
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Kaution
-                    <AIFieldHelper
-                      fieldName="Kaution"
-                      context="Die Kaution darf maximal 3 Monatskaltmieten betragen."
-                      legalReference="§ 551 BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Die Kaution darf maximal 3 Monatskaltmieten betragen (§ 551 BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Kautionshöhe</Label>
                       <CurrencyField
+                        label="Kautionshöhe"
                         value={data.kaution}
-                        onChange={(v) => updateData({ kaution: v })}
+                        onChange={(v) => updateData({ kaution: v ?? 0 })}
                       />
                       {data.untermiete > 0 && (
                         <p className="text-xs text-muted-foreground mt-1">
@@ -1086,11 +1125,16 @@ Mit freundlichen Grüßen
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Kündigungsfristen
-                    <AIFieldHelper
-                      fieldName="Kündigung"
-                      context="Bei möbliertem Wohnraum kann bis zum 15. eines Monats zum Monatsende gekündigt werden."
-                      legalReference="§ 573c BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Bei möbliertem Wohnraum kann bis zum 15. zum Monatsende gekündigt werden (§ 573c BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
                   <Select
                     value={data.kuendigungsfrist}

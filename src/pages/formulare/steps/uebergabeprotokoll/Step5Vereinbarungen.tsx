@@ -1,11 +1,9 @@
-import * as React from 'react'
 import { FileText, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
 import {
   UebergabeprotokollData,
   ZustandBewertung,
