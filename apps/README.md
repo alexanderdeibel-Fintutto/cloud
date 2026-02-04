@@ -4,97 +4,38 @@ Diese Dateien müssen in die jeweiligen Lovable-App-Repositories kopiert werden.
 
 ## Status Übersicht
 
-| App | Status | Dateien |
-|-----|--------|---------|
-| ft_vermietify | ✅ Integriert | `Layout.jsx` |
-| ft_mieter | ✅ Bereits vorhanden | - |
-| ft_fromulare_alle | ✅ Integriert | `Layout.jsx`, `GlobalAIChatButton.jsx` |
-| fintutto-your-financial-compass | ✅ Integriert | `AppLayout.tsx`, `GlobalAIChatButton.tsx` |
+| App | Status | Ordner | Dateien |
+|-----|--------|--------|---------|
+| ft_vermietify | ✅ | `vermietify/` | `Layout.jsx` |
+| ft_mieter | ✅ Bereits vorhanden | - | - |
+| ft_fromulare_alle | ✅ | `formulare/` | `Layout.jsx`, `GlobalAIChatButton.jsx` |
+| fintutto-your-financial-compass | ✅ | `financial-compass/` | `AppLayout.tsx`, `GlobalAIChatButton.tsx` |
+| betriebskosten-helfer | ✅ | `betriebskosten-helfer/` | `AppLayout.tsx`, `GlobalAIChatButton.tsx` |
+| fintu-hausmeister-app | ✅ | `hausmeister/` | `AppLayout.tsx`, `GlobalAIChatButton.tsx` |
+| fintutto-miet-recht | ✅ | `miet-recht/` | `App.tsx`, `GlobalAIChatButton.tsx` |
+| fintutto-rent-wizard | ✅ | `rent-wizard/` | `App.tsx`, `GlobalAIChatButton.tsx` |
+| vermieter-freude | ✅ | `vermieter-freude/` | `MainLayout.tsx`, `GlobalAIChatButton.tsx` |
+| wohn-held | ✅ | `wohn-held/` | `MobileLayout.tsx`, `GlobalAIChatButton.tsx` |
 
 ---
 
-## Integration Instructions
+## Integration pro App
 
-### Vermietify (`ft_vermietify`)
+### 1. Layout-Datei ersetzen/anpassen
+Kopiere die Layout-Datei aus dem entsprechenden Ordner nach `src/components/layout/` (oder `src/` für Layout.jsx)
 
-**Datei:** `vermietify/Layout.jsx`
-**Ziel:** `src/Layout.jsx`
+### 2. GlobalAIChatButton erstellen
+Kopiere `GlobalAIChatButton.tsx` nach `src/components/ai/`
 
-Änderungen:
-- Import von `AIChatButton` und `AIChatPanel`
-- State `isChatOpen` für Chat-Steuerung
-- Globaler Chat-Button unten rechts
-
-### Formulare (`ft_fromulare_alle`)
-
-**Dateien:**
-1. `formulare/Layout.jsx` → `src/Layout.jsx`
-2. `formulare/GlobalAIChatButton.jsx` → `src/components/ai/GlobalAIChatButton.jsx`
-
-Änderungen:
-- Neue `GlobalAIChatButton` Komponente mit Formulare-spezifischem Prompt
-- Integration im Layout
-
-### Financial Compass (`fintutto-your-financial-compass`)
-
-**Dateien:**
-1. `financial-compass/AppLayout.tsx` → `src/components/layout/AppLayout.tsx`
-2. `financial-compass/GlobalAIChatButton.tsx` → `src/components/ai/GlobalAIChatButton.tsx`
-
-Änderungen:
-- Neue `GlobalAIChatButton` Komponente mit Buchhaltungs-spezifischem Prompt
-- Integration im AppLayout
-- TypeScript-Version
-
-### MieterApp (`ft_mieter`)
-
-✅ Bereits integriert! Die MieterApp hat bereits einen globalen AI-Chat (`AIChatButton` + `MieterAIChat`).
-
----
-
-## Manuelle Integration (falls Kopieren nicht möglich)
-
-### 1. Vermietify Layout.jsx
-
-```jsx
-// Füge diese Imports hinzu:
-import { useState } from 'react';
-import AIChatButton from './components/ai/AIChatButton';
-import AIChatPanel from './components/ai/AIChatPanel';
-
-// In der LayoutInner Funktion:
-const [isChatOpen, setIsChatOpen] = useState(false);
-
-// Vor dem schließenden </div>:
-<AIChatButton onToggleChat={() => setIsChatOpen(true)} />
-<AIChatPanel
-  isOpen={isChatOpen}
-  onClose={() => setIsChatOpen(false)}
-  currentPage={currentPageName}
-/>
-```
-
-### 2. Formulare - Neue Komponente erstellen
-
-Erstelle `src/components/ai/GlobalAIChatButton.jsx` mit dem Inhalt aus `formulare/GlobalAIChatButton.jsx`.
-
-Dann in `Layout.jsx`:
-```jsx
-import GlobalAIChatButton from './components/ai/GlobalAIChatButton';
-
-// Im return, vor </div>:
-<GlobalAIChatButton user={currentUser} />
-```
-
-### 3. Financial Compass - TypeScript
-
-Erstelle `src/components/ai/GlobalAIChatButton.tsx` mit dem Inhalt aus `financial-compass/GlobalAIChatButton.tsx`.
-
-Dann in `AppLayout.tsx`:
+### 3. Import hinzufügen
+In der Layout/App-Datei:
 ```tsx
 import GlobalAIChatButton from '@/components/ai/GlobalAIChatButton';
+```
 
-// Im return, vor </div>:
+### 4. Komponente rendern
+Vor dem schließenden `</div>` oder `</>`:
+```tsx
 <GlobalAIChatButton />
 ```
 
@@ -102,9 +43,38 @@ import GlobalAIChatButton from '@/components/ai/GlobalAIChatButton';
 
 ## Farbschema pro App
 
-| App | Primärfarbe | Gradient |
-|-----|-------------|----------|
-| Vermietify | Blue | `from-blue-600 to-orange-600` |
-| MieterApp | Violet | `from-violet-500 to-purple-600` |
-| Formulare | Emerald | `from-emerald-500 to-teal-600` |
-| Financial Compass | Blue/Indigo | `from-blue-500 to-indigo-600` |
+| App | Primärfarbe | Gradient | Icon |
+|-----|-------------|----------|------|
+| Vermietify | Blue/Orange | `from-blue-600 to-orange-600` | Sparkles |
+| MieterApp | Violet | `from-violet-500 to-purple-600` | Sparkles |
+| Formulare | Emerald | `from-emerald-500 to-teal-600` | Sparkles |
+| Financial Compass | Blue/Indigo | `from-blue-500 to-indigo-600` | Sparkles |
+| Betriebskosten | Green | `from-green-500 to-emerald-600` | Sparkles |
+| Hausmeister | Orange | `from-orange-500 to-amber-600` | Sparkles |
+| Miet-Recht | Slate | `from-slate-700 to-slate-900` | Scale |
+| Rent-Wizard | Cyan | `from-cyan-500 to-blue-600` | Calculator |
+| Vermieter-Freude | Blue/Indigo | `from-blue-600 to-indigo-700` | Sparkles |
+| Wohn-Held | Purple/Pink | `from-purple-500 to-pink-600` | Sparkles |
+
+---
+
+## App-spezifische Prompts
+
+Jede `GlobalAIChatButton.tsx` enthält einen `SYSTEM_PROMPT` der auf die jeweilige App zugeschnitten ist:
+
+- **Betriebskosten-Helfer**: BetrKV, Umlageschlüssel, NK-Abrechnung
+- **Hausmeister**: Aufgabenverwaltung, Wartung, Notfälle
+- **Miet-Recht**: Paragraphen, Mietminderung, Kündigungsfristen
+- **Rent-Wizard**: Rendite-Formeln, Mieterhöhung, Kalkulationen
+- **Vermieter-Freude**: Mietrecht, Vertragsgestaltung, Mieterauswahl
+- **Wohn-Held**: Mieterrechte, Mängel, Kommunikation
+
+---
+
+## Quick-Copy Commands
+
+```bash
+# Beispiel für betriebskosten-helfer:
+cp apps/betriebskosten-helfer/GlobalAIChatButton.tsx ../betriebskosten-helfer/src/components/ai/
+cp apps/betriebskosten-helfer/AppLayout.tsx ../betriebskosten-helfer/src/components/layout/
+```
