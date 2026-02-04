@@ -1,11 +1,10 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Euro, Calculator, Info, Plus, Trash2, Calendar, Home, FileText } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   Select,
@@ -15,10 +14,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { AddressField, type AddressData } from '@/components/fields/AddressField'
-import { PersonField, type PersonData } from '@/components/fields/PersonField'
+import { type PersonData } from '@/components/fields/PersonField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { useToast } from '@/hooks/use-toast'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { generateBetriebskostenPDF, type BetriebskostenPDFData } from '@/lib/pdf/betriebskosten-pdf'
 
 // Betriebskostenarten nach § 2 BetrKV
@@ -457,10 +456,7 @@ export default function BetriebskostenabrechnungPage() {
                     </div>
 
                     {/* Positionen */}
-                    {data.positionen.map((position) => {
-                      const kostenart = BETRIEBSKOSTENARTEN.find(k => k.id === position.kostenartId)
-
-                      return (
+                    {data.positionen.map((position) => (
                         <div key={position.id} className="grid grid-cols-12 gap-2 items-center">
                           <div className="col-span-4">
                             <Select
@@ -527,8 +523,7 @@ export default function BetriebskostenabrechnungPage() {
                             </Button>
                           </div>
                         </div>
-                      )
-                    })}
+                    ))}
 
                     {/* Summe */}
                     <Separator />

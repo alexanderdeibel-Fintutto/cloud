@@ -329,7 +329,7 @@ export async function generateMietvertragPDF(data: MietvertragData): Promise<voi
 
   ctx.y += 2
   addHeading(ctx, 'Mieter:')
-  data.mieter.forEach((mieter, index) => {
+  data.mieter.forEach((mieter) => {
     addParagraph(ctx, formatPerson(mieter), 5)
     if (mieter.geburtsdatum) addParagraph(ctx, `geboren am: ${formatDate(mieter.geburtsdatum)}`, 5)
     if (mieter.telefon) addParagraph(ctx, `Telefon: ${mieter.telefon}`, 5)

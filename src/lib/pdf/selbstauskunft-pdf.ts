@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 

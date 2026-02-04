@@ -1,17 +1,15 @@
 'use client'
 
 import * as React from 'react'
-import { Sparkles, Loader2, Lightbulb, AlertCircle, Check, X, HelpCircle, MessageSquare } from 'lucide-react'
+import { Sparkles, Loader2, Lightbulb, AlertCircle, Check, HelpCircle, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
 
 interface AIFieldHelperProps {
   fieldId: string
@@ -186,7 +184,7 @@ export function AIFieldHelper({
   }
 
   const handleApplySuggestion = () => {
-    if (suggestion?.value !== null && onSuggestion) {
+    if (suggestion && suggestion.value !== null && onSuggestion) {
       onSuggestion(suggestion.value)
       setIsOpen(false)
     }

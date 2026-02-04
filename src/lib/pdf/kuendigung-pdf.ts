@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { format, addMonths, endOfMonth } from 'date-fns'
 import { de } from 'date-fns/locale'
 import {
@@ -166,10 +166,6 @@ function addParagraph(ctx: PDFContext, text: string, indent: number = 0): void {
   ctx.y += PDF_CONFIG.lineHeight * 0.5
 }
 
-function addEmptyLine(ctx: PDFContext, count: number = 1): void {
-  ctx.y += PDF_CONFIG.lineHeight * count
-}
-
 function formatAddress(address: { strasse: string; hausnummer: string; plz: string; ort: string; zusatz?: string }): string[] {
   const lines = []
   if (address.strasse && address.hausnummer) {
@@ -318,7 +314,7 @@ export async function generateKuendigungPDF(data: KuendigungData): Promise<void>
       // Kündigungsfrist berechnen
       if (data.mietbeginn) {
         const mietbeginnDate = new Date(data.mietbeginn)
-        const { frist, endeDatum, fristText } = calculateKuendigungsfrist(mietbeginnDate, 'mieter')
+        const { frist: _frist, endeDatum, fristText: _fristText } = calculateKuendigungsfrist(mietbeginnDate, 'mieter')
 
         const monatName = format(endeDatum, 'MMMM yyyy', { locale: de })
         addParagraph(ctx, fillKuendigungTemplate(KUENDIGUNG_MIETER_TEXTE.kuendigungsfrist_hinweis, { monat: monatName }))
@@ -368,7 +364,7 @@ export async function generateKuendigungPDF(data: KuendigungData): Promise<void>
 
       if (data.mietbeginn) {
         const mietbeginnDate = new Date(data.mietbeginn)
-        const { frist, endeDatum, fristText } = calculateKuendigungsfrist(mietbeginnDate, 'vermieter')
+        const { frist: _frist2, endeDatum, fristText } = calculateKuendigungsfrist(mietbeginnDate, 'vermieter')
 
         addParagraph(ctx, fillKuendigungTemplate(KUENDIGUNG_VERMIETER_TEXTE.einleitung_mit_datum, {
           datum: format(endeDatum, 'dd.MM.yyyy', { locale: de }),

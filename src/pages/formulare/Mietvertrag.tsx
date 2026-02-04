@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   Users,
   Home,
@@ -62,7 +61,6 @@ const WIZARD_STEPS: WizardStep[] = [
 ]
 
 export default function MietvertragFormularPage() {
-  const navigate = useNavigate()
   const { toast } = useToast()
   const [currentStep, setCurrentStep] = React.useState(0)
   const [formData, setFormData] = React.useState<MietvertragData>(INITIAL_MIETVERTRAG)

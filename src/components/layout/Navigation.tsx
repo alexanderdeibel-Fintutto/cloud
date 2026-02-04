@@ -1,38 +1,36 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, useLocation } from 'react-router-dom'
 import { Home, FileText, Calculator, FolderOpen, HelpCircle, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/', label: 'Start', icon: Home },
-  { href: '/meine-dokumente', label: 'Meine Dokumente', icon: FolderOpen },
-  { href: '/hilfe', label: 'Hilfe', icon: HelpCircle },
+  { to: '/', label: 'Start', icon: Home },
+  { to: '/meine-dokumente', label: 'Meine Dokumente', icon: FolderOpen },
+  { to: '/hilfe', label: 'Hilfe', icon: HelpCircle },
 ]
 
 const formularLinks = [
-  { href: '/formulare/mietvertrag', label: 'Mietvertrag' },
-  { href: '/formulare/kuendigung', label: 'Kündigung' },
-  { href: '/formulare/uebergabeprotokoll', label: 'Übergabeprotokoll' },
-  { href: '/formulare/betriebskosten', label: 'Betriebskosten' },
-  { href: '/formulare/mieterhoehung', label: 'Mieterhöhung' },
-  { href: '/formulare/maengelanzeige', label: 'Mängelanzeige' },
-  { href: '/formulare/selbstauskunft', label: 'Selbstauskunft' },
-  { href: '/formulare/untermietvertrag', label: 'Untermietvertrag' },
+  { to: '/formulare/mietvertrag', label: 'Mietvertrag' },
+  { to: '/formulare/kuendigung', label: 'Kündigung' },
+  { to: '/formulare/uebergabeprotokoll', label: 'Übergabeprotokoll' },
+  { to: '/formulare/betriebskosten', label: 'Betriebskosten' },
+  { to: '/formulare/mieterhoehung', label: 'Mieterhöhung' },
+  { to: '/formulare/maengelanzeige', label: 'Mängelanzeige' },
+  { to: '/formulare/selbstauskunft', label: 'Selbstauskunft' },
+  { to: '/formulare/untermietvertrag', label: 'Untermietvertrag' },
 ]
 
 const rechnerLinks = [
-  { href: '/rechner/mietpreis', label: 'Mietpreisrechner' },
-  { href: '/rechner/nebenkosten', label: 'Nebenkostenrechner' },
-  { href: '/rechner/kaution', label: 'Kautionsrechner' },
-  { href: '/rechner/kuendigungsfrist', label: 'Kündigungsfrist' },
+  { to: '/rechner/mietpreis', label: 'Mietpreisrechner' },
+  { to: '/rechner/nebenkosten', label: 'Nebenkostenrechner' },
+  { to: '/rechner/kaution', label: 'Kautionsrechner' },
+  { to: '/rechner/kuendigungsfrist', label: 'Kündigungsfrist' },
 ]
 
 export function Navigation() {
-  const pathname = usePathname()
+  const { pathname } = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -40,7 +38,7 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <div className="p-2 bg-primary rounded-lg">
               <Home className="h-5 w-5 text-white" />
             </div>
@@ -50,9 +48,9 @@ export function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href}>
+              <Link key={item.to} to={item.to}>
                 <Button
-                  variant={pathname === item.href ? 'secondary' : 'ghost'}
+                  variant={pathname === item.to ? 'secondary' : 'ghost'}
                   size="sm"
                   className="gap-2"
                 >
@@ -71,9 +69,9 @@ export function Navigation() {
               <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <div className="bg-white border rounded-lg shadow-lg p-2 min-w-[200px]">
                   {formularLinks.map((link) => (
-                    <Link key={link.href} href={link.href}>
+                    <Link key={link.to} to={link.to}>
                       <Button
-                        variant={pathname === link.href ? 'secondary' : 'ghost'}
+                        variant={pathname === link.to ? 'secondary' : 'ghost'}
                         size="sm"
                         className="w-full justify-start"
                       >
@@ -94,9 +92,9 @@ export function Navigation() {
               <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <div className="bg-white border rounded-lg shadow-lg p-2 min-w-[200px]">
                   {rechnerLinks.map((link) => (
-                    <Link key={link.href} href={link.href}>
+                    <Link key={link.to} to={link.to}>
                       <Button
-                        variant={pathname === link.href ? 'secondary' : 'ghost'}
+                        variant={pathname === link.to ? 'secondary' : 'ghost'}
                         size="sm"
                         className="w-full justify-start"
                       >
@@ -131,9 +129,9 @@ export function Navigation() {
               {/* Main Links */}
               <div className="space-y-1">
                 {navItems.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                  <Link key={item.to} to={item.to} onClick={() => setMobileMenuOpen(false)}>
                     <Button
-                      variant={pathname === item.href ? 'secondary' : 'ghost'}
+                      variant={pathname === item.to ? 'secondary' : 'ghost'}
                       className="w-full justify-start gap-2"
                     >
                       <item.icon className="h-4 w-4" />
@@ -148,9 +146,9 @@ export function Navigation() {
                 <p className="text-xs font-semibold text-muted-foreground px-3 mb-2">FORMULARE</p>
                 <div className="space-y-1">
                   {formularLinks.map((link) => (
-                    <Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)}>
+                    <Link key={link.to} to={link.to} onClick={() => setMobileMenuOpen(false)}>
                       <Button
-                        variant={pathname === link.href ? 'secondary' : 'ghost'}
+                        variant={pathname === link.to ? 'secondary' : 'ghost'}
                         size="sm"
                         className="w-full justify-start"
                       >
@@ -166,9 +164,9 @@ export function Navigation() {
                 <p className="text-xs font-semibold text-muted-foreground px-3 mb-2">RECHNER</p>
                 <div className="space-y-1">
                   {rechnerLinks.map((link) => (
-                    <Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)}>
+                    <Link key={link.to} to={link.to} onClick={() => setMobileMenuOpen(false)}>
                       <Button
-                        variant={pathname === link.href ? 'secondary' : 'ghost'}
+                        variant={pathname === link.to ? 'secondary' : 'ghost'}
                         size="sm"
                         className="w-full justify-start"
                       >

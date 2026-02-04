@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   Users,
   Home,
@@ -103,7 +102,6 @@ const INITIAL_DATA: UebergabeprotokollData = {
 }
 
 export default function UebergabeprotokollPage() {
-  const navigate = useNavigate()
   const { toast } = useToast()
   const [currentStep, setCurrentStep] = React.useState(0)
   const [formData, setFormData] = React.useState<UebergabeprotokollData>(INITIAL_DATA)

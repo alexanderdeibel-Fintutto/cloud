@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { Home } from 'lucide-react'
 
 export function Footer() {
@@ -27,22 +27,22 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Formulare</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/formulare/mietvertrag" className="text-muted-foreground hover:text-foreground">
+                <Link to="/formulare/mietvertrag" className="text-muted-foreground hover:text-foreground">
                   Mietvertrag
                 </Link>
               </li>
               <li>
-                <Link href="/formulare/kuendigung" className="text-muted-foreground hover:text-foreground">
+                <Link to="/formulare/kuendigung" className="text-muted-foreground hover:text-foreground">
                   Kündigung
                 </Link>
               </li>
               <li>
-                <Link href="/formulare/uebergabeprotokoll" className="text-muted-foreground hover:text-foreground">
+                <Link to="/formulare/uebergabeprotokoll" className="text-muted-foreground hover:text-foreground">
                   Übergabeprotokoll
                 </Link>
               </li>
               <li>
-                <Link href="/formulare/betriebskosten" className="text-muted-foreground hover:text-foreground">
+                <Link to="/formulare/betriebskosten" className="text-muted-foreground hover:text-foreground">
                   Betriebskosten
                 </Link>
               </li>
@@ -54,22 +54,22 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Rechtliches</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/impressum" className="text-muted-foreground hover:text-foreground">
+                <Link to="/impressum" className="text-muted-foreground hover:text-foreground">
                   Impressum
                 </Link>
               </li>
               <li>
-                <Link href="/datenschutz" className="text-muted-foreground hover:text-foreground">
+                <Link to="/datenschutz" className="text-muted-foreground hover:text-foreground">
                   Datenschutz
                 </Link>
               </li>
               <li>
-                <Link href="/agb" className="text-muted-foreground hover:text-foreground">
+                <Link to="/agb" className="text-muted-foreground hover:text-foreground">
                   AGB
                 </Link>
               </li>
               <li>
-                <Link href="/hilfe" className="text-muted-foreground hover:text-foreground">
+                <Link to="/hilfe" className="text-muted-foreground hover:text-foreground">
                   Hilfe & Support
                 </Link>
               </li>

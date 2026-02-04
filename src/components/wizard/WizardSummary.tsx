@@ -5,7 +5,6 @@ import { Check, AlertCircle, Edit2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
 export interface SummarySection {
@@ -33,8 +32,8 @@ interface WizardSummaryProps {
 export function WizardSummary({
   sections,
   onEditSection,
-  title = "Zusammenfassung",
-  description = "Bitte überprüfen Sie Ihre Angaben vor dem Abschluss"
+  title: _title = "Zusammenfassung",
+  description: _description = "Bitte überprüfen Sie Ihre Angaben vor dem Abschluss"
 }: WizardSummaryProps) {
   const allComplete = sections.every(s => s.isComplete)
   const incompleteCount = sections.filter(s => !s.isComplete).length

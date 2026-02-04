@@ -42,7 +42,7 @@ export function FormWizard({
   children,
   isLoading = false,
   canProceed = true,
-  showSummary = false,
+  showSummary: _showSummary = false,
 }: FormWizardProps) {
   const progress = ((currentStep + 1) / steps.length) * 100
   const isFirstStep = currentStep === 0

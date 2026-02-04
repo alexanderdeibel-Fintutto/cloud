@@ -4,7 +4,6 @@ import { format } from 'date-fns'
 
 import {
   UebergabeprotokollData,
-  ZustandBewertung,
   ZUSTAND_LABELS,
 } from '@/types/uebergabeprotokoll'
 
@@ -142,31 +141,6 @@ function addTableRow(ctx: PDFContext, cells: string[], widths: number[], isHeade
   ctx.doc.line(ctx.margin, ctx.y + 2, ctx.pageWidth - ctx.margin, ctx.y + 2)
 
   ctx.y += rowHeight
-}
-
-function addZustandBadge(ctx: PDFContext, zustand: ZustandBewertung, x: number): void {
-  const label = ZUSTAND_LABELS[zustand] || zustand
-  let color = PDF_CONFIG.colors.gray
-
-  switch (zustand) {
-    case 'sehr_gut':
-    case 'gut':
-      color = PDF_CONFIG.colors.green
-      break
-    case 'normal':
-      color = PDF_CONFIG.colors.gray
-      break
-    case 'maengel':
-      color = PDF_CONFIG.colors.red
-      break
-    case 'nicht_vorhanden':
-      color = PDF_CONFIG.colors.lightGray
-      break
-  }
-
-  ctx.doc.setFontSize(PDF_CONFIG.fontSize.tiny)
-  ctx.doc.setTextColor(color)
-  ctx.doc.text(label, x, ctx.y)
 }
 
 function addSeparator(ctx: PDFContext): void {

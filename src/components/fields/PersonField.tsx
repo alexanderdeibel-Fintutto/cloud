@@ -1,6 +1,5 @@
 'use client'
 
-import * as React from 'react'
 import { User, Plus, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

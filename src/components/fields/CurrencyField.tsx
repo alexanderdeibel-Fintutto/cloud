@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Euro, Calculator, Sparkles } from 'lucide-react'
+import { Euro, Calculator } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -35,7 +35,7 @@ export function CurrencyField({
   required = false,
   min,
   max,
-  step = 0.01,
+  step: _step = 0.01,
   helperText,
   error,
   disabled = false,

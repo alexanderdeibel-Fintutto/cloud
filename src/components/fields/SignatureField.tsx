@@ -150,13 +150,6 @@ export function SignatureField({
     })
   }
 
-  const handleConfirm = () => {
-    onChange({
-      ...value,
-      signedAt: new Date().toISOString()
-    })
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
