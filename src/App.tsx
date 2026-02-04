@@ -62,18 +62,20 @@ const Einzugsbestaetigung = lazy(() => import('@/pages/formulare/Einzugsbestaeti
 const Auszugsbestaetigung = lazy(() => import('@/pages/formulare/Auszugsbestaetigung'))
 
 // ============================================
-// FORMULARE - Betriebskosten (3)
+// FORMULARE - Betriebskosten (4)
 // ============================================
 const Betriebskosten = lazy(() => import('@/pages/formulare/Betriebskosten'))
 const Nebenkostenabrechnung = lazy(() => import('@/pages/formulare/Nebenkostenabrechnung'))
 const WiderspruchBetriebskosten = lazy(() => import('@/pages/formulare/WiderspruchBetriebskosten'))
+const Betriebskostenvorauszahlung = lazy(() => import('@/pages/formulare/Betriebskostenvorauszahlung'))
 
 // ============================================
-// FORMULARE - Mängel & Instandhaltung (3)
+// FORMULARE - Mängel & Instandhaltung (4)
 // ============================================
 const Maengelanzeige = lazy(() => import('@/pages/formulare/Maengelanzeige'))
 const Mietminderung = lazy(() => import('@/pages/formulare/Mietminderung'))
 const Reparaturanforderung = lazy(() => import('@/pages/formulare/Reparaturanforderung'))
+const Renovierungsvereinbarung = lazy(() => import('@/pages/formulare/Renovierungsvereinbarung'))
 
 // ============================================
 // FORMULARE - Bescheinigungen & Bestätigungen (7)
@@ -87,7 +89,7 @@ const Mietbescheinigung = lazy(() => import('@/pages/formulare/Mietbescheinigung
 const Tierhaltungserlaubnis = lazy(() => import('@/pages/formulare/Tierhaltungserlaubnis'))
 
 // ============================================
-// FORMULARE - Zahlungen & Bankverbindung (6)
+// FORMULARE - Zahlungen & Bankverbindung (8)
 // ============================================
 const SEPALastschriftmandat = lazy(() => import('@/pages/formulare/SEPALastschriftmandat'))
 const Mahnung = lazy(() => import('@/pages/formulare/Mahnung'))
@@ -95,11 +97,14 @@ const Kautionsrueckforderung = lazy(() => import('@/pages/formulare/Kautionsruec
 const Zahlungserinnerung = lazy(() => import('@/pages/formulare/Zahlungserinnerung'))
 const Kautionsabrechnung = lazy(() => import('@/pages/formulare/Kautionsabrechnung'))
 const Kautionsquittung = lazy(() => import('@/pages/formulare/Kautionsquittung'))
+const Mietrueckstand = lazy(() => import('@/pages/formulare/Mietrueckstand'))
+const Mietbuergschaft = lazy(() => import('@/pages/formulare/Mietbuergschaft'))
 
 // ============================================
-// FORMULARE - Vertragsänderungen (1)
+// FORMULARE - Vertragsänderungen (2)
 // ============================================
 const Nachtragsvereinbarung = lazy(() => import('@/pages/formulare/Nachtragsvereinbarung'))
+const Stellplatzvereinbarung = lazy(() => import('@/pages/formulare/Stellplatzvereinbarung'))
 
 // ============================================
 // RECHNER
@@ -154,11 +159,13 @@ function App() {
           <Route path="/formulare/betriebskosten" element={<Betriebskosten />} />
           <Route path="/formulare/nebenkostenabrechnung" element={<Nebenkostenabrechnung />} />
           <Route path="/formulare/widerspruch-betriebskosten" element={<WiderspruchBetriebskosten />} />
+          <Route path="/formulare/betriebskostenvorauszahlung" element={<Betriebskostenvorauszahlung />} />
 
           {/* Formulare - Mängel */}
           <Route path="/formulare/maengelanzeige" element={<Maengelanzeige />} />
           <Route path="/formulare/mietminderung" element={<Mietminderung />} />
           <Route path="/formulare/reparaturanforderung" element={<Reparaturanforderung />} />
+          <Route path="/formulare/renovierungsvereinbarung" element={<Renovierungsvereinbarung />} />
 
           {/* Formulare - Bescheinigungen */}
           <Route path="/formulare/selbstauskunft" element={<Selbstauskunft />} />
@@ -176,9 +183,12 @@ function App() {
           <Route path="/formulare/zahlungserinnerung" element={<Zahlungserinnerung />} />
           <Route path="/formulare/kautionsabrechnung" element={<Kautionsabrechnung />} />
           <Route path="/formulare/kautionsquittung" element={<Kautionsquittung />} />
+          <Route path="/formulare/mietrueckstand" element={<Mietrueckstand />} />
+          <Route path="/formulare/mietbuergschaft" element={<Mietbuergschaft />} />
 
           {/* Formulare - Vertragsänderungen */}
           <Route path="/formulare/nachtragsvereinbarung" element={<Nachtragsvereinbarung />} />
+          <Route path="/formulare/stellplatzvereinbarung" element={<Stellplatzvereinbarung />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
