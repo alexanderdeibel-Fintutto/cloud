@@ -39,9 +39,11 @@ const Garagenmietvertrag = lazy(() => import('@/pages/formulare/Garagenmietvertr
 const Ferienwohnungsmietvertrag = lazy(() => import('@/pages/formulare/Ferienwohnungsmietvertrag'))
 
 // ============================================
-// FORMULARE - Kündigungen & Beendigung (3)
+// FORMULARE - Kündigungen & Beendigung (4)
 // ============================================
 const Kuendigung = lazy(() => import('@/pages/formulare/Kuendigung'))
+const AusserordentlicheKuendigung = lazy(() => import('@/pages/formulare/AusserordentlicheKuendigung'))
+const Aufhebungsvertrag = lazy(() => import('@/pages/formulare/Aufhebungsvertrag'))
 
 // ============================================
 // FORMULARE - Mieterhöhung (1)
@@ -111,6 +113,8 @@ function App() {
 
           {/* Formulare - Kündigungen */}
           <Route path="/formulare/kuendigung" element={<Kuendigung />} />
+          <Route path="/formulare/ausserordentliche-kuendigung" element={<AusserordentlicheKuendigung />} />
+          <Route path="/formulare/aufhebungsvertrag" element={<Aufhebungsvertrag />} />
 
           {/* Formulare - Mieterhöhung */}
           <Route path="/formulare/mieterhoehung" element={<Mieterhoehung />} />
