@@ -47,16 +47,19 @@ const Aufhebungsvertrag = lazy(() => import('@/pages/formulare/Aufhebungsvertrag
 const Eigenbedarfskuendigung = lazy(() => import('@/pages/formulare/Eigenbedarfskuendigung'))
 
 // ============================================
-// FORMULARE - Mieterhöhung & Modernisierung (2)
+// FORMULARE - Mieterhöhung & Modernisierung (3)
 // ============================================
 const Mieterhoehung = lazy(() => import('@/pages/formulare/Mieterhoehung'))
 const Modernisierungsankuendigung = lazy(() => import('@/pages/formulare/Modernisierungsankuendigung'))
+const Mietanpassung = lazy(() => import('@/pages/formulare/Mietanpassung'))
 
 // ============================================
-// FORMULARE - Übergabe & Protokolle (2)
+// FORMULARE - Übergabe & Protokolle (4)
 // ============================================
 const Uebergabeprotokoll = lazy(() => import('@/pages/formulare/Uebergabeprotokoll'))
 const Schluesseluebergabe = lazy(() => import('@/pages/formulare/Schluesseluebergabe'))
+const Einzugsbestaetigung = lazy(() => import('@/pages/formulare/Einzugsbestaetigung'))
+const Auszugsbestaetigung = lazy(() => import('@/pages/formulare/Auszugsbestaetigung'))
 
 // ============================================
 // FORMULARE - Betriebskosten (3)
@@ -66,10 +69,11 @@ const Nebenkostenabrechnung = lazy(() => import('@/pages/formulare/Nebenkostenab
 const WiderspruchBetriebskosten = lazy(() => import('@/pages/formulare/WiderspruchBetriebskosten'))
 
 // ============================================
-// FORMULARE - Mängel & Instandhaltung (2)
+// FORMULARE - Mängel & Instandhaltung (3)
 // ============================================
 const Maengelanzeige = lazy(() => import('@/pages/formulare/Maengelanzeige'))
 const Mietminderung = lazy(() => import('@/pages/formulare/Mietminderung'))
+const Reparaturanforderung = lazy(() => import('@/pages/formulare/Reparaturanforderung'))
 
 // ============================================
 // FORMULARE - Bescheinigungen & Bestätigungen (7)
@@ -83,13 +87,19 @@ const Mietbescheinigung = lazy(() => import('@/pages/formulare/Mietbescheinigung
 const Tierhaltungserlaubnis = lazy(() => import('@/pages/formulare/Tierhaltungserlaubnis'))
 
 // ============================================
-// FORMULARE - Zahlungen & Bankverbindung (5)
+// FORMULARE - Zahlungen & Bankverbindung (6)
 // ============================================
 const SEPALastschriftmandat = lazy(() => import('@/pages/formulare/SEPALastschriftmandat'))
 const Mahnung = lazy(() => import('@/pages/formulare/Mahnung'))
 const Kautionsrueckforderung = lazy(() => import('@/pages/formulare/Kautionsrueckforderung'))
 const Zahlungserinnerung = lazy(() => import('@/pages/formulare/Zahlungserinnerung'))
 const Kautionsabrechnung = lazy(() => import('@/pages/formulare/Kautionsabrechnung'))
+const Kautionsquittung = lazy(() => import('@/pages/formulare/Kautionsquittung'))
+
+// ============================================
+// FORMULARE - Vertragsänderungen (1)
+// ============================================
+const Nachtragsvereinbarung = lazy(() => import('@/pages/formulare/Nachtragsvereinbarung'))
 
 // ============================================
 // RECHNER
@@ -132,10 +142,13 @@ function App() {
           {/* Formulare - Mieterhöhung & Modernisierung */}
           <Route path="/formulare/mieterhoehung" element={<Mieterhoehung />} />
           <Route path="/formulare/modernisierungsankuendigung" element={<Modernisierungsankuendigung />} />
+          <Route path="/formulare/mietanpassung" element={<Mietanpassung />} />
 
           {/* Formulare - Übergabe */}
           <Route path="/formulare/uebergabeprotokoll" element={<Uebergabeprotokoll />} />
           <Route path="/formulare/schluesseluebergabe" element={<Schluesseluebergabe />} />
+          <Route path="/formulare/einzugsbestaetigung" element={<Einzugsbestaetigung />} />
+          <Route path="/formulare/auszugsbestaetigung" element={<Auszugsbestaetigung />} />
 
           {/* Formulare - Betriebskosten */}
           <Route path="/formulare/betriebskosten" element={<Betriebskosten />} />
@@ -145,6 +158,7 @@ function App() {
           {/* Formulare - Mängel */}
           <Route path="/formulare/maengelanzeige" element={<Maengelanzeige />} />
           <Route path="/formulare/mietminderung" element={<Mietminderung />} />
+          <Route path="/formulare/reparaturanforderung" element={<Reparaturanforderung />} />
 
           {/* Formulare - Bescheinigungen */}
           <Route path="/formulare/selbstauskunft" element={<Selbstauskunft />} />
@@ -161,6 +175,10 @@ function App() {
           <Route path="/formulare/kautionsrueckforderung" element={<Kautionsrueckforderung />} />
           <Route path="/formulare/zahlungserinnerung" element={<Zahlungserinnerung />} />
           <Route path="/formulare/kautionsabrechnung" element={<Kautionsabrechnung />} />
+          <Route path="/formulare/kautionsquittung" element={<Kautionsquittung />} />
+
+          {/* Formulare - Vertragsänderungen */}
+          <Route path="/formulare/nachtragsvereinbarung" element={<Nachtragsvereinbarung />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
