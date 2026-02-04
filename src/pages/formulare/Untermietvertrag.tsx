@@ -17,7 +17,9 @@ import { PersonField } from '@/components/fields/PersonField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { SignatureField } from '@/components/fields/SignatureField'
 import { AIFieldHelper } from '@/components/ai/AIFieldHelper'
+import { useToast } from '@/hooks/use-toast'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { generateUntermietvertragPDF } from '@/lib/pdf/untermietvertrag-pdf'
 
 interface UntermietvertragData {
   // Hauptmieter
@@ -179,6 +181,7 @@ const initialData: UntermietvertragData = {
 }
 
 export default function UntermietvertragPage() {
+  const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(1)
   const [data, setData] = useState<UntermietvertragData>(initialData)
 
@@ -208,8 +211,66 @@ export default function UntermietvertragPage() {
     }
   }
 
-  const generatePDF = () => {
-    alert('PDF-Export wird generiert...')
+  const generatePDF = async () => {
+    try {
+      await generateUntermietvertragPDF({
+        hauptmieterName: data.hauptmieterName,
+        hauptmieterAdresse: data.hauptmieterAdresse,
+        hauptmieterTelefon: data.hauptmieterTelefon,
+        hauptmieterEmail: data.hauptmieterEmail,
+        untermieterName: data.untermieterName,
+        untermieterGeburtsdatum: data.untermieterGeburtsdatum,
+        untermieterBeruf: data.untermieterBeruf,
+        untermieterAktuelleAdresse: data.untermieterAktuelleAdresse,
+        vermieterName: data.vermieterName,
+        vermieterZustimmungVom: data.vermieterZustimmungVom,
+        zustimmungBefristet: data.zustimmungBefristet,
+        zustimmungBefristetBis: data.zustimmungBefristetBis,
+        mietobjektAdresse: data.mietobjektAdresse,
+        untervermieteterTeil: data.untervermieteterTeil,
+        zimmerAnzahl: data.zimmerAnzahl,
+        zimmerBeschreibung: data.zimmerBeschreibung,
+        wohnflaeche: data.wohnflaeche,
+        moebliertGrad: data.moebliertGrad,
+        inventarliste: data.inventarliste,
+        mietbeginn: data.mietbeginn,
+        befristet: data.befristet,
+        mietende: data.mietende,
+        befristungsgrund: data.befristungsgrund,
+        untermiete: data.untermiete,
+        moeblierungszuschlag: data.moeblierungszuschlag,
+        nebenkostenPauschale: data.nebenkostenPauschale,
+        nebenkostenVorauszahlung: data.nebenkostenVorauszahlung,
+        nebenkostenart: data.nebenkostenart,
+        gesamtmiete: data.gesamtmiete,
+        kaution: data.kaution,
+        kautionZahlweise: data.kautionZahlweise,
+        personenanzahl: data.personenanzahl,
+        tierhaltung: data.tierhaltung,
+        tierart: data.tierart,
+        rauchen: data.rauchen,
+        gewerblicheNutzung: data.gewerblicheNutzung,
+        schluesselAnzahl: data.schluesselAnzahl,
+        hausordnungAkzeptiert: data.hausordnungAkzeptiert,
+        reinigungspflicht: data.reinigungspflicht,
+        besuchsregelung: data.besuchsregelung,
+        kuendigungsfrist: data.kuendigungsfrist,
+        unterschriftHauptmieter: data.unterschriftHauptmieter,
+        unterschriftUntermieter: data.unterschriftUntermieter,
+        unterschriftDatum: data.unterschriftDatum,
+        unterschriftOrt: data.unterschriftOrt
+      })
+      toast({
+        title: 'PDF erstellt',
+        description: 'Der Untermietvertrag wurde als PDF heruntergeladen.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Fehler',
+        description: 'PDF konnte nicht erstellt werden.',
+        variant: 'destructive'
+      })
+    }
   }
 
   return (

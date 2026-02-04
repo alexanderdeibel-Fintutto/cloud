@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast'
 import { formatDate } from '@/lib/utils'
 import { addDays, format } from 'date-fns'
 import { de } from 'date-fns/locale'
+import { generateMangelanzeigePDF } from '@/lib/pdf/maengelanzeige-pdf'
 
 const MANGEL_KATEGORIEN = [
   { id: 'heizung', label: 'Heizung / Warmwasser', dringlichkeit: 'hoch', typischeFrist: 3 },
@@ -147,6 +148,39 @@ export default function MangelanzeigePage() {
   }
 
   const selectedKategorie = MANGEL_KATEGORIEN.find(k => k.id === data.kategorie)
+
+  const handleGeneratePDF = async () => {
+    try {
+      await generateMangelanzeigePDF({
+        mieter: data.mieter,
+        mieterAdresse: data.mieterAdresse,
+        vermieter: data.vermieter,
+        vermieterAdresse: data.vermieterAdresse,
+        objektAdresse: data.objektAdresse,
+        kategorie: data.kategorie,
+        kategorieLabel: selectedKategorie?.label,
+        beschreibung: data.beschreibung,
+        entdecktAm: data.entdecktAm,
+        raeume: data.raeume,
+        fristTage: data.fristTage,
+        fristDatum: data.fristDatum,
+        mietminderungAngedroht: data.mietminderungAngedroht,
+        mietminderungProzent: data.mietminderungProzent,
+        ersatzvornahmeAngedroht: data.ersatzvornahmeAngedroht,
+        unterschrift: data.unterschrift
+      })
+      toast({
+        title: 'PDF erstellt',
+        description: 'Die Mängelanzeige wurde als PDF heruntergeladen.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Fehler',
+        description: 'PDF konnte nicht erstellt werden.',
+        variant: 'destructive'
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -464,7 +498,7 @@ export default function MangelanzeigePage() {
 
                 <Separator />
 
-                <Button className="w-full">
+                <Button className="w-full" onClick={handleGeneratePDF}>
                   <FileText className="h-4 w-4 mr-2" />
                   PDF erstellen
                 </Button>

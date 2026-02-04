@@ -21,6 +21,7 @@ import { AddressField, type AddressData } from '@/components/fields/AddressField
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { useToast } from '@/hooks/use-toast'
 import { formatCurrency } from '@/lib/utils'
+import { generateSelbstauskunftPDF } from '@/lib/pdf/selbstauskunft-pdf'
 
 const EMPTY_PERSON: PersonData = {
   anrede: '',
@@ -155,6 +156,53 @@ export default function Selbstauskunft() {
 
   // Gesamteinkommen berechnen
   const gesamtEinkommen = (data.nettoeinkommenMonatlich || 0) + (data.weitereEinkuenfte || 0)
+
+  const handleGeneratePDF = async () => {
+    try {
+      await generateSelbstauskunftPDF({
+        person: data.person,
+        geburtsdatum: data.geburtsdatum,
+        geburtsort: data.geburtsort,
+        staatsangehoerigkeit: data.staatsangehoerigkeit,
+        familienstand: data.familienstand,
+        aktuelleAdresse: data.aktuelleAdresse,
+        wohntSeit: data.wohntSeit,
+        berufstaetig: data.berufstaetig,
+        arbeitgeber: data.arbeitgeber,
+        arbeitgeberAdresse: data.arbeitgeberAdresse,
+        beschaeftigtSeit: data.beschaeftigtSeit,
+        berufsbezeichnung: data.berufsbezeichnung,
+        befristet: data.befristet,
+        nettoeinkommenMonatlich: data.nettoeinkommenMonatlich,
+        weitereEinkuenfte: data.weitereEinkuenfte,
+        einkunftsart: data.einkunftsart,
+        anzahlPersonen: data.anzahlPersonen,
+        personenDetails: data.personenDetails,
+        haustiere: data.haustiere,
+        haustiereDetails: data.haustiereDetails,
+        raucher: data.raucher,
+        musikinstrumente: data.musikinstrumente,
+        musikinstrumenteDetails: data.musikinstrumenteDetails,
+        insolvenzverfahren: data.insolvenzverfahren,
+        eidesstattlicheVersicherung: data.eidesstattlicheVersicherung,
+        mietschulden: data.mietschulden,
+        raeumungsklage: data.raeumungsklage,
+        datenschutzEinwilligung: data.datenschutzEinwilligung,
+        schufaEinwilligung: data.schufaEinwilligung,
+        unterschrift: data.unterschrift
+      })
+      toast({
+        title: 'PDF erstellt',
+        description: 'Die Selbstauskunft wurde als PDF heruntergeladen.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Fehler',
+        description: 'PDF konnte nicht erstellt werden.',
+        variant: 'destructive'
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -648,7 +696,7 @@ export default function Selbstauskunft() {
             <Button variant="outline" className="flex-1">
               Entwurf speichern
             </Button>
-            <Button className="flex-1">
+            <Button className="flex-1" onClick={handleGeneratePDF}>
               <FileText className="h-4 w-4 mr-2" />
               PDF erstellen
             </Button>

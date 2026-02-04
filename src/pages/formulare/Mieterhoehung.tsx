@@ -15,7 +15,9 @@ import { Separator } from '@/components/ui/separator'
 import { AddressField } from '@/components/fields/AddressField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { AIFieldHelper } from '@/components/ai/AIFieldHelper'
+import { useToast } from '@/hooks/use-toast'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { generateMieterhoehungPDF } from '@/lib/pdf/mieterhoehung-pdf'
 
 interface MieterhoehungData {
   // Vermieter
@@ -150,6 +152,7 @@ const initialData: MieterhoehungData = {
 }
 
 export default function Mieterhoehung() {
+  const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(1)
   const [data, setData] = useState<MieterhoehungData>(initialData)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -220,9 +223,51 @@ export default function Mieterhoehung() {
     }
   }
 
-  const generatePDF = () => {
-    // PDF-Generierung würde hier implementiert
-    alert('PDF-Export wird generiert...')
+  const generatePDF = async () => {
+    try {
+      await generateMieterhoehungPDF({
+        vermieterName: data.vermieterName,
+        vermieterAdresse: data.vermieterAdresse,
+        mieterName: data.mieterName,
+        mieterAdresse: data.mieterAdresse,
+        mietobjektAdresse: data.mietobjektAdresse,
+        wohnflaeche: data.wohnflaeche,
+        zimmeranzahl: data.zimmeranzahl,
+        baujahr: data.baujahr,
+        aktuelleMiete: data.aktuelleMiete,
+        letzteMieterhoehung: data.letzteMieterhoehung,
+        mietbeginn: data.mietbeginn,
+        neueMiete: data.neueMiete,
+        erhoehungAb: data.erhoehungAb,
+        begruendungsart: data.begruendungsart,
+        mietspiegelJahr: data.mietspiegelJahr,
+        mietspiegelGemeinde: data.mietspiegelGemeinde,
+        vergleichsmieteVon: data.vergleichsmieteVon,
+        vergleichsmieteBis: data.vergleichsmieteBis,
+        ausstattung: {
+          bad: data.ausstattung.bad,
+          heizung: data.ausstattung.heizung,
+          bodenbelag: data.ausstattung.bodenbelag,
+          balkon: data.ausstattung.balkon,
+          aufzug: data.ausstattung.aufzug,
+          einbaukueche: data.ausstattung.einbaukueche
+        },
+        kappungsgrenzeInfo: {
+          mieteVor3Jahren: data.kappungsgrenzeInfo.mieteVor3Jahren,
+          kappungsgrenzeProzent: data.kappungsgrenzeInfo.kappungsgrenzeProzent
+        }
+      })
+      toast({
+        title: 'PDF erstellt',
+        description: 'Das Mieterhöhungsverlangen wurde als PDF heruntergeladen.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Fehler',
+        description: 'PDF konnte nicht erstellt werden.',
+        variant: 'destructive'
+      })
+    }
   }
 
   return (
