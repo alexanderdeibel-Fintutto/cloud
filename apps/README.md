@@ -1,6 +1,17 @@
-# App-spezifische Änderungen
+# App-spezifische KI-Chat Integrationen
 
 Diese Dateien müssen in die jeweiligen Lovable-App-Repositories kopiert werden.
+
+## Status Übersicht
+
+| App | Status | Dateien |
+|-----|--------|---------|
+| ft_vermietify | ✅ Integriert | `Layout.jsx` |
+| ft_mieter | ✅ Bereits vorhanden | - |
+| ft_fromulare_alle | ✅ Integriert | `Layout.jsx`, `GlobalAIChatButton.jsx` |
+| fintutto-your-financial-compass | ✅ Integriert | `AppLayout.tsx`, `GlobalAIChatButton.tsx` |
+
+---
 
 ## Integration Instructions
 
@@ -24,9 +35,20 @@ Diese Dateien müssen in die jeweiligen Lovable-App-Repositories kopiert werden.
 - Neue `GlobalAIChatButton` Komponente mit Formulare-spezifischem Prompt
 - Integration im Layout
 
+### Financial Compass (`fintutto-your-financial-compass`)
+
+**Dateien:**
+1. `financial-compass/AppLayout.tsx` → `src/components/layout/AppLayout.tsx`
+2. `financial-compass/GlobalAIChatButton.tsx` → `src/components/ai/GlobalAIChatButton.tsx`
+
+Änderungen:
+- Neue `GlobalAIChatButton` Komponente mit Buchhaltungs-spezifischem Prompt
+- Integration im AppLayout
+- TypeScript-Version
+
 ### MieterApp (`ft_mieter`)
 
-✅ Bereits integriert! Die MieterApp hat bereits einen globalen AI-Chat.
+✅ Bereits integriert! Die MieterApp hat bereits einen globalen AI-Chat (`AIChatButton` + `MieterAIChat`).
 
 ---
 
@@ -63,3 +85,26 @@ import GlobalAIChatButton from './components/ai/GlobalAIChatButton';
 // Im return, vor </div>:
 <GlobalAIChatButton user={currentUser} />
 ```
+
+### 3. Financial Compass - TypeScript
+
+Erstelle `src/components/ai/GlobalAIChatButton.tsx` mit dem Inhalt aus `financial-compass/GlobalAIChatButton.tsx`.
+
+Dann in `AppLayout.tsx`:
+```tsx
+import GlobalAIChatButton from '@/components/ai/GlobalAIChatButton';
+
+// Im return, vor </div>:
+<GlobalAIChatButton />
+```
+
+---
+
+## Farbschema pro App
+
+| App | Primärfarbe | Gradient |
+|-----|-------------|----------|
+| Vermietify | Blue | `from-blue-600 to-orange-600` |
+| MieterApp | Violet | `from-violet-500 to-purple-600` |
+| Formulare | Emerald | `from-emerald-500 to-teal-600` |
+| Financial Compass | Blue/Indigo | `from-blue-500 to-indigo-600` |
