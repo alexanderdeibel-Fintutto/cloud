@@ -31,6 +31,12 @@ const AGB = lazy(() => import('@/pages/AGB'))
 const Mietvertrag = lazy(() => import('@/pages/formulare/Mietvertrag'))
 const Untermietvertrag = lazy(() => import('@/pages/formulare/Untermietvertrag'))
 const Gewerbemietvertrag = lazy(() => import('@/pages/formulare/Gewerbemietvertrag'))
+const Staffelmietvertrag = lazy(() => import('@/pages/formulare/Staffelmietvertrag'))
+const Indexmietvertrag = lazy(() => import('@/pages/formulare/Indexmietvertrag'))
+const Zeitmietvertrag = lazy(() => import('@/pages/formulare/Zeitmietvertrag'))
+const WGMietvertrag = lazy(() => import('@/pages/formulare/WGMietvertrag'))
+const Garagenmietvertrag = lazy(() => import('@/pages/formulare/Garagenmietvertrag'))
+const Ferienwohnungsmietvertrag = lazy(() => import('@/pages/formulare/Ferienwohnungsmietvertrag'))
 
 // ============================================
 // FORMULARE - Kündigungen & Beendigung (3)
@@ -65,9 +71,11 @@ const Wohnungsgeberbestaetigung = lazy(() => import('@/pages/formulare/Wohnungsg
 const Mietschuldenfreiheitsbescheinigung = lazy(() => import('@/pages/formulare/Mietschuldenfreiheitsbescheinigung'))
 
 // ============================================
-// FORMULARE - Zahlungen & Bankverbindung (1)
+// FORMULARE - Zahlungen & Bankverbindung (3)
 // ============================================
 const SEPALastschriftmandat = lazy(() => import('@/pages/formulare/SEPALastschriftmandat'))
+const Mahnung = lazy(() => import('@/pages/formulare/Mahnung'))
+const Kautionsrueckforderung = lazy(() => import('@/pages/formulare/Kautionsrueckforderung'))
 
 // ============================================
 // RECHNER
@@ -94,6 +102,12 @@ function App() {
           <Route path="/formulare/mietvertrag" element={<Mietvertrag />} />
           <Route path="/formulare/untermietvertrag" element={<Untermietvertrag />} />
           <Route path="/formulare/gewerbemietvertrag" element={<Gewerbemietvertrag />} />
+          <Route path="/formulare/staffelmietvertrag" element={<Staffelmietvertrag />} />
+          <Route path="/formulare/indexmietvertrag" element={<Indexmietvertrag />} />
+          <Route path="/formulare/zeitmietvertrag" element={<Zeitmietvertrag />} />
+          <Route path="/formulare/wg-mietvertrag" element={<WGMietvertrag />} />
+          <Route path="/formulare/garagenmietvertrag" element={<Garagenmietvertrag />} />
+          <Route path="/formulare/ferienwohnungsmietvertrag" element={<Ferienwohnungsmietvertrag />} />
 
           {/* Formulare - Kündigungen */}
           <Route path="/formulare/kuendigung" element={<Kuendigung />} />
@@ -117,6 +131,8 @@ function App() {
 
           {/* Formulare - Zahlungen */}
           <Route path="/formulare/sepa-lastschriftmandat" element={<SEPALastschriftmandat />} />
+          <Route path="/formulare/mahnung" element={<Mahnung />} />
+          <Route path="/formulare/kautionsrueckforderung" element={<Kautionsrueckforderung />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
