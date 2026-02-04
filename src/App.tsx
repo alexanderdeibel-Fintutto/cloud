@@ -25,17 +25,53 @@ const Impressum = lazy(() => import('@/pages/Impressum'))
 const Datenschutz = lazy(() => import('@/pages/Datenschutz'))
 const AGB = lazy(() => import('@/pages/AGB'))
 
-// Formulare - lazy loaded (large, contains PDF generators)
+// ============================================
+// FORMULARE - Mietverträge (8)
+// ============================================
 const Mietvertrag = lazy(() => import('@/pages/formulare/Mietvertrag'))
-const Kuendigung = lazy(() => import('@/pages/formulare/Kuendigung'))
-const Uebergabeprotokoll = lazy(() => import('@/pages/formulare/Uebergabeprotokoll'))
-const Betriebskosten = lazy(() => import('@/pages/formulare/Betriebskosten'))
-const Mieterhoehung = lazy(() => import('@/pages/formulare/Mieterhoehung'))
-const Maengelanzeige = lazy(() => import('@/pages/formulare/Maengelanzeige'))
-const Selbstauskunft = lazy(() => import('@/pages/formulare/Selbstauskunft'))
 const Untermietvertrag = lazy(() => import('@/pages/formulare/Untermietvertrag'))
+const Gewerbemietvertrag = lazy(() => import('@/pages/formulare/Gewerbemietvertrag'))
 
-// Rechner - lazy loaded
+// ============================================
+// FORMULARE - Kündigungen & Beendigung (3)
+// ============================================
+const Kuendigung = lazy(() => import('@/pages/formulare/Kuendigung'))
+
+// ============================================
+// FORMULARE - Mieterhöhung (1)
+// ============================================
+const Mieterhoehung = lazy(() => import('@/pages/formulare/Mieterhoehung'))
+
+// ============================================
+// FORMULARE - Übergabe & Protokolle (2)
+// ============================================
+const Uebergabeprotokoll = lazy(() => import('@/pages/formulare/Uebergabeprotokoll'))
+
+// ============================================
+// FORMULARE - Betriebskosten (1)
+// ============================================
+const Betriebskosten = lazy(() => import('@/pages/formulare/Betriebskosten'))
+
+// ============================================
+// FORMULARE - Mängel & Instandhaltung (1)
+// ============================================
+const Maengelanzeige = lazy(() => import('@/pages/formulare/Maengelanzeige'))
+
+// ============================================
+// FORMULARE - Bescheinigungen & Bestätigungen (3)
+// ============================================
+const Selbstauskunft = lazy(() => import('@/pages/formulare/Selbstauskunft'))
+const Wohnungsgeberbestaetigung = lazy(() => import('@/pages/formulare/Wohnungsgeberbestaetigung'))
+const Mietschuldenfreiheitsbescheinigung = lazy(() => import('@/pages/formulare/Mietschuldenfreiheitsbescheinigung'))
+
+// ============================================
+// FORMULARE - Zahlungen & Bankverbindung (1)
+// ============================================
+const SEPALastschriftmandat = lazy(() => import('@/pages/formulare/SEPALastschriftmandat'))
+
+// ============================================
+// RECHNER
+// ============================================
 const Mietpreisrechner = lazy(() => import('@/pages/rechner/Mietpreisrechner'))
 const Nebenkostenrechner = lazy(() => import('@/pages/rechner/Nebenkostenrechner'))
 const Kautionsrechner = lazy(() => import('@/pages/rechner/Kautionsrechner'))
@@ -54,15 +90,33 @@ function App() {
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/agb" element={<AGB />} />
 
-          {/* Formulare */}
+          {/* Formulare - Mietverträge */}
           <Route path="/formulare/mietvertrag" element={<Mietvertrag />} />
-          <Route path="/formulare/kuendigung" element={<Kuendigung />} />
-          <Route path="/formulare/uebergabeprotokoll" element={<Uebergabeprotokoll />} />
-          <Route path="/formulare/betriebskosten" element={<Betriebskosten />} />
-          <Route path="/formulare/mieterhoehung" element={<Mieterhoehung />} />
-          <Route path="/formulare/maengelanzeige" element={<Maengelanzeige />} />
-          <Route path="/formulare/selbstauskunft" element={<Selbstauskunft />} />
           <Route path="/formulare/untermietvertrag" element={<Untermietvertrag />} />
+          <Route path="/formulare/gewerbemietvertrag" element={<Gewerbemietvertrag />} />
+
+          {/* Formulare - Kündigungen */}
+          <Route path="/formulare/kuendigung" element={<Kuendigung />} />
+
+          {/* Formulare - Mieterhöhung */}
+          <Route path="/formulare/mieterhoehung" element={<Mieterhoehung />} />
+
+          {/* Formulare - Übergabe */}
+          <Route path="/formulare/uebergabeprotokoll" element={<Uebergabeprotokoll />} />
+
+          {/* Formulare - Betriebskosten */}
+          <Route path="/formulare/betriebskosten" element={<Betriebskosten />} />
+
+          {/* Formulare - Mängel */}
+          <Route path="/formulare/maengelanzeige" element={<Maengelanzeige />} />
+
+          {/* Formulare - Bescheinigungen */}
+          <Route path="/formulare/selbstauskunft" element={<Selbstauskunft />} />
+          <Route path="/formulare/wohnungsgeberbestaetigung" element={<Wohnungsgeberbestaetigung />} />
+          <Route path="/formulare/mietschuldenfreiheitsbescheinigung" element={<Mietschuldenfreiheitsbescheinigung />} />
+
+          {/* Formulare - Zahlungen */}
+          <Route path="/formulare/sepa-lastschriftmandat" element={<SEPALastschriftmandat />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
