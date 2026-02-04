@@ -107,6 +107,14 @@ const Nachtragsvereinbarung = lazy(() => import('@/pages/formulare/Nachtragsvere
 const Stellplatzvereinbarung = lazy(() => import('@/pages/formulare/Stellplatzvereinbarung'))
 
 // ============================================
+// FORMULARE - Verwaltung & Vollmachten (4)
+// ============================================
+const Vollmacht = lazy(() => import('@/pages/formulare/Vollmacht'))
+const Besichtigungsprotokoll = lazy(() => import('@/pages/formulare/Besichtigungsprotokoll'))
+const Mieterhoehungszustimmung = lazy(() => import('@/pages/formulare/Mieterhoehungszustimmung'))
+const Hausmeistervereinbarung = lazy(() => import('@/pages/formulare/Hausmeistervereinbarung'))
+
+// ============================================
 // RECHNER
 // ============================================
 const Mietpreisrechner = lazy(() => import('@/pages/rechner/Mietpreisrechner'))
@@ -189,6 +197,12 @@ function App() {
           {/* Formulare - Vertragsänderungen */}
           <Route path="/formulare/nachtragsvereinbarung" element={<Nachtragsvereinbarung />} />
           <Route path="/formulare/stellplatzvereinbarung" element={<Stellplatzvereinbarung />} />
+
+          {/* Formulare - Verwaltung & Vollmachten */}
+          <Route path="/formulare/vollmacht" element={<Vollmacht />} />
+          <Route path="/formulare/besichtigungsprotokoll" element={<Besichtigungsprotokoll />} />
+          <Route path="/formulare/mieterhoehungszustimmung" element={<Mieterhoehungszustimmung />} />
+          <Route path="/formulare/hausmeistervereinbarung" element={<Hausmeistervereinbarung />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
