@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Users,
   Home,
@@ -9,6 +10,9 @@ import {
 } from 'lucide-react'
 import { FormWizard, WizardStep } from '@/components/wizard/FormWizard'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   UebergabeprotokollData,
   STANDARD_SCHLUESSEL,
@@ -103,31 +107,28 @@ const INITIAL_DATA: UebergabeprotokollData = {
 
 export default function UebergabeprotokollPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [currentStep, setCurrentStep] = React.useState(0)
   const [formData, setFormData] = React.useState<UebergabeprotokollData>(INITIAL_DATA)
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const updateFormData = (updates: Partial<UebergabeprotokollData>) => {
-    setFormData(prev => ({ ...prev, ...updates }))
-  }
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'uebergabeprotokoll',
+    generateTitle: (data) => `Übergabeprotokoll - ${data.mieterNeu?.vorname || ''} ${data.mieterNeu?.nachname || ''}`.trim() || 'Übergabeprotokoll'
+  })
 
-  const handleSaveDraft = () => {
-    try {
-      localStorage.setItem('uebergabeprotokoll-draft', JSON.stringify(formData))
-      toast({
-        title: "Entwurf gespeichert",
-        description: "Ihr Protokoll-Entwurf wurde lokal gespeichert.",
-      })
-    } catch (error) {
-      toast({
-        title: "Fehler",
-        description: "Der Entwurf konnte nicht gespeichert werden.",
-        variant: "destructive"
-      })
-    }
-  }
-
+  // Load existing document if editing
   React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setFormData({ ...INITIAL_DATA, ...doc.data })
+        return // Don't load draft if editing existing document
+      }
+    }
+    // Load draft only if not editing existing document
     const draft = localStorage.getItem('uebergabeprotokoll-draft')
     if (draft) {
       try {
@@ -141,16 +142,47 @@ export default function UebergabeprotokollPage() {
         console.error('Could not load draft:', error)
       }
     }
-  }, [])
+  }, [searchParams, user])
+
+  const updateFormData = (updates: Partial<UebergabeprotokollData>) => {
+    setFormData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleSubmit = () => {
+    handleSave(formData)
+  }
+
+  const handleGeneratePDF = async () => {
+    setIsLoading(true)
+    try {
+      await generateUebergabeprotokollPDF(formData)
+      toast({
+        title: "PDF erstellt",
+        description: "Das Übergabeprotokoll wurde als PDF heruntergeladen.",
+      })
+    } catch (error) {
+      console.error('PDF-Generierung fehlgeschlagen:', error)
+      toast({
+        title: "Fehler",
+        description: "PDF konnte nicht erstellt werden.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleComplete = async () => {
+    // Save to document storage first
+    handleSubmit()
+    // Then generate PDF
     setIsLoading(true)
     try {
       await generateUebergabeprotokollPDF(formData)
       localStorage.removeItem('uebergabeprotokoll-draft')
       toast({
         title: "Protokoll erstellt!",
-        description: "Das Übergabeprotokoll wurde als PDF heruntergeladen.",
+        description: "Das Übergabeprotokoll wurde gespeichert und als PDF heruntergeladen.",
       })
     } catch (error) {
       console.error('PDF-Generierung fehlgeschlagen:', error)
@@ -189,7 +221,8 @@ export default function UebergabeprotokollPage() {
       currentStep={currentStep}
       onStepChange={setCurrentStep}
       onComplete={handleComplete}
-      onSaveDraft={handleSaveDraft}
+      onSaveDraft={handleSubmit}
+      onExportPDF={documentId ? handleGeneratePDF : undefined}
       title="Wohnungsuebergabeprotokoll"
       description={formData.protokollart === 'einzug' ? 'Einzugsprotokoll' : 'Auszugsprotokoll'}
       isLoading={isLoading}

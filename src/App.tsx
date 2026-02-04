@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { Loader2 } from 'lucide-react'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { LoginModal } from '@/components/LoginModal'
 
 // Loading component
 function PageLoader() {
@@ -137,7 +139,7 @@ const Kuendigungsfristrechner = lazy(() => import('@/pages/rechner/Kuendigungsfr
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Hauptseiten */}
@@ -235,8 +237,9 @@ function App() {
           <Route path="/rechner/kuendigungsfrist" element={<Kuendigungsfristrechner />} />
         </Routes>
       </Suspense>
+      <LoginModal />
       <Toaster />
-    </>
+    </AuthProvider>
   )
 }
 

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Users,
   Home,
@@ -9,6 +10,9 @@ import {
 } from 'lucide-react'
 import { FormWizard, WizardStep } from '@/components/wizard/FormWizard'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { MietvertragData, INITIAL_MIETVERTRAG } from '@/types/mietvertrag'
 
 // Step Components
@@ -62,9 +66,27 @@ const WIZARD_STEPS: WizardStep[] = [
 
 export default function MietvertragFormularPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [currentStep, setCurrentStep] = React.useState(0)
   const [formData, setFormData] = React.useState<MietvertragData>(INITIAL_MIETVERTRAG)
   const [isLoading, setIsLoading] = React.useState(false)
+
+  const { handleSave, documentId: _documentId } = useDocumentSave({
+    type: 'mietvertrag',
+    generateTitle: (data) => `Mietvertrag - ${data.mieter?.vorname || ''} ${data.mieter?.nachname || ''}`.trim() || 'Mietvertrag'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setFormData({ ...INITIAL_MIETVERTRAG, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
 
   // Daten aktualisieren
   const updateFormData = (updates: Partial<MietvertragData>) => {
@@ -81,23 +103,14 @@ export default function MietvertragFormularPage() {
 
   // Entwurf speichern
   const handleSaveDraft = () => {
-    try {
-      localStorage.setItem('mietvertrag-draft', JSON.stringify(formData))
-      toast({
-        title: "Entwurf gespeichert",
-        description: "Ihr Mietvertrag-Entwurf wurde lokal gespeichert.",
-      })
-    } catch (error) {
-      toast({
-        title: "Fehler",
-        description: "Der Entwurf konnte nicht gespeichert werden.",
-        variant: "destructive"
-      })
-    }
+    handleSave(formData)
   }
 
-  // Entwurf laden beim Start
+  // Entwurf laden beim Start (nur wenn kein Dokument aus URL geladen wird)
   React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id) return // Don't load draft if editing existing document
+
     const draft = localStorage.getItem('mietvertrag-draft')
     if (draft) {
       try {
@@ -111,7 +124,7 @@ export default function MietvertragFormularPage() {
         console.error('Could not load draft:', error)
       }
     }
-  }, [])
+  }, [searchParams])
 
   // PDF exportieren
   const handleExportPDF = async () => {
@@ -138,7 +151,10 @@ export default function MietvertragFormularPage() {
   const handleComplete = async () => {
     setIsLoading(true)
     try {
-      // Hier könnte man das Formular an ein Backend senden
+      // Dokument speichern
+      handleSave(formData)
+
+      // PDF generieren
       await generateMietvertragPDF(formData)
 
       // Entwurf löschen

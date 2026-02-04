@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, TrendingUp, Info, AlertTriangle, Download, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, TrendingUp, Info, AlertTriangle, CheckCircle2, Save, FileDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,9 @@ import { AddressField } from '@/components/fields/AddressField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { generateMieterhoehungPDF } from '@/lib/pdf/mieterhoehung-pdf'
 
@@ -151,11 +154,33 @@ const initialData: MieterhoehungData = {
 
 export default function Mieterhoehung() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [currentStep, setCurrentStep] = useState(1)
   const [data, setData] = useState<MieterhoehungData>(initialData)
 
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'mieterhoehung',
+    generateTitle: (formData) => `Mieterhöhung - ${formData.mieterName || ''}`.trim() || 'Mieterhöhung'
+  })
+
+  // Load existing document if editing
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setData({ ...initialData, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
+
   const updateData = (updates: Partial<MieterhoehungData>) => {
     setData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleSubmit = () => {
+    handleSave(data)
   }
 
   const progress = (currentStep / steps.length) * 100
@@ -1087,9 +1112,15 @@ export default function Mieterhoehung() {
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Zurück
                 </Button>
-                <Button size="lg" onClick={generatePDF} className="bg-orange-600 hover:bg-orange-700">
-                  <Download className="h-4 w-4 mr-2" />
-                  PDF herunterladen
+                {documentId && (
+                  <Button variant="outline" size="lg" onClick={generatePDF}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    PDF erstellen
+                  </Button>
+                )}
+                <Button size="lg" onClick={handleSubmit} className="bg-orange-600 hover:bg-orange-700">
+                  <Save className="h-4 w-4 mr-2" />
+                  Speichern
                 </Button>
               </div>
             </div>

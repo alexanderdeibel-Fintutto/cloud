@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Euro, Calculator, Info, Plus, Trash2, Calendar, Home, FileText } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Euro, Calculator, Info, Plus, Trash2, Calendar, Home, FileText, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,6 +17,9 @@ import { AddressField, type AddressData } from '@/components/fields/AddressField
 import { type PersonData } from '@/components/fields/PersonField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { formatCurrency } from '@/lib/utils'
 import { generateBetriebskostenPDF, type BetriebskostenPDFData } from '@/lib/pdf/betriebskosten-pdf'
 
@@ -125,14 +128,38 @@ const INITIAL_DATA: BetriebskostenData = {
 
 export default function BetriebskostenabrechnungPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [data, setData] = React.useState<BetriebskostenData>(INITIAL_DATA)
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'betriebskosten',
+    generateTitle: (data) => `Betriebskostenabrechnung - ${data.mieter?.vorname || ''} ${data.mieter?.nachname || ''}`.trim() || 'Betriebskostenabrechnung'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setData({ ...INITIAL_DATA, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
 
   const updateData = (updates: Partial<BetriebskostenData>) => {
     setData(prev => ({ ...prev, ...updates }))
   }
 
+  const handleSubmit = () => {
+    handleSave(data)
+  }
+
   // PDF generieren
   const handleGeneratePDF = async () => {
+    setIsLoading(true)
     try {
       const pdfData: BetriebskostenPDFData = {
         abrechnungsjahrVon: data.abrechnungsjahrVon,
@@ -195,6 +222,8 @@ export default function BetriebskostenabrechnungPage() {
         description: "Die PDF-Erstellung ist fehlgeschlagen.",
         variant: "destructive"
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -601,9 +630,18 @@ export default function BetriebskostenabrechnungPage() {
                   </p>
                 </div>
 
-                <Button className="w-full" onClick={handleGeneratePDF}>
-                  PDF erstellen
-                </Button>
+                <div className="space-y-2">
+                  <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Speichern
+                  </Button>
+                  {documentId && (
+                    <Button variant="outline" className="w-full" onClick={handleGeneratePDF} disabled={isLoading}>
+                      <FileDown className="h-4 w-4 mr-2" />
+                      PDF erstellen
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
 

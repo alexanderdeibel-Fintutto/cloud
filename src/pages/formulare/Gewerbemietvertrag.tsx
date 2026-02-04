@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Building2, Users, Euro, FileText, Shield, PenTool } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Building2, Users, Euro, FileText, Shield, PenTool, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +21,9 @@ import { AddressField, type AddressData } from '@/components/fields/AddressField
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { generateGewerbemietvertragPDF } from '@/lib/pdf/gewerbemietvertrag-pdf'
 
 const EMPTY_PERSON: PersonData = { anrede: '', titel: '', vorname: '', nachname: '', telefon: '', email: '' }
@@ -161,9 +164,31 @@ const WIZARD_STEPS: StepInfo[] = [
 
 export default function GewerbemietvertragPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [currentStep, setCurrentStep] = React.useState(0)
   const [formData, setFormData] = React.useState<GewerbemietvertragFormData>(INITIAL_DATA)
   const [isLoading, setIsLoading] = React.useState(false)
+
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'gewerbemietvertrag',
+    generateTitle: (data) => `Gewerbemietvertrag - ${data.mieterFirma || ''}`.trim() || 'Gewerbemietvertrag'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setFormData({ ...INITIAL_DATA, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
+
+  const handleSubmit = () => {
+    handleSave(formData)
+  }
 
   const updateData = (updates: Partial<GewerbemietvertragFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
@@ -640,9 +665,18 @@ export default function GewerbemietvertragPage() {
               Weiter
             </Button>
           ) : (
-            <Button onClick={handleGeneratePDF} disabled={isLoading}>
-              {isLoading ? 'Wird erstellt...' : 'PDF erstellen'}
-            </Button>
+            <div className="flex gap-4">
+              {documentId && (
+                <Button variant="outline" onClick={handleGeneratePDF} disabled={isLoading}>
+                  <FileDown className="h-4 w-4 mr-2" />
+                  PDF erstellen
+                </Button>
+              )}
+              <Button onClick={handleSubmit} disabled={isLoading}>
+                <Save className="h-4 w-4 mr-2" />
+                Speichern
+              </Button>
+            </div>
           )}
         </div>
       </div>

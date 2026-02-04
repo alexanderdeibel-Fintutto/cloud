@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle, Camera, Calendar, FileText, Info } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, AlertTriangle, Camera, Calendar, Info, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,6 +20,9 @@ import { PersonField, type PersonData } from '@/components/fields/PersonField'
 import { AddressField, type AddressData } from '@/components/fields/AddressField'
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { addDays, format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { generateMangelanzeigePDF } from '@/lib/pdf/maengelanzeige-pdf'
@@ -102,6 +105,8 @@ interface MangelanzeigeData {
 
 export default function MangelanzeigePage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
 
   const [data, setData] = React.useState<MangelanzeigeData>({
     mieter: EMPTY_PERSON,
@@ -120,9 +125,30 @@ export default function MangelanzeigePage() {
     ersatzvornahmeAngedroht: false,
     unterschrift: EMPTY_SIGNATURE
   })
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'maengelanzeige',
+    generateTitle: (data) => `Mängelanzeige - ${data.mieter?.vorname || ''} ${data.mieter?.nachname || ''}`.trim() || 'Mängelanzeige'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setData(prev => ({ ...prev, ...doc.data }))
+      }
+    }
+  }, [searchParams, user])
 
   const updateData = (updates: Partial<MangelanzeigeData>) => {
     setData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleSubmit = () => {
+    handleSave(data)
   }
 
   // Frist automatisch berechnen
@@ -149,6 +175,7 @@ export default function MangelanzeigePage() {
   const selectedKategorie = MANGEL_KATEGORIEN.find(k => k.id === data.kategorie)
 
   const handleGeneratePDF = async () => {
+    setIsLoading(true)
     try {
       await generateMangelanzeigePDF({
         mieter: data.mieter,
@@ -178,6 +205,8 @@ export default function MangelanzeigePage() {
         description: 'PDF konnte nicht erstellt werden.',
         variant: 'destructive'
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -497,10 +526,18 @@ export default function MangelanzeigePage() {
 
                 <Separator />
 
-                <Button className="w-full" onClick={handleGeneratePDF}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  PDF erstellen
-                </Button>
+                <div className="space-y-2">
+                  <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Speichern
+                  </Button>
+                  {documentId && (
+                    <Button variant="outline" className="w-full" onClick={handleGeneratePDF} disabled={isLoading}>
+                      <FileDown className="h-4 w-4 mr-2" />
+                      PDF erstellen
+                    </Button>
+                  )}
+                </div>
 
                 <p className="text-xs text-muted-foreground text-center">
                   Senden Sie die Mängelanzeige per Einschreiben

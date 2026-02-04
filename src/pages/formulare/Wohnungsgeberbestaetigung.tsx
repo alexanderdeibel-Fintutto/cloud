@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Home, User, FileCheck, Calendar } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Home, User, FileCheck, Calendar, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,6 +19,9 @@ import { PersonField, type PersonData } from '@/components/fields/PersonField'
 import { AddressField, type AddressData } from '@/components/fields/AddressField'
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { generateWohnungsgeberbestaetigungPDF } from '@/lib/pdf/wohnungsgeberbestaetigung-pdf'
 
 const EMPTY_PERSON: PersonData = { anrede: '', titel: '', vorname: '', nachname: '', telefon: '', email: '' }
@@ -73,11 +76,33 @@ const INITIAL_DATA: WohnungsgeberbestaetigungFormData = {
 
 export default function WohnungsgeberbestaetigungPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [formData, setFormData] = React.useState<WohnungsgeberbestaetigungFormData>(INITIAL_DATA)
   const [isLoading, setIsLoading] = React.useState(false)
 
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'wohnungsgeberbestaetigung',
+    generateTitle: (data) => `Wohnungsgeberbestätigung - ${data.meldepflichtiger?.vorname || ''} ${data.meldepflichtiger?.nachname || ''}`.trim() || 'Wohnungsgeberbestätigung'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setFormData({ ...INITIAL_DATA, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
+
   const updateData = (updates: Partial<WohnungsgeberbestaetigungFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleSubmit = () => {
+    handleSave(formData)
   }
 
   const handleGeneratePDF = async () => {
@@ -319,8 +344,15 @@ export default function WohnungsgeberbestaetigungPage() {
             <Button variant="outline" asChild>
               <Link to="/">Abbrechen</Link>
             </Button>
-            <Button onClick={handleGeneratePDF} disabled={isLoading}>
-              {isLoading ? 'Wird erstellt...' : 'PDF erstellen'}
+            {documentId && (
+              <Button variant="outline" onClick={handleGeneratePDF} disabled={isLoading}>
+                <FileDown className="h-4 w-4 mr-2" />
+                PDF erstellen
+              </Button>
+            )}
+            <Button onClick={handleSubmit} disabled={isLoading}>
+              <Save className="h-4 w-4 mr-2" />
+              Speichern
             </Button>
           </div>
         </div>

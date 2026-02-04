@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, FileText, Calendar, User, Home, AlertCircle, Download } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, FileText, Calendar, User, Home, AlertCircle, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -14,6 +14,9 @@ import { AddressField, type AddressData } from '@/components/fields/AddressField
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { calculateKuendigungsfrist } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { addMonths, endOfMonth, differenceInYears, format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { generateKuendigungPDF, type KuendigungData } from '@/lib/pdf/kuendigung-pdf'
@@ -43,6 +46,9 @@ const EMPTY_SIGNATURE: SignatureData = {
 
 export default function KuendigungFormularPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const [isLoading, setIsLoading] = React.useState(false)
 
   // Formular-State
   const [kuendigender, setKuendigender] = React.useState<'mieter' | 'vermieter'>('mieter')
@@ -59,6 +65,48 @@ export default function KuendigungFormularPage() {
   const [kuendigungsgrund, setKuendigungsgrund] = React.useState<string>('')
 
   const [unterschrift, setUnterschrift] = React.useState<SignatureData>(EMPTY_SIGNATURE)
+
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'kuendigung',
+    generateTitle: (data) => `Kündigung - ${data.absender?.vorname || ''} ${data.absender?.nachname || ''}`.trim() || 'Kündigung'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        const data = doc.data
+        if (data.kuendigender) setKuendigender(data.kuendigender)
+        if (data.kuendigungsart) setKuendigungsart(data.kuendigungsart)
+        if (data.absender) setAbsender({ ...EMPTY_PERSON, ...data.absender })
+        if (data.absenderAdresse) setAbsenderAdresse({ ...EMPTY_ADDRESS, ...data.absenderAdresse })
+        if (data.empfaenger) setEmpfaenger({ ...EMPTY_PERSON, ...data.empfaenger })
+        if (data.empfaengerAdresse) setEmpfaengerAdresse({ ...EMPTY_ADDRESS, ...data.empfaengerAdresse })
+        if (data.mietobjektAdresse) setMietobjektAdresse({ ...EMPTY_ADDRESS, ...data.mietobjektAdresse })
+        if (data.mietbeginn) setMietbeginn(data.mietbeginn)
+        if (data.kuendigungsgrund) setKuendigungsgrund(data.kuendigungsgrund)
+        if (data.unterschrift) setUnterschrift({ ...EMPTY_SIGNATURE, ...data.unterschrift })
+      }
+    }
+  }, [searchParams, user])
+
+  const handleSubmit = () => {
+    const formData = {
+      kuendigender,
+      kuendigungsart,
+      absender,
+      absenderAdresse,
+      empfaenger,
+      empfaengerAdresse,
+      mietobjektAdresse,
+      mietbeginn,
+      kuendigungsgrund,
+      unterschrift,
+    }
+    handleSave(formData)
+  }
 
   // Berechnungen
   const berechneWohndauer = () => {
@@ -87,6 +135,7 @@ export default function KuendigungFormularPage() {
 
   // PDF generieren
   const handleGeneratePDF = async () => {
+    setIsLoading(true)
     try {
       const kuendigungData: KuendigungData = {
         kuendigender,
@@ -146,6 +195,8 @@ export default function KuendigungFormularPage() {
         description: "Die PDF-Erstellung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
         variant: "destructive"
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -423,10 +474,16 @@ export default function KuendigungFormularPage() {
             {/* Aktionen */}
             <Card>
               <CardContent className="pt-6 space-y-3">
-                <Button className="w-full" onClick={handleGeneratePDF}>
-                  <Download className="h-4 w-4 mr-2" />
-                  PDF herunterladen
+                <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Speichern
                 </Button>
+                {documentId && (
+                  <Button variant="outline" className="w-full" onClick={handleGeneratePDF} disabled={isLoading}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    PDF erstellen
+                  </Button>
+                )}
                 <p className="text-xs text-muted-foreground text-center">
                   Senden Sie die Kündigung per Einschreiben mit Rückschein
                 </p>

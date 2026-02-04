@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Key, Info, Download, AlertTriangle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, Key, Info, AlertTriangle, Save, FileDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -16,6 +16,9 @@ import { CurrencyField } from '@/components/fields/CurrencyField'
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { generateUntermietvertragPDF } from '@/lib/pdf/untermietvertrag-pdf'
 
@@ -180,8 +183,30 @@ const initialData: UntermietvertragData = {
 
 export default function UntermietvertragPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [currentStep, setCurrentStep] = useState(1)
   const [data, setData] = useState<UntermietvertragData>(initialData)
+
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'untermietvertrag',
+    generateTitle: (formData) => `Untermietvertrag - ${formData.untermieterName || ''}`.trim() || 'Untermietvertrag'
+  })
+
+  // Load existing document if editing
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setData({ ...initialData, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
+
+  const handleSubmit = () => {
+    handleSave(data)
+  }
 
   const updateData = (updates: Partial<UntermietvertragData>) => {
     setData(prev => {
@@ -1300,9 +1325,15 @@ Mit freundlichen Grüßen
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Zurück
                 </Button>
-                <Button size="lg" onClick={generatePDF} className="bg-purple-600 hover:bg-purple-700">
-                  <Download className="h-4 w-4 mr-2" />
-                  PDF herunterladen
+                {documentId && (
+                  <Button variant="outline" size="lg" onClick={generatePDF} className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                    <FileDown className="h-4 w-4 mr-2" />
+                    PDF erstellen
+                  </Button>
+                )}
+                <Button size="lg" onClick={handleSubmit} className="bg-purple-600 hover:bg-purple-700">
+                  <Save className="h-4 w-4 mr-2" />
+                  Speichern
                 </Button>
               </div>
             </div>

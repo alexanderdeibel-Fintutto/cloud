@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, User, Briefcase, Euro, Home, Shield, FileText, AlertCircle } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, User, Briefcase, Euro, Home, Shield, AlertCircle, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,6 +19,9 @@ import { PersonField, type PersonData } from '@/components/fields/PersonField'
 import { AddressField, type AddressData } from '@/components/fields/AddressField'
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { useToast } from '@/hooks/use-toast'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 import { formatCurrency } from '@/lib/utils'
 import { generateSelbstauskunftPDF } from '@/lib/pdf/selbstauskunft-pdf'
 
@@ -147,16 +150,40 @@ const INITIAL_DATA: SelbstauskunftData = {
 
 export default function Selbstauskunft() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [data, setData] = React.useState<SelbstauskunftData>(INITIAL_DATA)
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'selbstauskunft',
+    generateTitle: (formData) => `Selbstauskunft - ${formData.person?.vorname || ''} ${formData.person?.nachname || ''}`.trim() || 'Selbstauskunft'
+  })
+
+  // Load existing document if editing
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setData({ ...INITIAL_DATA, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
 
   const updateData = (updates: Partial<SelbstauskunftData>) => {
     setData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleSubmit = () => {
+    handleSave(data)
   }
 
   // Gesamteinkommen berechnen
   const gesamtEinkommen = (data.nettoeinkommenMonatlich || 0) + (data.weitereEinkuenfte || 0)
 
   const handleGeneratePDF = async () => {
+    setIsLoading(true)
     try {
       await generateSelbstauskunftPDF({
         person: data.person,
@@ -200,6 +227,8 @@ export default function Selbstauskunft() {
         description: 'PDF konnte nicht erstellt werden.',
         variant: 'destructive'
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -692,12 +721,18 @@ export default function Selbstauskunft() {
 
           {/* Aktionen */}
           <div className="flex gap-4">
-            <Button variant="outline" className="flex-1">
-              Entwurf speichern
+            <Button variant="outline" asChild>
+              <Link to="/">Abbrechen</Link>
             </Button>
-            <Button className="flex-1" onClick={handleGeneratePDF}>
-              <FileText className="h-4 w-4 mr-2" />
-              PDF erstellen
+            {documentId && (
+              <Button variant="outline" onClick={handleGeneratePDF} disabled={isLoading}>
+                <FileDown className="h-4 w-4 mr-2" />
+                PDF erstellen
+              </Button>
+            )}
+            <Button onClick={handleSubmit} disabled={isLoading}>
+              <Save className="h-4 w-4 mr-2" />
+              Speichern
             </Button>
           </div>
         </div>

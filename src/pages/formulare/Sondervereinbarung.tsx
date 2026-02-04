@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, FileText } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, FileText, Save, FileDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,6 +12,9 @@ import { AddressField, type AddressData } from '@/components/fields/AddressField
 import { SignatureField, type SignatureData } from '@/components/fields/SignatureField'
 import { useToast } from '@/hooks/use-toast'
 import { generateSondervereinbarungPDF } from '@/lib/pdf/sondervereinbarung-pdf'
+import { useDocumentSave } from '@/hooks/useDocumentSave'
+import { getDocument } from '@/services/documentStorage'
+import { useAuth } from '@/contexts/AuthContext'
 
 const EMPTY_PERSON: PersonData = { anrede: '', titel: '', vorname: '', nachname: '', telefon: '', email: '' }
 const EMPTY_ADDRESS: AddressData = { strasse: '', hausnummer: '', plz: '', ort: '', land: 'Deutschland' }
@@ -55,18 +58,39 @@ const INITIAL_DATA: FormData = {
 
 export default function SondervereinbarungPage() {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [formData, setFormData] = React.useState<FormData>(INITIAL_DATA)
   const [isLoading, setIsLoading] = React.useState(false)
 
+  const { handleSave, documentId } = useDocumentSave({
+    type: 'sondervereinbarung',
+    generateTitle: (data) => `Sondervereinbarung - ${data.betreff || 'Ohne Betreff'}`
+  })
+
+  React.useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && user) {
+      const doc = getDocument(id, user.id)
+      if (doc?.data) {
+        setFormData({ ...INITIAL_DATA, ...doc.data })
+      }
+    }
+  }, [searchParams, user])
+
   const updateData = (updates: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleSubmit = () => {
+    handleSave(formData)
   }
 
   const handleGeneratePDF = async () => {
     setIsLoading(true)
     try {
       await generateSondervereinbarungPDF(formData)
-      toast({ title: 'PDF erstellt', description: 'Die Sondervereinbarung wurde als PDF gespeichert.' })
+      toast({ title: 'PDF erstellt', description: 'Die Sondervereinbarung wurde als PDF heruntergeladen.' })
     } catch (error) {
       toast({ title: 'Fehler', description: 'PDF konnte nicht erstellt werden.', variant: 'destructive' })
     } finally {
@@ -268,8 +292,15 @@ export default function SondervereinbarungPage() {
             <Button variant="outline" asChild>
               <Link to="/">Abbrechen</Link>
             </Button>
-            <Button onClick={handleGeneratePDF} disabled={isLoading}>
-              {isLoading ? 'Wird erstellt...' : 'PDF erstellen'}
+            {documentId && (
+              <Button variant="outline" onClick={handleGeneratePDF} disabled={isLoading}>
+                <FileDown className="h-4 w-4 mr-2" />
+                PDF erstellen
+              </Button>
+            )}
+            <Button onClick={handleSubmit} disabled={isLoading}>
+              <Save className="h-4 w-4 mr-2" />
+              Speichern
             </Button>
           </div>
         </div>
