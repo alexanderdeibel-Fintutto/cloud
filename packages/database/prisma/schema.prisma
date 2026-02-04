@@ -1,0 +1,1324 @@
+// Fintutto Finanzbuchhaltung - Datenbankschema
+// Vollständige Buchhaltung für Kapital- und Personengesellschaften
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTIFIZIERUNG & BENUTZER
+// ============================================
+
+model User {
+  id                  String              @id @default(cuid())
+  email               String              @unique
+  passwordHash        String?
+  firstName           String?
+  lastName            String?
+  phone               String?
+  avatar              String?
+  emailVerified       DateTime?
+  twoFactorEnabled    Boolean             @default(false)
+  twoFactorSecret     String?
+  role                UserRole            @default(USER)
+  status              UserStatus          @default(ACTIVE)
+  lastLoginAt         DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Beziehungen
+  organizations       OrganizationMember[]
+  sessions            Session[]
+  auditLogs           AuditLog[]
+  notifications       Notification[]
+  apiKeys             ApiKey[]
+  uploads             Upload[]
+  bookingCreated      Booking[]           @relation("BookingCreatedBy")
+  invoicesCreated     Invoice[]           @relation("InvoiceCreatedBy")
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  keyHash     String    @unique
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  permissions String[]
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("api_keys")
+}
+
+// ============================================
+// ORGANISATIONEN & MANDANTEN
+// ============================================
+
+model Organization {
+  id                    String                @id @default(cuid())
+  name                  String
+  slug                  String                @unique
+  legalForm             LegalForm
+  taxId                 String?               // Steuernummer
+  vatId                 String?               // USt-IdNr.
+  tradeRegisterNumber   String?               // Handelsregister-Nr.
+  tradeRegisterCourt    String?               // Registergericht
+  foundedAt             DateTime?
+  fiscalYearStart       Int                   @default(1) // Monat (1-12)
+
+  // Adresse
+  street                String?
+  streetNumber          String?
+  postalCode            String?
+  city                  String?
+  country               String                @default("DE")
+
+  // Kontakt
+  email                 String?
+  phone                 String?
+  website               String?
+
+  // Bankverbindungen
+  bankAccounts          BankAccount[]
+
+  // Buchhaltungseinstellungen
+  chartOfAccounts       ChartOfAccountsType   @default(SKR03)
+  defaultCurrency       String                @default("EUR")
+  vatPeriod             VatPeriod             @default(MONTHLY)
+  smallBusiness         Boolean               @default(false) // Kleinunternehmerregelung
+
+  // Logo & Branding
+  logo                  String?
+  primaryColor          String?
+
+  // Status
+  status                OrganizationStatus    @default(ACTIVE)
+  onboardingCompleted   Boolean               @default(false)
+
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  // Beziehungen
+  members               OrganizationMember[]
+  accounts              Account[]
+  contacts              Contact[]
+  invoices              Invoice[]
+  receipts              Receipt[]
+  bookings              Booking[]
+  costCenters           CostCenter[]
+  fiscalYears           FiscalYear[]
+  taxSettings           TaxSetting[]
+  emailInboxes          EmailInbox[]
+  documentTemplates     DocumentTemplate[]
+  reports               Report[]
+  exports               Export[]
+  auditLogs             AuditLog[]
+  subscriptions         Subscription[]
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id              String              @id @default(cuid())
+  organizationId  String
+  userId          String
+  role            OrganizationRole    @default(MEMBER)
+  permissions     String[]
+  invitedAt       DateTime            @default(now())
+  joinedAt        DateTime?
+  status          MemberStatus        @default(PENDING)
+
+  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
+}
+
+// ============================================
+// KONTENRAHMEN & KONTEN
+// ============================================
+
+model Account {
+  id                String          @id @default(cuid())
+  organizationId    String
+  accountNumber     String          // z.B. "1200" für Bank
+  name              String
+  description       String?
+  type              AccountType
+  category          AccountCategory
+  parentId          String?
+
+  // Steuerkonfiguration
+  taxRate           Decimal?        @db.Decimal(5, 2)
+  taxType           TaxType?
+
+  // Automatisierung
+  autoBooking       Boolean         @default(false)
+  defaultCostCenter String?
+
+  // Status
+  isSystem          Boolean         @default(false)
+  isActive          Boolean         @default(true)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent            Account?        @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children          Account[]       @relation("AccountHierarchy")
+
+  debitBookings     BookingLine[]   @relation("DebitAccount")
+  creditBookings    BookingLine[]   @relation("CreditAccount")
+  bankAccount       BankAccount?
+
+  @@unique([organizationId, accountNumber])
+  @@index([organizationId])
+  @@map("accounts")
+}
+
+model BankAccount {
+  id              String        @id @default(cuid())
+  organizationId  String
+  accountId       String        @unique  // Verknüpftes Buchhaltungskonto
+  name            String
+  iban            String
+  bic             String?
+  bankName        String?
+
+  // HBCI/FinTS Anbindung
+  fintsEnabled    Boolean       @default(false)
+  fintsUrl        String?
+  fintsBlz        String?
+  fintsUser       String?
+  fintsPin        String?       // Verschlüsselt
+
+  // Synchronisation
+  lastSyncAt      DateTime?
+  syncStatus      SyncStatus    @default(NEVER_SYNCED)
+
+  isDefault       Boolean       @default(false)
+  isActive        Boolean       @default(true)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  account         Account       @relation(fields: [accountId], references: [id])
+  transactions    BankTransaction[]
+
+  @@index([organizationId])
+  @@map("bank_accounts")
+}
+
+model BankTransaction {
+  id              String              @id @default(cuid())
+  bankAccountId   String
+  externalId      String?             // ID von der Bank
+
+  date            DateTime
+  valueDate       DateTime?
+  amount          Decimal             @db.Decimal(15, 2)
+  currency        String              @default("EUR")
+
+  counterpartyName    String?
+  counterpartyIban    String?
+
+  reference       String?             // Verwendungszweck
+  type            String?             // Überweisungsart
+
+  // Zuordnung
+  bookingId       String?
+  receiptId       String?
+  contactId       String?
+
+  // KI-Analyse
+  aiCategory      String?
+  aiConfidence    Decimal?            @db.Decimal(3, 2)
+  aiSuggestions   Json?
+
+  status          TransactionStatus   @default(UNPROCESSED)
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  bankAccount     BankAccount         @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  booking         Booking?            @relation(fields: [bookingId], references: [id])
+  receipt         Receipt?            @relation(fields: [receiptId], references: [id])
+  contact         Contact?            @relation(fields: [contactId], references: [id])
+
+  @@unique([bankAccountId, externalId])
+  @@index([bankAccountId])
+  @@index([date])
+  @@map("bank_transactions")
+}
+
+// ============================================
+// KONTAKTE (KUNDEN & LIEFERANTEN)
+// ============================================
+
+model Contact {
+  id                String          @id @default(cuid())
+  organizationId    String
+  type              ContactType
+
+  // Firmen-/Personendaten
+  companyName       String?
+  salutation        String?
+  firstName         String?
+  lastName          String?
+
+  // Steuerdaten
+  taxId             String?
+  vatId             String?
+
+  // Adresse
+  street            String?
+  streetNumber      String?
+  postalCode        String?
+  city              String?
+  country           String          @default("DE")
+
+  // Kontakt
+  email             String?
+  phone             String?
+  mobile            String?
+  fax               String?
+  website           String?
+
+  // Bankverbindung
+  iban              String?
+  bic               String?
+  bankName          String?
+
+  // Zahlungsbedingungen
+  paymentTermDays   Int             @default(14)
+  discountPercent   Decimal?        @db.Decimal(5, 2)
+  discountDays      Int?
+  creditLimit       Decimal?        @db.Decimal(15, 2)
+
+  // Buchhaltung
+  customerNumber    String?
+  supplierNumber    String?
+  debtorAccount     String?         // Debitorenkonto
+  creditorAccount   String?         // Kreditorenkonto
+
+  notes             String?
+  tags              String[]
+
+  isActive          Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoices          Invoice[]
+  receipts          Receipt[]
+  bookings          Booking[]
+  transactions      BankTransaction[]
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("contacts")
+}
+
+// ============================================
+// BELEGE & DOKUMENTE
+// ============================================
+
+model Receipt {
+  id                String          @id @default(cuid())
+  organizationId    String
+  contactId         String?
+
+  // Belegdaten
+  receiptNumber     String?
+  receiptDate       DateTime
+  dueDate           DateTime?
+
+  // Beträge
+  netAmount         Decimal         @db.Decimal(15, 2)
+  taxAmount         Decimal         @db.Decimal(15, 2)
+  grossAmount       Decimal         @db.Decimal(15, 2)
+  currency          String          @default("EUR")
+
+  // Kategorisierung
+  type              ReceiptType
+  category          String?
+  costCenterId      String?
+
+  // Original-Dokument
+  originalFileName  String?
+  originalFileUrl   String?
+  thumbnailUrl      String?
+
+  // KI-Erkennung
+  aiExtractedData   Json?
+  aiConfidence      Decimal?        @db.Decimal(3, 2)
+  aiProcessedAt     DateTime?
+
+  // Buchungszuordnung
+  bookingId         String?
+
+  // Status
+  status            ReceiptStatus   @default(PENDING)
+  verifiedAt        DateTime?
+  verifiedBy        String?
+
+  notes             String?
+  tags              String[]
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contact           Contact?        @relation(fields: [contactId], references: [id])
+  costCenter        CostCenter?     @relation(fields: [costCenterId], references: [id])
+  booking           Booking?        @relation(fields: [bookingId], references: [id])
+  transactions      BankTransaction[]
+  uploads           Upload[]
+  lineItems         ReceiptLineItem[]
+
+  @@index([organizationId])
+  @@index([receiptDate])
+  @@map("receipts")
+}
+
+model ReceiptLineItem {
+  id            String      @id @default(cuid())
+  receiptId     String
+
+  description   String
+  quantity      Decimal     @db.Decimal(10, 4)
+  unit          String?
+  unitPrice     Decimal     @db.Decimal(15, 4)
+  netAmount     Decimal     @db.Decimal(15, 2)
+  taxRate       Decimal     @db.Decimal(5, 2)
+  taxAmount     Decimal     @db.Decimal(15, 2)
+  grossAmount   Decimal     @db.Decimal(15, 2)
+
+  accountNumber String?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  receipt       Receipt     @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@map("receipt_line_items")
+}
+
+// ============================================
+// RECHNUNGEN (AUSGANGSRECHNUNGEN)
+// ============================================
+
+model Invoice {
+  id                  String            @id @default(cuid())
+  organizationId      String
+  contactId           String
+  createdById         String
+
+  // Rechnungsdaten
+  invoiceNumber       String
+  invoiceDate         DateTime
+  dueDate             DateTime
+  deliveryDate        DateTime?
+
+  // Beträge
+  netAmount           Decimal           @db.Decimal(15, 2)
+  taxAmount           Decimal           @db.Decimal(15, 2)
+  grossAmount         Decimal           @db.Decimal(15, 2)
+  paidAmount          Decimal           @db.Decimal(15, 2) @default(0)
+  currency            String            @default("EUR")
+
+  // Zahlungsbedingungen
+  paymentTermDays     Int               @default(14)
+  discountPercent     Decimal?          @db.Decimal(5, 2)
+  discountDays        Int?
+
+  // Rechnungstyp
+  type                InvoiceType       @default(INVOICE)
+  relatedInvoiceId    String?           // Bei Gutschriften: Original-Rechnung
+
+  // Texte
+  headerText          String?
+  footerText          String?
+  internalNotes       String?
+
+  // Dokument
+  pdfUrl              String?
+  templateId          String?
+
+  // Versand
+  sentAt              DateTime?
+  sentMethod          String?           // EMAIL, MAIL, PORTAL
+  sentTo              String?
+
+  // Buchungszuordnung
+  bookingId           String?
+
+  // Status
+  status              InvoiceStatus     @default(DRAFT)
+
+  // Mahnwesen
+  reminderLevel       Int               @default(0)
+  lastReminderAt      DateTime?
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  organization        Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contact             Contact           @relation(fields: [contactId], references: [id])
+  createdBy           User              @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  relatedInvoice      Invoice?          @relation("InvoiceRelation", fields: [relatedInvoiceId], references: [id])
+  relatedInvoices     Invoice[]         @relation("InvoiceRelation")
+  booking             Booking?          @relation(fields: [bookingId], references: [id])
+  template            DocumentTemplate? @relation(fields: [templateId], references: [id])
+  lineItems           InvoiceLineItem[]
+  payments            Payment[]
+
+  @@unique([organizationId, invoiceNumber])
+  @@index([organizationId])
+  @@index([contactId])
+  @@index([invoiceDate])
+  @@map("invoices")
+}
+
+model InvoiceLineItem {
+  id            String      @id @default(cuid())
+  invoiceId     String
+  position      Int
+
+  description   String
+  quantity      Decimal     @db.Decimal(10, 4)
+  unit          String?
+  unitPrice     Decimal     @db.Decimal(15, 4)
+  discount      Decimal?    @db.Decimal(5, 2)
+  netAmount     Decimal     @db.Decimal(15, 2)
+  taxRate       Decimal     @db.Decimal(5, 2)
+  taxAmount     Decimal     @db.Decimal(15, 2)
+  grossAmount   Decimal     @db.Decimal(15, 2)
+
+  accountNumber String?     // Erlöskonto
+  costCenterId  String?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  invoice       Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("invoice_line_items")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  invoiceId     String
+
+  date          DateTime
+  amount        Decimal       @db.Decimal(15, 2)
+  method        PaymentMethod
+  reference     String?
+
+  bookingId     String?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  booking       Booking?      @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+// ============================================
+// BUCHUNGEN
+// ============================================
+
+model Booking {
+  id                String          @id @default(cuid())
+  organizationId    String
+  fiscalYearId      String
+  createdById       String
+  contactId         String?
+
+  // Buchungsdaten
+  bookingNumber     String
+  bookingDate       DateTime
+  documentDate      DateTime?
+
+  description       String
+
+  // Beträge
+  amount            Decimal         @db.Decimal(15, 2)
+  currency          String          @default("EUR")
+
+  // Typ
+  type              BookingType
+
+  // Verknüpfungen
+  receiptId         String?
+
+  // Stornierung
+  isReversal        Boolean         @default(false)
+  reversedBookingId String?
+  reversalReason    String?
+
+  // Status
+  status            BookingStatus   @default(DRAFT)
+  lockedAt          DateTime?
+
+  // KI-Unterstützung
+  aiSuggested       Boolean         @default(false)
+  aiConfidence      Decimal?        @db.Decimal(3, 2)
+
+  notes             String?
+  tags              String[]
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  fiscalYear        FiscalYear      @relation(fields: [fiscalYearId], references: [id])
+  createdBy         User            @relation("BookingCreatedBy", fields: [createdById], references: [id])
+  contact           Contact?        @relation(fields: [contactId], references: [id])
+
+  lines             BookingLine[]
+  transactions      BankTransaction[]
+  receipts          Receipt[]
+  invoices          Invoice[]
+  payments          Payment[]
+
+  @@unique([organizationId, bookingNumber])
+  @@index([organizationId])
+  @@index([bookingDate])
+  @@map("bookings")
+}
+
+model BookingLine {
+  id              String      @id @default(cuid())
+  bookingId       String
+
+  // Soll/Haben
+  debitAccountId  String
+  creditAccountId String
+
+  amount          Decimal     @db.Decimal(15, 2)
+
+  // Steuer
+  taxRate         Decimal?    @db.Decimal(5, 2)
+  taxAmount       Decimal?    @db.Decimal(15, 2)
+
+  // Kostenstelle
+  costCenterId    String?
+
+  description     String?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  booking         Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  debitAccount    Account     @relation("DebitAccount", fields: [debitAccountId], references: [id])
+  creditAccount   Account     @relation("CreditAccount", fields: [creditAccountId], references: [id])
+  costCenter      CostCenter? @relation(fields: [costCenterId], references: [id])
+
+  @@map("booking_lines")
+}
+
+// ============================================
+// KOSTENSTELLEN
+// ============================================
+
+model CostCenter {
+  id              String        @id @default(cuid())
+  organizationId  String
+
+  number          String
+  name            String
+  description     String?
+
+  parentId        String?
+
+  budget          Decimal?      @db.Decimal(15, 2)
+
+  isActive        Boolean       @default(true)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent          CostCenter?   @relation("CostCenterHierarchy", fields: [parentId], references: [id])
+  children        CostCenter[]  @relation("CostCenterHierarchy")
+
+  receipts        Receipt[]
+  bookingLines    BookingLine[]
+
+  @@unique([organizationId, number])
+  @@map("cost_centers")
+}
+
+// ============================================
+// GESCHÄFTSJAHRE
+// ============================================
+
+model FiscalYear {
+  id              String              @id @default(cuid())
+  organizationId  String
+
+  year            Int
+  startDate       DateTime
+  endDate         DateTime
+
+  status          FiscalYearStatus    @default(OPEN)
+  closedAt        DateTime?
+  closedBy        String?
+
+  openingBalance  Json?               // Eröffnungsbilanz
+  closingBalance  Json?               // Schlussbilanz
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bookings        Booking[]
+
+  @@unique([organizationId, year])
+  @@map("fiscal_years")
+}
+
+// ============================================
+// STEUEREINSTELLUNGEN
+// ============================================
+
+model TaxSetting {
+  id              String        @id @default(cuid())
+  organizationId  String
+
+  name            String
+  rate            Decimal       @db.Decimal(5, 2)
+  type            TaxType
+
+  // Konten
+  inputTaxAccount String?       // Vorsteuer-Konto
+  outputTaxAccount String?      // USt-Konto
+
+  validFrom       DateTime?
+  validTo         DateTime?
+
+  isDefault       Boolean       @default(false)
+  isActive        Boolean       @default(true)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("tax_settings")
+}
+
+// ============================================
+// EMAIL-INBOX
+// ============================================
+
+model EmailInbox {
+  id              String          @id @default(cuid())
+  organizationId  String
+
+  name            String
+  email           String
+
+  // IMAP-Einstellungen
+  imapHost        String
+  imapPort        Int
+  imapUser        String
+  imapPassword    String          // Verschlüsselt
+  imapSsl         Boolean         @default(true)
+
+  // Verarbeitung
+  processIncoming Boolean         @default(true)
+  autoCategories  String[]
+
+  lastSyncAt      DateTime?
+  syncStatus      SyncStatus      @default(NEVER_SYNCED)
+
+  isActive        Boolean         @default(true)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  emails          EmailMessage[]
+
+  @@map("email_inboxes")
+}
+
+model EmailMessage {
+  id              String            @id @default(cuid())
+  inboxId         String
+
+  messageId       String
+  from            String
+  to              String[]
+  cc              String[]
+  subject         String?
+  body            String?
+  htmlBody        String?
+
+  receivedAt      DateTime
+
+  // Anhänge
+  hasAttachments  Boolean           @default(false)
+
+  // Verarbeitung
+  status          EmailStatus       @default(UNPROCESSED)
+  processedAt     DateTime?
+
+  // Verknüpfungen
+  receiptIds      String[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  inbox           EmailInbox        @relation(fields: [inboxId], references: [id], onDelete: Cascade)
+  attachments     EmailAttachment[]
+
+  @@unique([inboxId, messageId])
+  @@map("email_messages")
+}
+
+model EmailAttachment {
+  id              String        @id @default(cuid())
+  emailId         String
+
+  filename        String
+  mimeType        String
+  size            Int
+  url             String
+
+  // Verarbeitung
+  isReceipt       Boolean       @default(false)
+  receiptId       String?
+
+  createdAt       DateTime      @default(now())
+
+  email           EmailMessage  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@map("email_attachments")
+}
+
+// ============================================
+// DOKUMENTVORLAGEN
+// ============================================
+
+model DocumentTemplate {
+  id              String          @id @default(cuid())
+  organizationId  String
+
+  name            String
+  type            TemplateType
+
+  // Design
+  content         String          @db.Text
+  styles          Json?
+
+  // Einstellungen
+  paperSize       String          @default("A4")
+  margins         Json?
+
+  isDefault       Boolean         @default(false)
+  isActive        Boolean         @default(true)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoices        Invoice[]
+
+  @@map("document_templates")
+}
+
+// ============================================
+// UPLOADS & DATEIEN
+// ============================================
+
+model Upload {
+  id              String        @id @default(cuid())
+  userId          String
+
+  filename        String
+  originalName    String
+  mimeType        String
+  size            Int
+  url             String
+  thumbnailUrl    String?
+
+  // Zuordnung
+  receiptId       String?
+
+  // OCR/KI-Verarbeitung
+  ocrText         String?       @db.Text
+  ocrStatus       OcrStatus     @default(PENDING)
+  ocrProcessedAt  DateTime?
+
+  createdAt       DateTime      @default(now())
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  receipt         Receipt?      @relation(fields: [receiptId], references: [id])
+
+  @@map("uploads")
+}
+
+// ============================================
+// BERICHTE & EXPORTE
+// ============================================
+
+model Report {
+  id              String        @id @default(cuid())
+  organizationId  String
+
+  name            String
+  type            ReportType
+
+  // Zeitraum
+  periodStart     DateTime
+  periodEnd       DateTime
+
+  // Daten
+  data            Json
+
+  // Generierung
+  generatedAt     DateTime      @default(now())
+  pdfUrl          String?
+
+  createdAt       DateTime      @default(now())
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+model Export {
+  id              String        @id @default(cuid())
+  organizationId  String
+
+  type            ExportType
+  format          ExportFormat
+
+  // Zeitraum
+  periodStart     DateTime
+  periodEnd       DateTime
+
+  // Datei
+  filename        String
+  url             String?
+
+  status          ExportStatus  @default(PENDING)
+  processedAt     DateTime?
+  errorMessage    String?
+
+  createdAt       DateTime      @default(now())
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("exports")
+}
+
+// ============================================
+// AUDIT-LOG
+// ============================================
+
+model AuditLog {
+  id              String        @id @default(cuid())
+  organizationId  String?
+  userId          String?
+
+  action          String
+  entityType      String
+  entityId        String?
+
+  oldData         Json?
+  newData         Json?
+
+  ipAddress       String?
+  userAgent       String?
+
+  createdAt       DateTime      @default(now())
+
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user            User?         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// BENACHRICHTIGUNGEN
+// ============================================
+
+model Notification {
+  id          String              @id @default(cuid())
+  userId      String
+
+  type        NotificationType
+  title       String
+  message     String
+
+  data        Json?
+
+  readAt      DateTime?
+
+  createdAt   DateTime            @default(now())
+
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+// ============================================
+// ABONNEMENTS
+// ============================================
+
+model Subscription {
+  id              String              @id @default(cuid())
+  organizationId  String
+
+  plan            SubscriptionPlan
+  status          SubscriptionStatus  @default(TRIAL)
+
+  currentPeriodStart  DateTime
+  currentPeriodEnd    DateTime
+
+  // Stripe
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+
+  cancelAtPeriodEnd   Boolean         @default(false)
+  canceledAt          DateTime?
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LegalForm {
+  // Personengesellschaften
+  EINZELUNTERNEHMEN
+  GBR           // Gesellschaft bürgerlichen Rechts
+  OHG           // Offene Handelsgesellschaft
+  KG            // Kommanditgesellschaft
+  PARTG         // Partnerschaftsgesellschaft
+  PARTG_MBB     // PartG mbB
+
+  // Kapitalgesellschaften
+  GMBH          // Gesellschaft mit beschränkter Haftung
+  UG            // Unternehmergesellschaft (haftungsbeschränkt)
+  AG            // Aktiengesellschaft
+  KGAA          // Kommanditgesellschaft auf Aktien
+  SE            // Societas Europaea
+
+  // Mischformen
+  GMBH_CO_KG    // GmbH & Co. KG
+  UG_CO_KG      // UG & Co. KG
+  AG_CO_KG      // AG & Co. KG
+
+  // Sonstige
+  VEREIN
+  STIFTUNG
+  GENOSSENSCHAFT
+  FREIBERUFLER
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  ACCOUNTANT
+  MEMBER
+  VIEWER
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+  DEACTIVATED
+}
+
+enum ChartOfAccountsType {
+  SKR03
+  SKR04
+  SKR49
+  CUSTOM
+}
+
+enum VatPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum AccountType {
+  ASSET           // Aktiva
+  LIABILITY       // Passiva
+  EQUITY          // Eigenkapital
+  REVENUE         // Erträge
+  EXPENSE         // Aufwendungen
+}
+
+enum AccountCategory {
+  // Aktiva
+  FIXED_ASSETS          // Anlagevermögen
+  CURRENT_ASSETS        // Umlaufvermögen
+  BANK                  // Bank/Kasse
+  RECEIVABLES           // Forderungen
+  INVENTORY             // Vorräte
+  PREPAID               // Rechnungsabgrenzung
+
+  // Passiva
+  EQUITY_CAPITAL        // Eigenkapital
+  PROVISIONS            // Rückstellungen
+  LIABILITIES           // Verbindlichkeiten
+  PAYABLES              // Verbindlichkeiten aLuL
+  DEFERRED              // Rechnungsabgrenzung
+
+  // Erfolgskonten
+  SALES                 // Umsatzerlöse
+  OTHER_INCOME          // Sonstige Erträge
+  MATERIAL_COSTS        // Materialaufwand
+  PERSONNEL_COSTS       // Personalaufwand
+  DEPRECIATION          // Abschreibungen
+  OTHER_EXPENSES        // Sonstige Aufwendungen
+  INTEREST              // Zinsen
+  TAXES                 // Steuern
+}
+
+enum TaxType {
+  VAT_19              // Umsatzsteuer 19%
+  VAT_7               // Umsatzsteuer 7%
+  VAT_0               // Steuerfrei
+  INPUT_TAX_19        // Vorsteuer 19%
+  INPUT_TAX_7         // Vorsteuer 7%
+  REVERSE_CHARGE      // Reverse Charge
+  INTRA_COMMUNITY     // Innergemeinschaftlich
+}
+
+enum SyncStatus {
+  NEVER_SYNCED
+  SYNCING
+  SUCCESS
+  ERROR
+}
+
+enum TransactionStatus {
+  UNPROCESSED
+  MATCHED
+  BOOKED
+  IGNORED
+}
+
+enum ContactType {
+  CUSTOMER
+  SUPPLIER
+  BOTH
+  OTHER
+}
+
+enum ReceiptType {
+  INCOMING_INVOICE    // Eingangsrechnung
+  EXPENSE             // Ausgabe/Beleg
+  CREDIT_NOTE         // Gutschrift erhalten
+  TRAVEL_EXPENSE      // Reisekosten
+  OTHER
+}
+
+enum ReceiptStatus {
+  PENDING             // Neu/Unbearbeitet
+  PROCESSING          // In Verarbeitung
+  RECOGNIZED          // KI erkannt
+  VERIFIED            // Geprüft
+  BOOKED              // Gebucht
+  REJECTED            // Abgelehnt
+}
+
+enum InvoiceType {
+  INVOICE             // Rechnung
+  CREDIT_NOTE         // Gutschrift
+  PROFORMA            // Proforma
+  REMINDER            // Mahnung
+  CANCELLATION        // Storno
+}
+
+enum InvoiceStatus {
+  DRAFT               // Entwurf
+  SENT                // Versendet
+  VIEWED              // Angesehen
+  PARTIAL_PAID        // Teilbezahlt
+  PAID                // Bezahlt
+  OVERDUE             // Überfällig
+  CANCELLED           // Storniert
+  CREDITED            // Gutgeschrieben
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  CREDIT_CARD
+  DIRECT_DEBIT
+  PAYPAL
+  OTHER
+}
+
+enum BookingType {
+  STANDARD            // Standard-Buchung
+  OPENING             // Eröffnungsbuchung
+  CLOSING             // Abschlussbuchung
+  AUTOMATIC           // Automatische Buchung
+  REVERSAL            // Stornobuchung
+  ADJUSTMENT          // Korrekturbuchung
+}
+
+enum BookingStatus {
+  DRAFT
+  POSTED
+  LOCKED
+  REVERSED
+}
+
+enum FiscalYearStatus {
+  OPEN
+  PRELIMINARY_CLOSED  // Vorläufig abgeschlossen
+  CLOSED
+}
+
+enum EmailStatus {
+  UNPROCESSED
+  PROCESSING
+  PROCESSED
+  IGNORED
+  ERROR
+}
+
+enum TemplateType {
+  INVOICE
+  CREDIT_NOTE
+  REMINDER
+  OFFER
+  ORDER_CONFIRMATION
+  DELIVERY_NOTE
+}
+
+enum OcrStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReportType {
+  BWA                 // Betriebswirtschaftliche Auswertung
+  BALANCE_SHEET       // Bilanz
+  INCOME_STATEMENT    // GuV
+  VAT_REPORT          // Umsatzsteuer-Voranmeldung
+  ACCOUNT_STATEMENT   // Kontoauszug
+  OPEN_ITEMS          // Offene Posten
+  JOURNAL             // Journal
+  COST_CENTER_REPORT  // Kostenstellenauswertung
+}
+
+enum ExportType {
+  DATEV               // DATEV-Export
+  ELSTER              // ELSTER (Steuererklärung)
+  GDPdU               // GDPdU (Betriebsprüfung)
+  CSV                 // CSV-Export
+  PDF                 // PDF-Export
+}
+
+enum ExportFormat {
+  DATEV_ASCII
+  DATEV_XML
+  ELSTER_XML
+  CSV
+  XLSX
+  PDF
+}
+
+enum ExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  REMINDER
+  INVOICE_OVERDUE
+  RECEIPT_PROCESSED
+  EXPORT_READY
+  SYNC_ERROR
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}

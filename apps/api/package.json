@@ -1,0 +1,41 @@
+{
+  "name": "@fintutto/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format cjs,esm",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist node_modules .turbo"
+  },
+  "dependencies": {
+    "@fintutto/database": "workspace:*",
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@aws-sdk/client-s3": "^3.490.0",
+    "@aws-sdk/s3-request-presigner": "^3.490.0",
+    "bcryptjs": "^2.4.3",
+    "date-fns": "^3.3.1",
+    "hono": "^4.0.0",
+    "imap": "^0.8.19",
+    "jose": "^5.2.0",
+    "mailparser": "^3.6.6",
+    "nanoid": "^5.0.4",
+    "nodemailer": "^6.9.8",
+    "pdf-lib": "^1.17.1",
+    "sharp": "^0.33.2",
+    "tesseract.js": "^5.0.4",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/imap": "^0.8.40",
+    "@types/mailparser": "^3.4.4",
+    "@types/nodemailer": "^6.4.14",
+    "tsup": "^8.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  }
+}
