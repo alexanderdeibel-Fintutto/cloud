@@ -19,6 +19,7 @@ import { PersonField, type PersonData } from '@/components/fields/PersonField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
 import { useToast } from '@/hooks/use-toast'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { generateBetriebskostenPDF, type BetriebskostenPDFData } from '@/lib/pdf/betriebskosten-pdf'
 
 // Betriebskostenarten nach § 2 BetrKV
 const BETRIEBSKOSTENARTEN = [
@@ -129,6 +130,73 @@ export default function BetriebskostenabrechnungPage() {
 
   const updateData = (updates: Partial<BetriebskostenData>) => {
     setData(prev => ({ ...prev, ...updates }))
+  }
+
+  // PDF generieren
+  const handleGeneratePDF = async () => {
+    try {
+      const pdfData: BetriebskostenPDFData = {
+        abrechnungsjahrVon: data.abrechnungsjahrVon,
+        abrechnungsjahrBis: data.abrechnungsjahrBis,
+        vermieter: {
+          anrede: data.vermieter.anrede,
+          titel: data.vermieter.titel,
+          vorname: data.vermieter.vorname,
+          nachname: data.vermieter.nachname,
+        },
+        vermieterAdresse: {
+          strasse: data.vermieterAdresse.strasse,
+          hausnummer: data.vermieterAdresse.hausnummer,
+          plz: data.vermieterAdresse.plz,
+          ort: data.vermieterAdresse.ort,
+        },
+        mieter: {
+          anrede: data.mieter.anrede,
+          titel: data.mieter.titel,
+          vorname: data.mieter.vorname,
+          nachname: data.mieter.nachname,
+        },
+        mieterAdresse: {
+          strasse: data.mieterAdresse.strasse,
+          hausnummer: data.mieterAdresse.hausnummer,
+          plz: data.mieterAdresse.plz,
+          ort: data.mieterAdresse.ort,
+        },
+        objektAdresse: {
+          strasse: data.objektAdresse.strasse,
+          hausnummer: data.objektAdresse.hausnummer,
+          plz: data.objektAdresse.plz,
+          ort: data.objektAdresse.ort,
+        },
+        wohnflaecheMieter: data.wohnflaecheMieter,
+        wohnflaecheGesamt: data.wohnflaecheGesamt,
+        personenMieter: data.personenMieter,
+        personenGesamt: data.personenGesamt,
+        einheitenGesamt: data.einheitenGesamt,
+        positionen: data.positionen.map(p => ({
+          id: p.id,
+          kostenartId: p.kostenartId,
+          gesamtbetrag: p.gesamtbetrag,
+          umlageschluessel: p.umlageschluessel,
+          mieteranteil: p.mieteranteil,
+        })),
+        vorauszahlungenGesamt: data.vorauszahlungenGesamt,
+      }
+
+      await generateBetriebskostenPDF(pdfData)
+
+      toast({
+        title: "PDF erstellt",
+        description: "Die Betriebskostenabrechnung wurde als PDF heruntergeladen.",
+      })
+    } catch (error) {
+      console.error('PDF-Generierung fehlgeschlagen:', error)
+      toast({
+        title: "Fehler",
+        description: "Die PDF-Erstellung ist fehlgeschlagen.",
+        variant: "destructive"
+      })
+    }
   }
 
   // Position hinzufügen
@@ -538,7 +606,7 @@ export default function BetriebskostenabrechnungPage() {
                   </p>
                 </div>
 
-                <Button className="w-full">
+                <Button className="w-full" onClick={handleGeneratePDF}>
                   PDF erstellen
                 </Button>
               </CardContent>

@@ -16,6 +16,7 @@ import { formatDate, calculateKuendigungsfrist } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 import { addMonths, endOfMonth, differenceInYears, format, setDate } from 'date-fns'
 import { de } from 'date-fns/locale'
+import { generateKuendigungPDF, type KuendigungData } from '@/lib/pdf/kuendigung-pdf'
 
 const EMPTY_PERSON: PersonData = {
   anrede: '',
@@ -85,13 +86,67 @@ export default function KuendigungFormularPage() {
   const auszugsdatum = berechneAuszugsdatum()
 
   // PDF generieren
-  const handleGeneratePDF = () => {
-    toast({
-      title: "PDF erstellt",
-      description: "Ihre Kündigung wurde als PDF heruntergeladen.",
-      variant: "success"
-    })
-    // Hier würde die PDF-Generierung kommen
+  const handleGeneratePDF = async () => {
+    try {
+      const kuendigungData: KuendigungData = {
+        kuendigender,
+        kuendigungsart,
+        absender: {
+          anrede: absender.anrede,
+          titel: absender.titel,
+          vorname: absender.vorname,
+          nachname: absender.nachname,
+          telefon: absender.telefon,
+          email: absender.email,
+        },
+        absenderAdresse: {
+          strasse: absenderAdresse.strasse,
+          hausnummer: absenderAdresse.hausnummer,
+          plz: absenderAdresse.plz,
+          ort: absenderAdresse.ort,
+        },
+        empfaenger: {
+          anrede: empfaenger.anrede,
+          titel: empfaenger.titel,
+          vorname: empfaenger.vorname,
+          nachname: empfaenger.nachname,
+        },
+        empfaengerAdresse: {
+          strasse: empfaengerAdresse.strasse,
+          hausnummer: empfaengerAdresse.hausnummer,
+          plz: empfaengerAdresse.plz,
+          ort: empfaengerAdresse.ort,
+        },
+        mietobjektAdresse: {
+          strasse: mietobjektAdresse.strasse,
+          hausnummer: mietobjektAdresse.hausnummer,
+          plz: mietobjektAdresse.plz,
+          ort: mietobjektAdresse.ort,
+        },
+        mietbeginn: mietbeginn || undefined,
+        kuendigungsgrund: kuendigungsgrund || undefined,
+        unterschrift: unterschrift.imageData ? {
+          imageData: unterschrift.imageData,
+          signerName: unterschrift.signerName || `${absender.vorname} ${absender.nachname}`.trim(),
+          signedAt: unterschrift.signedAt,
+          signedLocation: unterschrift.signedLocation,
+        } : undefined,
+      }
+
+      await generateKuendigungPDF(kuendigungData)
+
+      toast({
+        title: "PDF erstellt",
+        description: "Ihre Kündigung wurde als PDF heruntergeladen.",
+      })
+    } catch (error) {
+      console.error('PDF-Generierung fehlgeschlagen:', error)
+      toast({
+        title: "Fehler",
+        description: "Die PDF-Erstellung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      })
+    }
   }
 
   return (

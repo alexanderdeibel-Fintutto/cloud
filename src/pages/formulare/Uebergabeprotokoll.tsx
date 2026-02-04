@@ -18,6 +18,7 @@ import {
   EMPTY_RAUM
 } from '@/types/uebergabeprotokoll'
 import { EMPTY_PERSON, EMPTY_ADDRESS, EMPTY_SIGNATURE } from '@/types/mietvertrag'
+import { generateUebergabeprotokollPDF } from '@/lib/pdf/uebergabeprotokoll-pdf'
 
 // Step Components
 import { Step1Grunddaten } from './steps/uebergabeprotokoll/Step1Grunddaten'
@@ -148,14 +149,14 @@ export default function UebergabeprotokollPage() {
   const handleComplete = async () => {
     setIsLoading(true)
     try {
-      // Hier wuerde PDF-Export kommen
+      await generateUebergabeprotokollPDF(formData)
       localStorage.removeItem('uebergabeprotokoll-draft')
       toast({
         title: "Protokoll erstellt!",
-        description: "Das Uebergabeprotokoll wurde erfolgreich erstellt.",
-        variant: "success"
+        description: "Das Übergabeprotokoll wurde als PDF heruntergeladen.",
       })
     } catch (error) {
+      console.error('PDF-Generierung fehlgeschlagen:', error)
       toast({
         title: "Fehler",
         description: "Das Protokoll konnte nicht erstellt werden.",
