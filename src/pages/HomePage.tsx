@@ -298,7 +298,7 @@ export default function HomePage() {
                 Mietvertrag erstellen
               </Button>
             </Link>
-            <a href="#formulare">
+            <a href="#alle-formulare">
               <Button size="lg" variant="outline">
                 Alle Formulare ansehen
               </Button>
@@ -347,7 +347,7 @@ export default function HomePage() {
       </section>
 
       {/* Alle Formulare nach Kategorie */}
-      <section className="container mx-auto px-4 py-16 bg-muted/30">
+      <section id="alle-formulare" className="container mx-auto px-4 py-16 bg-muted/30">
         <div className="mb-8">
           <h3 className="text-2xl font-bold mb-2">Alle 60 Formulare</h3>
           <p className="text-muted-foreground">
