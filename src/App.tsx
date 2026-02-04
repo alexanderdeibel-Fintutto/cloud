@@ -115,6 +115,19 @@ const Mieterhoehungszustimmung = lazy(() => import('@/pages/formulare/Mieterhoeh
 const Hausmeistervereinbarung = lazy(() => import('@/pages/formulare/Hausmeistervereinbarung'))
 
 // ============================================
+// FORMULARE - Weitere Dokumente (10)
+// ============================================
+const Raeumungsaufforderung = lazy(() => import('@/pages/formulare/Raeumungsaufforderung'))
+const Instandhaltungsvereinbarung = lazy(() => import('@/pages/formulare/Instandhaltungsvereinbarung'))
+const Mietvorvertrag = lazy(() => import('@/pages/formulare/Mietvorvertrag'))
+const Bewerbungsschreiben = lazy(() => import('@/pages/formulare/Bewerbungsschreiben'))
+const Schoenheitsreparaturen = lazy(() => import('@/pages/formulare/Schoenheitsreparaturen'))
+const Verwaltervertrag = lazy(() => import('@/pages/formulare/Verwaltervertrag'))
+const ErinnerungNebenkosten = lazy(() => import('@/pages/formulare/ErinnerungNebenkosten'))
+const BaulicheAenderung = lazy(() => import('@/pages/formulare/BaulicheAenderung'))
+const Sondervereinbarung = lazy(() => import('@/pages/formulare/Sondervereinbarung'))
+
+// ============================================
 // RECHNER
 // ============================================
 const Mietpreisrechner = lazy(() => import('@/pages/rechner/Mietpreisrechner'))
@@ -203,6 +216,17 @@ function App() {
           <Route path="/formulare/besichtigungsprotokoll" element={<Besichtigungsprotokoll />} />
           <Route path="/formulare/mieterhoehungszustimmung" element={<Mieterhoehungszustimmung />} />
           <Route path="/formulare/hausmeistervereinbarung" element={<Hausmeistervereinbarung />} />
+
+          {/* Formulare - Weitere Dokumente */}
+          <Route path="/formulare/raeumungsaufforderung" element={<Raeumungsaufforderung />} />
+          <Route path="/formulare/instandhaltungsvereinbarung" element={<Instandhaltungsvereinbarung />} />
+          <Route path="/formulare/mietvorvertrag" element={<Mietvorvertrag />} />
+          <Route path="/formulare/bewerbungsschreiben" element={<Bewerbungsschreiben />} />
+          <Route path="/formulare/schoenheitsreparaturen" element={<Schoenheitsreparaturen />} />
+          <Route path="/formulare/verwaltervertrag" element={<Verwaltervertrag />} />
+          <Route path="/formulare/erinnerung-nebenkosten" element={<ErinnerungNebenkosten />} />
+          <Route path="/formulare/bauliche-aenderung" element={<BaulicheAenderung />} />
+          <Route path="/formulare/sondervereinbarung" element={<Sondervereinbarung />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
