@@ -11,13 +11,143 @@ import {
   Key,
   Users,
   Building2,
-  Sparkles
+  Sparkles,
+  UserX,
+  Shield,
+  Wrench,
+  CreditCard
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
-const formulare = [
+// Kategorien für die Formulare
+const kategorien = [
+  {
+    id: 'mietvertraege',
+    title: 'Mietverträge',
+    icon: FileSignature,
+    formulare: [
+      { id: 'mietvertrag', title: 'Wohnraum-Mietvertrag', href: '/formulare/mietvertrag', badge: 'Beliebt' },
+      { id: 'untermietvertrag', title: 'Untermietvertrag', href: '/formulare/untermietvertrag' },
+      { id: 'gewerbemietvertrag', title: 'Gewerbemietvertrag', href: '/formulare/gewerbemietvertrag' },
+      { id: 'staffelmietvertrag', title: 'Staffelmietvertrag', href: '/formulare/staffelmietvertrag' },
+      { id: 'indexmietvertrag', title: 'Indexmietvertrag', href: '/formulare/indexmietvertrag' },
+      { id: 'zeitmietvertrag', title: 'Zeitmietvertrag', href: '/formulare/zeitmietvertrag' },
+      { id: 'wg-mietvertrag', title: 'WG-Mietvertrag', href: '/formulare/wg-mietvertrag' },
+      { id: 'garagenmietvertrag', title: 'Garagenmietvertrag', href: '/formulare/garagenmietvertrag' },
+      { id: 'ferienwohnungsmietvertrag', title: 'Ferienwohnungsmietvertrag', href: '/formulare/ferienwohnungsmietvertrag' },
+    ]
+  },
+  {
+    id: 'kuendigungen',
+    title: 'Kündigungen & Beendigung',
+    icon: UserX,
+    formulare: [
+      { id: 'kuendigung', title: 'Ordentliche Kündigung', href: '/formulare/kuendigung', badge: 'Beliebt' },
+      { id: 'ausserordentliche-kuendigung', title: 'Außerordentliche Kündigung', href: '/formulare/ausserordentliche-kuendigung' },
+      { id: 'aufhebungsvertrag', title: 'Mietaufhebungsvertrag', href: '/formulare/aufhebungsvertrag' },
+      { id: 'eigenbedarfskuendigung', title: 'Eigenbedarfskündigung', href: '/formulare/eigenbedarfskuendigung' },
+      { id: 'raeumungsaufforderung', title: 'Räumungsaufforderung', href: '/formulare/raeumungsaufforderung' },
+    ]
+  },
+  {
+    id: 'mieterhoehung',
+    title: 'Mieterhöhung & Anpassung',
+    icon: TrendingUp,
+    formulare: [
+      { id: 'mieterhoehung', title: 'Mieterhöhungsverlangen', href: '/formulare/mieterhoehung' },
+      { id: 'modernisierungsankuendigung', title: 'Modernisierungsankündigung', href: '/formulare/modernisierungsankuendigung' },
+      { id: 'mietanpassung', title: 'Mietanpassung', href: '/formulare/mietanpassung' },
+      { id: 'mieterhoehungszustimmung', title: 'Zustimmung Mieterhöhung', href: '/formulare/mieterhoehungszustimmung' },
+    ]
+  },
+  {
+    id: 'uebergabe',
+    title: 'Übergabe & Protokolle',
+    icon: ClipboardList,
+    formulare: [
+      { id: 'uebergabeprotokoll', title: 'Wohnungsübergabeprotokoll', href: '/formulare/uebergabeprotokoll', badge: 'Beliebt' },
+      { id: 'schluesseluebergabe', title: 'Schlüsselübergabe', href: '/formulare/schluesseluebergabe' },
+      { id: 'einzugsbestaetigung', title: 'Einzugsbestätigung', href: '/formulare/einzugsbestaetigung' },
+      { id: 'auszugsbestaetigung', title: 'Auszugsbestätigung', href: '/formulare/auszugsbestaetigung' },
+      { id: 'besichtigungsprotokoll', title: 'Besichtigungsprotokoll', href: '/formulare/besichtigungsprotokoll' },
+    ]
+  },
+  {
+    id: 'betriebskosten',
+    title: 'Betriebskosten',
+    icon: Euro,
+    formulare: [
+      { id: 'betriebskosten', title: 'Betriebskostenabrechnung', href: '/formulare/betriebskosten' },
+      { id: 'nebenkostenabrechnung', title: 'Nebenkostenabrechnung', href: '/formulare/nebenkostenabrechnung' },
+      { id: 'widerspruch-betriebskosten', title: 'Widerspruch Betriebskosten', href: '/formulare/widerspruch-betriebskosten' },
+      { id: 'betriebskostenvorauszahlung', title: 'Betriebskostenvorauszahlung', href: '/formulare/betriebskostenvorauszahlung' },
+      { id: 'erinnerung-nebenkosten', title: 'Erinnerung Nebenkosten', href: '/formulare/erinnerung-nebenkosten' },
+    ]
+  },
+  {
+    id: 'maengel',
+    title: 'Mängel & Instandhaltung',
+    icon: Wrench,
+    formulare: [
+      { id: 'maengelanzeige', title: 'Mängelanzeige', href: '/formulare/maengelanzeige' },
+      { id: 'mietminderung', title: 'Mietminderung', href: '/formulare/mietminderung' },
+      { id: 'reparaturanforderung', title: 'Reparaturanforderung', href: '/formulare/reparaturanforderung' },
+      { id: 'renovierungsvereinbarung', title: 'Renovierungsvereinbarung', href: '/formulare/renovierungsvereinbarung' },
+      { id: 'instandhaltungsvereinbarung', title: 'Instandhaltungsvereinbarung', href: '/formulare/instandhaltungsvereinbarung' },
+      { id: 'schoenheitsreparaturen', title: 'Schönheitsreparaturen', href: '/formulare/schoenheitsreparaturen' },
+    ]
+  },
+  {
+    id: 'bescheinigungen',
+    title: 'Bescheinigungen & Erlaubnisse',
+    icon: Shield,
+    formulare: [
+      { id: 'selbstauskunft', title: 'Mieterselbstauskunft', href: '/formulare/selbstauskunft' },
+      { id: 'wohnungsgeberbestaetigung', title: 'Wohnungsgeberbestätigung', href: '/formulare/wohnungsgeberbestaetigung' },
+      { id: 'mietschuldenfreiheitsbescheinigung', title: 'Mietschuldenfreiheit', href: '/formulare/mietschuldenfreiheitsbescheinigung' },
+      { id: 'hausordnung', title: 'Hausordnung', href: '/formulare/hausordnung' },
+      { id: 'untervermietungserlaubnis', title: 'Untervermietungserlaubnis', href: '/formulare/untervermietungserlaubnis' },
+      { id: 'mietbescheinigung', title: 'Mietbescheinigung', href: '/formulare/mietbescheinigung' },
+      { id: 'tierhaltungserlaubnis', title: 'Tierhaltungserlaubnis', href: '/formulare/tierhaltungserlaubnis' },
+    ]
+  },
+  {
+    id: 'zahlungen',
+    title: 'Zahlungen & Kaution',
+    icon: CreditCard,
+    formulare: [
+      { id: 'sepa-lastschriftmandat', title: 'SEPA-Lastschriftmandat', href: '/formulare/sepa-lastschriftmandat' },
+      { id: 'mahnung', title: 'Mahnung', href: '/formulare/mahnung' },
+      { id: 'zahlungserinnerung', title: 'Zahlungserinnerung', href: '/formulare/zahlungserinnerung' },
+      { id: 'mietrueckstand', title: 'Mietrückstand', href: '/formulare/mietrueckstand' },
+      { id: 'kautionsabrechnung', title: 'Kautionsabrechnung', href: '/formulare/kautionsabrechnung' },
+      { id: 'kautionsquittung', title: 'Kautionsquittung', href: '/formulare/kautionsquittung' },
+      { id: 'kautionsrueckforderung', title: 'Kautionsrückforderung', href: '/formulare/kautionsrueckforderung' },
+      { id: 'mietbuergschaft', title: 'Mietbürgschaft', href: '/formulare/mietbuergschaft' },
+    ]
+  },
+  {
+    id: 'sonstige',
+    title: 'Weitere Dokumente',
+    icon: FileText,
+    formulare: [
+      { id: 'nachtragsvereinbarung', title: 'Nachtragsvereinbarung', href: '/formulare/nachtragsvereinbarung' },
+      { id: 'stellplatzvereinbarung', title: 'Stellplatzvereinbarung', href: '/formulare/stellplatzvereinbarung' },
+      { id: 'vollmacht', title: 'Vollmacht Mietangelegenheiten', href: '/formulare/vollmacht' },
+      { id: 'hausmeistervereinbarung', title: 'Hausmeistervereinbarung', href: '/formulare/hausmeistervereinbarung' },
+      { id: 'mietvorvertrag', title: 'Mietvorvertrag', href: '/formulare/mietvorvertrag' },
+      { id: 'bewerbungsschreiben', title: 'Bewerbungsschreiben', href: '/formulare/bewerbungsschreiben' },
+      { id: 'verwaltervertrag', title: 'Verwaltervertrag', href: '/formulare/verwaltervertrag' },
+      { id: 'bauliche-aenderung', title: 'Bauliche Änderungen', href: '/formulare/bauliche-aenderung' },
+      { id: 'sondervereinbarung', title: 'Sondervereinbarung', href: '/formulare/sondervereinbarung' },
+    ]
+  },
+]
+
+// Highlight-Formulare für die Startseite
+const highlightFormulare = [
   {
     id: 'mietvertrag',
     title: 'Mietvertrag Wohnraum',
@@ -32,9 +162,9 @@ const formulare = [
     id: 'kuendigung',
     title: 'Kündigung Mietvertrag',
     description: 'Ordentliche und außerordentliche Kündigung für Mieter und Vermieter',
-    icon: FileText,
+    icon: UserX,
     href: '/formulare/kuendigung',
-    badge: 'Neu',
+    badge: 'Beliebt',
     badgeVariant: 'secondary' as const,
     features: ['Fristberechnung', 'Rechtssichere Formulierung']
   },
@@ -177,16 +307,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Formulare Section */}
+      {/* Highlight Formulare Section */}
       <section id="formulare" className="container mx-auto px-4 py-16">
         <div className="mb-8">
-          <h3 className="text-2xl font-bold mb-2">Formulare & Verträge</h3>
+          <h3 className="text-2xl font-bold mb-2">Beliebte Formulare</h3>
           <p className="text-muted-foreground">
-            Wählen Sie das passende Formular für Ihr Anliegen
+            Die am häufigsten genutzten Mietrecht-Dokumente
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {formulare.map((formular) => (
+          {highlightFormulare.map((formular) => (
             <Link key={formular.id} to={formular.href}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                 <CardHeader>
@@ -212,6 +342,50 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Alle Formulare nach Kategorie */}
+      <section className="container mx-auto px-4 py-16 bg-muted/30">
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold mb-2">Alle 60 Formulare</h3>
+          <p className="text-muted-foreground">
+            Übersicht aller verfügbaren Mietrecht-Dokumente nach Kategorie
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {kategorien.map((kategorie) => (
+            <Card key={kategorie.id} className="h-full">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <kategorie.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">{kategorie.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1">
+                  {kategorie.formulare.map((formular) => (
+                    <Link
+                      key={formular.id}
+                      to={formular.href}
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors group"
+                    >
+                      <span className="text-sm group-hover:text-primary transition-colors">
+                        {formular.title}
+                      </span>
+                      {formular.badge && (
+                        <Badge variant="secondary" className="text-xs">
+                          {formular.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
