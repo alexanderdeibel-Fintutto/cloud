@@ -56,12 +56,14 @@ const Modernisierungsankuendigung = lazy(() => import('@/pages/formulare/Moderni
 // FORMULARE - Übergabe & Protokolle (2)
 // ============================================
 const Uebergabeprotokoll = lazy(() => import('@/pages/formulare/Uebergabeprotokoll'))
+const Schluesseluebergabe = lazy(() => import('@/pages/formulare/Schluesseluebergabe'))
 
 // ============================================
-// FORMULARE - Betriebskosten (2)
+// FORMULARE - Betriebskosten (3)
 // ============================================
 const Betriebskosten = lazy(() => import('@/pages/formulare/Betriebskosten'))
 const Nebenkostenabrechnung = lazy(() => import('@/pages/formulare/Nebenkostenabrechnung'))
+const WiderspruchBetriebskosten = lazy(() => import('@/pages/formulare/WiderspruchBetriebskosten'))
 
 // ============================================
 // FORMULARE - Mängel & Instandhaltung (2)
@@ -70,13 +72,15 @@ const Maengelanzeige = lazy(() => import('@/pages/formulare/Maengelanzeige'))
 const Mietminderung = lazy(() => import('@/pages/formulare/Mietminderung'))
 
 // ============================================
-// FORMULARE - Bescheinigungen & Bestätigungen (5)
+// FORMULARE - Bescheinigungen & Bestätigungen (7)
 // ============================================
 const Selbstauskunft = lazy(() => import('@/pages/formulare/Selbstauskunft'))
 const Wohnungsgeberbestaetigung = lazy(() => import('@/pages/formulare/Wohnungsgeberbestaetigung'))
 const Mietschuldenfreiheitsbescheinigung = lazy(() => import('@/pages/formulare/Mietschuldenfreiheitsbescheinigung'))
 const Hausordnung = lazy(() => import('@/pages/formulare/Hausordnung'))
 const Untervermietungserlaubnis = lazy(() => import('@/pages/formulare/Untervermietungserlaubnis'))
+const Mietbescheinigung = lazy(() => import('@/pages/formulare/Mietbescheinigung'))
+const Tierhaltungserlaubnis = lazy(() => import('@/pages/formulare/Tierhaltungserlaubnis'))
 
 // ============================================
 // FORMULARE - Zahlungen & Bankverbindung (5)
@@ -131,10 +135,12 @@ function App() {
 
           {/* Formulare - Übergabe */}
           <Route path="/formulare/uebergabeprotokoll" element={<Uebergabeprotokoll />} />
+          <Route path="/formulare/schluesseluebergabe" element={<Schluesseluebergabe />} />
 
           {/* Formulare - Betriebskosten */}
           <Route path="/formulare/betriebskosten" element={<Betriebskosten />} />
           <Route path="/formulare/nebenkostenabrechnung" element={<Nebenkostenabrechnung />} />
+          <Route path="/formulare/widerspruch-betriebskosten" element={<WiderspruchBetriebskosten />} />
 
           {/* Formulare - Mängel */}
           <Route path="/formulare/maengelanzeige" element={<Maengelanzeige />} />
@@ -146,6 +152,8 @@ function App() {
           <Route path="/formulare/mietschuldenfreiheitsbescheinigung" element={<Mietschuldenfreiheitsbescheinigung />} />
           <Route path="/formulare/hausordnung" element={<Hausordnung />} />
           <Route path="/formulare/untervermietungserlaubnis" element={<Untervermietungserlaubnis />} />
+          <Route path="/formulare/mietbescheinigung" element={<Mietbescheinigung />} />
+          <Route path="/formulare/tierhaltungserlaubnis" element={<Tierhaltungserlaubnis />} />
 
           {/* Formulare - Zahlungen */}
           <Route path="/formulare/sepa-lastschriftmandat" element={<SEPALastschriftmandat />} />
