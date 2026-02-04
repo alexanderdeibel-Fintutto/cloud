@@ -55,8 +55,8 @@ export interface SelbstauskunftPDFData {
   unterschrift?: {
     imageData: string | null
     signerName: string
-    signedAt: Date | null
-    signedLocation: string
+    signedAt: string | null
+    signedLocation?: string
   }
 }
 

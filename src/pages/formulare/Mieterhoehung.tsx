@@ -1,20 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, TrendingUp, Info, AlertTriangle, CheckCircle2, Download, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, TrendingUp, Info, AlertTriangle, Download, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { AddressField } from '@/components/fields/AddressField'
 import { CurrencyField } from '@/components/fields/CurrencyField'
-import { AIFieldHelper } from '@/components/ai/AIFieldHelper'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { generateMieterhoehungPDF } from '@/lib/pdf/mieterhoehung-pdf'
@@ -155,7 +153,6 @@ export default function Mieterhoehung() {
   const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(1)
   const [data, setData] = useState<MieterhoehungData>(initialData)
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const updateData = (updates: Partial<MieterhoehungData>) => {
     setData(prev => ({ ...prev, ...updates }))
@@ -184,7 +181,6 @@ export default function Mieterhoehung() {
   const istErhoehungZulaessig = () => {
     const kappung = berechneKappungsgrenze()
     const neueGesamt = data.neueMiete
-    const mieteVor3Jahren = data.kappungsgrenzeInfo.mieteVor3Jahren || data.aktuelleMiete
 
     // Prüfe Kappungsgrenze
     if (neueGesamt > kappung.maxMiete) {
@@ -197,18 +193,6 @@ export default function Mieterhoehung() {
     }
 
     return { zulaessig: true, grund: '' }
-  }
-
-  // Berechne Zustimmungsfrist (mindestens 2 Monate bis Monatsende)
-  const berechneZustimmungsfrist = () => {
-    const heute = new Date()
-    const erhoehungAb = data.erhoehungAb ? new Date(data.erhoehungAb) : null
-
-    if (!erhoehungAb) return ''
-
-    // Zustimmungsfrist: Ende des übernächsten Monats nach Zugang
-    const fristEnde = new Date(heute.getFullYear(), heute.getMonth() + 3, 0)
-    return fristEnde.toISOString().split('T')[0]
   }
 
   const nextStep = () => {
@@ -336,11 +320,16 @@ export default function Mieterhoehung() {
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Vermieter
-                    <AIFieldHelper
-                      fieldName="Vermieter"
-                      context="Der Vermieter ist derjenige, der das Mieterhöhungsverlangen stellt."
-                      legalReference="§ 558 BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Der Vermieter ist derjenige, der das Mieterhöhungsverlangen stellt (§ 558 BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
                   <div className="space-y-4">
                     <div>
@@ -365,11 +354,16 @@ export default function Mieterhoehung() {
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Mieter
-                    <AIFieldHelper
-                      fieldName="Mieter"
-                      context="Der Mieter muss dem Erhöhungsverlangen zustimmen."
-                      legalReference="§ 558b BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Der Mieter muss dem Erhöhungsverlangen zustimmen (§ 558b BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
                   <div className="space-y-4">
                     <div>
@@ -480,11 +474,16 @@ export default function Mieterhoehung() {
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     Ausstattungsmerkmale
-                    <AIFieldHelper
-                      fieldName="Ausstattung"
-                      context="Die Ausstattung ist relevant für die Einordnung im Mietspiegel."
-                      legalReference="§ 558 Abs. 2 BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Die Ausstattung ist relevant für die Einordnung im Mietspiegel (§ 558 Abs. 2 BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </h3>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -620,17 +619,23 @@ export default function Mieterhoehung() {
                     <div>
                       <Label className="flex items-center gap-2">
                         Aktuelle Nettokaltmiete
-                        <AIFieldHelper
-                          fieldName="Nettokaltmiete"
-                          context="Die Nettokaltmiete (ohne Nebenkosten) ist Basis für die Mieterhöhung."
-                          legalReference="§ 558 BGB"
-                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Die Nettokaltmiete (ohne Nebenkosten) ist Basis für die Mieterhöhung (§ 558 BGB).</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </Label>
                       <CurrencyField
+                        label="Aktuelle Nettokaltmiete"
                         value={data.aktuelleMiete}
                         onChange={(v) => updateData({
-                          aktuelleMiete: v,
-                          aktuelleMieteProQm: berechnePreisProQm(v)
+                          aktuelleMiete: v ?? 0,
+                          aktuelleMieteProQm: berechnePreisProQm(v ?? 0)
                         })}
                       />
                       {data.wohnflaeche > 0 && data.aktuelleMiete > 0 && (
@@ -652,11 +657,16 @@ export default function Mieterhoehung() {
                     <div>
                       <Label className="flex items-center gap-2">
                         Letzte Mieterhöhung
-                        <AIFieldHelper
-                          fieldName="Letzte Mieterhöhung"
-                          context="Zwischen zwei Mieterhöhungen müssen mindestens 15 Monate liegen."
-                          legalReference="§ 558 Abs. 1 BGB"
-                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Zwischen zwei Mieterhöhungen müssen mindestens 15 Monate liegen (§ 558 Abs. 1 BGB).</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </Label>
                       <Input
                         type="date"
@@ -689,11 +699,16 @@ export default function Mieterhoehung() {
                     <div>
                       <Label className="flex items-center gap-2">
                         Kappungsgrenze in Ihrer Gemeinde
-                        <AIFieldHelper
-                          fieldName="Kappungsgrenze"
-                          context="In Gebieten mit angespanntem Wohnungsmarkt kann die Kappungsgrenze auf 15% reduziert sein."
-                          legalReference="§ 558 Abs. 3 BGB"
-                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">In Gebieten mit angespanntem Wohnungsmarkt kann die Kappungsgrenze auf 15% reduziert sein (§ 558 Abs. 3 BGB).</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </Label>
                       <Select
                         value={data.kappungsgrenzeInfo.kappungsgrenzeProzent.toString()}
@@ -715,13 +730,13 @@ export default function Mieterhoehung() {
                     </div>
 
                     <div>
-                      <Label>Miete vor 3 Jahren (falls bekannt)</Label>
                       <CurrencyField
+                        label="Miete vor 3 Jahren (falls bekannt)"
                         value={data.kappungsgrenzeInfo.mieteVor3Jahren}
                         onChange={(v) => updateData({
                           kappungsgrenzeInfo: {
                             ...data.kappungsgrenzeInfo,
-                            mieteVor3Jahren: v
+                            mieteVor3Jahren: v ?? 0
                           }
                         })}
                       />
@@ -749,11 +764,16 @@ export default function Mieterhoehung() {
                 <div className="space-y-4">
                   <Label className="flex items-center gap-2">
                     Begründung der Mieterhöhung
-                    <AIFieldHelper
-                      fieldName="Begründung"
-                      context="Die Mieterhöhung muss begründet werden. Am häufigsten wird der Mietspiegel verwendet."
-                      legalReference="§ 558a BGB"
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Die Mieterhöhung muss begründet werden. Am häufigsten wird der Mietspiegel verwendet (§ 558a BGB).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </Label>
                   <RadioGroup
                     value={data.begruendungsart}
@@ -855,17 +875,23 @@ export default function Mieterhoehung() {
                     <div>
                       <Label className="flex items-center gap-2">
                         Neue Nettokaltmiete
-                        <AIFieldHelper
-                          fieldName="Neue Miete"
-                          context="Die neue Miete muss innerhalb der ortsüblichen Vergleichsmiete liegen und die Kappungsgrenze beachten."
-                          legalReference="§ 558 BGB"
-                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Die neue Miete muss innerhalb der ortsüblichen Vergleichsmiete liegen und die Kappungsgrenze beachten (§ 558 BGB).</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </Label>
                       <CurrencyField
+                        label="Neue Nettokaltmiete"
                         value={data.neueMiete}
                         onChange={(v) => updateData({
-                          neueMiete: v,
-                          neueMieteProQm: berechnePreisProQm(v)
+                          neueMiete: v ?? 0,
+                          neueMieteProQm: berechnePreisProQm(v ?? 0)
                         })}
                       />
                       {data.wohnflaeche > 0 && data.neueMiete > 0 && (

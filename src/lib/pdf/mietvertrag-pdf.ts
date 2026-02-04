@@ -439,8 +439,8 @@ export async function generateMietvertragPDF(data: MietvertragData): Promise<voi
     addParagraph(ctx, fillTemplate(MIETE_TEXTE.zahlungsweise.ueberweisung, {
       inhaber: formatPerson(data.vermieter),
       iban: data.vermieterIBAN,
-      bic: data.vermieterBIC || '—',
-      bank: data.vermieterBank || '—'
+      bic: '—',
+      bank: '—'
     }), 8)
   }
 
@@ -461,14 +461,14 @@ export async function generateMietvertragPDF(data: MietvertragData): Promise<voi
     addNumberedParagraph(ctx, '(4)', 'Die Vertragsparteien vereinbaren eine Staffelmiete gemäß § 557a BGB:')
     if (data.staffelmiete.staffeln) {
       data.staffelmiete.staffeln.forEach((staffel, index) => {
-        addParagraph(ctx, `${index + 1}. Staffel ab ${staffel.datum}: ${formatCurrency(staffel.betrag)} Kaltmiete`, 8)
+        addParagraph(ctx, `${index + 1}. Staffel ab ${staffel.abDatum}: ${formatCurrency(staffel.betrag)} Kaltmiete`, 8)
       })
     }
     addParagraph(ctx, 'Während der Laufzeit der Staffelmiete ist eine Erhöhung nach §§ 558-559 BGB ausgeschlossen.')
   } else if (data.indexmiete?.enabled) {
     addNumberedParagraph(ctx, '(4)', fillTemplate(MIETE_TEXTE.mieterhoehung.indexmiete, {
-      basismonat: data.indexmiete.basisjahr || new Date().getFullYear().toString(),
-      basiswert: data.indexmiete.basiswert || '—'
+      basismonat: data.indexmiete.basisjahr?.toString() || new Date().getFullYear().toString(),
+      basiswert: '100'
     }))
   } else {
     addNumberedParagraph(ctx, '(4)', MIETE_TEXTE.mieterhoehung.vergleichsmiete)
