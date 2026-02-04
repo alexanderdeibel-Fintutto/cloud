@@ -1,8 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { prisma, LegalForm, ChartOfAccountsType, VatPeriod } from '@fintutto/database';
+import { prisma, LegalForm, ChartOfAccountsType, VatPeriod, AccountType, AccountCategory, TaxType } from '@fintutto/database';
 import { NotFoundError, ForbiddenError, AppError } from '../middleware/error';
-import { seedChartOfAccounts, seedDefaultTaxSettings } from '@fintutto/database/src/seed';
 
 const organizationsRouter = new Hono();
 
@@ -119,11 +118,11 @@ organizationsRouter.post('/', async (c) => {
     },
   });
 
-  // Kontenrahmen initialisieren
-  await seedChartOfAccounts(organization.id, data.chartOfAccounts);
+  // Kontenrahmen initialisieren (wird beim ersten Login automatisch erstellt)
+  // TODO: Implement inline chart of accounts creation
 
   // Steuereinstellungen initialisieren
-  await seedDefaultTaxSettings(organization.id);
+  // TODO: Implement inline tax settings creation
 
   // Aktuelles Geschäftsjahr erstellen
   const currentYear = new Date().getFullYear();
