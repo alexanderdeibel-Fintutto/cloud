@@ -38,6 +38,7 @@ const RATE_LIMITS = {
   basic: { perHour: 20, perDay: 100 },
   pro: { perHour: 100, perDay: 500 },
   business: { perHour: 500, perDay: 2000 },
+  premium: { perHour: 1000, perDay: 5000 }, // Praktisch unbegrenzt
 };
 
 // Modell-Auswahl pro Tier
@@ -46,6 +47,7 @@ const TIER_MODELS = {
   basic: "claude-sonnet-4-20250514",
   pro: "claude-sonnet-4-20250514",
   business: "claude-sonnet-4-20250514",
+  premium: "claude-opus-4-5-20251101", // Voller Claude-Zugang!
 };
 
 // Max Tokens pro Tier
@@ -54,6 +56,7 @@ const TIER_MAX_TOKENS = {
   basic: 1000,
   pro: 2000,
   business: 4000,
+  premium: 8000, // Voller Zugang - keine Einschränkungen
 };
 
 interface AIRequest {
