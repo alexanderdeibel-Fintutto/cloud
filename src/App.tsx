@@ -16,6 +16,9 @@ import ModernisierungChecker from '@/pages/checkers/ModernisierungChecker'
 import SchoenheitsreparaturenChecker from '@/pages/checkers/SchoenheitsreparaturenChecker'
 import ResultPage from '@/pages/ResultPage'
 import DashboardPage from '@/pages/DashboardPage'
+import PricingPage from '@/pages/PricingPage'
+import CheckoutSuccessPage from '@/pages/CheckoutSuccessPage'
+import CheckoutCancelPage from '@/pages/CheckoutCancelPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 function App() {
@@ -26,6 +29,9 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/preise" element={<PricingPage />} />
+            <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+            <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
 
             {/* Checker Routes */}
             <Route path="/checker/mietpreisbremse" element={<MietpreisbremseChecker />} />

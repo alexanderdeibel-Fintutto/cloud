@@ -55,6 +55,13 @@ export default function Header() {
               </div>
             </div>
 
+            <Link
+              to="/preise"
+              className="text-gray-600 hover:text-fintutto-primary font-medium"
+            >
+              Preise
+            </Link>
+
             <a
               href="https://formulare.fintutto.cloud"
               target="_blank"
@@ -117,6 +124,14 @@ export default function Header() {
                   {link.name}-Checker
                 </Link>
               ))}
+              <hr className="my-2" />
+              <Link
+                to="/preise"
+                className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Preise
+              </Link>
               <hr className="my-2" />
               {!user && (
                 <>
