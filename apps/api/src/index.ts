@@ -19,6 +19,7 @@ import { emailRouter } from './routes/email';
 import { uploadsRouter } from './routes/uploads';
 import { wizardRouter } from './routes/wizard';
 import { dashboardRouter } from './routes/dashboard';
+import { finapiRouter } from './routes/finapi';
 
 import { authMiddleware } from './middleware/auth';
 import { errorHandler } from './middleware/error';
@@ -84,6 +85,7 @@ protectedApp.route('/email', emailRouter);
 protectedApp.route('/uploads', uploadsRouter);
 protectedApp.route('/wizard', wizardRouter);
 protectedApp.route('/dashboard', dashboardRouter);
+protectedApp.route('/finapi', finapiRouter);
 
 app.route('/api/v1', protectedApp);
 
