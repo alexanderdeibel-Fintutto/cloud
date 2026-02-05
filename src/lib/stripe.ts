@@ -38,8 +38,8 @@ export const PRICING_TIERS: PricingTier[] = [
     description: 'Fuer gelegentliche Nutzung',
     monthlyPrice: 0.99,
     yearlyPrice: 9.99,
-    monthlyPriceId: 'price_basic_monthly', // Update with actual Stripe price ID
-    yearlyPriceId: 'price_basic_yearly', // Update with actual Stripe price ID
+    monthlyPriceId: 'price_1Sxc4652lqSgjCzeEKVlLxwP',
+    yearlyPriceId: 'price_1Sxc4652lqSgjCzeoHFU2Ykn',
     checksPerMonth: 3,
     features: [
       '3 Berechnungen pro Monat',
@@ -57,8 +57,8 @@ export const PRICING_TIERS: PricingTier[] = [
     description: 'Fuer unbegrenzte Nutzung',
     monthlyPrice: 3.99,
     yearlyPrice: 39.99,
-    monthlyPriceId: 'price_premium_monthly', // Update with actual Stripe price ID
-    yearlyPriceId: 'price_premium_yearly', // Update with actual Stripe price ID
+    monthlyPriceId: 'price_1Sxc4752lqSgjCzeRlMLZeP5',
+    yearlyPriceId: 'price_1Sxc4752lqSgjCzeC971KXL0',
     checksPerMonth: 'unlimited',
     features: [
       'Unbegrenzte Berechnungen',
