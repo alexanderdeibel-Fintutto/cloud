@@ -329,7 +329,7 @@ finapiRouter.post('/import', async (c) => {
     select: { externalId: true },
   });
 
-  const existingIdSet = new Set(existingIds.map(t => t.externalId));
+  const existingIdSet = new Set(existingIds.map((t: { externalId: string | null }) => t.externalId));
 
   // Neue Transaktionen filtern und konvertieren
   const newTransactions = transactions

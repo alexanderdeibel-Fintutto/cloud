@@ -125,7 +125,7 @@ class FinAPIClient {
       throw new Error(`FinAPI Auth Error: ${error}`);
     }
 
-    this.clientToken = await response.json();
+    this.clientToken = await response.json() as FinAPIToken;
     // Token 5 Minuten vor Ablauf erneuern
     this.tokenExpiry = new Date(Date.now() + ((this.clientToken!.expires_in - 300) * 1000));
 
@@ -153,7 +153,7 @@ class FinAPIClient {
       throw new Error(`FinAPI Token Exchange Error: ${error}`);
     }
 
-    return response.json();
+    return response.json() as Promise<FinAPIToken>;
   }
 
   // User Token mit Refresh Token erneuern
@@ -176,7 +176,7 @@ class FinAPIClient {
       throw new Error(`FinAPI Refresh Token Error: ${error}`);
     }
 
-    return response.json();
+    return response.json() as Promise<FinAPIToken>;
   }
 
   // API Request Helper
@@ -199,7 +199,7 @@ class FinAPIClient {
       throw new Error(`FinAPI API Error: ${response.status} - ${error}`);
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
   }
 
   // Banken suchen
