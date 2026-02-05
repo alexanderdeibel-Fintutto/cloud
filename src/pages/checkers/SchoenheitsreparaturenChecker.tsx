@@ -4,7 +4,7 @@ import { Paintbrush } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 
 interface FormData {

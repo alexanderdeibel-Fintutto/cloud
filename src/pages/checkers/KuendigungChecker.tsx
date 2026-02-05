@@ -50,7 +50,7 @@ export default function KuendigungChecker() {
     await startSession('kuendigung', 3)
   }
 
-  const updateField = (field: keyof FormData, value: string | boolean) => {
+  const updateField = (field: keyof FormData, value: string | number | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 

@@ -15,7 +15,7 @@ interface CheckerResultProps {
 
 export default function CheckerResult({
   result,
-  checkerType,
+  checkerType: _checkerType,
   onGoToForm,
   onDownloadPDF,
   onStartNew,

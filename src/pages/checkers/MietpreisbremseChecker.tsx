@@ -37,7 +37,7 @@ const ORTSUEBLICHE_MIETEN: Record<string, number> = {
 
 export default function MietpreisbremseChecker() {
   const navigate = useNavigate()
-  const { startSession, updateSessionData, setCurrentStep, completeSession, currentSession, clearSession } = useChecker()
+  const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
 
   const [step, setStep] = useState(1)
@@ -141,7 +141,7 @@ export default function MietpreisbremseChecker() {
         }
       }
 
-      const resultId = await completeSession(checkerResult)
+      await completeSession(checkerResult)
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -177,9 +177,9 @@ export default function MietpreisbremseChecker() {
     initSession()
   }
 
-  const canProceedStep1 = formData.plz.length === 5 && formData.mietbeginn
+  const canProceedStep1 = formData.plz.length === 5 && !!formData.mietbeginn
   const canProceedStep2 = formData.kaltmiete > 0 && formData.wohnflaeche > 0
-  const canProceedStep3 = formData.baujahr && formData.ausstattung
+  const canProceedStep3 = !!formData.baujahr && !!formData.ausstattung
 
   if (result) {
     return (

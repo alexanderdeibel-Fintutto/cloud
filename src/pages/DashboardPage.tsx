@@ -201,9 +201,9 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      {result.result_data?.potentialSavings > 0 && (
+                      {(result.result_data?.potentialSavings ?? 0) > 0 && (
                         <span className="text-green-600 font-medium">
-                          +{formatCurrency(result.result_data.potentialSavings)}
+                          +{formatCurrency(result.result_data?.potentialSavings ?? 0)}
                         </span>
                       )}
                       {result.form_redirect_url && (

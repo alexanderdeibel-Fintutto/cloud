@@ -20,7 +20,7 @@ interface FormData {
 
 export default function MieterhoehungChecker() {
   const navigate = useNavigate()
-  const { startSession, updateSessionData, setCurrentStep, completeSession, currentSession, clearSession } = useChecker()
+  const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
 
   const [step, setStep] = useState(1)

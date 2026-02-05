@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 import { supabase } from '@/integrations/supabase'
-import type { Json } from '@/integrations/supabase/types'
 
 export type CheckerType =
   | 'mietpreisbremse'
@@ -100,7 +99,7 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
       .from('checker_sessions')
       .insert({
         checker_type: checkerType,
-        session_data: {} as Json,
+        session_data: {} as object,
         status: 'in_progress',
       })
       .select()
@@ -133,7 +132,7 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
     // Persist to Supabase
     supabase
       .from('checker_sessions')
-      .update({ session_data: updatedSession.data as Json })
+      .update({ session_data: updatedSession.data as object })
       .eq('id', currentSession.id)
   }
 
@@ -154,8 +153,8 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
       .insert({
         session_id: currentSession.id,
         checker_type: currentSession.checkerType,
-        input_data: currentSession.data as Json,
-        result_data: result as unknown as Json,
+        input_data: currentSession.data as object,
+        result_data: result as unknown as object,
         recommendation: result.recommendation,
         form_redirect_url: fullFormUrl,
       })
@@ -169,7 +168,7 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
       .from('checker_sessions')
       .update({
         status: 'completed',
-        result: result as unknown as Json,
+        result: result as unknown as object,
         completed_at: new Date().toISOString(),
       })
       .eq('id', currentSession.id)

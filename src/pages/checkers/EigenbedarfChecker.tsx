@@ -46,7 +46,7 @@ export default function EigenbedarfChecker() {
     await startSession('eigenbedarf', 2)
   }
 
-  const updateField = (field: keyof FormData, value: string | boolean | string[]) => {
+  const updateField = (field: keyof FormData, value: string | number | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
