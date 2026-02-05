@@ -49,6 +49,7 @@ const kategorien = [
       { id: 'aufhebungsvertrag', title: 'Mietaufhebungsvertrag', href: '/formulare/aufhebungsvertrag' },
       { id: 'eigenbedarfskuendigung', title: 'Eigenbedarfskündigung', href: '/formulare/eigenbedarfskuendigung' },
       { id: 'raeumungsaufforderung', title: 'Räumungsaufforderung', href: '/formulare/raeumungsaufforderung' },
+      { id: 'abmahnung', title: 'Abmahnung', href: '/formulare/abmahnung', badge: 'Neu' },
     ]
   },
   {
@@ -142,6 +143,7 @@ const kategorien = [
       { id: 'verwaltervertrag', title: 'Verwaltervertrag', href: '/formulare/verwaltervertrag' },
       { id: 'bauliche-aenderung', title: 'Bauliche Änderungen', href: '/formulare/bauliche-aenderung' },
       { id: 'sondervereinbarung', title: 'Sondervereinbarung', href: '/formulare/sondervereinbarung' },
+      { id: 'gartennutzungsvereinbarung', title: 'Gartennutzungsvereinbarung', href: '/formulare/gartennutzungsvereinbarung', badge: 'Neu' },
     ]
   },
 ]

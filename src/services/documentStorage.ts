@@ -132,4 +132,6 @@ export const DOCUMENT_TYPES: Record<string, string> = {
   verwaltervertrag: 'Verwaltervertrag',
   'bauliche-aenderung': 'Bauliche Änderungen',
   sondervereinbarung: 'Sondervereinbarung',
+  abmahnung: 'Abmahnung',
+  gartennutzungsvereinbarung: 'Gartennutzungsvereinbarung',
 }

@@ -117,7 +117,7 @@ const Mieterhoehungszustimmung = lazy(() => import('@/pages/formulare/Mieterhoeh
 const Hausmeistervereinbarung = lazy(() => import('@/pages/formulare/Hausmeistervereinbarung'))
 
 // ============================================
-// FORMULARE - Weitere Dokumente (10)
+// FORMULARE - Weitere Dokumente (12)
 // ============================================
 const Raeumungsaufforderung = lazy(() => import('@/pages/formulare/Raeumungsaufforderung'))
 const Instandhaltungsvereinbarung = lazy(() => import('@/pages/formulare/Instandhaltungsvereinbarung'))
@@ -128,6 +128,8 @@ const Verwaltervertrag = lazy(() => import('@/pages/formulare/Verwaltervertrag')
 const ErinnerungNebenkosten = lazy(() => import('@/pages/formulare/ErinnerungNebenkosten'))
 const BaulicheAenderung = lazy(() => import('@/pages/formulare/BaulicheAenderung'))
 const Sondervereinbarung = lazy(() => import('@/pages/formulare/Sondervereinbarung'))
+const Abmahnung = lazy(() => import('@/pages/formulare/Abmahnung'))
+const Gartennutzungsvereinbarung = lazy(() => import('@/pages/formulare/Gartennutzungsvereinbarung'))
 
 // ============================================
 // RECHNER
@@ -229,6 +231,8 @@ function App() {
           <Route path="/formulare/erinnerung-nebenkosten" element={<ErinnerungNebenkosten />} />
           <Route path="/formulare/bauliche-aenderung" element={<BaulicheAenderung />} />
           <Route path="/formulare/sondervereinbarung" element={<Sondervereinbarung />} />
+          <Route path="/formulare/abmahnung" element={<Abmahnung />} />
+          <Route path="/formulare/gartennutzungsvereinbarung" element={<Gartennutzungsvereinbarung />} />
 
           {/* Rechner */}
           <Route path="/rechner/mietpreis" element={<Mietpreisrechner />} />
