@@ -1,20 +1,24 @@
 # Geklonte Repositories (nur als Referenz, nicht Teil des Ecosystems)
-betriebskosten-helfer/
-fintu-hausmeister-app/
-fintutto-miet-recht/
-fintutto-rent-wizard/
-fintutto-your-financial-compass/
-ft_admin-hub/
-ft_fromulare_alle/
-ft_hausmeister/
-ft_mieter/
-ft_nebenkostenabrechnung/
-ft_ocr_zaehler/
-ft_vermietify/
-leserally-all/
-vermieter-freude/
-wohn-held/
-FT_CALC_RENDITE/
+/betriebskosten-helfer/
+/fintu-hausmeister-app/
+/fintutto-miet-recht/
+/fintutto-rent-wizard/
+/fintutto-your-financial-compass/
+/ft_admin-hub/
+/ft_fromulare_alle/
+/ft_hausmeister/
+/ft_mieter/
+/ft_nebenkostenabrechnung/
+/ft_ocr_zaehler/
+/ft_vermietify/
+/leserally-all/
+/vermieter-freude/
+/wohn-held/
+/FT_CALC_RENDITE/
+/check-mieterhoehung2-fintutto/
+/mietenplus-rechner/
+/miet-check-pro/
+/fintutto-admin-hub/
 
 # Node
 node_modules/
