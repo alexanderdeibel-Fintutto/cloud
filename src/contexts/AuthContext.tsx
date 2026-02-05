@@ -6,7 +6,7 @@ interface UserProfile {
   id: string
   email: string
   name: string | null
-  tier: 'free' | 'basic' | 'premium' | 'professional'
+  tier: 'free' | 'basic' | 'premium'
   checksUsed: number
   checksLimit: number
 }
@@ -26,10 +26,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const TIER_LIMITS = {
-  free: 3,
-  basic: 20,
-  premium: 100,
-  professional: -1, // unlimited
+  free: 1,
+  basic: 3,
+  premium: -1, // unlimited
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -116,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const canUseChecker = (): boolean => {
     if (!profile) return true // Anonymous users get 1 free check via session
-    if (profile.tier === 'professional') return true
+    if (profile.tier === 'premium') return true
     return profile.checksUsed < profile.checksLimit
   }
 
