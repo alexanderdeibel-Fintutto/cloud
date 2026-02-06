@@ -1,0 +1,20 @@
+{
+  "name": "fintutto-ecosystem",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fintutto Ecosystem - Alle selbst-gehosteten Apps",
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "dev:vermietify": "pnpm --filter vermietify dev",
+    "build:vermietify": "pnpm --filter vermietify build",
+    "lint": "pnpm -r lint"
+  },
+  "keywords": ["fintutto", "vermietify", "property-management", "real-estate"],
+  "author": "Fintutto",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
