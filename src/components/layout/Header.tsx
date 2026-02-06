@@ -29,7 +29,7 @@ export default function Header() {
             </div>
             <div>
               <span className="font-bold text-xl text-gray-900">Fintutto</span>
-              <span className="text-fintutto-primary font-semibold ml-1">Checker</span>
+              <span className="text-fintutto-primary font-semibold ml-1">Mieterportal</span>
             </div>
           </Link>
 
@@ -37,12 +37,18 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-6">
             <div className="relative group">
               <button className="text-gray-600 hover:text-fintutto-primary font-medium flex items-center">
-                Alle Checker
+                Checker
                 <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               <div className="absolute left-0 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
+                <Link
+                  to="/checker"
+                  className="block px-4 py-2 text-sm font-semibold text-fintutto-primary hover:bg-fintutto-light border-b border-gray-100"
+                >
+                  Alle Checker anzeigen
+                </Link>
                 {checkerLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -56,20 +62,18 @@ export default function Header() {
             </div>
 
             <Link
+              to="/formulare"
+              className="text-gray-600 hover:text-fintutto-primary font-medium"
+            >
+              Formulare
+            </Link>
+
+            <Link
               to="/preise"
               className="text-gray-600 hover:text-fintutto-primary font-medium"
             >
               Preise
             </Link>
-
-            <a
-              href="https://formulare.fintutto.cloud"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-fintutto-primary font-medium"
-            >
-              Formulare
-            </a>
           </nav>
 
           {/* Auth Section */}
@@ -114,17 +118,31 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
             <nav className="space-y-2">
+              <Link
+                to="/checker"
+                className="block px-4 py-2 font-semibold text-fintutto-primary hover:bg-fintutto-light rounded-lg"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Alle Checker
+              </Link>
               {checkerLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+                  className="block px-4 py-2 pl-6 text-gray-700 hover:bg-fintutto-light rounded-lg"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}-Checker
                 </Link>
               ))}
               <hr className="my-2" />
+              <Link
+                to="/formulare"
+                className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Formulare
+              </Link>
               <Link
                 to="/preise"
                 className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
@@ -138,12 +156,14 @@ export default function Header() {
                   <Link
                     to="/login"
                     className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     Anmelden
                   </Link>
                   <Link
                     to="/register"
                     className="block px-4 py-2 bg-fintutto-primary text-white rounded-lg text-center"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     Kostenlos starten
                   </Link>

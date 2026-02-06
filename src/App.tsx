@@ -17,6 +17,8 @@ import SchoenheitsreparaturenChecker from '@/pages/checkers/Schoenheitsreparatur
 import ResultPage from '@/pages/ResultPage'
 import DashboardPage from '@/pages/DashboardPage'
 import PricingPage from '@/pages/PricingPage'
+import CheckersPage from '@/pages/CheckersPage'
+import FormularePage from '@/pages/FormularePage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import CheckoutSuccessPage from '@/pages/CheckoutSuccessPage'
@@ -36,6 +38,10 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
             <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
+
+            {/* Overview Pages */}
+            <Route path="/checker" element={<CheckersPage />} />
+            <Route path="/formulare" element={<FormularePage />} />
 
             {/* Checker Routes */}
             <Route path="/checker/mietpreisbremse" element={<MietpreisbremseChecker />} />
