@@ -245,12 +245,43 @@ export default function ChatPage() {
     // Use credit
     await useQuestion()
 
-    // Simulate AI response (replace with real API call)
-    setTimeout(() => {
+    // Call AI API or fall back to demo
+    try {
+      const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
+      if (apiEndpoint) {
+        const response = await fetch(`${apiEndpoint}/amt-chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: messageText,
+            history: messages.map(m => ({ role: m.role, content: m.content })),
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: data.response,
+            timestamp: new Date(),
+            suggestedTemplates: data.suggestedTemplates || [],
+          }])
+        } else {
+          throw new Error('API error')
+        }
+      } else {
+        // Demo mode - local response
+        const response = generateDemoResponse(messageText)
+        setMessages(prev => [...prev, response])
+      }
+    } catch {
+      // Fallback to demo response
       const response = generateDemoResponse(messageText)
       setMessages(prev => [...prev, response])
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

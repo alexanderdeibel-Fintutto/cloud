@@ -301,9 +301,9 @@ export default function ForumPage() {
                     )}
                   </div>
 
-                  <h3 className="font-semibold mb-1 hover:text-primary transition-colors cursor-pointer">
+                  <Link to={`/forum/${post.id}`} className="font-semibold mb-1 hover:text-primary transition-colors block">
                     {post.title}
-                  </h3>
+                  </Link>
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                     {post.excerpt}
                   </p>

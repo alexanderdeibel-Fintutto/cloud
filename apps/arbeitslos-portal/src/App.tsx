@@ -8,11 +8,14 @@ import ChatPage from '@/pages/ChatPage'
 import MusterschreibenPage from '@/pages/MusterschreibenPage'
 import GeneratorPage from '@/pages/GeneratorPage'
 import ForumPage from '@/pages/ForumPage'
+import ForumNewPostPage from '@/pages/forum/ForumNewPostPage'
+import ForumTopicPage from '@/pages/forum/ForumTopicPage'
 import PricingPage from '@/pages/PricingPage'
 import DashboardPage from '@/pages/DashboardPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import ProblemePage from '@/pages/ProblemePage'
 
 function App() {
   return (
@@ -32,10 +35,15 @@ function App() {
 
               {/* Forum */}
               <Route path="forum" element={<ForumPage />} />
+              <Route path="forum/neu" element={<ForumNewPostPage />} />
+              <Route path="forum/:topicId" element={<ForumTopicPage />} />
 
               {/* Pricing */}
               <Route path="preise" element={<PricingPage />} />
               <Route path="pricing" element={<PricingPage />} />
+
+              {/* Probleme-Guide */}
+              <Route path="probleme" element={<ProblemePage />} />
 
               {/* Dashboard */}
               <Route path="dashboard" element={<DashboardPage />} />

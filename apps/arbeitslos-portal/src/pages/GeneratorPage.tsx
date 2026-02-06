@@ -412,6 +412,458 @@ Mit freundlichen Gruessen
 ${name}`
       break
 
+    case 'widerspruch_kdu': {
+      const tatsaechlich = data.tatsaechliche_miete || '[tatsaechliche Miete]'
+      const anerkannt = data.anerkannte_miete || '[anerkannte Miete]'
+      const differenz = (Number(data.tatsaechliche_miete) - Number(data.anerkannte_miete)) || 0
+
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Widerspruch gegen Bescheid vom ${bescheidDatum} - Kosten der Unterkunft
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit lege ich gegen Ihren Bescheid vom ${bescheidDatum} fristgerecht
+
+                    WIDERSPRUCH
+
+ein, soweit die Kosten der Unterkunft und Heizung nicht in tatsaechlicher Hoehe uebernommen werden.
+
+Meine tatsaechlichen Unterkunftskosten betragen ${tatsaechlich} EUR monatlich (warm). In Ihrem Bescheid werden jedoch nur ${anerkannt} EUR anerkannt. Dies ergibt eine monatliche Unterdeckung von ${differenz > 0 ? differenz.toFixed(2) : '[...]'} EUR.
+
+Die Kuerzung ist rechtswidrig:
+
+1. Gemaess § 22 Abs. 1 Satz 1 SGB II sind die tatsaechlichen Aufwendungen fuer Unterkunft und Heizung zu uebernehmen, soweit sie angemessen sind.
+
+2. Sofern die Kosten als unangemessen angesehen werden, sind die tatsaechlichen Kosten gemaess § 22 Abs. 1 Satz 3 SGB II solange zu uebernehmen, wie eine Senkung nicht moeglich oder zumutbar ist, laengstens jedoch fuer 6 Monate.
+
+3. Das von Ihnen herangezogene Konzept zur Bestimmung der Angemessenheitsgrenze in ${data.wohnort || '[Wohnort]'} ist nicht schluessig im Sinne der Rechtsprechung des BSG (B 4 AS 18/09 R). Ohne schluessiges Konzept gelten die tatsaechlichen Kosten als Obergrenze.
+
+4. Darueber hinaus ist auf dem aktuellen Wohnungsmarkt keine guenstigere vergleichbare Wohnung verfuegbar. Eine Kostensenkung ist daher nicht moeglich.
+
+Ich beantrage:
+1. Uebernahme der tatsaechlichen Kosten der Unterkunft und Heizung in Hoehe von ${tatsaechlich} EUR
+2. Nachzahlung des einbehaltenen Differenzbetrags
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+    }
+
+    case 'widerspruch_aufhebung':
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Widerspruch gegen Aufhebungs- und Erstattungsbescheid vom ${bescheidDatum}
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit lege ich gegen Ihren Aufhebungs- und Erstattungsbescheid vom ${bescheidDatum} fristgerecht
+
+                    WIDERSPRUCH
+
+ein.
+
+Die Aufhebung und die Erstattungsforderung in Hoehe von ${data.rueckforderung_hoehe || '[Betrag]'} EUR sind rechtswidrig:
+
+${data.grund || '[Begruendung]'}
+
+Ich mache insbesondere geltend:
+
+1. Die Voraussetzungen des § 45 SGB X (Ruecknahme eines rechtswidrigen beguenstigenden VA) bzw. § 48 SGB X (Aufhebung wegen geaenderter Verhaeltnisse) liegen nicht vor.
+
+2. Soweit § 45 SGB X herangezogen wird: Ich durfte auf den Bestand des Bescheids vertrauen (Vertrauensschutz). Die in § 45 Abs. 2 SGB X genannten Ausnahmen liegen nicht vor.
+
+3. Die Jahresfrist des § 45 Abs. 4 Satz 2 SGB X wurde nicht eingehalten.
+
+4. Hilfsweise beantrage ich den Erlass der Erstattungsforderung gemaess § 44 SGB II, da die Einziehung fuer mich eine besondere Haerte darstellen wuerde.
+
+Vorsorglich beantrage ich die Aussetzung der sofortigen Vollziehung.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+
+    case 'widerspruch_rueckforderung':
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Widerspruch gegen Erstattungsbescheid vom ${bescheidDatum}
+BG-Nummer: ${bgNummer}
+Erstattungsforderung: ${data.forderung_hoehe || '[Betrag]'} EUR
+
+Sehr geehrte Damen und Herren,
+
+hiermit lege ich gegen Ihren Erstattungsbescheid vom ${bescheidDatum} ueber ${data.forderung_hoehe || '[Betrag]'} EUR fristgerecht
+
+                    WIDERSPRUCH
+
+ein.
+
+Die Erstattungsforderung ist rechtswidrig:
+
+${data.grund || '[Begruendung]'}
+
+Ich beanstande insbesondere:
+
+1. Der zugrundeliegende Aufhebungsbescheid ist selbst rechtswidrig (siehe oben).
+2. Die Berechnung der Erstattungsforderung ist fehlerhaft.
+3. Hilfsweise beantrage ich den vollstaendigen Erlass der Erstattungsforderung gemaess § 44 SGB II, da die Einziehung eine besondere Haerte darstellt.
+4. Hoechst hilfsweise beantrage ich eine Ratenzahlung in Hoehe von maximal 10% des Regelsatzes.
+
+Ich weise darauf hin, dass eine Aufrechnung mit laufenden Leistungen gemaess § 43 SGB II maximal 30% des Regelsatzes betragen darf.
+
+Vorsorglich beantrage ich die Aussetzung der sofortigen Vollziehung gemaess § 86a SGG.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+
+    case 'antrag_mehrbedarf': {
+      const artMap: Record<string, string> = {
+        alleinerziehend: 'Alleinerziehend (§ 21 Abs. 3 SGB II)',
+        schwanger: 'Schwangerschaft ab der 13. Woche (§ 21 Abs. 2 SGB II)',
+        behinderung: 'Behinderung mit Merkzeichen G/aG (§ 21 Abs. 4 SGB II)',
+        ernaehrung: 'Kostenaufwaendige Ernaehrung (§ 21 Abs. 5 SGB II)',
+        warmwasser: 'Dezentrale Warmwassererzeugung (§ 21 Abs. 7 SGB II)',
+        unabweisbar: 'Unabweisbarer laufender Mehrbedarf (§ 21 Abs. 6 SGB II)',
+      }
+      const artText = artMap[data.mehrbedarf_art] || data.mehrbedarf_art || '[Art des Mehrbedarfs]'
+
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Antrag auf Anerkennung eines Mehrbedarfs
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Anerkennung eines Mehrbedarfs nach § 21 SGB II.
+
+Art des Mehrbedarfs: ${artText}
+
+Begruendung:
+${data.begruendung || '[Begruendung]'}
+
+Ich bitte um schriftliche Bescheidung meines Antrags. Sofern dem Antrag nicht entsprochen wird, bitte ich um Erlass eines rechtsmittelfaehigen Bescheids.
+
+Anlagen:
+- [ggf. aerztliches Attest]
+- [ggf. Nachweise]
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+    }
+
+    case 'antrag_einmalige_leistung': {
+      const leistungMap: Record<string, string> = {
+        erstausstattung_wohnung: 'Erstausstattung fuer die Wohnung (§ 24 Abs. 3 Nr. 1 SGB II)',
+        erstausstattung_kleidung: 'Erstausstattung fuer Bekleidung (§ 24 Abs. 3 Nr. 2 SGB II)',
+        erstausstattung_schwangerschaft: 'Erstausstattung bei Schwangerschaft/Geburt (§ 24 Abs. 3 Nr. 2 SGB II)',
+        reparatur: 'Ersatzbeschaffung/Reparatur notwendiger Geraete',
+        klassenfahrt: 'Klassenfahrt/Schulausflug (§ 28 Abs. 2 SGB II)',
+        sonstiges: 'Sonstige einmalige Leistung',
+      }
+      const leistungText = leistungMap[data.leistung_art] || '[Art der Leistung]'
+
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Antrag auf einmalige Leistung gemaess § 24 Abs. 3 SGB II
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Gewaehrung einer einmaligen Leistung:
+
+Art: ${leistungText}
+
+Begruendung:
+${data.begruendung || '[Was wird benoetigt und warum]'}
+
+Die Anschaffung kann nicht aus dem Regelsatz finanziert werden, da dieser nur den laufenden Lebensbedarf deckt und keine Ansparmoeglichkeit fuer groessere Anschaffungen bietet (BSG, Urteil vom 20.08.2009, B 14 AS 45/08 R).
+
+Ich bitte um Gewaehrung als Geldleistung gemaess § 24 Abs. 3 Satz 5 SGB II, da ich die Anschaffung selbst guenstiger taetigen kann.
+
+Sofern dem Antrag nicht entsprochen wird, bitte ich um Erlass eines rechtsmittelfaehigen Bescheids.
+
+Anlagen:
+- [ggf. Fotos defekter Geraete]
+- [ggf. Kostenvoranschlaege]
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+    }
+
+    case 'antrag_weiterbewilligung':
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Antrag auf Weiterbewilligung von Leistungen nach dem SGB II
+BG-Nummer: ${bgNummer}
+Aktueller Bewilligungszeitraum endet: ${data.bewilligungsende ? new Date(data.bewilligungsende).toLocaleDateString('de-DE') : '[Datum]'}
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Weiterbewilligung von Leistungen zur Sicherung des Lebensunterhalts nach dem SGB II ab dem ${data.bewilligungsende ? new Date(new Date(data.bewilligungsende).getTime() + 86400000).toLocaleDateString('de-DE') : '[Datum]'}.
+
+Meine Beduerftigkeit besteht unveraendert fort.
+
+${data.aenderungen ? `Folgende Aenderungen sind eingetreten:\n${data.aenderungen}` : 'Es sind keine wesentlichen Aenderungen in meinen Verhaeltnissen eingetreten.'}
+
+Ich bitte um rechtzeitige Bescheidung vor Ablauf des aktuellen Bewilligungszeitraums, um eine lueckenlose Leistungsgewaehrung sicherzustellen.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+
+    case 'eilantrag_sozialgericht':
+      letterBody = `${name}
+${data.adresse || '[Deine Adresse]'}
+
+An das
+${data.sozialgericht || 'Sozialgericht [Stadt]'}
+[Adresse des Sozialgerichts]
+
+${today}
+
+Antrag auf Erlass einer einstweiligen Anordnung
+gemaess § 86b Abs. 2 SGG
+
+Antragsteller: ${name}, wohnhaft ${data.adresse || '[Adresse]'}
+
+Antragsgegner: ${data.jobcenter || '[Jobcenter]'}, [Adresse]
+
+Ich beantrage,
+
+den Antragsgegner im Wege der einstweiligen Anordnung zu verpflichten, mir vorlaeufig Leistungen zur Sicherung des Lebensunterhalts nach dem SGB II in gesetzlicher Hoehe zu gewaehren.
+
+I. Sachverhalt:
+
+${data.sachverhalt || '[Sachverhalt]'}
+
+II. Anordnungsanspruch:
+
+Mir stehen Leistungen nach dem SGB II zu. [Begruendung]
+
+III. Anordnungsgrund (Eilbeduerfnis):
+
+${data.notlage || '[Notlage beschreiben]'}
+
+Die Eilbeduerfigkeit ergibt sich daraus, dass ich ohne die Leistungen meinen Lebensunterhalt nicht sicherstellen kann. Es droht eine Notlage, die den Erlass einer einstweiligen Anordnung rechtfertigt.
+
+IV. Prozesskostenhilfe:
+
+Gleichzeitig beantrage ich die Bewilligung von Prozesskostenhilfe unter Beiordnung eines Rechtsanwalts, da ich nicht in der Lage bin, die Kosten der Prozessfuehrung aufzubringen.
+
+Anlagen:
+- Ablehnungsbescheid / streitiger Bescheid
+- Widerspruch (falls eingelegt)
+- Nachweis der Notlage
+- PKH-Erklaerung ueber die persoenlichen und wirtschaftlichen Verhaeltnisse
+
+${name}`
+      break
+
+    case 'akteneinsicht':
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Antrag auf Akteneinsicht gemaess § 25 SGB X
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich gemaess § 25 Abs. 1 SGB X Einsicht in meine vollstaendige Leistungsakte.
+
+Ich bitte um einen Termin zur Akteneinsicht in Ihren Raeumlichkeiten. Alternativ bitte ich um Uebersendung von Kopien der vollstaendigen Akte an meine oben genannte Adresse.
+
+Gemaess § 25 Abs. 5 SGB X bin ich bereit, die anfallenden Kopierkosten zu uebernehmen. Ich bitte jedoch um vorherige Mitteilung der voraussichtlichen Kosten.
+
+Ich bitte um Erledigung innerhalb von 2 Wochen.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+
+    case 'beschwerde_sachbearbeiter':
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+- Geschaeftsfuehrung / Teamleitung -
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Dienstaufsichtsbeschwerde
+BG-Nummer: ${bgNummer}
+${data.sachbearbeiter ? `Betroffener Sachbearbeiter: ${data.sachbearbeiter}` : ''}
+
+Sehr geehrte Damen und Herren,
+
+hiermit erhebe ich Dienstaufsichtsbeschwerde gemaess Art. 17 GG (Petitionsrecht) ueber folgenden Vorfall:
+
+${data.vorfall || '[Beschreibung des Vorfalls]'}
+
+Ich bitte um:
+1. Pruefung des Sachverhalts
+2. Schriftliche Stellungnahme zu meiner Beschwerde
+3. Ggf. Sicherstellung, dass sich ein derartiger Vorfall nicht wiederholt
+
+Ich behalte mir vor, bei ausbleibender oder unbefriedigender Reaktion weitere Schritte einzuleiten (Petition beim Landtag, Buergerbeauftragter).
+
+Ich bitte um Bestaetigung des Eingangs dieser Beschwerde und um Bearbeitung innerhalb von 4 Wochen.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+
+    case 'fristverlängerung':
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Antrag auf Fristverlaengerung
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich eine Verlaengerung der mir gesetzten Frist bezueglich:
+
+${data.frist_bezug || '[Bezug zur Frist]'}
+
+Begruendung:
+${data.grund || '[Begruendung]'}
+
+Ich bitte um Gewaehrung einer angemessenen Nachfrist von mindestens 2 Wochen.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+
+    case 'antrag_umzug': {
+      const umzugsgrundMap: Record<string, string> = {
+        aufforderung: 'Kostensenkungsaufforderung durch das Jobcenter',
+        kuendigung: 'Kuendigung durch den Vermieter',
+        gesundheit: 'Gesundheitliche Gruende',
+        familie: 'Familiaere Gruende (z.B. Nachwuchs)',
+        arbeit: 'Arbeitsaufnahme in anderer Stadt',
+        gewalt: 'Haeusliche Gewalt',
+        sonstiges: 'Sonstige Gruende',
+      }
+      const grund = umzugsgrundMap[data.umzugsgrund] || '[Umzugsgrund]'
+
+      letterBody = `${name}
+[Deine Adresse]
+[PLZ Ort]
+
+${jobcenter}
+[Adresse des Jobcenters]
+[PLZ Ort]
+
+${today}
+
+Betreff: Antrag auf Zusicherung der Kostenuebernahme fuer eine neue Wohnung gemaess § 22 Abs. 4 SGB II
+sowie Antrag auf Uebernahme der Umzugskosten gemaess § 22 Abs. 6 SGB II
+BG-Nummer: ${bgNummer}
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Zusicherung zur Uebernahme der Aufwendungen fuer die nachfolgend bezeichnete Wohnung sowie die Uebernahme der Umzugskosten.
+
+Neue Wohnung:
+Adresse: ${data.neue_adresse || '[Adresse]'}
+Warmmiete: ${data.neue_miete || '[Miete]'} EUR monatlich
+
+Grund des Umzugs: ${grund}
+
+Der Umzug ist notwendig und die Kosten der neuen Unterkunft sind angemessen im Sinne des § 22 SGB II.
+
+Ich beantrage:
+1. Zusicherung der Uebernahme der Mietkosten fuer die neue Wohnung
+2. Uebernahme der Umzugskosten (Umzugswagen, Helfer)
+3. Uebernahme einer ggf. anfallenden Mietkaution als Darlehen gemaess § 22 Abs. 6 SGB II
+
+Ich bitte um zeitnahe Bearbeitung, da der Vermieter eine Zusage benoetigt.
+
+Mit freundlichen Gruessen
+
+${name}`
+      break
+    }
+
     default:
       letterBody = `${name}
 [Deine Adresse]
