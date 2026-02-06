@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { getTemplateById, SGB_CATEGORIES, type LetterType } from '@/lib/sgb-knowledge'
 import { useCreditsContext } from '@/contexts/CreditsContext'
+import { generateLetterPdf } from '@/lib/pdf-export'
 
 export default function GeneratorPage() {
   const { templateId } = useParams<{ templateId: string }>()
@@ -192,7 +193,12 @@ export default function GeneratorPage() {
                   {generatedLetter}
                 </div>
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                  <Button variant="amt" size="lg" className="flex-1">
+                  <Button
+                    variant="amt"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => generateLetterPdf(generatedLetter, template.title, categoryInfo?.name || '')}
+                  >
                     <Download className="mr-2 h-5 w-5" />
                     Als PDF herunterladen
                   </Button>

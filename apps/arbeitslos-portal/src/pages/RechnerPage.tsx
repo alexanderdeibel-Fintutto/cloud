@@ -6,6 +6,7 @@ import {
   TrendingUp,
   AlertTriangle,
   PiggyBank,
+  Clock,
   ArrowRight,
   MessageCircle,
   Info,
@@ -73,6 +74,16 @@ const calculators = [
     route: '/rechner/schonvermoegen',
     color: 'text-amber-600',
     bgColor: 'bg-amber-50',
+  },
+  {
+    id: 'fristen',
+    title: 'Fristenrechner',
+    description:
+      'Wann laeuft deine Frist ab? Widerspruch, Klage, Anhoerung - berechne dein Fristende',
+    icon: Clock,
+    route: '/rechner/fristen',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
   },
 ]
 

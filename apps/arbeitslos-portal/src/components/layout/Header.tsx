@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator } from 'lucide-react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -8,6 +8,7 @@ const navigation = [
   { name: 'KI-Berater', href: '/chat', icon: MessageCircle },
   { name: 'Rechner', href: '/rechner', icon: Calculator },
   { name: 'Dokumenten-Werkstatt', href: '/musterschreiben', icon: FileText },
+  { name: 'Tracker', href: '/tracker', icon: ClipboardList },
   { name: 'Community', href: '/forum', icon: Users },
   { name: 'Preise', href: '/preise', icon: CreditCard },
 ]

@@ -30,6 +30,8 @@ const MehrbedarfRechner = lazy(() => import('@/pages/rechner/MehrbedarfRechner')
 const FreibetragsRechner = lazy(() => import('@/pages/rechner/FreibetragsRechner'))
 const SanktionsRechner = lazy(() => import('@/pages/rechner/SanktionsRechner'))
 const SchonvermoegensRechner = lazy(() => import('@/pages/rechner/SchonvermoegensRechner'))
+const FristenRechner = lazy(() => import('@/pages/rechner/FristenRechner'))
+const WiderspruchTracker = lazy(() => import('@/pages/WiderspruchTracker'))
 
 function PageLoader() {
   return (
@@ -83,6 +85,10 @@ function App() {
                 <Route path="rechner/freibetrag" element={<FreibetragsRechner />} />
                 <Route path="rechner/sanktion" element={<SanktionsRechner />} />
                 <Route path="rechner/schonvermoegen" element={<SchonvermoegensRechner />} />
+                <Route path="rechner/fristen" element={<FristenRechner />} />
+
+                {/* Widerspruch-Tracker */}
+                <Route path="tracker" element={<WiderspruchTracker />} />
 
                 {/* Probleme-Guide */}
                 <Route path="probleme" element={<ProblemePage />} />
