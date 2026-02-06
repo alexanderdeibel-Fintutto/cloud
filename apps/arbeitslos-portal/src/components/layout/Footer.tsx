@@ -18,7 +18,7 @@ const footerLinks = {
     { name: 'Mieter-Checker', href: 'https://mieter.fintutto.cloud', external: true },
     { name: 'Vermieter-Portal', href: 'https://vermieter.fintutto.cloud', external: true },
     { name: 'Formulare', href: 'https://formulare.fintutto.cloud', external: true },
-  ],
+  ] as ({ name: string; href: string; external: true } | { name: string; href: string })[],
   rechtliches: [
     { name: 'Impressum', href: '/impressum' },
     { name: 'Datenschutz', href: '/datenschutz' },

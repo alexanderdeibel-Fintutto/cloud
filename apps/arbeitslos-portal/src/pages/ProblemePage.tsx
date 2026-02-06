@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import {
-  ArrowRight,
   MessageCircle,
   FileText,
   Scale,
@@ -11,7 +10,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { COMMON_PROBLEMS, SGB_CATEGORIES, LETTER_TEMPLATES } from '@/lib/sgb-knowledge'
 import { REGELSAETZE_2026, MEHRBEDARFE, SANKTIONEN, FRISTEN, BERATUNGSSTELLEN } from '@/lib/sgb-data'

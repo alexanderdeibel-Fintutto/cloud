@@ -8,8 +8,6 @@ import {
   Eye,
   PenSquare,
   Pin,
-  TrendingUp,
-  Filter,
   Search,
   Lock,
 } from 'lucide-react'

@@ -3,9 +3,6 @@ import {
   CheckCircle2,
   Star,
   Shield,
-  MessageCircle,
-  FileText,
-  Users,
   Zap,
   HelpCircle,
 } from 'lucide-react'

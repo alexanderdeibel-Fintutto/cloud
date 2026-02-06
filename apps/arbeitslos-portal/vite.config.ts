@@ -12,4 +12,22 @@ export default defineConfig({
   server: {
     port: 5175,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': [
+            '@radix-ui/react-slot',
+            '@radix-ui/react-label',
+            '@radix-ui/react-progress',
+            'class-variance-authority',
+            'clsx',
+            'tailwind-merge',
+          ],
+          'vendor-supabase': ['@supabase/supabase-js'],
+        },
+      },
+    },
+  },
 })

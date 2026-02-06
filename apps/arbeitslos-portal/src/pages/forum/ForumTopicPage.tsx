@@ -9,8 +9,6 @@ import {
   Send,
   Shield,
   Pin,
-  Flag,
-  Share2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -119,7 +117,7 @@ function formatTime(dateStr: string): string {
 }
 
 export default function ForumTopicPage() {
-  const { topicId } = useParams()
+  const { topicId: _topicId } = useParams()
   const { checkForum } = useCreditsContext()
   const forumCheck = checkForum()
 

@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { useCreditsContext } from '@/contexts/CreditsContext'
-import { SGB_CATEGORIES, type SgbCategory } from '@/lib/sgb-knowledge'
+import { type SgbCategory } from '@/lib/sgb-knowledge'
 
 const CATEGORY_OPTIONS: { id: SgbCategory; label: string }[] = [
   { id: 'sgb2', label: 'Buergergeld (SGB II)' },

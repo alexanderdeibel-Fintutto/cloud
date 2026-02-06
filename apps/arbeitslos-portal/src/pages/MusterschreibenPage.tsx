@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import {
   FileText,
   Search,
-  Filter,
   ArrowRight,
   Clock,
   BarChart3,
@@ -18,7 +17,6 @@ import {
   SGB_CATEGORIES,
   COMMON_PROBLEMS,
   type SgbCategory,
-  type LetterTemplate,
 } from '@/lib/sgb-knowledge'
 
 const CATEGORY_FILTERS: { id: SgbCategory | 'all'; label: string }[] = [

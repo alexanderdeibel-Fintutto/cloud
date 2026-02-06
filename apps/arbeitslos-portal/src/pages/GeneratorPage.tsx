@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import {
   FileText,
   ArrowLeft,
@@ -9,7 +9,6 @@ import {
   AlertCircle,
   Lightbulb,
   Scale,
-  Lock,
   CreditCard,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -24,7 +23,6 @@ import { useCreditsContext } from '@/contexts/CreditsContext'
 
 export default function GeneratorPage() {
   const { templateId } = useParams<{ templateId: string }>()
-  const navigate = useNavigate()
   const { checkLetter } = useCreditsContext()
 
   const template = getTemplateById(templateId as LetterType)
