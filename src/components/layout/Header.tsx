@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Menu, X, User, LogOut } from 'lucide-react'
+import { Menu, X, User, LogOut, FileText } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -67,6 +67,16 @@ export default function Header() {
             >
               Formulare
             </Link>
+
+            {user && (
+              <Link
+                to="/meine-dokumente"
+                className="text-gray-600 hover:text-fintutto-primary font-medium flex items-center"
+              >
+                <FileText className="w-4 h-4 mr-1" />
+                Meine Dokumente
+              </Link>
+            )}
 
             <Link
               to="/preise"
@@ -143,6 +153,16 @@ export default function Header() {
               >
                 Formulare
               </Link>
+              {user && (
+                <Link
+                  to="/meine-dokumente"
+                  className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg flex items-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Meine Dokumente
+                </Link>
+              )}
               <Link
                 to="/preise"
                 className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"

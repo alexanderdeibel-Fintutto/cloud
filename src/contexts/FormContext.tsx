@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 import { supabase } from '@/integrations/supabase'
 import { useAuth } from './AuthContext'
+import { getFormTemplate } from '@/lib/formTemplates'
 
 // Types
 export interface FormField {
@@ -575,42 +576,4 @@ export function useForm() {
     throw new Error('useForm must be used within a FormProvider')
   }
   return context
-}
-
-// Form Templates - will be expanded
-const FORM_TEMPLATES: Record<string, FormTemplate> = {
-  'mietpreisbremse-ruege': {
-    id: 'mietpreisbremse-ruege',
-    name: 'Mietpreisbremse-Ruege',
-    description: 'Ruegen Sie die ueberhöhte Miete und fordern Sie Geld zurueck',
-    category: 'miete',
-    outputFormat: 'letter',
-    fields: [
-      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
-      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
-      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
-      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
-      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
-      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
-      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
-      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
-      { id: 'mietbeginn', name: 'mietbeginn', label: 'Mietbeginn', type: 'date', required: true, section: 'mietverhaeltnis' },
-      { id: 'kaltmiete', name: 'kaltmiete', label: 'Aktuelle Kaltmiete (EUR)', type: 'currency', required: true, section: 'mietverhaeltnis' },
-      { id: 'wohnflaeche', name: 'wohnflaeche', label: 'Wohnflaeche (m2)', type: 'number', required: true, section: 'mietverhaeltnis' },
-      { id: 'ortsuebliche_miete', name: 'ortsuebliche_miete', label: 'Ortsuebliche Vergleichsmiete (EUR/m2)', type: 'currency', required: true, section: 'mietverhaeltnis' },
-      { id: 'rueckforderung', name: 'rueckforderung', label: 'Rueckforderungsbetrag (EUR)', type: 'currency', section: 'forderung' },
-      { id: 'frist', name: 'frist', label: 'Frist zur Stellungnahme', type: 'date', required: true, section: 'forderung' },
-      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
-    ],
-    legalText: `Sehr geehrte Damen und Herren,
-
-hiermit ruege ich gemaess § 556g BGB die Hoehe der vereinbarten Miete.
-
-Die von mir gezahlte Miete uebersteigt die nach der Mietpreisbremse zulaessige Miete. Nach § 556d BGB darf die Miete bei Wiedervermietung hoechstens 10% ueber der ortsueblichen Vergleichsmiete liegen.
-
-Ich fordere Sie auf, die Miete auf das zulaessige Mass zu reduzieren und mir die zu viel gezahlte Miete zurueckzuerstatten.
-
-Mit freundlichen Gruessen`,
-  },
-  // More templates will be added...
 }
