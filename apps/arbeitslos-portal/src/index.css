@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 160 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 160 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 20% 10%;
+
+    --primary: 160 84% 25%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 24 95% 53%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 150 10% 95%;
+    --muted-foreground: 160 10% 40%;
+
+    --accent: 160 40% 92%;
+    --accent-foreground: 160 84% 25%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 150 13% 87%;
+    --input: 150 13% 87%;
+    --ring: 160 84% 35%;
+
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: 160 15% 6%;
+    --foreground: 0 0% 95%;
+
+    --card: 160 15% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 160 15% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 160 70% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 24 90% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 160 10% 15%;
+    --muted-foreground: 150 10% 55%;
+
+    --accent: 160 30% 20%;
+    --accent-foreground: 160 70% 65%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 160 10% 18%;
+    --input: 160 10% 18%;
+    --ring: 160 70% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Amtshilfe gradients */
+  .gradient-amt {
+    background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
+  }
+
+  .gradient-amt-warm {
+    background: linear-gradient(135deg, #059669 0%, #f97316 100%);
+  }
+
+  .gradient-text-amt {
+    background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Chat styles */
+  .chat-bubble-user {
+    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-3;
+  }
+
+  .chat-bubble-ai {
+    @apply bg-card border border-border rounded-2xl rounded-bl-md px-4 py-3;
+  }
+
+  .chat-input {
+    @apply w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none;
+  }
+
+  /* Card styles */
+  .content-card {
+    @apply bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  .content-card-highlight {
+    @apply border-primary/30 shadow-md shadow-primary/5;
+  }
+
+  /* Letter template card */
+  .letter-card {
+    @apply bg-card rounded-xl border border-border p-5 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer;
+  }
+
+  /* Forum styles */
+  .forum-post {
+    @apply bg-card rounded-xl border border-border p-5 hover:border-primary/30 transition-colors;
+  }
+
+  /* Category badges */
+  .badge-sgb2 {
+    @apply bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-sgb3 {
+    @apply bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-sgb12 {
+    @apply bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-kdu {
+    @apply bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  /* Status badges */
+  .status-success {
+    @apply bg-success/10 border border-success/30 text-success;
+  }
+
+  .status-warning {
+    @apply bg-warning/10 border border-warning/30 text-warning;
+  }
+
+  .status-error {
+    @apply bg-destructive/10 border border-destructive/30 text-destructive;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply text-sm font-medium text-foreground/80 hover:text-foreground transition-colors;
+  }
+
+  .nav-link-active {
+    @apply text-primary font-semibold;
+  }
+
+  /* Pricing tier cards */
+  .tier-free {
+    @apply border-border;
+  }
+
+  .tier-plus {
+    @apply border-primary/50 shadow-lg shadow-primary/10;
+  }
+
+  .tier-premium {
+    @apply border-secondary/50 shadow-lg shadow-secondary/10 ring-2 ring-secondary/20;
+  }
+}
