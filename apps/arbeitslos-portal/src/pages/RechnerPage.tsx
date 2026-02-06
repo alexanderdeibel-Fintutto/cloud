@@ -1,0 +1,187 @@
+import { Link } from 'react-router-dom'
+import {
+  Calculator,
+  Home,
+  Heart,
+  TrendingUp,
+  AlertTriangle,
+  PiggyBank,
+  ArrowRight,
+  MessageCircle,
+  Info,
+} from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+
+const calculators = [
+  {
+    id: 'buergergeld',
+    title: 'Buergergeld-Rechner',
+    description:
+      'Berechne deinen vollen Buergergeld-Anspruch inkl. Regelbedarf, KdU und Mehrbedarf',
+    icon: Calculator,
+    route: '/rechner/buergergeld',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+  },
+  {
+    id: 'kdu',
+    title: 'KdU-Rechner',
+    description:
+      'Pruefe ob deine Mietkosten angemessen sind - fuer deine Stadt',
+    icon: Home,
+    route: '/rechner/kdu',
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-50',
+  },
+  {
+    id: 'mehrbedarf',
+    title: 'Mehrbedarf-Rechner',
+    description:
+      'Schwanger, alleinerziehend, behindert? Berechne deinen Mehrbedarf',
+    icon: Heart,
+    route: '/rechner/mehrbedarf',
+    color: 'text-rose-600',
+    bgColor: 'bg-rose-50',
+  },
+  {
+    id: 'freibetrag',
+    title: 'Freibetrags-Rechner',
+    description:
+      'Wieviel darfst du verdienen ohne Kuerzung? Berechne deine Freibetraege',
+    icon: TrendingUp,
+    route: '/rechner/freibetrag',
+    color: 'text-green-600',
+    bgColor: 'bg-green-50',
+  },
+  {
+    id: 'sanktion',
+    title: 'Sanktions-Rechner',
+    description:
+      'Sanktion erhalten? Pruefe ob sie rechtmaessig ist und wie hoch sie maximal sein darf',
+    icon: AlertTriangle,
+    route: '/rechner/sanktion',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50',
+  },
+  {
+    id: 'schonvermoegen',
+    title: 'Schonvermoegens-Rechner',
+    description:
+      'Wieviel Vermoegen darfst du behalten? Pruefe deine Freibetraege',
+    icon: PiggyBank,
+    route: '/rechner/schonvermoegen',
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-50',
+  },
+]
+
+export default function RechnerPage() {
+  return (
+    <div>
+      {/* ============================================================= */}
+      {/* 1. HERO SECTION                                               */}
+      {/* ============================================================= */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 gradient-boxer opacity-5" />
+        <div className="container py-12 md:py-16 relative">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+              <span className="gradient-text-boxer">AmtsRechner</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground">
+              Berechne deine Ansprueche - kostenlos und anonym
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================= */}
+      {/* 2. CALCULATOR GRID                                            */}
+      {/* ============================================================= */}
+      <section className="container py-8 md:py-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {calculators.map((calc) => (
+            <Link key={calc.id} to={calc.route}>
+              <Card className="h-full hover:shadow-md transition-shadow group border rounded-xl shadow-sm bg-card">
+                <CardContent className="p-6">
+                  <div
+                    className={`inline-flex p-3 rounded-xl ${calc.bgColor} mb-4`}
+                  >
+                    <calc.icon className={`h-6 w-6 ${calc.color}`} />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                    {calc.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {calc.description}
+                  </p>
+                  <div className="flex items-center text-primary font-medium text-sm">
+                    Jetzt berechnen
+                    <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ============================================================= */}
+      {/* 3. CTA SECTION                                                */}
+      {/* ============================================================= */}
+      <section className="container py-12">
+        <div className="max-w-2xl mx-auto">
+          <Card className="border-2 border-primary/20 bg-primary/5 rounded-xl">
+            <CardContent className="p-6 md:p-8 text-center">
+              <MessageCircle className="h-12 w-12 mx-auto mb-4 text-primary" />
+              <h2 className="text-2xl font-bold mb-3">
+                Du brauchst persoenliche Hilfe?
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Unsere KI-Rechtsberatung beantwortet deine individuellen Fragen
+                zu Buergergeld, Widerspruch und mehr.
+              </p>
+              <Button
+                size="lg"
+                className="gradient-boxer text-white border-0 hover:opacity-90"
+                asChild
+              >
+                <Link to="/chat">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Jetzt Frage stellen
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* ============================================================= */}
+      {/* 4. LEGAL DISCLAIMER                                           */}
+      {/* ============================================================= */}
+      <section className="container py-8 pb-16">
+        <div className="max-w-3xl mx-auto">
+          <Card className="border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900/40 rounded-xl">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3">
+                <Info className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                    Rechtlicher Hinweis
+                  </h3>
+                  <p className="text-amber-800 dark:text-amber-200">
+                    Die Rechner dienen zur ersten Orientierung. Alle Angaben
+                    ohne Gewaehr. Rechtsverbindliche Auskuenfte erhaeltst du
+                    nur von deinem Jobcenter oder einem Fachanwalt fuer
+                    Sozialrecht.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    </div>
+  )
+}

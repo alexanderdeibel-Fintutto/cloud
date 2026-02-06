@@ -23,6 +23,13 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 const ProblemePage = lazy(() => import('@/pages/ProblemePage'))
+const RechnerPage = lazy(() => import('@/pages/RechnerPage'))
+const BuergergeldRechner = lazy(() => import('@/pages/rechner/BuergergeldRechner'))
+const KduRechner = lazy(() => import('@/pages/rechner/KduRechner'))
+const MehrbedarfRechner = lazy(() => import('@/pages/rechner/MehrbedarfRechner'))
+const FreibetragsRechner = lazy(() => import('@/pages/rechner/FreibetragsRechner'))
+const SanktionsRechner = lazy(() => import('@/pages/rechner/SanktionsRechner'))
+const SchonvermoegensRechner = lazy(() => import('@/pages/rechner/SchonvermoegensRechner'))
 
 function PageLoader() {
   return (
@@ -67,6 +74,15 @@ function App() {
                 {/* Pricing */}
                 <Route path="preise" element={<PricingPage />} />
                 <Route path="pricing" element={<PricingPage />} />
+
+                {/* AmtsRechner Suite */}
+                <Route path="rechner" element={<RechnerPage />} />
+                <Route path="rechner/buergergeld" element={<BuergergeldRechner />} />
+                <Route path="rechner/kdu" element={<KduRechner />} />
+                <Route path="rechner/mehrbedarf" element={<MehrbedarfRechner />} />
+                <Route path="rechner/freibetrag" element={<FreibetragsRechner />} />
+                <Route path="rechner/sanktion" element={<SanktionsRechner />} />
+                <Route path="rechner/schonvermoegen" element={<SchonvermoegensRechner />} />
 
                 {/* Probleme-Guide */}
                 <Route path="probleme" element={<ProblemePage />} />
