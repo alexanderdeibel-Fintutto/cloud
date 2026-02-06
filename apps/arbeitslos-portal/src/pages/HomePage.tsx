@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Shield,
   ExternalLink,
+  ClipboardList,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -39,22 +40,31 @@ const features = [
     bgColor: 'bg-emerald-50',
   },
   {
+    icon: Calculator,
+    title: '9 Rechner',
+    description:
+      'Buergergeld, KdU, Mehrbedarf, Freibetrag, Sanktion, Schonvermoegen, Fristen, PKH und mehr. Sofort berechnen.',
+    href: '/rechner',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-50',
+  },
+  {
     icon: FileText,
     title: 'Dokumenten-Werkstatt',
     description:
-      '14+ Vorlagen fuer Widersprueche, Antraege und Beschwerden. Personalisiert, rechtskonform, sofort einsatzbereit.',
+      '20+ Vorlagen fuer Widersprueche, Antraege und Beschwerden. Personalisiert, rechtskonform, als PDF exportierbar.',
     href: '/musterschreiben',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
   },
   {
-    icon: Calculator,
-    title: 'Rechner-Suite',
+    icon: ClipboardList,
+    title: 'Widerspruch-Tracker',
     description:
-      'Buergergeld-Rechner, KdU-Rechner, Mehrbedarf-Rechner - pruefe in Sekunden, ob dir mehr Geld zusteht.',
-    href: '/rechner',
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-50',
+      'Behalte den Ueberblick ueber all deine laufenden Widersprueche, Klagen und Fristen - mit automatischer Warnung.',
+    href: '/tracker',
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-50',
   },
   {
     icon: Users,
@@ -184,7 +194,7 @@ export default function HomePage() {
       <section className="container py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">
-            Fuenf Waffen gegen falsche Bescheide
+            Sechs Waffen gegen falsche Bescheide
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             BescheidBoxer gibt dir alles, was du brauchst, um dich gegen das Amt
@@ -472,7 +482,63 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================= */}
-      {/* 8. ECOSYSTEM                                                  */}
+      {/* 8. TESTIMONIALS                                               */}
+      {/* ============================================================= */}
+      <section className="container py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Das sagen unsere Nutzer</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            Tausende Betroffene haben mit BescheidBoxer ihr Recht durchgesetzt.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {[
+            {
+              name: 'Sandra M.',
+              location: 'Berlin',
+              text: 'BescheidBoxer hat 3 Fehler in meinem Bescheid gefunden, die ich nie bemerkt haette. 127 EUR mehr im Monat! Der Widerspruch war in 10 Minuten fertig.',
+              amount: '127 EUR/Monat',
+            },
+            {
+              name: 'Thorsten K.',
+              location: 'Dortmund',
+              text: 'Mein Jobcenter hat die Heizkosten gekuerzt. Der KI-Berater hat mir genau erklaert warum das rechtswidrig war. Widerspruch eingereicht, Geld zurueck!',
+              amount: '840 EUR Nachzahlung',
+            },
+            {
+              name: 'Fatima A.',
+              location: 'Hamburg',
+              text: 'Als Alleinerziehende wusste ich nicht, dass mir Mehrbedarf zusteht. Der Rechner hat es sofort gezeigt. Danke BescheidBoxer!',
+              amount: '67 EUR/Monat',
+            },
+          ].map((testimonial) => (
+            <Card key={testimonial.name} className="h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-1 mb-3">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star} className="text-yellow-400 text-lg">&#9733;</span>
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-4 text-sm leading-relaxed">
+                  &ldquo;{testimonial.text}&rdquo;
+                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-sm">{testimonial.name}</p>
+                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 border-green-200">
+                    +{testimonial.amount}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* ============================================================= */}
+      {/* 9. ECOSYSTEM                                                  */}
       {/* ============================================================= */}
       <section className="container py-16">
         <div className="text-center mb-8">

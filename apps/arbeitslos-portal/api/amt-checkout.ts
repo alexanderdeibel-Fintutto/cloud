@@ -5,14 +5,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
 })
 
-const AMT_PLAN_LIMITS = {
-  plus: {
-    chatQuestionsPerDay: 20,
-    lettersPerMonth: 3,
+// Plan limits matching credits.ts PLANS config
+const PLAN_LIMITS: Record<string, {
+  chatMessagesPerDay: number
+  lettersPerMonth: number
+  bescheidScansPerMonth: number
+  creditsPerMonth: number
+}> = {
+  starter: {
+    chatMessagesPerDay: 10,
+    lettersPerMonth: 1,
+    bescheidScansPerMonth: 3,
+    creditsPerMonth: 10,
   },
-  premium: {
-    chatQuestionsPerDay: -1, // unlimited
-    lettersPerMonth: -1, // unlimited
+  kaempfer: {
+    chatMessagesPerDay: -1,
+    lettersPerMonth: 3,
+    bescheidScansPerMonth: -1,
+    creditsPerMonth: 25,
+  },
+  vollschutz: {
+    chatMessagesPerDay: -1,
+    lettersPerMonth: -1,
+    bescheidScansPerMonth: -1,
+    creditsPerMonth: 50,
   },
 }
 
@@ -23,17 +39,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, userEmail, planId } = req.body
+    const { priceId, userId, userEmail, planId, interval } = req.body
 
     if (!priceId || !planId) {
       return res.status(400).json({ error: 'Price ID and Plan ID are required' })
     }
 
-    if (!['plus', 'premium'].includes(planId)) {
-      return res.status(400).json({ error: 'Invalid plan ID' })
+    if (!['starter', 'kaempfer', 'vollschutz'].includes(planId)) {
+      return res.status(400).json({ error: 'Invalid plan ID. Must be starter, kaempfer, or vollschutz.' })
     }
 
-    const planLimits = AMT_PLAN_LIMITS[planId as keyof typeof AMT_PLAN_LIMITS]
+    const planLimits = PLAN_LIMITS[planId]
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -44,24 +60,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.origin}/dashboard?checkout=success&plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/preise?checkout=cancel`,
       customer_email: userEmail || undefined,
       metadata: {
-        app: 'amtshilfe',
+        app: 'bescheidboxer',
         userId: userId || '',
         planId,
-        chatQuestionsPerDay: String(planLimits.chatQuestionsPerDay),
+        interval: interval || 'monthly',
+        chatMessagesPerDay: String(planLimits.chatMessagesPerDay),
         lettersPerMonth: String(planLimits.lettersPerMonth),
+        bescheidScansPerMonth: String(planLimits.bescheidScansPerMonth),
+        creditsPerMonth: String(planLimits.creditsPerMonth),
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       locale: 'de',
+      tax_id_collection: { enabled: true },
     })
 
     return res.status(200).json({ url: session.url })
   } catch (error) {
-    console.error('Amtshilfe checkout error:', error)
+    console.error('BescheidBoxer checkout error:', error)
     return res.status(500).json({
       error: 'Failed to create checkout session',
       details: error instanceof Error ? error.message : 'Unknown error',
