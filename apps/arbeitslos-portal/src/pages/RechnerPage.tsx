@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   PiggyBank,
   Clock,
+  Scale,
   ArrowRight,
   MessageCircle,
   Info,
@@ -84,6 +85,16 @@ const calculators = [
     route: '/rechner/fristen',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
+  },
+  {
+    id: 'pkh',
+    title: 'PKH-Rechner',
+    description:
+      'Prozesskostenhilfe: Pruefe ob du Anspruch auf kostenlose Anwaltshilfe beim Sozialgericht hast',
+    icon: Scale,
+    route: '/rechner/pkh',
+    color: 'text-cyan-600',
+    bgColor: 'bg-cyan-50',
   },
 ]
 

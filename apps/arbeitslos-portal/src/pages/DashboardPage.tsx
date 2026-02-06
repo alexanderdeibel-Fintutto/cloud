@@ -15,6 +15,9 @@ import {
   ScanSearch,
   Trophy,
   Target,
+  ClipboardList,
+  Calculator,
+  Scale,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -184,6 +187,72 @@ function tipPriorityStyles(priority: 'high' | 'medium' | 'low') {
     case 'low':
       return 'border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-950/30'
   }
+}
+
+// ---------------------------------------------------------------------------
+// Tracker Preview - reads real data from localStorage
+// ---------------------------------------------------------------------------
+
+function TrackerPreview() {
+  let entries: { typ: string; betreff: string; fristende: string; status: string }[] = []
+  try {
+    const raw = localStorage.getItem('bescheidboxer_widersprueche')
+    if (raw) entries = JSON.parse(raw)
+  } catch { /* ignore */ }
+
+  const aktive = entries.filter(e => e.status === 'eingereicht' || e.status === 'in_bearbeitung')
+
+  if (aktive.length === 0) {
+    return (
+      <div className="text-center py-4">
+        <p className="text-sm text-muted-foreground mb-3">Noch keine Widersprueche erfasst</p>
+        <div className="flex gap-2 justify-center">
+          <Link to="/tracker">
+            <Button size="sm" variant="outline" className="gap-1">
+              <ClipboardList className="h-3.5 w-3.5" />
+              Tracker oeffnen
+            </Button>
+          </Link>
+          <Link to="/musterschreiben">
+            <Button size="sm" className="gap-1">
+              <FileText className="h-3.5 w-3.5" />
+              Schreiben erstellen
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      {aktive.slice(0, 3).map((entry, idx) => {
+        const frist = new Date(entry.fristende)
+        const heute = new Date()
+        const tageVerbleibend = Math.ceil((frist.getTime() - heute.getTime()) / (1000 * 60 * 60 * 24))
+        const dringend = tageVerbleibend < 7
+
+        return (
+          <div key={idx} className={`flex items-center gap-3 p-2.5 rounded-lg border ${dringend ? 'border-red-300 bg-red-50 dark:bg-red-950/20' : ''}`}>
+            {dringend ? (
+              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+            ) : (
+              <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{entry.betreff}</p>
+              <p className={`text-xs ${dringend ? 'text-red-600 font-semibold' : 'text-muted-foreground'}`}>
+                {tageVerbleibend > 0 ? `Noch ${tageVerbleibend} Tage` : 'Frist abgelaufen!'} — {entry.typ}
+              </p>
+            </div>
+          </div>
+        )
+      })}
+      {aktive.length > 3 && (
+        <p className="text-xs text-muted-foreground text-center">+ {aktive.length - 3} weitere</p>
+      )}
+    </div>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -525,6 +594,29 @@ export default function DashboardPage() {
             </Card>
 
             {/* -------------------------------------------------------------- */}
+            {/* Widerspruch-Tracker Preview                                    */}
+            {/* -------------------------------------------------------------- */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <ClipboardList className="h-4 w-4 text-indigo-500" />
+                    Widerspruch-Tracker
+                  </CardTitle>
+                  <Link to="/tracker">
+                    <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                      Alle anzeigen
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <TrackerPreview />
+              </CardContent>
+            </Card>
+
+            {/* -------------------------------------------------------------- */}
             {/* Community Stats                                                */}
             {/* -------------------------------------------------------------- */}
             <Card>
@@ -745,6 +837,33 @@ export default function DashboardPage() {
                   >
                     <Swords className="h-4 w-4 text-red-500" />
                     Musterschreiben
+                  </Button>
+                </Link>
+                <Link to="/tracker" className="block">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 h-9 text-sm"
+                  >
+                    <ClipboardList className="h-4 w-4 text-indigo-500" />
+                    Widerspruch-Tracker
+                  </Button>
+                </Link>
+                <Link to="/rechner" className="block">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 h-9 text-sm"
+                  >
+                    <Calculator className="h-4 w-4 text-amber-500" />
+                    Rechner-Suite
+                  </Button>
+                </Link>
+                <Link to="/rechner/pkh" className="block">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 h-9 text-sm"
+                  >
+                    <Scale className="h-4 w-4 text-cyan-500" />
+                    PKH-Rechner
                   </Button>
                 </Link>
               </CardContent>

@@ -32,6 +32,10 @@ const SanktionsRechner = lazy(() => import('@/pages/rechner/SanktionsRechner'))
 const SchonvermoegensRechner = lazy(() => import('@/pages/rechner/SchonvermoegensRechner'))
 const FristenRechner = lazy(() => import('@/pages/rechner/FristenRechner'))
 const WiderspruchTracker = lazy(() => import('@/pages/WiderspruchTracker'))
+const PkhRechner = lazy(() => import('@/pages/rechner/PkhRechner'))
+const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
+const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
+const AgbPage = lazy(() => import('@/pages/AgbPage'))
 
 function PageLoader() {
   return (
@@ -86,6 +90,7 @@ function App() {
                 <Route path="rechner/sanktion" element={<SanktionsRechner />} />
                 <Route path="rechner/schonvermoegen" element={<SchonvermoegensRechner />} />
                 <Route path="rechner/fristen" element={<FristenRechner />} />
+                <Route path="rechner/pkh" element={<PkhRechner />} />
 
                 {/* Widerspruch-Tracker */}
                 <Route path="tracker" element={<WiderspruchTracker />} />
@@ -100,10 +105,10 @@ function App() {
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
 
-                {/* Legal (placeholder) */}
-                <Route path="impressum" element={<div className="container py-16"><h1 className="text-2xl font-bold">Impressum</h1><p className="text-muted-foreground mt-4">Wird ergaenzt.</p></div>} />
-                <Route path="datenschutz" element={<div className="container py-16"><h1 className="text-2xl font-bold">Datenschutz</h1><p className="text-muted-foreground mt-4">Wird ergaenzt.</p></div>} />
-                <Route path="agb" element={<div className="container py-16"><h1 className="text-2xl font-bold">AGB</h1><p className="text-muted-foreground mt-4">Wird ergaenzt.</p></div>} />
+                {/* Legal Pages */}
+                <Route path="impressum" element={<ImpressumPage />} />
+                <Route path="datenschutz" element={<DatenschutzPage />} />
+                <Route path="agb" element={<AgbPage />} />
 
                 {/* 404 */}
                 <Route path="*" element={<NotFoundPage />} />
