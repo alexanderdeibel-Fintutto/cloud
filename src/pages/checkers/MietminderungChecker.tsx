@@ -55,8 +55,8 @@ export default function MietminderungChecker() {
 
   const initSession = async () => {
     if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
+      toast.error('Sie haben Ihr monatliches Limit erreicht. Upgraden Sie fuer mehr Checks!')
+      navigate('/preise')
       return
     }
     await startSession('mietminderung', 2)

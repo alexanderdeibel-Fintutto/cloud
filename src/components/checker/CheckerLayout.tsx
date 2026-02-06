@@ -3,6 +3,7 @@ import { useChecker } from '@/contexts/CheckerContext'
 import { Progress } from '@/components/ui/progress'
 import { ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import CheckerLimitBanner from './CheckerLimitBanner'
 
 interface CheckerLayoutProps {
   title: string
@@ -23,12 +24,15 @@ export default function CheckerLayout({ title, description, icon, children }: Ch
       <div className="max-w-3xl mx-auto px-4">
         {/* Back Link */}
         <Link
-          to="/"
+          to="/checker"
           className="inline-flex items-center text-gray-600 hover:text-fintutto-primary mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Zurueck zur Uebersicht
         </Link>
+
+        {/* Limit Banner */}
+        <CheckerLimitBanner />
 
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-6">

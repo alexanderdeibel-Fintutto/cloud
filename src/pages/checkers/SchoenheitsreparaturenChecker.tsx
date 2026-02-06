@@ -41,8 +41,8 @@ export default function SchoenheitsreparaturenChecker() {
 
   const initSession = async () => {
     if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
+      toast.error('Sie haben Ihr monatliches Limit erreicht. Upgraden Sie fuer mehr Checks!')
+      navigate('/preise')
       return
     }
     await startSession('schoenheitsreparaturen', 2)

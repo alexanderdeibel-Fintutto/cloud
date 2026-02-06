@@ -63,8 +63,8 @@ export default function MietpreisbremseChecker() {
 
   const initSession = async () => {
     if (!canUseChecker()) {
-      toast.error('Sie haben Ihr Limit erreicht. Bitte upgraden Sie Ihren Plan.')
-      navigate('/')
+      toast.error('Sie haben Ihr monatliches Limit erreicht. Upgraden Sie fuer mehr Checks!')
+      navigate('/preise')
       return
     }
     await startSession('mietpreisbremse', totalSteps)

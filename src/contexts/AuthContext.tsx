@@ -21,6 +21,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   canUseChecker: () => boolean
   incrementChecksUsed: () => Promise<void>
+  getRemainingChecks: () => number
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,6 +30,44 @@ const TIER_LIMITS = {
   free: 1,
   basic: 3,
   premium: -1, // unlimited
+}
+
+const ANONYMOUS_STORAGE_KEY = 'fintutto_anonymous_checks'
+const ANONYMOUS_CHECK_LIMIT = 1
+
+interface AnonymousCheckData {
+  checksUsed: number
+  resetDate: string // ISO date string for monthly reset
+}
+
+function getAnonymousCheckData(): AnonymousCheckData {
+  try {
+    const stored = localStorage.getItem(ANONYMOUS_STORAGE_KEY)
+    if (stored) {
+      const data = JSON.parse(stored) as AnonymousCheckData
+      const resetDate = new Date(data.resetDate)
+      const now = new Date()
+
+      // Reset monthly
+      if (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear()) {
+        const newData: AnonymousCheckData = { checksUsed: 0, resetDate: now.toISOString() }
+        localStorage.setItem(ANONYMOUS_STORAGE_KEY, JSON.stringify(newData))
+        return newData
+      }
+      return data
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+  const newData: AnonymousCheckData = { checksUsed: 0, resetDate: new Date().toISOString() }
+  localStorage.setItem(ANONYMOUS_STORAGE_KEY, JSON.stringify(newData))
+  return newData
+}
+
+function incrementAnonymousChecks(): void {
+  const data = getAnonymousCheckData()
+  data.checksUsed += 1
+  localStorage.setItem(ANONYMOUS_STORAGE_KEY, JSON.stringify(data))
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -114,21 +153,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const canUseChecker = (): boolean => {
-    if (!profile) return true // Anonymous users get 1 free check via session
-    if (profile.tier === 'premium') return true
-    return profile.checksUsed < profile.checksLimit
+    // For logged-in users
+    if (profile) {
+      if (profile.tier === 'premium') return true
+      return profile.checksUsed < profile.checksLimit
+    }
+
+    // For anonymous users - check localStorage
+    const anonymousData = getAnonymousCheckData()
+    return anonymousData.checksUsed < ANONYMOUS_CHECK_LIMIT
   }
 
   const incrementChecksUsed = async () => {
-    if (!profile) return
+    // For logged-in users
+    if (profile) {
+      const newCount = profile.checksUsed + 1
+      await supabase
+        .from('users')
+        .update({ checks_used: newCount })
+        .eq('id', profile.id)
 
-    const newCount = profile.checksUsed + 1
-    await supabase
-      .from('users')
-      .update({ checks_used: newCount })
-      .eq('id', profile.id)
+      setProfile({ ...profile, checksUsed: newCount })
+      return
+    }
 
-    setProfile({ ...profile, checksUsed: newCount })
+    // For anonymous users
+    incrementAnonymousChecks()
+  }
+
+  const getRemainingChecks = (): number => {
+    if (profile) {
+      if (profile.tier === 'premium') return -1 // unlimited
+      return Math.max(0, profile.checksLimit - profile.checksUsed)
+    }
+    const anonymousData = getAnonymousCheckData()
+    return Math.max(0, ANONYMOUS_CHECK_LIMIT - anonymousData.checksUsed)
   }
 
   return (
@@ -143,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut,
         canUseChecker,
         incrementChecksUsed,
+        getRemainingChecks,
       }}
     >
       {children}

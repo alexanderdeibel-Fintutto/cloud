@@ -53,8 +53,8 @@ export default function NebenkostenChecker() {
 
   const initSession = async () => {
     if (!canUseChecker()) {
-      toast.error('Sie haben Ihr Limit erreicht.')
-      navigate('/')
+      toast.error('Sie haben Ihr monatliches Limit erreicht. Upgraden Sie fuer mehr Checks!')
+      navigate('/preise')
       return
     }
     await startSession('nebenkosten', totalSteps)
