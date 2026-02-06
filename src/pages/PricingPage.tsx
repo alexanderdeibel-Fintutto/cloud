@@ -30,30 +30,38 @@ export default function PricingPage() {
     try {
       const priceId = billingInterval === 'monthly' ? tier.monthlyPriceId : tier.yearlyPriceId
 
-      // For now, show a message that Stripe integration is coming
-      // In production, this would redirect to Stripe Checkout
-      const stripeCheckoutUrl = `https://checkout.stripe.com/pay/${priceId}?prefilled_email=${encodeURIComponent(user.email || '')}`
+      toast.info('Stripe Checkout wird vorbereitet...')
 
-      // Check if price IDs are configured
-      if (priceId.startsWith('price_')) {
-        toast.info('Stripe Checkout wird vorbereitet...', {
-          description: 'Die Zahlung wird in Kuerze aktiviert.',
-        })
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId,
+          userId: user.id,
+          userEmail: user.email,
+          tierId: tier.id,
+        }),
+      })
 
-        // Simulate redirect for demo purposes
-        setTimeout(() => {
-          toast.success(`${tier.name} Plan ausgewaehlt!`, {
-            description: 'Die Stripe-Integration wird in Kuerze live geschaltet.',
-          })
-          setLoadingTier(null)
-        }, 1500)
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.details || 'Checkout fehlgeschlagen')
+      }
+
+      const { url } = await response.json()
+
+      if (url) {
+        window.location.href = url
       } else {
-        // Production: redirect to Stripe Checkout
-        window.location.href = stripeCheckoutUrl
+        throw new Error('Keine Checkout-URL erhalten')
       }
     } catch (error) {
       console.error('Checkout error:', error)
-      toast.error('Fehler beim Starten der Zahlung.')
+      toast.error('Fehler beim Starten der Zahlung.', {
+        description: error instanceof Error ? error.message : 'Unbekannter Fehler'
+      })
       setLoadingTier(null)
     }
   }
