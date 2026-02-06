@@ -2,11 +2,12 @@ import { Link, useLocation } from 'react-router-dom'
 import { Building2, Calculator, FileText, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../ui/button'
+import { CreditsDisplay } from '../CreditsDisplay'
 
 const navigation = [
   { name: 'Rechner', href: '/rechner', icon: Calculator },
   { name: 'Formulare', href: '/formulare', icon: FileText },
-  { name: 'Preise', href: '/pricing', icon: null },
+  { name: 'Preise', href: '/preise', icon: null },
 ]
 
 export default function Header() {
@@ -45,11 +46,12 @@ export default function Header() {
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
-            Anmelden
+          <CreditsDisplay />
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/anmelden">Anmelden</Link>
           </Button>
-          <Button size="sm" className="gradient-vermieter text-white border-0">
-            Kostenlos starten
+          <Button size="sm" className="gradient-vermieter text-white border-0" asChild>
+            <Link to="/registrieren">Kostenlos starten</Link>
           </Button>
         </div>
 

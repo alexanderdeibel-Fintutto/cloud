@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from './components/ui/toaster'
+import { CreditsProvider } from './contexts/CreditsContext'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
 import RechnerPage from './pages/RechnerPage'
@@ -25,38 +26,41 @@ import BetriebskostenFormular from './pages/formulare/BetriebskostenFormular'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
+    <CreditsProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomePage />} />
 
-          {/* Rechner Overview */}
-          <Route path="rechner" element={<RechnerPage />} />
-          <Route path="rechner/kaution" element={<KautionsRechner />} />
-          <Route path="rechner/mieterhoehung" element={<MieterhoehungsRechner />} />
-          <Route path="rechner/kaufnebenkosten" element={<KaufnebenkostenRechner />} />
-          <Route path="rechner/eigenkapital" element={<EigenkapitalRechner />} />
-          <Route path="rechner/grundsteuer" element={<GrundsteuerRechner />} />
-          <Route path="rechner/rendite" element={<RenditeRechner />} />
-          <Route path="rechner/nebenkosten" element={<NebenkostenRechner />} />
+            {/* Rechner Overview */}
+            <Route path="rechner" element={<RechnerPage />} />
+            <Route path="rechner/kaution" element={<KautionsRechner />} />
+            <Route path="rechner/mieterhoehung" element={<MieterhoehungsRechner />} />
+            <Route path="rechner/kaufnebenkosten" element={<KaufnebenkostenRechner />} />
+            <Route path="rechner/eigenkapital" element={<EigenkapitalRechner />} />
+            <Route path="rechner/grundsteuer" element={<GrundsteuerRechner />} />
+            <Route path="rechner/rendite" element={<RenditeRechner />} />
+            <Route path="rechner/nebenkosten" element={<NebenkostenRechner />} />
 
-          {/* Formulare Overview */}
-          <Route path="formulare" element={<FormularePage />} />
-          <Route path="formulare/mietvertrag" element={<MietvertragFormular />} />
-          <Route path="formulare/uebergabeprotokoll" element={<UebergabeprotokollFormular />} />
-          <Route path="formulare/mieterhoehung" element={<MieterhoehungFormular />} />
-          <Route path="formulare/selbstauskunft" element={<SelbstauskunftFormular />} />
-          <Route path="formulare/betriebskosten" element={<BetriebskostenFormular />} />
+            {/* Formulare Overview */}
+            <Route path="formulare" element={<FormularePage />} />
+            <Route path="formulare/mietvertrag" element={<MietvertragFormular />} />
+            <Route path="formulare/uebergabeprotokoll" element={<UebergabeprotokollFormular />} />
+            <Route path="formulare/mieterhoehung" element={<MieterhoehungFormular />} />
+            <Route path="formulare/selbstauskunft" element={<SelbstauskunftFormular />} />
+            <Route path="formulare/betriebskosten" element={<BetriebskostenFormular />} />
 
-          {/* Pricing */}
-          <Route path="pricing" element={<PricingPage />} />
+            {/* Pricing */}
+            <Route path="preise" element={<PricingPage />} />
+            <Route path="pricing" element={<PricingPage />} />
 
-          {/* 404 */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-      <Toaster />
-    </BrowserRouter>
+            {/* 404 */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
+    </CreditsProvider>
   )
 }
 
