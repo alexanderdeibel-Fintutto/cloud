@@ -736,30 +736,37 @@ export default function FormularePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 * index }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-fintutto-primary">
-                  <CardHeader className="pb-2">
-                    <div className={`w-12 h-12 ${formular.color} rounded-lg flex items-center justify-center mb-3`}>
-                      <formular.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <CardTitle className="text-lg">{formular.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="mb-4">{formular.description}</CardDescription>
-                    <div className="space-y-2">
-                      {formular.checkerLink && (
-                        <Link
-                          to={formular.checkerLink}
-                          className="flex items-center text-fintutto-primary font-medium text-sm hover:underline"
-                        >
-                          Erst pruefen <ArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-                      )}
-                      <div className="flex items-center text-gray-600 text-sm">
-                        <Download className="w-4 h-4 mr-1" /> Als PDF
+                <Link to={`/formulare/${formular.id}`}>
+                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-fintutto-primary">
+                    <CardHeader className="pb-2">
+                      <div className={`w-12 h-12 ${formular.color} rounded-lg flex items-center justify-center mb-3`}>
+                        <formular.icon className="w-6 h-6 text-white" />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <CardTitle className="text-lg">{formular.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="mb-4">{formular.description}</CardDescription>
+                      <div className="space-y-2">
+                        {formular.checkerLink && (
+                          <span
+                            onClick={(e) => e.stopPropagation()}
+                            className="block"
+                          >
+                            <Link
+                              to={formular.checkerLink}
+                              className="flex items-center text-fintutto-primary font-medium text-sm hover:underline"
+                            >
+                              Erst pruefen <ArrowRight className="w-4 h-4 ml-1" />
+                            </Link>
+                          </span>
+                        )}
+                        <div className="flex items-center text-gray-600 text-sm">
+                          <Download className="w-4 h-4 mr-1" /> Jetzt ausfuellen
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -784,29 +791,36 @@ export default function FormularePage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {categoryFormulare.map((formular) => (
-                  <Card key={formular.id} className="hover:shadow-md transition-shadow cursor-pointer group">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-10 h-10 ${formular.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                          <formular.icon className="w-5 h-5 text-white" />
+                  <Link key={formular.id} to={`/formulare/${formular.id}`}>
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer group h-full">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          <div className={`w-10 h-10 ${formular.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                            <formular.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900 group-hover:text-fintutto-primary transition-colors truncate">
+                              {formular.name}
+                            </h3>
+                            <p className="text-sm text-gray-600 line-clamp-2">{formular.description}</p>
+                            {formular.checkerLink && (
+                              <span
+                                onClick={(e) => e.stopPropagation()}
+                                className="block"
+                              >
+                                <Link
+                                  to={formular.checkerLink}
+                                  className="text-xs text-fintutto-primary hover:underline mt-1 inline-block"
+                                >
+                                  → Zuerst mit Checker pruefen
+                                </Link>
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 group-hover:text-fintutto-primary transition-colors truncate">
-                            {formular.name}
-                          </h3>
-                          <p className="text-sm text-gray-600 line-clamp-2">{formular.description}</p>
-                          {formular.checkerLink && (
-                            <Link
-                              to={formular.checkerLink}
-                              className="text-xs text-fintutto-primary hover:underline mt-1 inline-block"
-                            >
-                              → Zuerst mit Checker pruefen
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </motion.div>

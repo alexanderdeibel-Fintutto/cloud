@@ -19,6 +19,8 @@ import DashboardPage from '@/pages/DashboardPage'
 import PricingPage from '@/pages/PricingPage'
 import CheckersPage from '@/pages/CheckersPage'
 import FormularePage from '@/pages/FormularePage'
+import FormularDetailPage from '@/pages/FormularDetailPage'
+import MeineDokumentePage from '@/pages/MeineDokumentePage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import CheckoutSuccessPage from '@/pages/CheckoutSuccessPage'
@@ -42,6 +44,8 @@ function App() {
             {/* Overview Pages */}
             <Route path="/checker" element={<CheckersPage />} />
             <Route path="/formulare" element={<FormularePage />} />
+            <Route path="/formulare/:formularId" element={<FormularDetailPage />} />
+            <Route path="/meine-dokumente" element={<MeineDokumentePage />} />
 
             {/* Checker Routes */}
             <Route path="/checker/mietpreisbremse" element={<MietpreisbremseChecker />} />
