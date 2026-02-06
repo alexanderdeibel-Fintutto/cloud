@@ -20,11 +20,6 @@ export default function PricingPage() {
       return
     }
 
-    if (!user) {
-      toast.error('Bitte melden Sie sich an, um ein Abonnement abzuschliessen.')
-      return
-    }
-
     setLoadingTier(tier.id)
 
     try {
@@ -39,8 +34,8 @@ export default function PricingPage() {
         },
         body: JSON.stringify({
           priceId,
-          userId: user.id,
-          userEmail: user.email,
+          userId: user?.id || '',
+          userEmail: user?.email || '',
           tierId: tier.id,
         }),
       })
