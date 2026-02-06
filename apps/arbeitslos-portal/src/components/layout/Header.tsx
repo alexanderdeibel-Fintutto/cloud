@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Shield, MessageCircle, FileText, Users, Menu, X, CreditCard } from 'lucide-react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
 const navigation = [
+  { name: 'BescheidScan', href: '/scan', icon: ScanSearch },
   { name: 'KI-Berater', href: '/chat', icon: MessageCircle },
-  { name: 'Musterschreiben', href: '/musterschreiben', icon: FileText },
-  { name: 'Forum', href: '/forum', icon: Users },
+  { name: 'Dokumenten-Werkstatt', href: '/musterschreiben', icon: FileText },
+  { name: 'Community', href: '/forum', icon: Users },
   { name: 'Preise', href: '/preise', icon: CreditCard },
 ]
 
@@ -19,13 +20,13 @@ export default function Header() {
       <nav className="container flex items-center justify-between py-3">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-amt">
-            <Shield className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-boxer">
+            <Swords className="h-5 w-5 text-white" />
           </div>
           <div>
-            <span className="font-extrabold text-lg gradient-text-amt">Amtshilfe</span>
-            <span className="font-extrabold text-lg text-foreground/80">24</span>
-            <span className="text-xs block text-muted-foreground -mt-1">Deine Rechte beim Amt</span>
+            <span className="font-extrabold text-lg gradient-text-boxer">Bescheid</span>
+            <span className="font-extrabold text-lg text-foreground/80">Boxer</span>
+            <span className="text-xs block text-muted-foreground -mt-1">Dein KI-Assistent gegen falsche Bescheide</span>
           </div>
         </Link>
 

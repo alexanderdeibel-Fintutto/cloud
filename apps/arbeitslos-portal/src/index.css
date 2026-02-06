@@ -90,9 +90,13 @@
 }
 
 @layer components {
-  /* Amtshilfe gradients */
+  /* BescheidBoxer & Amtshilfe gradients */
   .gradient-amt {
     background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
+  }
+
+  .gradient-boxer {
+    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 40%, #f97316 100%);
   }
 
   .gradient-amt-warm {
@@ -105,6 +109,36 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  .gradient-text-boxer {
+    background: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* BescheidScan result styles */
+  .scan-error-card {
+    @apply border-l-4 border-l-destructive bg-destructive/5 rounded-lg p-4;
+  }
+
+  .scan-warning-card {
+    @apply border-l-4 border-l-warning bg-warning/5 rounded-lg p-4;
+  }
+
+  .scan-success-card {
+    @apply border-l-4 border-l-success bg-success/5 rounded-lg p-4;
+  }
+
+  /* Gamification levels */
+  .level-badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold;
+  }
+
+  .level-anfaenger { @apply bg-slate-100 text-slate-700; }
+  .level-kaempfer { @apply bg-blue-100 text-blue-700; }
+  .level-profi { @apply bg-purple-100 text-purple-700; }
+  .level-experte { @apply bg-amber-100 text-amber-700; }
 
   /* Chat styles */
   .chat-bubble-user {

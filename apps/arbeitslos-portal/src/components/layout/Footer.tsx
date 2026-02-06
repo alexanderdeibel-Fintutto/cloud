@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
-import { Shield } from 'lucide-react'
+import { Swords } from 'lucide-react'
 
 const footerLinks = {
   hilfe: [
+    { name: 'BescheidScan', href: '/scan' },
     { name: 'KI-Rechtsberater', href: '/chat' },
-    { name: 'Musterschreiben', href: '/musterschreiben' },
-    { name: 'Forum', href: '/forum' },
+    { name: 'Dokumenten-Werkstatt', href: '/musterschreiben' },
+    { name: 'Community-Forum', href: '/forum' },
     { name: 'Haeufige Probleme', href: '/probleme' },
   ],
   themen: [
@@ -34,16 +35,16 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-amt">
-                <Shield className="h-5 w-5 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-boxer">
+                <Swords className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="font-extrabold gradient-text-amt">Amtshilfe</span>
-                <span className="font-extrabold text-foreground/80">24</span>
+                <span className="font-extrabold gradient-text-boxer">Bescheid</span>
+                <span className="font-extrabold text-foreground/80">Boxer</span>
               </div>
             </Link>
             <p className="text-sm text-muted-foreground">
-              KI-gestuetzte Hilfe bei Problemen mit dem Jobcenter. Kenne deine Rechte.
+              Dein KI-Assistent gegen falsche Bescheide. Rechte kennen, Fehler finden, Widerspruch einlegen.
             </p>
             <p className="text-xs text-muted-foreground mt-2">
               Ein Fintutto-Produkt.

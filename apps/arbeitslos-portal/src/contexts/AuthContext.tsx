@@ -8,9 +8,9 @@ interface UserProfile {
   email: string
   name: string | null
   plan: PlanType
-  chatQuestionsUsedToday: number
+  chatMessagesUsedToday: number
   lettersGeneratedThisMonth: number
-  freeLettersRemaining: number
+  scansThisMonth: number
 }
 
 interface AuthContextType {
@@ -71,10 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: userId,
         email: user?.email || '',
         name: null,
-        plan: 'free',
-        chatQuestionsUsedToday: 0,
+        plan: 'schnupperer',
+        chatMessagesUsedToday: 0,
         lettersGeneratedThisMonth: 0,
-        freeLettersRemaining: 0,
+        scansThisMonth: 0,
       })
       return
     }
@@ -84,10 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.id,
         email: data.email,
         name: data.name,
-        plan: data.plan || 'free',
-        chatQuestionsUsedToday: data.chat_questions_used_today || 0,
+        plan: data.plan || 'schnupperer',
+        chatMessagesUsedToday: data.chat_messages_used_today || 0,
         lettersGeneratedThisMonth: data.letters_generated_this_month || 0,
-        freeLettersRemaining: data.free_letters_remaining || 0,
+        scansThisMonth: data.scans_this_month || 0,
       })
     }
   }
@@ -112,10 +112,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.user.id,
         email,
         name: name || null,
-        plan: 'free',
-        chat_questions_used_today: 0,
+        plan: 'schnupperer',
+        chat_messages_used_today: 0,
         letters_generated_this_month: 0,
-        free_letters_remaining: 0,
+        scans_this_month: 0,
       })
     }
   }

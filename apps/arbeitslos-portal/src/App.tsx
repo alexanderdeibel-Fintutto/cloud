@@ -9,6 +9,7 @@ import Layout from '@/components/layout/Layout'
 import HomePage from '@/pages/HomePage'
 
 // Lazy load everything else
+const BescheidScanPage = lazy(() => import('@/pages/BescheidScanPage'))
 const ChatPage = lazy(() => import('@/pages/ChatPage'))
 const MusterschreibenPage = lazy(() => import('@/pages/MusterschreibenPage'))
 const GeneratorPage = lazy(() => import('@/pages/GeneratorPage'))
@@ -17,6 +18,7 @@ const ForumNewPostPage = lazy(() => import('@/pages/forum/ForumNewPostPage'))
 const ForumTopicPage = lazy(() => import('@/pages/forum/ForumTopicPage'))
 const PricingPage = lazy(() => import('@/pages/PricingPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
+const OnboardingPage = lazy(() => import('@/pages/OnboardingPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
@@ -40,17 +42,24 @@ function App() {
         <BrowserRouter>
           <Suspense fallback={<PageLoader />}>
             <Routes>
+              {/* Onboarding (no layout) */}
+              <Route path="onboarding" element={<OnboardingPage />} />
+
+              {/* Main app with layout */}
               <Route path="/" element={<Layout />}>
                 <Route index element={<HomePage />} />
+
+                {/* BescheidScan */}
+                <Route path="scan" element={<BescheidScanPage />} />
 
                 {/* KI-Rechtsberater */}
                 <Route path="chat" element={<ChatPage />} />
 
-                {/* Musterschreiben */}
+                {/* Dokumenten-Werkstatt */}
                 <Route path="musterschreiben" element={<MusterschreibenPage />} />
                 <Route path="generator/:templateId" element={<GeneratorPage />} />
 
-                {/* Forum */}
+                {/* Community Forum */}
                 <Route path="forum" element={<ForumPage />} />
                 <Route path="forum/neu" element={<ForumNewPostPage />} />
                 <Route path="forum/:topicId" element={<ForumTopicPage />} />

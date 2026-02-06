@@ -1,82 +1,130 @@
-export type PlanType = 'free' | 'plus' | 'premium'
+export type PlanType = 'schnupperer' | 'starter' | 'kaempfer' | 'vollschutz'
 
 export interface PlanConfig {
   name: string
   price: number
   priceYearly: number
-  chatQuestionsPerDay: number
+  creditsPerMonth: number
+  chatMessagesPerDay: number
   lettersPerMonth: number
-  forumAccess: 'read' | 'read_write' | 'full'
-  includedLetters: number
-  letterPrice: number
+  bescheidScansPerMonth: number
+  forumAccess: 'read_post' | 'read_post_chat_limited' | 'full' | 'vip'
+  postversandInklusive: number
   prioritySupport: boolean
-  aiPowered: boolean
+  mieterAppInklusive: boolean | 'basic' | 'premium'
+  letterPrice: number
+  tier: number
+  badge?: string
 }
 
 export const PLANS: Record<PlanType, PlanConfig> = {
-  free: {
-    name: 'Kostenlos',
+  schnupperer: {
+    name: 'Schnupperer',
     price: 0,
     priceYearly: 0,
-    chatQuestionsPerDay: 1,
+    creditsPerMonth: 0,
+    chatMessagesPerDay: 3,
     lettersPerMonth: 0,
-    forumAccess: 'read',
-    includedLetters: 0,
+    bescheidScansPerMonth: 1,
+    forumAccess: 'read_post',
+    postversandInklusive: 0,
+    prioritySupport: false,
+    mieterAppInklusive: false,
     letterPrice: 2.99,
-    prioritySupport: false,
-    aiPowered: false,
+    tier: 0,
   },
-  plus: {
-    name: 'Plus',
-    price: 3.99,
-    priceYearly: 39.99,
-    chatQuestionsPerDay: 20,
-    lettersPerMonth: 3,
-    forumAccess: 'read_write',
-    includedLetters: 0,
+  starter: {
+    name: 'Starter',
+    price: 2.99,
+    priceYearly: 29.99,
+    creditsPerMonth: 10,
+    chatMessagesPerDay: 10,
+    lettersPerMonth: 1,
+    bescheidScansPerMonth: 3,
+    forumAccess: 'read_post_chat_limited',
+    postversandInklusive: 0,
+    prioritySupport: false,
+    mieterAppInklusive: false,
     letterPrice: 1.99,
-    prioritySupport: false,
-    aiPowered: true,
+    tier: 1,
   },
-  premium: {
-    name: 'Premium',
+  kaempfer: {
+    name: 'Kaempfer',
+    price: 4.99,
+    priceYearly: 49.99,
+    creditsPerMonth: 25,
+    chatMessagesPerDay: -1,
+    lettersPerMonth: 3,
+    bescheidScansPerMonth: -1,
+    forumAccess: 'full',
+    postversandInklusive: 1,
+    prioritySupport: true,
+    mieterAppInklusive: 'basic',
+    letterPrice: 0.99,
+    tier: 2,
+    badge: 'Beliebt',
+  },
+  vollschutz: {
+    name: 'Vollschutz',
     price: 7.99,
     priceYearly: 79.99,
-    chatQuestionsPerDay: -1, // unlimited
-    lettersPerMonth: -1, // unlimited
-    forumAccess: 'full',
-    includedLetters: 3,
-    letterPrice: 0.99,
+    creditsPerMonth: 50,
+    chatMessagesPerDay: -1,
+    lettersPerMonth: -1,
+    bescheidScansPerMonth: -1,
+    forumAccess: 'vip',
+    postversandInklusive: 3,
     prioritySupport: true,
-    aiPowered: true,
+    mieterAppInklusive: 'premium',
+    letterPrice: 0,
+    tier: 3,
+    badge: 'VIP',
   },
 }
+
+export const CREDIT_COSTS = {
+  bescheidScan: 1,
+  bescheidAnalyseDetail: 3,
+  chatNachrichten5: 1,
+  musterVorschau: 0,
+  personalisierterBrief: 3,
+  postversandStandard: 6,
+  postversandEinschreiben: 10,
+  privatchatProTag: 1,
+}
+
+export const CREDIT_PACKAGES = [
+  { credits: 10, price: 4.99, label: '10 Credits' },
+  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%' },
+  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%' },
+]
 
 export interface UserCredits {
   userId: string
   plan: PlanType
-  chatQuestionsUsedToday: number
+  creditsAktuell: number
+  chatMessagesUsedToday: number
   lettersGeneratedThisMonth: number
-  freeLettersRemaining: number
+  scansThisMonth: number
   periodStart: Date
   periodEnd: Date
 }
 
 export function canAskQuestion(credits: UserCredits): { allowed: boolean; reason?: string } {
   const plan = PLANS[credits.plan]
-  if (plan.chatQuestionsPerDay === -1) {
+  if (plan.chatMessagesPerDay === -1) {
     return { allowed: true }
   }
-  if (credits.chatQuestionsUsedToday >= plan.chatQuestionsPerDay) {
-    if (credits.plan === 'free') {
+  if (credits.chatMessagesUsedToday >= plan.chatMessagesPerDay) {
+    if (credits.plan === 'schnupperer') {
       return {
         allowed: false,
-        reason: 'Du hast deine kostenlose Frage fuer heute aufgebraucht. Upgrade auf Plus fuer 20 Fragen/Tag.',
+        reason: 'Du hast deine 3 kostenlosen Nachrichten fuer heute aufgebraucht. Upgrade auf Starter fuer 10/Tag oder Kaempfer fuer unbegrenzt.',
       }
     }
     return {
       allowed: false,
-      reason: `Du hast dein Tageslimit von ${plan.chatQuestionsPerDay} Fragen erreicht. Upgrade auf Premium fuer unbegrenzte Fragen.`,
+      reason: `Tageslimit von ${plan.chatMessagesPerDay} Nachrichten erreicht. Upgrade auf Kaempfer fuer unbegrenzten Chat.`,
     }
   }
   return { allowed: true }
@@ -86,17 +134,14 @@ export function canGenerateLetter(credits: UserCredits): { allowed: boolean; rea
   const plan = PLANS[credits.plan]
 
   if (plan.lettersPerMonth === -1) {
-    if (credits.freeLettersRemaining > 0) {
-      return { allowed: true, cost: 0 }
-    }
-    return { allowed: true, cost: plan.letterPrice }
+    return { allowed: true, cost: 0 }
   }
 
-  if (credits.plan === 'free') {
+  if (credits.plan === 'schnupperer') {
     return {
       allowed: true,
       cost: plan.letterPrice,
-      reason: 'Einzelkauf: Schreiben wird fuer dich generiert und ist sofort einsatzbereit.',
+      reason: 'Einzelkauf: Personalisiertes Schreiben fuer dich erstellt.',
     }
   }
 
@@ -107,17 +152,24 @@ export function canGenerateLetter(credits: UserCredits): { allowed: boolean; rea
   return {
     allowed: true,
     cost: plan.letterPrice,
-    reason: `Monatliches Kontingent (${plan.lettersPerMonth}) aufgebraucht. Weitere Schreiben kosten ${plan.letterPrice} EUR.`,
+    reason: `Monatskontingent (${plan.lettersPerMonth}) aufgebraucht. Weitere: ${plan.letterPrice} EUR.`,
   }
 }
 
-export function canPostInForum(credits: UserCredits): { allowed: boolean; reason?: string } {
+export function canScanBescheid(credits: UserCredits): { allowed: boolean; reason?: string } {
   const plan = PLANS[credits.plan]
-  if (plan.forumAccess === 'read') {
+  if (plan.bescheidScansPerMonth === -1) {
+    return { allowed: true }
+  }
+  if (credits.scansThisMonth >= plan.bescheidScansPerMonth) {
     return {
       allowed: false,
-      reason: 'Forum-Beitraege sind ab dem Plus-Tarif verfuegbar. Upgrade jetzt!',
+      reason: `Scan-Limit (${plan.bescheidScansPerMonth}/Monat) erreicht. Upgrade fuer mehr Scans.`,
     }
   }
+  return { allowed: true }
+}
+
+export function canPostInForum(): { allowed: boolean; reason?: string } {
   return { allowed: true }
 }
