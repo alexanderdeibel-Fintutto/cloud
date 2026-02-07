@@ -14,6 +14,7 @@ import {
   ArrowRight,
   MessageCircle,
   Info,
+  GitCompare,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -118,6 +119,16 @@ const calculators = [
     route: '/rechner/umzugskosten',
     color: 'text-teal-600',
     bgColor: 'bg-teal-50',
+  },
+  {
+    id: 'vergleich',
+    title: 'Bescheid-Vergleich',
+    description:
+      'Vergleiche zwei Bescheide Seite an Seite und finde Abweichungen sofort',
+    icon: GitCompare,
+    route: '/rechner/vergleich',
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-50',
   },
 ]
 

@@ -46,6 +46,9 @@ const WissenPage = lazy(() => import('@/pages/WissenPage'))
 const VerlaufPage = lazy(() => import('@/pages/VerlaufPage'))
 const BenachrichtigungenPage = lazy(() => import('@/pages/BenachrichtigungenPage'))
 const ChecklistenPage = lazy(() => import('@/pages/ChecklistenPage'))
+const GlossarPage = lazy(() => import('@/pages/GlossarPage'))
+const NotizenPage = lazy(() => import('@/pages/NotizenPage'))
+const VergleichsRechner = lazy(() => import('@/pages/VergleichsRechner'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
@@ -100,6 +103,7 @@ function App() {
                 <Route path="rechner/pkh" element={<PkhRechner />} />
                 <Route path="rechner/erstausstattung" element={<ErstausstattungsRechner />} />
                 <Route path="rechner/umzugskosten" element={<UmzugskostenRechner />} />
+                <Route path="rechner/vergleich" element={<VergleichsRechner />} />
 
                 {/* Widerspruch-Tracker */}
                 <Route path="tracker" element={<WiderspruchTracker />} />
@@ -117,6 +121,8 @@ function App() {
                 <Route path="verlauf" element={<VerlaufPage />} />
                 <Route path="benachrichtigungen" element={<BenachrichtigungenPage />} />
                 <Route path="checklisten" element={<ChecklistenPage />} />
+                <Route path="glossar" element={<GlossarPage />} />
+                <Route path="notizen" element={<NotizenPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

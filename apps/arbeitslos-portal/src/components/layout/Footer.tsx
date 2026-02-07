@@ -21,11 +21,13 @@ const footerLinks = {
     { name: 'Kosten der Unterkunft', href: '/musterschreiben?kategorie=kdu' },
     { name: 'Widerspruch & Klage', href: '/musterschreiben?kategorie=sgb10' },
     { name: 'Wissen & Ratgeber', href: '/wissen' },
+    { name: 'Glossar', href: '/glossar' },
   ],
   konto: [
     { name: 'Mein Profil', href: '/profil' },
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Mein Verlauf', href: '/verlauf' },
+    { name: 'Meine Notizen', href: '/notizen' },
     { name: 'Preise & Abos', href: '/preise' },
   ],
   oekosystem: [

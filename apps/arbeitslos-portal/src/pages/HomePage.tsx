@@ -20,6 +20,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { COMMON_PROBLEMS } from '@/lib/sgb-knowledge'
 import { PLANS, type PlanConfig } from '@/lib/credits'
+import AnimatedCounter from '@/components/AnimatedCounter'
 
 const features = [
   {
@@ -488,18 +489,51 @@ export default function HomePage() {
       {/* ============================================================= */}
       <section className="container py-16">
         {/* Live Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-16">
-          {[
-            { value: '12.847', label: 'Bescheide geprueft', color: 'text-blue-600' },
-            { value: '4.231', label: 'Widersprueche erstellt', color: 'text-red-600' },
-            { value: '€ 2,1 Mio.', label: 'Nachzahlungen erkaempft', color: 'text-green-600' },
-            { value: '93%', label: 'Erfolgsquote', color: 'text-amber-600' },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className={`text-3xl md:text-4xl font-extrabold ${stat.color}`}>{stat.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-12">
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-extrabold text-blue-600">
+              <AnimatedCounter end={12847} suffix="" />
             </div>
-          ))}
+            <div className="text-sm text-muted-foreground mt-1">Bescheide geprueft</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-extrabold text-red-600">
+              <AnimatedCounter end={4231} />
+            </div>
+            <div className="text-sm text-muted-foreground mt-1">Widersprueche erstellt</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-extrabold text-green-600">
+              <AnimatedCounter end={2.1} prefix="€ " suffix=" Mio." decimals={1} />
+            </div>
+            <div className="text-sm text-muted-foreground mt-1">Nachzahlungen erkaempft</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-extrabold text-amber-600">
+              <AnimatedCounter end={93} suffix="%" />
+            </div>
+            <div className="text-sm text-muted-foreground mt-1">Erfolgsquote</div>
+          </div>
+        </div>
+
+        {/* Trust Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+          <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2 text-sm text-green-800">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg>
+            DSGVO-konform
+          </div>
+          <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-sm text-blue-800">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+            SSL-verschluesselt
+          </div>
+          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-2 text-sm text-amber-800">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+            4.8/5 Bewertung
+          </div>
+          <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-full px-4 py-2 text-sm text-purple-800">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            5.000+ aktive Nutzer
+          </div>
         </div>
 
         <div className="text-center mb-12">
