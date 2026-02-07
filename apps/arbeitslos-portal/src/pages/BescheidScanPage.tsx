@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useCreditsContext } from '@/contexts/CreditsContext'
 
 interface ScanError {
   type: 'fehler' | 'warnung' | 'ok'
@@ -86,28 +87,62 @@ export default function BescheidScanPage() {
   const [scanState, setScanState] = useState<'upload' | 'scanning' | 'result'>('upload')
   const [result, setResult] = useState<ScanResult | null>(null)
   const [fileName, setFileName] = useState<string>('')
+  const [, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { checkScan, useScan } = useCreditsContext()
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       setFileName(file.name)
-      startScan()
+      setSelectedFile(file)
+      startScan(file)
     }
   }
 
-  const startScan = () => {
+  const startScan = async (file?: File) => {
+    // Credit gate
+    const scanCheck = checkScan()
+    if (!scanCheck.allowed) {
+      return
+    }
+
     setScanState('scanning')
-    // Simulate AI scan (in production: upload to API, OCR, then AI analysis)
-    setTimeout(() => {
-      const scanResult = generateDemoScanResult()
-      setResult(scanResult)
-      setScanState('result')
-    }, 3500)
+    await useScan()
+
+    // Try API first, fall back to demo
+    try {
+      const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
+      if (apiEndpoint && file) {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch(`${apiEndpoint}/amt-scan`, {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setResult(data)
+          setScanState('result')
+          return
+        }
+      }
+    } catch {
+      // Fall through to demo
+    }
+
+    // Demo mode fallback
+    await new Promise((r) => setTimeout(r, 3500))
+    const scanResult = generateDemoScanResult()
+    setResult(scanResult)
+    setScanState('result')
   }
 
   const handleDemoScan = () => {
     setFileName('Bescheid_Jobcenter_2026.pdf')
+    setSelectedFile(null)
     startScan()
   }
 
@@ -131,6 +166,22 @@ export default function BescheidScanPage() {
       {/* Upload State */}
       {scanState === 'upload' && (
         <div className="space-y-6">
+          {/* Scan limit warning */}
+          {!checkScan().allowed && (
+            <Card className="border-destructive/40 bg-destructive/5">
+              <CardContent className="p-4 flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Scan-Limit erreicht</p>
+                  <p className="text-xs text-muted-foreground">{checkScan().reason}</p>
+                </div>
+                <Link to="/preise" className="ml-auto">
+                  <Button size="sm" variant="outline">Upgrade</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="border-dashed border-2 hover:border-primary/40 transition-colors">
             <CardContent className="p-12">
               <div className="text-center">

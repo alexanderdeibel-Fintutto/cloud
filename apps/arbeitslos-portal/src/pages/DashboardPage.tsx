@@ -379,7 +379,7 @@ export default function DashboardPage() {
                 Durch Widersprueche und korrigierte Bescheide — weiter so!
               </p>
             </div>
-            <Link to="/bescheid-scan">
+            <Link to="/scan">
               <Button className="gap-2">
                 <ScanSearch className="h-4 w-4" />
                 Neuen Bescheid pruefen
@@ -495,7 +495,7 @@ export default function DashboardPage() {
                     <ScanSearch className="h-4 w-4 text-blue-500" />
                     Letzte BescheidScans
                   </CardTitle>
-                  <Link to="/bescheid-scan">
+                  <Link to="/scan">
                     <Button variant="ghost" size="sm" className="gap-1 text-xs">
                       Alle anzeigen
                       <ArrowRight className="h-3 w-3" />
@@ -803,7 +803,7 @@ export default function DashboardPage() {
                     KI-Rechtsberater fragen
                   </Button>
                 </Link>
-                <Link to="/bescheid-scan" className="block">
+                <Link to="/scan" className="block">
                   <Button
                     variant="ghost"
                     className="w-full justify-start gap-2 h-9 text-sm"

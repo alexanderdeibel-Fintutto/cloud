@@ -8,6 +8,7 @@ import {
   PiggyBank,
   Clock,
   Scale,
+  ShoppingBag,
   ArrowRight,
   MessageCircle,
   Info,
@@ -95,6 +96,16 @@ const calculators = [
     route: '/rechner/pkh',
     color: 'text-cyan-600',
     bgColor: 'bg-cyan-50',
+  },
+  {
+    id: 'erstausstattung',
+    title: 'Erstausstattungs-Rechner',
+    description:
+      'Erste Wohnung, Baby oder Trennung? Berechne deinen Anspruch auf Erstausstattung nach § 24 SGB II',
+    icon: ShoppingBag,
+    route: '/rechner/erstausstattung',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-50',
   },
 ]
 

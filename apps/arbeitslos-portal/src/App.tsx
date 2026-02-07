@@ -33,6 +33,8 @@ const SchonvermoegensRechner = lazy(() => import('@/pages/rechner/Schonvermoegen
 const FristenRechner = lazy(() => import('@/pages/rechner/FristenRechner'))
 const WiderspruchTracker = lazy(() => import('@/pages/WiderspruchTracker'))
 const PkhRechner = lazy(() => import('@/pages/rechner/PkhRechner'))
+const ErstausstattungsRechner = lazy(() => import('@/pages/rechner/ErstausstattungsRechner'))
+const ProfilPage = lazy(() => import('@/pages/ProfilPage'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
@@ -91,6 +93,7 @@ function App() {
                 <Route path="rechner/schonvermoegen" element={<SchonvermoegensRechner />} />
                 <Route path="rechner/fristen" element={<FristenRechner />} />
                 <Route path="rechner/pkh" element={<PkhRechner />} />
+                <Route path="rechner/erstausstattung" element={<ErstausstattungsRechner />} />
 
                 {/* Widerspruch-Tracker */}
                 <Route path="tracker" element={<WiderspruchTracker />} />
@@ -98,8 +101,9 @@ function App() {
                 {/* Probleme-Guide */}
                 <Route path="probleme" element={<ProblemePage />} />
 
-                {/* Dashboard */}
+                {/* Dashboard & Profile */}
                 <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="profil" element={<ProfilPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

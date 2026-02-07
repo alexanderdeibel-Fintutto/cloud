@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList } from 'lucide-react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -51,6 +51,12 @@ export default function Header() {
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild>
+            <Link to="/profil" className="flex items-center gap-1.5">
+              <User className="h-4 w-4" />
+              Profil
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Anmelden</Link>
           </Button>
           <Button size="sm" variant="amt" asChild>
@@ -87,6 +93,14 @@ export default function Header() {
               </Link>
             ))}
             <div className="pt-4 space-y-2 border-t border-border">
+              <Link
+                to="/profil"
+                className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="h-5 w-5" />
+                Mein Profil
+              </Link>
               <Button variant="outline" className="w-full" asChild>
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Anmelden</Link>
               </Button>
