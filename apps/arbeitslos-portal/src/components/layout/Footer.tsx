@@ -19,10 +19,12 @@ const footerLinks = {
     { name: 'ALG I (SGB III)', href: '/musterschreiben?kategorie=sgb3' },
     { name: 'Kosten der Unterkunft', href: '/musterschreiben?kategorie=kdu' },
     { name: 'Widerspruch & Klage', href: '/musterschreiben?kategorie=sgb10' },
+    { name: 'Wissen & Ratgeber', href: '/wissen' },
   ],
   konto: [
     { name: 'Mein Profil', href: '/profil' },
     { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Mein Verlauf', href: '/verlauf' },
     { name: 'Preise & Abos', href: '/preise' },
   ],
   oekosystem: [

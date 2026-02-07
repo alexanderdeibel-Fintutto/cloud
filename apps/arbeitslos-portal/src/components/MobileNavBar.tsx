@@ -13,7 +13,7 @@ export default function MobileNavBar() {
   const { pathname } = useLocation()
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border print:hidden">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border print:hidden" aria-label="Mobile Navigation">
       <div className="flex items-center justify-around h-16">
         {items.map((item) => {
           const active = pathname.startsWith(item.href)

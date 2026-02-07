@@ -12,6 +12,7 @@ import {
   Trash2,
   Edit3,
   ChevronRight,
+  Download,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -167,6 +168,64 @@ function sortEntries(entries: WiderspruchEntry[]): WiderspruchEntry[] {
 }
 
 // ---------------------------------------------------------------------------
+// ICS Calendar Export
+// ---------------------------------------------------------------------------
+
+function toIcsDate(dateStr: string): string {
+  return dateStr.replace(/-/g, '') + 'T090000'
+}
+
+function exportToIcs(entries: WiderspruchEntry[]) {
+  const aktive = entries.filter(
+    (e) => e.status === 'eingereicht' || e.status === 'in_bearbeitung'
+  )
+  if (aktive.length === 0) return
+
+  const events = aktive.map((e) => {
+    const alarmDate = new Date(e.fristende)
+    alarmDate.setDate(alarmDate.getDate() - 3)
+    return [
+      'BEGIN:VEVENT',
+      `DTSTART:${toIcsDate(e.fristende)}`,
+      `DTEND:${toIcsDate(e.fristende)}`,
+      `SUMMARY:Frist: ${TYP_LABELS[e.typ]} - ${e.betreff}`,
+      `DESCRIPTION:${TYP_LABELS[e.typ]}${e.aktenzeichen ? ' (Az: ' + e.aktenzeichen + ')' : ''}\\nStatus: ${STATUS_LABELS[e.status]}${e.notizen ? '\\n' + e.notizen : ''}`,
+      'BEGIN:VALARM',
+      'TRIGGER:-P3D',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Frist in 3 Tagen!',
+      'END:VALARM',
+      'BEGIN:VALARM',
+      'TRIGGER:-P1D',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Frist morgen!',
+      'END:VALARM',
+      `UID:bescheidboxer-${e.id}@fintutto.cloud`,
+      'END:VEVENT',
+    ].join('\r\n')
+  })
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//BescheidBoxer//Fristen//DE',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:BescheidBoxer Fristen',
+    ...events,
+    'END:VCALENDAR',
+  ].join('\r\n')
+
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'bescheidboxer-fristen.ics'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -305,7 +364,7 @@ export default function WiderspruchTracker() {
         {/* ---------------------------------------------------------------- */}
         {/* Add New Entry Toggle                                             */}
         {/* ---------------------------------------------------------------- */}
-        <div>
+        <div className="flex flex-wrap gap-3">
           <Button
             onClick={() => setShowForm(!showForm)}
             className="gap-2"
@@ -314,6 +373,16 @@ export default function WiderspruchTracker() {
             <Plus className="h-4 w-4" />
             {showForm ? 'Formular schliessen' : 'Neuen Eintrag hinzufuegen'}
           </Button>
+          {entries.length > 0 && (
+            <Button
+              onClick={() => exportToIcs(entries)}
+              variant="outline"
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Fristen exportieren (.ics)
+            </Button>
+          )}
         </div>
 
         {/* ---------------------------------------------------------------- */}

@@ -40,9 +40,9 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <nav className="container flex items-center justify-between py-3">
+      <nav className="container flex items-center justify-between py-3" aria-label="Hauptnavigation">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2" aria-label="BescheidBoxer Startseite">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-boxer">
             <Swords className="h-5 w-5 text-white" />
           </div>
@@ -91,6 +91,8 @@ export default function Header() {
         <button
           className="md:hidden p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? 'Menue schliessen' : 'Menue oeffnen'}
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
