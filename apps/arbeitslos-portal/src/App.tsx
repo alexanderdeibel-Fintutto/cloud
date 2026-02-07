@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CreditsProvider } from '@/contexts/CreditsContext'
 import Layout from '@/components/layout/Layout'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // Eagerly load the home page for fast first paint
 import HomePage from '@/pages/HomePage'
@@ -54,6 +55,7 @@ function PageLoader() {
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <CreditsProvider>
         <BrowserRouter>
@@ -127,6 +129,7 @@ function App() {
         </BrowserRouter>
       </CreditsProvider>
     </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

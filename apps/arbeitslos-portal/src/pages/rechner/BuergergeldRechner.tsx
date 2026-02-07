@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calculator, Plus, Trash2, ArrowLeft, ArrowRight, Info, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Calculator, Plus, Trash2, ArrowLeft, ArrowRight, Info, AlertTriangle, CheckCircle, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneBuergergeld, BgMitglied, BuergergeldErgebnis } from '@/lib/rechner-logik'
+import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
 
 // Local wrapper with id for UI management
 interface UiMitglied extends BgMitglied {
@@ -552,7 +553,31 @@ export default function BuergergeldRechner() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Button
+                onClick={() => {
+                  const sections: RechnerSection[] = [
+                    { label: 'Regelbedarf gesamt', value: formatEuro(ergebnis.regelbedarfGesamt) },
+                  ]
+                  if (ergebnis.mehrbedarfGesamt > 0) {
+                    sections.push({ label: 'Mehrbedarf gesamt', value: formatEuro(ergebnis.mehrbedarfGesamt) })
+                  }
+                  sections.push(
+                    { label: 'KdU (Miete + Heizung)', value: formatEuro(ergebnis.kduGesamt), highlight: true },
+                  )
+                  if (ergebnis.einkommenAnrechenbar > 0) {
+                    sections.push({ label: 'Anrechenbares Einkommen', value: `- ${formatEuro(ergebnis.einkommenAnrechenbar)}` })
+                  }
+                  generateRechnerPdf(
+                    'Buergergeld-Berechnung (SGB II)',
+                    sections,
+                    { label: 'Monatlicher Anspruch', value: formatEuro(ergebnis.anspruch) },
+                  )
+                }}
+                className="w-full py-4 bg-amber-600 hover:bg-amber-700"
+              >
+                <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
               <Link to="/scan"><Button className="w-full py-4 bg-blue-600 hover:bg-blue-700">Bescheid scannen</Button></Link>
               <Link to="/chat"><Button className="w-full py-4 bg-green-600 hover:bg-green-700">KI-Berater fragen</Button></Link>
               <Button onClick={reset} variant="outline" className="w-full py-4">Nochmal berechnen</Button>
