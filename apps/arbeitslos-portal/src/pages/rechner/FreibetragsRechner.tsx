@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { TrendingUp, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneFreibetrag, FreibetragsErgebnis } from '@/lib/rechner-logik'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function FreibetragsRechner() {
@@ -23,6 +24,11 @@ export default function FreibetragsRechner() {
       versicherungsPauschale: parseFloat(versicherungspauschale) || 0,
     })
     setErgebnis(result)
+    saveRechnerErgebnis('Freibetrags-Rechner', 'freibetrag', {
+      freibetragGesamt: result.freibetragGesamt,
+      anrechenbaresEinkommen: result.anrechenbaresEinkommen,
+      bruttoEinkommen: parseFloat(bruttoEinkommen) || 0,
+    })
   }
 
   const formatEuro = (betrag: number) =>

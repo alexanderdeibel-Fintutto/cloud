@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { PLANS } from '@/lib/credits'
 import { useCreditsContext } from '@/contexts/CreditsContext'
+import { loadRechnerVerlauf } from '@/lib/rechner-verlauf'
 import {
   getLevelForPoints,
   getNextLevel,
@@ -188,6 +189,73 @@ function tipPriorityStyles(priority: 'high' | 'medium' | 'low') {
     case 'low':
       return 'border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-950/30'
   }
+}
+
+// ---------------------------------------------------------------------------
+// Activity Statistics - reads real data from localStorage
+// ---------------------------------------------------------------------------
+
+function AktivitaetsStatistik() {
+  const rechnerVerlauf = loadRechnerVerlauf()
+  let chatCount = 0
+  let trackerCount = 0
+  try {
+    const chat = localStorage.getItem('bescheidboxer_chat_history')
+    if (chat) chatCount = JSON.parse(chat).length
+  } catch { /* ignore */ }
+  try {
+    const tracker = localStorage.getItem('bescheidboxer_widersprueche')
+    if (tracker) trackerCount = JSON.parse(tracker).length
+  } catch { /* ignore */ }
+
+  const totalActivity = rechnerVerlauf.length + chatCount + trackerCount
+  if (totalActivity === 0) return null
+
+  const stats = [
+    { label: 'Chat-Nachrichten', value: chatCount, color: 'bg-blue-500', pct: chatCount },
+    { label: 'Berechnungen', value: rechnerVerlauf.length, color: 'bg-green-500', pct: rechnerVerlauf.length },
+    { label: 'Tracker-Eintraege', value: trackerCount, color: 'bg-purple-500', pct: trackerCount },
+  ]
+  const maxVal = Math.max(...stats.map(s => s.value), 1)
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            Deine Aktivitaet
+          </CardTitle>
+          <Link to="/verlauf">
+            <Button variant="ghost" size="sm" className="gap-1 text-xs">
+              Verlauf anzeigen
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {stats.map((s) => (
+            <div key={s.label} className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground w-36 shrink-0">{s.label}</span>
+              <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${s.color}`}
+                  style={{ width: `${Math.max((s.value / maxVal) * 100, 4)}%` }}
+                />
+              </div>
+              <span className="text-sm font-semibold w-8 text-right">{s.value}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          Gesamt: {totalActivity} Aktivitaeten
+          {rechnerVerlauf.length > 0 && ` — Letzte Berechnung: ${new Date(rechnerVerlauf[0].datum).toLocaleDateString('de-DE')}`}
+        </p>
+      </CardContent>
+    </Card>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -425,6 +493,11 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Activity Stats from localStorage                                 */}
+        {/* ---------------------------------------------------------------- */}
+        <AktivitaetsStatistik />
 
         {/* ---------------------------------------------------------------- */}
         {/* Main + Sidebar layout                                            */}

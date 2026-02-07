@@ -4,6 +4,7 @@ import { Calculator, Plus, Trash2, ArrowLeft, ArrowRight, Info, AlertTriangle, C
 import { Button } from '@/components/ui/button'
 import { berechneBuergergeld, BgMitglied, BuergergeldErgebnis } from '@/lib/rechner-logik'
 import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 // Local wrapper with id for UI management
@@ -96,6 +97,15 @@ export default function BuergergeldRechner() {
         plz: plz || undefined,
       })
       setErgebnis(result)
+      if (result) {
+        saveRechnerErgebnis('Buergergeld-Rechner', 'buergergeld', {
+          anspruch: result.anspruch,
+          regelbedarf: result.regelbedarfGesamt,
+          kdu: result.kduGesamt,
+          mehrbedarf: result.mehrbedarfGesamt,
+          mitgliederAnzahl: mitglieder.length,
+        })
+      }
     }
     setStep(step + 1)
   }

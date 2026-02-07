@@ -5,6 +5,7 @@ import CookieConsent from '@/components/CookieConsent'
 import BackToTop from '@/components/BackToTop'
 import SpotlightSearch from '@/components/SpotlightSearch'
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp'
+import PageTransition from '@/components/PageTransition'
 import MobileNavBar from '@/components/MobileNavBar'
 
 export default function Layout() {
@@ -15,7 +16,9 @@ export default function Layout() {
       </a>
       <Header />
       <main id="main-content" className="flex-1 pb-16 md:pb-0" role="main">
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
       <Footer />
       <MobileNavBar />

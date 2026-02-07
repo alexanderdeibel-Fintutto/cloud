@@ -44,6 +44,7 @@ const FaqPage = lazy(() => import('@/pages/FaqPage'))
 const KontaktPage = lazy(() => import('@/pages/KontaktPage'))
 const WissenPage = lazy(() => import('@/pages/WissenPage'))
 const VerlaufPage = lazy(() => import('@/pages/VerlaufPage'))
+const BenachrichtigungenPage = lazy(() => import('@/pages/BenachrichtigungenPage'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
@@ -113,6 +114,7 @@ function App() {
                 <Route path="kontakt" element={<KontaktPage />} />
                 <Route path="wissen" element={<WissenPage />} />
                 <Route path="verlauf" element={<VerlaufPage />} />
+                <Route path="benachrichtigungen" element={<BenachrichtigungenPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

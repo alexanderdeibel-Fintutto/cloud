@@ -4,6 +4,7 @@ import { Home, AlertTriangle, CheckCircle, Info, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneKdu, KduRechnerErgebnis } from '@/lib/rechner-logik'
 import { KDU_TABELLEN } from '@/lib/kdu-tabellen'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function KduRechner() {
@@ -37,6 +38,12 @@ export default function KduRechner() {
       setErgebnis(null)
     } else {
       setErgebnis(result)
+      saveRechnerErgebnis('KdU-Rechner', 'kdu', {
+        kaltmieteAngemessen: result.kaltmieteAngemessen ? 'Ja' : 'Nein',
+        heizkostenAngemessen: result.heizkostenAngemessen ? 'Ja' : 'Nein',
+        kaltmieteGrenze: result.kaltmieteGrenze,
+        plz,
+      })
     }
   }
 
