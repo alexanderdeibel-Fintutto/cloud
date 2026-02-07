@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { TrendingUp, ArrowLeft, Info } from 'lucide-react'
+import { TrendingUp, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneFreibetrag, FreibetragsErgebnis } from '@/lib/rechner-logik'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function FreibetragsRechner() {
   const [bruttoEinkommen, setBruttoEinkommen] = useState<string>('800')
@@ -31,9 +32,7 @@ export default function FreibetragsRechner() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Link to="/rechner" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Freibetrags-Rechner' }]} className="mb-4" />
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center gap-3 mb-2">
               <div className="bg-blue-100 p-3 rounded-full"><TrendingUp className="w-6 h-6 text-blue-600" /></div>

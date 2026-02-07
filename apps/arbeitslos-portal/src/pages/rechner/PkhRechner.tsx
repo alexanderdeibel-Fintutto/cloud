@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Scale, ArrowLeft, Info, CheckCircle, XCircle, AlertTriangle, HelpCircle } from 'lucide-react'
+import { Scale, Info, CheckCircle, XCircle, AlertTriangle, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 interface PkhErgebnis {
   einzusetzendesEinkommen: number
@@ -157,9 +158,7 @@ export default function PkhRechner() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <Link to="/rechner" className="inline-flex items-center text-white/90 hover:text-white mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'PKH-Rechner' }]} className="mb-4 [&_a]:text-white/90 [&_a:hover]:text-white [&_span]:text-white [&_svg]:text-white/70" />
           <div className="flex items-start gap-4">
             <div className="bg-white/20 p-3 rounded-lg">
               <Scale className="w-8 h-8" />

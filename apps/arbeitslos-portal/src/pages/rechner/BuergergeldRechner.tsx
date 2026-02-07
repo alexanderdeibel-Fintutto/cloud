@@ -4,6 +4,7 @@ import { Calculator, Plus, Trash2, ArrowLeft, ArrowRight, Info, AlertTriangle, C
 import { Button } from '@/components/ui/button'
 import { berechneBuergergeld, BgMitglied, BuergergeldErgebnis } from '@/lib/rechner-logik'
 import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 // Local wrapper with id for UI management
 interface UiMitglied extends BgMitglied {
@@ -130,9 +131,7 @@ export default function BuergergeldRechner() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <div className="bg-white border-b shadow-sm">
         <div className="container mx-auto px-4 py-6">
-          <Link to="/rechner" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Buergergeld-Rechner' }]} className="mb-4" />
           <div className="flex items-center gap-3">
             <div className="p-3 bg-blue-100 rounded-xl"><Calculator className="w-8 h-8 text-blue-600" /></div>
             <div>

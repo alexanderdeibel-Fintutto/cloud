@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PiggyBank, ArrowLeft, Info, CheckCircle, AlertTriangle, Home as HomeIcon, Car } from 'lucide-react'
+import { PiggyBank, Info, CheckCircle, AlertTriangle, Home as HomeIcon, Car } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneSchonvermoegen, SchonvermoegensErgebnis } from '@/lib/rechner-logik'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SchonvermoegensRechner() {
   const [alter, setAlter] = useState(30)
@@ -33,7 +34,7 @@ export default function SchonvermoegensRechner() {
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <Link to="/rechner" className="inline-flex items-center text-white/90 hover:text-white mb-4"><ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern</Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Schonvermoegens-Rechner' }]} className="mb-4 [&_a]:text-white/90 [&_a:hover]:text-white [&_span]:text-white [&_svg]:text-white/70" />
           <div className="flex items-start gap-4">
             <div className="bg-white/20 p-3 rounded-lg"><PiggyBank className="w-8 h-8" /></div>
             <div>

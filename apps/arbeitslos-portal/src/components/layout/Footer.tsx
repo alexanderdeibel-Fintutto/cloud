@@ -12,6 +12,7 @@ const footerLinks = {
     { name: 'Haeufige Probleme', href: '/probleme' },
     { name: 'FAQ', href: '/faq' },
     { name: 'Suche', href: '/suche' },
+    { name: 'Kontakt & Hilfe', href: '/kontakt' },
   ],
   themen: [
     { name: 'Buergergeld (SGB II)', href: '/musterschreiben?kategorie=sgb2' },

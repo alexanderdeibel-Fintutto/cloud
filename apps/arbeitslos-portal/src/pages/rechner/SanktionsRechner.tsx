@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, Info, Shield, Scale } from 'lucide-react'
+import { AlertTriangle, Info, Shield, Scale } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneSanktion, SanktionsErgebnis } from '@/lib/rechner-logik'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SanktionsRechner() {
   const [regelsatz, setRegelsatz] = useState(563)
@@ -28,9 +29,7 @@ export default function SanktionsRechner() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <Link to="/rechner" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Sanktions-Rechner' }]} className="mb-4" />
           <div className="flex items-center gap-3 mb-2">
             <div className="p-3 bg-red-100 rounded-lg"><AlertTriangle className="w-8 h-8 text-red-600" /></div>
             <h1 className="text-4xl font-bold text-gray-900">Sanktions-Rechner</h1>

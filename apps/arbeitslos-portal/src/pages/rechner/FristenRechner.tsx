@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Clock, AlertTriangle, CheckCircle, ArrowLeft, Calendar, Info, Shield } from 'lucide-react'
+import { Clock, AlertTriangle, CheckCircle, Calendar, Info, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 type FristTyp = 'widerspruch' | 'klage' | 'ueberpruefung' | 'eilantrag' | 'berufung' | 'anhoerung' | 'mitwirkung'
 
@@ -172,9 +172,7 @@ export default function FristenRechner() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link to="/rechner" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Fristenrechner' }]} className="mb-4" />
           <div className="flex items-center gap-3 mb-2">
             <div className="p-3 bg-blue-100 rounded-lg">
               <Clock className="w-8 h-8 text-blue-600" />

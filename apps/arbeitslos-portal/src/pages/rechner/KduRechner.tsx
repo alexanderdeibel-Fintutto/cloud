@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Home, ArrowLeft, AlertTriangle, CheckCircle, Info, MapPin } from 'lucide-react'
+import { Home, AlertTriangle, CheckCircle, Info, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneKdu, KduRechnerErgebnis } from '@/lib/rechner-logik'
 import { KDU_TABELLEN } from '@/lib/kdu-tabellen'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function KduRechner() {
   const [plz, setPlz] = useState('')
@@ -73,7 +74,7 @@ export default function KduRechner() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <Link to="/rechner" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"><ArrowLeft className="w-4 h-4 mr-2" />Zurueck zu allen Rechnern</Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'KdU-Rechner' }]} className="mb-4" />
           <div className="flex items-center gap-3 mb-2"><Home className="w-8 h-8 text-blue-600" /><h1 className="text-4xl font-bold text-gray-900">KdU-Rechner</h1></div>
           <p className="text-gray-600 text-lg">Pruefe, ob deine Wohnkosten als angemessen gelten</p>
         </div>

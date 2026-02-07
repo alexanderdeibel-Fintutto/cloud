@@ -40,6 +40,7 @@ const UmzugskostenRechner = lazy(() => import('@/pages/rechner/UmzugskostenRechn
 const ProfilPage = lazy(() => import('@/pages/ProfilPage'))
 const SuchePage = lazy(() => import('@/pages/SuchePage'))
 const FaqPage = lazy(() => import('@/pages/FaqPage'))
+const KontaktPage = lazy(() => import('@/pages/KontaktPage'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
@@ -114,6 +115,7 @@ function App() {
                 <Route path="profil" element={<ProfilPage />} />
                 <Route path="suche" element={<SuchePage />} />
                 <Route path="faq" element={<FaqPage />} />
+                <Route path="kontakt" element={<KontaktPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, ArrowLeft, Info } from 'lucide-react'
+import { Heart, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneMehrbedarf, MehrbedarfErgebnis, REGELSAETZE_2025 } from '@/lib/rechner-logik'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function MehrbedarfRechner() {
   const [regelsatz, setRegelsatz] = useState<number>(REGELSAETZE_2025.RS1)
@@ -38,10 +39,7 @@ export default function MehrbedarfRechner() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <Link to="/rechner" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Zurueck zu allen Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Mehrbedarf-Rechner' }]} className="mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">Mehrbedarf-Rechner</h1>
           <p className="text-gray-600 mt-2">Berechne deinen Anspruch auf Mehrbedarf nach § 21 SGB II</p>
         </div>

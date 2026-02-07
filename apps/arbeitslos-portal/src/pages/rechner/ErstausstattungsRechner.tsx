@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingBag, ArrowLeft, ArrowRight, Info, CheckCircle2, Euro } from 'lucide-react'
+import { ShoppingBag, ArrowRight, Info, CheckCircle2, Euro } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 const ERSTAUSSTATTUNG_KATEGORIEN = [
   {
@@ -93,10 +94,7 @@ export default function ErstausstattungsRechner() {
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to="/rechner" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-2">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Zurueck zu Rechnern
-          </Link>
+          <Breadcrumbs items={[{ label: 'Rechner', href: '/rechner' }, { label: 'Erstausstattung' }]} className="mb-2" />
           <div className="flex items-start gap-4">
             <div className="bg-amber-50 p-3 rounded-xl">
               <ShoppingBag className="h-8 w-8 text-amber-600" />
