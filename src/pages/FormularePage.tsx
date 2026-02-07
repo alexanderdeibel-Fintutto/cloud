@@ -8,7 +8,7 @@ import {
   DollarSign, Thermometer, Volume2, Bug,
   Droplets, Zap, Wifi, Car, Dog, Baby,
   Users, Lock, Camera, Trash2, Leaf,
-  Sun, Moon, CloudRain, Wind, Flame,
+  Sun, Moon, Wind, Flame,
   Phone, MessageSquare, Calendar, FileCheck,
   ClipboardList, PenTool, Eye, Ban, Bell
 } from 'lucide-react'

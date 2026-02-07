@@ -537,7 +537,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   // Get template by ID
   const getTemplate = (templateId: string): FormTemplate | null => {
-    return FORM_TEMPLATES[templateId] || null
+    return getFormTemplate(templateId)
   }
 
   return (

@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Save, Printer, Send, History, FileText,
-  Check, AlertCircle, Clock, Download, X, Pen
+  Check, AlertCircle, Clock, X, Pen
 } from 'lucide-react'
-import { useForm, FormTemplate, FormVersion } from '@/contexts/FormContext'
+import { useForm, FormVersion } from '@/contexts/FormContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -287,7 +287,7 @@ export default function FormEditor({ templateId, prefilledData }: FormEditorProp
                       <Textarea
                         id={field.id}
                         value={(formValues[field.id] as string) || ''}
-                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleFieldChange(field.id, e.target.value)}
                         placeholder={field.placeholder}
                         required={field.required}
                         rows={4}

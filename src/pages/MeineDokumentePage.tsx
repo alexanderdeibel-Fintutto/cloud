@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  FileText, Plus, Trash2, Edit, Download,
+  FileText, Plus, Trash2, Edit,
   Clock, History, Crown, FolderOpen
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
