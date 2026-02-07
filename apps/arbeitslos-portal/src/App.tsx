@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CreditsProvider } from '@/contexts/CreditsContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import Layout from '@/components/layout/Layout'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import ScrollToTop from '@/components/ScrollToTop'
@@ -45,25 +46,17 @@ const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
 
-function PageLoader() {
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="flex flex-col items-center gap-3">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <span className="text-sm text-muted-foreground">Wird geladen...</span>
-      </div>
-    </div>
-  )
-}
+import PageSkeleton from '@/components/PageSkeleton'
 
 function App() {
   return (
     <ErrorBoundary>
+    <ThemeProvider>
     <AuthProvider>
       <CreditsProvider>
         <BrowserRouter>
           <ScrollToTop />
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={<PageSkeleton />}>
             <Routes>
               {/* Onboarding (no layout) */}
               <Route path="onboarding" element={<OnboardingPage />} />
@@ -135,6 +128,7 @@ function App() {
         </BrowserRouter>
       </CreditsProvider>
     </AuthProvider>
+    </ThemeProvider>
     </ErrorBoundary>
   )
 }

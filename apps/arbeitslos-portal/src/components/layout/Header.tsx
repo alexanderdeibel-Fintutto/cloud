@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User } from 'lucide-react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import FristAlarm from '@/components/FristAlarm'
+import { useTheme } from '@/contexts/ThemeContext'
 
 const navigation = [
   { name: 'BescheidScan', href: '/scan', icon: ScanSearch },
@@ -13,6 +14,25 @@ const navigation = [
   { name: 'Community', href: '/forum', icon: Users },
   { name: 'Preise', href: '/preise', icon: CreditCard },
 ]
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const cycle = () => {
+    const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+    setTheme(next)
+  }
+  return (
+    <button
+      onClick={cycle}
+      className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+      title={theme === 'light' ? 'Hell (klick fuer Dunkel)' : theme === 'dark' ? 'Dunkel (klick fuer System)' : 'System (klick fuer Hell)'}
+    >
+      {theme === 'light' && <Sun className="h-4 w-4" />}
+      {theme === 'dark' && <Moon className="h-4 w-4" />}
+      {theme === 'system' && <Monitor className="h-4 w-4" />}
+    </button>
+  )
+}
 
 export default function Header() {
   const location = useLocation()
@@ -52,6 +72,7 @@ export default function Header() {
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
           <FristAlarm />
+          <ThemeToggle />
           <Button variant="ghost" size="sm" asChild>
             <Link to="/profil" className="flex items-center gap-1.5">
               <User className="h-4 w-4" />
@@ -95,6 +116,10 @@ export default function Header() {
               </Link>
             ))}
             <div className="pt-4 space-y-2 border-t border-border">
+              <div className="flex items-center justify-between p-3">
+                <span className="text-sm text-muted-foreground">Erscheinungsbild</span>
+                <ThemeToggle />
+              </div>
               <Link
                 to="/profil"
                 className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted"

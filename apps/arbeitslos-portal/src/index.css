@@ -224,3 +224,67 @@
     @apply border-secondary/50 shadow-lg shadow-secondary/10 ring-2 ring-secondary/20;
   }
 }
+
+/* Print styles */
+@media print {
+  /* Hide non-essential UI */
+  header,
+  footer,
+  nav,
+  .print\\:hidden,
+  [class*="BackToTop"],
+  [class*="CookieConsent"],
+  [class*="MobileNavBar"],
+  [class*="SpotlightSearch"],
+  [class*="FristAlarm"] {
+    display: none !important;
+  }
+
+  /* Reset background and colors for print */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .content-card,
+  .letter-card,
+  .forum-post {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+  }
+
+  /* Ensure gradients show as solid text */
+  .gradient-text-boxer,
+  .gradient-text-amt {
+    -webkit-text-fill-color: black !important;
+    color: black !important;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 2cm;
+  }
+
+  /* Avoid page breaks inside key elements */
+  .bg-white,
+  .bg-card,
+  [class*="rounded-xl"] {
+    break-inside: avoid;
+  }
+
+  /* Make links visible in print */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Don't show URL for internal links */
+  a[href^="/"]::after,
+  a[href^="#"]::after {
+    content: "";
+  }
+}
