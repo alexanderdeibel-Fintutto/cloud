@@ -6,14 +6,22 @@ const footerLinks = {
     { name: 'BescheidScan', href: '/scan' },
     { name: 'KI-Rechtsberater', href: '/chat' },
     { name: 'Dokumenten-Werkstatt', href: '/musterschreiben' },
+    { name: 'AmtsRechner-Suite', href: '/rechner' },
+    { name: 'Widerspruch-Tracker', href: '/tracker' },
     { name: 'Community-Forum', href: '/forum' },
     { name: 'Haeufige Probleme', href: '/probleme' },
+    { name: 'Suche', href: '/suche' },
   ],
   themen: [
     { name: 'Buergergeld (SGB II)', href: '/musterschreiben?kategorie=sgb2' },
     { name: 'ALG I (SGB III)', href: '/musterschreiben?kategorie=sgb3' },
     { name: 'Kosten der Unterkunft', href: '/musterschreiben?kategorie=kdu' },
     { name: 'Widerspruch & Klage', href: '/musterschreiben?kategorie=sgb10' },
+  ],
+  konto: [
+    { name: 'Mein Profil', href: '/profil' },
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Preise & Abos', href: '/preise' },
   ],
   oekosystem: [
     { name: 'Mieter-Checker', href: 'https://mieter.fintutto.cloud', external: true },
@@ -31,7 +39,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
@@ -73,6 +81,23 @@ export default function Footer() {
             <h3 className="font-semibold mb-3">Rechtsgebiete</h3>
             <ul className="space-y-2">
               {footerLinks.themen.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Konto */}
+          <div>
+            <h3 className="font-semibold mb-3">Konto</h3>
+            <ul className="space-y-2">
+              {footerLinks.konto.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}

@@ -10,6 +10,7 @@ import {
   Loader2,
   ScanSearch,
   Calculator,
+  RotateCcw,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -491,11 +492,35 @@ function renderMessageContent(text: string) {
 // ChatPage component
 // ---------------------------------------------------------------------------
 
+const CHAT_STORAGE_KEY = 'bescheidboxer_chat_history'
+
+function loadChatHistory(): ChatMessage[] | null {
+  try {
+    const raw = localStorage.getItem(CHAT_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as ChatMessage[]
+    if (parsed.length <= 1) return null
+    // Restore Date objects
+    return parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }))
+  } catch {
+    return null
+  }
+}
+
+function saveChatHistory(messages: ChatMessage[]) {
+  try {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages))
+  } catch {
+    // localStorage full or unavailable
+  }
+}
+
 export default function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([OPENING_MESSAGE])
+  const restored = loadChatHistory()
+  const [messages, setMessages] = useState<ChatMessage[]>(restored || [OPENING_MESSAGE])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [showQuickActions, setShowQuickActions] = useState(true)
+  const [showQuickActions, setShowQuickActions] = useState(!restored)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const { checkQuestion, useQuestion } = useCreditsContext()
@@ -509,10 +534,22 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages])
 
+  // Persist messages to localStorage
+  useEffect(() => {
+    saveChatHistory(messages)
+  }, [messages])
+
   // Focus the input on mount
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
+
+  const handleNewChat = () => {
+    setMessages([OPENING_MESSAGE])
+    setShowQuickActions(true)
+    setInput('')
+    localStorage.removeItem(CHAT_STORAGE_KEY)
+  }
 
   // Remaining daily messages
   const creditCheck = checkQuestion()
@@ -635,6 +672,15 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNewChat}
+              className="gap-1 text-xs h-7"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Neuer Chat
+            </Button>
             <Lightbulb className="h-3.5 w-3.5 text-muted-foreground" />
             <Badge
               variant={creditCheck.allowed ? 'outline' : 'destructive'}

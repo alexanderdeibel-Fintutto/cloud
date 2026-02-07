@@ -34,7 +34,9 @@ const FristenRechner = lazy(() => import('@/pages/rechner/FristenRechner'))
 const WiderspruchTracker = lazy(() => import('@/pages/WiderspruchTracker'))
 const PkhRechner = lazy(() => import('@/pages/rechner/PkhRechner'))
 const ErstausstattungsRechner = lazy(() => import('@/pages/rechner/ErstausstattungsRechner'))
+const UmzugskostenRechner = lazy(() => import('@/pages/rechner/UmzugskostenRechner'))
 const ProfilPage = lazy(() => import('@/pages/ProfilPage'))
+const SuchePage = lazy(() => import('@/pages/SuchePage'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
@@ -94,6 +96,7 @@ function App() {
                 <Route path="rechner/fristen" element={<FristenRechner />} />
                 <Route path="rechner/pkh" element={<PkhRechner />} />
                 <Route path="rechner/erstausstattung" element={<ErstausstattungsRechner />} />
+                <Route path="rechner/umzugskosten" element={<UmzugskostenRechner />} />
 
                 {/* Widerspruch-Tracker */}
                 <Route path="tracker" element={<WiderspruchTracker />} />
@@ -101,9 +104,10 @@ function App() {
                 {/* Probleme-Guide */}
                 <Route path="probleme" element={<ProblemePage />} />
 
-                {/* Dashboard & Profile */}
+                {/* Dashboard, Profile & Search */}
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="profil" element={<ProfilPage />} />
+                <Route path="suche" element={<SuchePage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

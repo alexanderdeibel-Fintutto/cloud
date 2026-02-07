@@ -9,6 +9,7 @@ import {
   Clock,
   Scale,
   ShoppingBag,
+  Truck,
   ArrowRight,
   MessageCircle,
   Info,
@@ -106,6 +107,16 @@ const calculators = [
     route: '/rechner/erstausstattung',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
+  },
+  {
+    id: 'umzugskosten',
+    title: 'Umzugskosten-Rechner',
+    description:
+      'Berechne erstattungsfaehige Umzugskosten nach § 22 Abs. 6 SGB II inkl. Kaution als Darlehen',
+    icon: Truck,
+    route: '/rechner/umzugskosten',
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-50',
   },
 ]
 
