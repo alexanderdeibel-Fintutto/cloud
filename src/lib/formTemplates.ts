@@ -1171,6 +1171,992 @@ Vielen Dank fuer Ihre Unterstuetzung.
 
 Mit freundlichen Gruessen`,
   },
+
+  // ===== ZUSAETZLICHE MIETE & KOSTEN TEMPLATES =====
+  'staffelmiete-pruefung': {
+    id: 'staffelmiete-pruefung',
+    name: 'Staffelmiete-Pruefung',
+    description: 'Pruefen Sie die Wirksamkeit Ihrer Staffelmiete',
+    category: 'miete',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'staffel_details', name: 'staffel_details', label: 'Staffelmietvereinbarung im Detail', type: 'textarea', required: true, section: 'staffelmiete' },
+      { id: 'aktuelle_stufe', name: 'aktuelle_stufe', label: 'Aktuelle Mietstufe (EUR)', type: 'currency', required: true, section: 'staffelmiete' },
+      { id: 'beanstandung', name: 'beanstandung', label: 'Begruendung der Beanstandung', type: 'textarea', required: true, section: 'pruefung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beanstande ich die Staffelmietvereinbarung in meinem Mietvertrag.
+
+Nach meiner Pruefung erfuellt die Vereinbarung nicht die gesetzlichen Anforderungen des § 557a BGB.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'indexmiete-pruefung': {
+    id: 'indexmiete-pruefung',
+    name: 'Indexmiete-Pruefung',
+    description: 'Pruefen Sie die korrekte Berechnung der Indexmiete',
+    category: 'miete',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'basismiete', name: 'basismiete', label: 'Basismiete (EUR)', type: 'currency', required: true, section: 'indexmiete' },
+      { id: 'aktuelle_miete', name: 'aktuelle_miete', label: 'Aktuelle Miete (EUR)', type: 'currency', required: true, section: 'indexmiete' },
+      { id: 'basisindex', name: 'basisindex', label: 'Basisindex (Monat/Jahr)', type: 'text', required: true, section: 'indexmiete' },
+      { id: 'beanstandung', name: 'beanstandung', label: 'Begruendung der Beanstandung', type: 'textarea', required: true, section: 'pruefung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beanstande ich die Berechnung der Indexmiete.
+
+Nach meiner Pruefung wurde der Verbraucherpreisindex nicht korrekt angewendet. Ich bitte um Korrektur und Erstattung.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'wasserkosten-widerspruch': {
+    id: 'wasserkosten-widerspruch',
+    name: 'Wasserkosten-Widerspruch',
+    description: 'Widersprechen Sie fehlerhafter Wasserkostenabrechnung',
+    category: 'miete',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'abrechnungszeitraum', name: 'abrechnungszeitraum', label: 'Abrechnungszeitraum', type: 'text', required: true, section: 'abrechnung' },
+      { id: 'nachzahlung', name: 'nachzahlung', label: 'Geforderte Nachzahlung (EUR)', type: 'currency', section: 'abrechnung' },
+      { id: 'widerspruch_punkte', name: 'widerspruch_punkte', label: 'Beanstandete Punkte', type: 'textarea', required: true, section: 'widerspruch' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit widerspreche ich der Wasserkostenabrechnung.
+
+Die Abrechnung ist fehlerhaft. Ich bitte um Korrektur.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'stromkosten-pruefung': {
+    id: 'stromkosten-pruefung',
+    name: 'Allgemeinstrom-Pruefung',
+    description: 'Pruefen Sie die Umlage von Allgemeinstromkosten',
+    category: 'miete',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'stromkosten_betrag', name: 'stromkosten_betrag', label: 'Umgelegter Betrag (EUR)', type: 'currency', required: true, section: 'stromkosten' },
+      { id: 'beanstandung', name: 'beanstandung', label: 'Begruendung der Beanstandung', type: 'textarea', required: true, section: 'pruefung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beanstande ich die Umlage der Allgemeinstromkosten.
+
+Ich bitte um Pruefung und ggf. Korrektur.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'mietzahlung-unter-vorbehalt': {
+    id: 'mietzahlung-unter-vorbehalt',
+    name: 'Zahlung unter Vorbehalt',
+    description: 'Mietzahlung unter Vorbehalt bei strittigen Kosten',
+    category: 'miete',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'betrag', name: 'betrag', label: 'Gezahlter Betrag (EUR)', type: 'currency', required: true, section: 'zahlung' },
+      { id: 'vorbehalt_grund', name: 'vorbehalt_grund', label: 'Grund des Vorbehalts', type: 'textarea', required: true, section: 'vorbehalt' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit erklaere ich, dass die heute erfolgte Mietzahlung unter dem Vorbehalt der Rueckforderung erfolgt.
+
+Ich behalte mir vor, den strittigen Betrag zurueckzufordern.
+
+Mit freundlichen Gruessen`,
+  },
+
+  // ===== ZUSAETZLICHE KUENDIGUNG TEMPLATES =====
+  'widerspruch-abmahnung': {
+    id: 'widerspruch-abmahnung',
+    name: 'Abmahnung-Widerspruch',
+    description: 'Widersprechen Sie einer unberechtigten Abmahnung',
+    category: 'kuendigung',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'abmahnung_datum', name: 'abmahnung_datum', label: 'Datum der Abmahnung', type: 'date', required: true, section: 'abmahnung' },
+      { id: 'abmahnung_vorwurf', name: 'abmahnung_vorwurf', label: 'Vorgeworfenes Verhalten', type: 'textarea', required: true, section: 'abmahnung' },
+      { id: 'widerspruch_grund', name: 'widerspruch_grund', label: 'Begruendung des Widerspruchs', type: 'textarea', required: true, section: 'widerspruch' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit widerspreche ich der Abmahnung.
+
+Der Vorwurf ist unberechtigt. Ich bitte Sie, die Abmahnung aus der Akte zu entfernen.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'fristverlaengerung-antrag': {
+    id: 'fristverlaengerung-antrag',
+    name: 'Raeumungsfrist-Verlaengerung',
+    description: 'Beantragen Sie eine Verlaengerung der Raeumungsfrist',
+    category: 'kuendigung',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'aktuelle_frist', name: 'aktuelle_frist', label: 'Aktuelle Raeumungsfrist', type: 'date', required: true, section: 'frist' },
+      { id: 'gewuenschte_frist', name: 'gewuenschte_frist', label: 'Gewuenschte neue Frist', type: 'date', required: true, section: 'frist' },
+      { id: 'begruendung', name: 'begruendung', label: 'Begruendung', type: 'textarea', required: true, section: 'antrag' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich eine Verlaengerung der Raeumungsfrist.
+
+Ich bitte um wohlwollende Pruefung meines Antrags.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'untervermietung-kuendigung': {
+    id: 'untervermietung-kuendigung',
+    name: 'Untervermietung-Kuendigung',
+    description: 'Kuendigen Sie eine Untervermietung',
+    category: 'kuendigung',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'untermieter_name', name: 'untermieter_name', label: 'Name des Untermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'untermieter_adresse', name: 'untermieter_adresse', label: 'Adresse', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'kuendigung_zum', name: 'kuendigung_zum', label: 'Kuendigung zum', type: 'date', required: true, section: 'kuendigung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte/r Frau/Herr,
+
+hiermit kuendige ich das Untermietverhaeltnis ordentlich und fristgerecht.
+
+Bitte raeumen Sie das Zimmer bis zum genannten Datum.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'kuendigung-garage': {
+    id: 'kuendigung-garage',
+    name: 'Kuendigung Stellplatz/Garage',
+    description: 'Kuendigen Sie einen separaten Stellplatzmietvertrag',
+    category: 'kuendigung',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'stellplatz_nummer', name: 'stellplatz_nummer', label: 'Stellplatz-Nummer', type: 'text', required: true, section: 'stellplatz' },
+      { id: 'kuendigung_zum', name: 'kuendigung_zum', label: 'Kuendigung zum', type: 'date', required: true, section: 'kuendigung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit kuendige ich den Mietvertrag ueber den Stellplatz/die Garage ordentlich.
+
+Mit freundlichen Gruessen`,
+  },
+
+  // ===== ZUSAETZLICHE MAENGEL TEMPLATES =====
+  'laerm-beschwerde': {
+    id: 'laerm-beschwerde',
+    name: 'Laerm-Beschwerde',
+    description: 'Beschweren Sie sich ueber Laermbelaestigung',
+    category: 'maengel',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'laermquelle', name: 'laermquelle', label: 'Laermquelle (Wohnung/Person)', type: 'text', required: true, section: 'laerm' },
+      { id: 'laermart', name: 'laermart', label: 'Art des Laerms', type: 'textarea', required: true, section: 'laerm' },
+      { id: 'laermzeiten', name: 'laermzeiten', label: 'Uhrzeiten des Laerms', type: 'text', required: true, section: 'laerm' },
+      { id: 'laermprotokoll', name: 'laermprotokoll', label: 'Laermprotokoll', type: 'textarea', section: 'laerm' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beschwere ich mich ueber andauernde Laermbelaestigung.
+
+Ich bitte Sie, auf den Stoerer einzuwirken. Bis zur Behebung behalte ich mir vor, die Miete zu mindern.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'ungeziefer-anzeige': {
+    id: 'ungeziefer-anzeige',
+    name: 'Ungeziefer-Anzeige',
+    description: 'Melden Sie Ungezieferbefall in der Wohnung',
+    category: 'maengel',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'ungeziefer_art', name: 'ungeziefer_art', label: 'Art des Ungeziefers', type: 'text', required: true, section: 'ungeziefer' },
+      { id: 'befall_ort', name: 'befall_ort', label: 'Betroffene Bereiche', type: 'text', required: true, section: 'ungeziefer' },
+      { id: 'befall_seit', name: 'befall_seit', label: 'Befall bemerkt seit', type: 'date', required: true, section: 'ungeziefer' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit zeige ich Ungezieferbefall in meiner Wohnung an.
+
+Ich bitte um umgehende Beauftragung eines Schaedlingsbekaempfers.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'fenster-tueren-mangel': {
+    id: 'fenster-tueren-mangel',
+    name: 'Fenster/Tueren-Mangel',
+    description: 'Melden Sie defekte Fenster oder Tueren',
+    category: 'maengel',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'mangel_beschreibung', name: 'mangel_beschreibung', label: 'Beschreibung des Mangels', type: 'textarea', required: true, section: 'mangel' },
+      { id: 'betroffene_elemente', name: 'betroffene_elemente', label: 'Betroffene Fenster/Tueren', type: 'text', required: true, section: 'mangel' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit zeige ich Maengel an Fenstern/Tueren an.
+
+Ich bitte um Reparatur.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'elektrik-mangel': {
+    id: 'elektrik-mangel',
+    name: 'Elektrik-Mangel',
+    description: 'Melden Sie Maengel an der elektrischen Anlage',
+    category: 'maengel',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'mangel_beschreibung', name: 'mangel_beschreibung', label: 'Beschreibung des Mangels', type: 'textarea', required: true, section: 'mangel' },
+      { id: 'betroffene_bereiche', name: 'betroffene_bereiche', label: 'Betroffene Bereiche', type: 'text', required: true, section: 'mangel' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit zeige ich einen Mangel an der elektrischen Anlage an.
+
+Bei Elektrikmaengeln besteht Gefahr fuer Leib und Leben. Ich bitte um sofortige Reparatur.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'selbstvornahme-ankuendigung': {
+    id: 'selbstvornahme-ankuendigung',
+    name: 'Selbstvornahme-Ankuendigung',
+    description: 'Kuendigen Sie Ersatzvornahme bei Untaetigkeit an',
+    category: 'maengel',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'mangel_beschreibung', name: 'mangel_beschreibung', label: 'Beschreibung des Mangels', type: 'textarea', required: true, section: 'mangel' },
+      { id: 'erste_anzeige', name: 'erste_anzeige', label: 'Datum der ersten Anzeige', type: 'date', required: true, section: 'vorgeschichte' },
+      { id: 'frist', name: 'frist', label: 'Letzte Frist', type: 'date', required: true, section: 'selbstvornahme' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+trotz mehrfacher Aufforderung haben Sie den Mangel nicht beseitigt.
+
+Hiermit kuendige ich an, dass ich nach Ablauf der Frist von meinem Recht zur Selbstvornahme gemaess § 536a Abs. 2 BGB Gebrauch machen und die Kosten von Ihnen zurueckfordern werde.
+
+Mit freundlichen Gruessen`,
+  },
+
+  // ===== ZUSAETZLICHE EINZUG TEMPLATES =====
+  'mietvertrag-pruefung': {
+    id: 'mietvertrag-pruefung',
+    name: 'Mietvertrag-Checkliste',
+    description: 'Checkliste zur Pruefung des Mietvertrags',
+    category: 'einzug',
+    outputFormat: 'form',
+    fields: [
+      { id: 'mietbeginn', name: 'mietbeginn', label: 'Mietbeginn', type: 'date', required: true, section: 'vertrag' },
+      { id: 'kaltmiete', name: 'kaltmiete', label: 'Kaltmiete (EUR)', type: 'currency', required: true, section: 'vertrag' },
+      { id: 'nebenkosten', name: 'nebenkosten', label: 'Nebenkostenvorauszahlung (EUR)', type: 'currency', required: true, section: 'vertrag' },
+      { id: 'kaution', name: 'kaution', label: 'Kaution (EUR)', type: 'currency', required: true, section: 'vertrag' },
+      { id: 'wohnflaeche', name: 'wohnflaeche', label: 'Wohnflaeche (m2)', type: 'number', required: true, section: 'vertrag' },
+      { id: 'befristung', name: 'befristung', label: 'Befristung vorhanden?', type: 'checkbox', section: 'pruefung' },
+      { id: 'renovierung', name: 'renovierung', label: 'Renovierungsklausel vorhanden?', type: 'checkbox', section: 'pruefung' },
+      { id: 'kleinreparaturen', name: 'kleinreparaturen', label: 'Kleinreparaturklausel vorhanden?', type: 'checkbox', section: 'pruefung' },
+      { id: 'tierhaltung', name: 'tierhaltung', label: 'Tierhaltung erlaubt?', type: 'checkbox', section: 'pruefung' },
+      { id: 'anmerkungen', name: 'anmerkungen', label: 'Anmerkungen', type: 'textarea', section: 'pruefung' },
+    ],
+    legalText: `MIETVERTRAG-CHECKLISTE
+
+Diese Checkliste dient zur Pruefung wichtiger Klauseln im Mietvertrag.
+
+Beachten Sie: Viele Klauseln sind nach aktueller Rechtsprechung unwirksam.`,
+  },
+
+  'schluessel-uebergabe': {
+    id: 'schluessel-uebergabe',
+    name: 'Schluessel-Uebergabe',
+    description: 'Protokoll der Schluesseluebergabe',
+    category: 'einzug',
+    outputFormat: 'protocol',
+    fields: [
+      { id: 'mieter_name', name: 'mieter_name', label: 'Name des Mieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'wohnung_adresse', name: 'wohnung_adresse', label: 'Adresse der Wohnung', type: 'text', required: true, section: 'wohnung' },
+      { id: 'uebergabe_datum', name: 'uebergabe_datum', label: 'Uebergabedatum', type: 'date', required: true, section: 'uebergabe' },
+      { id: 'schluessel_haustuer', name: 'schluessel_haustuer', label: 'Anzahl Haustuer-Schluessel', type: 'number', required: true, section: 'schluessel' },
+      { id: 'schluessel_wohnung', name: 'schluessel_wohnung', label: 'Anzahl Wohnungs-Schluessel', type: 'number', required: true, section: 'schluessel' },
+      { id: 'schluessel_briefkasten', name: 'schluessel_briefkasten', label: 'Anzahl Briefkasten-Schluessel', type: 'number', section: 'schluessel' },
+      { id: 'schluessel_keller', name: 'schluessel_keller', label: 'Anzahl Keller-Schluessel', type: 'number', section: 'schluessel' },
+      { id: 'schluessel_sonstige', name: 'schluessel_sonstige', label: 'Sonstige Schluessel', type: 'textarea', section: 'schluessel' },
+      { id: 'signature_mieter', name: 'signature_mieter', label: 'Unterschrift Mieter', type: 'signature', section: 'unterschriften' },
+      { id: 'signature_vermieter', name: 'signature_vermieter', label: 'Unterschrift Vermieter', type: 'signature', section: 'unterschriften' },
+    ],
+    legalText: `SCHLUESSELUEBERGABEPROTOKOLL
+
+Die aufgefuehrten Schluessel wurden uebergeben. Dieses Protokoll dient als Nachweis.`,
+  },
+
+  'zaehlerstand-protokoll': {
+    id: 'zaehlerstand-protokoll',
+    name: 'Zaehlerstand-Protokoll',
+    description: 'Dokumentieren Sie alle Zaehlerstaende',
+    category: 'einzug',
+    outputFormat: 'protocol',
+    fields: [
+      { id: 'mieter_name', name: 'mieter_name', label: 'Name des Mieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'wohnung_adresse', name: 'wohnung_adresse', label: 'Adresse der Wohnung', type: 'text', required: true, section: 'wohnung' },
+      { id: 'datum', name: 'datum', label: 'Datum', type: 'date', required: true, section: 'protokoll' },
+      { id: 'strom_nummer', name: 'strom_nummer', label: 'Stromzaehler-Nummer', type: 'text', section: 'strom' },
+      { id: 'strom_stand', name: 'strom_stand', label: 'Stromzaehlerstand (kWh)', type: 'text', required: true, section: 'strom' },
+      { id: 'gas_nummer', name: 'gas_nummer', label: 'Gaszaehler-Nummer', type: 'text', section: 'gas' },
+      { id: 'gas_stand', name: 'gas_stand', label: 'Gaszaehlerstand (m3)', type: 'text', section: 'gas' },
+      { id: 'wasser_nummer', name: 'wasser_nummer', label: 'Wasserzaehler-Nummer', type: 'text', section: 'wasser' },
+      { id: 'wasser_kalt', name: 'wasser_kalt', label: 'Kaltwasser (m3)', type: 'text', section: 'wasser' },
+      { id: 'wasser_warm', name: 'wasser_warm', label: 'Warmwasser (m3)', type: 'text', section: 'wasser' },
+      { id: 'heizung_stand', name: 'heizung_stand', label: 'Heizungszaehler', type: 'text', section: 'heizung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `ZAEHLERSTANDSPROTOKOLL
+
+Die aufgefuehrten Zaehlerstaende wurden zum angegebenen Datum abgelesen und dokumentiert.`,
+  },
+
+  'nachmieter-vorschlag': {
+    id: 'nachmieter-vorschlag',
+    name: 'Nachmieter-Vorschlag',
+    description: 'Schlagen Sie einen Nachmieter vor',
+    category: 'einzug',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'nachmieter_name', name: 'nachmieter_name', label: 'Name des Nachmieters', type: 'text', required: true, section: 'nachmieter' },
+      { id: 'nachmieter_kontakt', name: 'nachmieter_kontakt', label: 'Kontaktdaten Nachmieter', type: 'text', required: true, section: 'nachmieter' },
+      { id: 'nachmieter_beruf', name: 'nachmieter_beruf', label: 'Beruf', type: 'text', section: 'nachmieter' },
+      { id: 'uebernahme_datum', name: 'uebernahme_datum', label: 'Gewuenschtes Uebernahmedatum', type: 'date', required: true, section: 'uebernahme' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit schlage ich Ihnen einen Nachmieter fuer meine Wohnung vor.
+
+Ich bitte Sie, den Interessenten zu kontaktieren.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'wohngemeinschaft-antrag': {
+    id: 'wohngemeinschaft-antrag',
+    name: 'WG-Mitbewohner-Antrag',
+    description: 'Antrag auf Aufnahme eines Mitbewohners',
+    category: 'einzug',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'mitbewohner_name', name: 'mitbewohner_name', label: 'Name des neuen Mitbewohners', type: 'text', required: true, section: 'mitbewohner' },
+      { id: 'mitbewohner_geburt', name: 'mitbewohner_geburt', label: 'Geburtsdatum', type: 'date', section: 'mitbewohner' },
+      { id: 'mitbewohner_beruf', name: 'mitbewohner_beruf', label: 'Beruf', type: 'text', section: 'mitbewohner' },
+      { id: 'einzug_datum', name: 'einzug_datum', label: 'Geplanter Einzug', type: 'date', required: true, section: 'antrag' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Aufnahme einer weiteren Person in meine Wohngemeinschaft.
+
+Ich bitte um Ihre Zustimmung.
+
+Mit freundlichen Gruessen`,
+  },
+
+  // ===== ZUSAETZLICHE AUSZUG TEMPLATES =====
+  'endreinigung-protokoll': {
+    id: 'endreinigung-protokoll',
+    name: 'Endreinigung-Protokoll',
+    description: 'Dokumentieren Sie die durchgefuehrte Endreinigung',
+    category: 'auszug',
+    outputFormat: 'protocol',
+    fields: [
+      { id: 'mieter_name', name: 'mieter_name', label: 'Name des Mieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'wohnung_adresse', name: 'wohnung_adresse', label: 'Adresse der Wohnung', type: 'text', required: true, section: 'wohnung' },
+      { id: 'reinigung_datum', name: 'reinigung_datum', label: 'Datum der Reinigung', type: 'date', required: true, section: 'reinigung' },
+      { id: 'kueche', name: 'kueche', label: 'Kueche gereinigt', type: 'checkbox', section: 'bereiche' },
+      { id: 'bad', name: 'bad', label: 'Bad/WC gereinigt', type: 'checkbox', section: 'bereiche' },
+      { id: 'boeden', name: 'boeden', label: 'Boeden gereinigt', type: 'checkbox', section: 'bereiche' },
+      { id: 'fenster', name: 'fenster', label: 'Fenster gereinigt', type: 'checkbox', section: 'bereiche' },
+      { id: 'heizkoerper', name: 'heizkoerper', label: 'Heizkoerper gereinigt', type: 'checkbox', section: 'bereiche' },
+      { id: 'anmerkungen', name: 'anmerkungen', label: 'Anmerkungen', type: 'textarea', section: 'anmerkungen' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `ENDREINIGUNGSPROTOKOLL
+
+Die aufgefuehrten Bereiche wurden gereinigt. Die Wohnung wird in besenreinem Zustand uebergeben.`,
+  },
+
+  'schluessel-rueckgabe': {
+    id: 'schluessel-rueckgabe',
+    name: 'Schluessel-Rueckgabe',
+    description: 'Protokoll der Schluesselrueckgabe',
+    category: 'auszug',
+    outputFormat: 'protocol',
+    fields: [
+      { id: 'mieter_name', name: 'mieter_name', label: 'Name des Mieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'wohnung_adresse', name: 'wohnung_adresse', label: 'Adresse der Wohnung', type: 'text', required: true, section: 'wohnung' },
+      { id: 'rueckgabe_datum', name: 'rueckgabe_datum', label: 'Rueckgabedatum', type: 'date', required: true, section: 'rueckgabe' },
+      { id: 'schluessel_anzahl', name: 'schluessel_anzahl', label: 'Gesamtanzahl zurueckgegebener Schluessel', type: 'number', required: true, section: 'schluessel' },
+      { id: 'schluessel_details', name: 'schluessel_details', label: 'Details zu den Schluesseln', type: 'textarea', required: true, section: 'schluessel' },
+      { id: 'vollstaendig', name: 'vollstaendig', label: 'Alle Schluessel vollstaendig?', type: 'checkbox', section: 'schluessel' },
+      { id: 'signature_mieter', name: 'signature_mieter', label: 'Unterschrift Mieter', type: 'signature', section: 'unterschriften' },
+      { id: 'signature_vermieter', name: 'signature_vermieter', label: 'Unterschrift Vermieter', type: 'signature', section: 'unterschriften' },
+    ],
+    legalText: `SCHLUESSELRUECKGABEPROTOKOLL
+
+Die aufgefuehrten Schluessel wurden zurueckgegeben. Mit der Schluesselrueckgabe endet das Mietverhaeltnis.`,
+  },
+
+  'schadenersatz-widerspruch': {
+    id: 'schadenersatz-widerspruch',
+    name: 'Schadenersatz-Widerspruch',
+    description: 'Widersprechen Sie unberechtigten Schadenersatzforderungen',
+    category: 'auszug',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'forderung_hoehe', name: 'forderung_hoehe', label: 'Geforderte Summe (EUR)', type: 'currency', required: true, section: 'forderung' },
+      { id: 'forderung_grund', name: 'forderung_grund', label: 'Angegebener Grund', type: 'textarea', required: true, section: 'forderung' },
+      { id: 'widerspruch_grund', name: 'widerspruch_grund', label: 'Begruendung des Widerspruchs', type: 'textarea', required: true, section: 'widerspruch' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit widerspreche ich Ihrer Schadenersatzforderung.
+
+Die Forderung ist unberechtigt. Ich werde den geforderten Betrag nicht zahlen.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'renovierung-vereinbarung': {
+    id: 'renovierung-vereinbarung',
+    name: 'Renovierungs-Vereinbarung',
+    description: 'Vereinbaren Sie Renovierungsarbeiten beim Auszug',
+    category: 'auszug',
+    outputFormat: 'form',
+    fields: [
+      { id: 'mieter_name', name: 'mieter_name', label: 'Name des Mieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'parteien' },
+      { id: 'wohnung_adresse', name: 'wohnung_adresse', label: 'Adresse der Wohnung', type: 'text', required: true, section: 'wohnung' },
+      { id: 'arbeiten', name: 'arbeiten', label: 'Vereinbarte Arbeiten', type: 'textarea', required: true, section: 'renovierung' },
+      { id: 'frist', name: 'frist', label: 'Fertigstellung bis', type: 'date', required: true, section: 'renovierung' },
+      { id: 'kosten_aufteilung', name: 'kosten_aufteilung', label: 'Kostenaufteilung', type: 'textarea', section: 'kosten' },
+      { id: 'signature_mieter', name: 'signature_mieter', label: 'Unterschrift Mieter', type: 'signature', section: 'unterschriften' },
+      { id: 'signature_vermieter', name: 'signature_vermieter', label: 'Unterschrift Vermieter', type: 'signature', section: 'unterschriften' },
+    ],
+    legalText: `RENOVIERUNGSVEREINBARUNG
+
+Die Parteien vereinbaren die Durchfuehrung der aufgefuehrten Renovierungsarbeiten.`,
+  },
+
+  'nebenkostenabrechnung-anforderung': {
+    id: 'nebenkostenabrechnung-anforderung',
+    name: 'Nebenkostenabrechnung anfordern',
+    description: 'Fordern Sie die ausstehende Nebenkostenabrechnung',
+    category: 'auszug',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Neue Adresse - Strasse', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'alte_wohnung', name: 'alte_wohnung', label: 'Adresse der frueheren Wohnung', type: 'text', required: true, section: 'mietverhaeltnis' },
+      { id: 'abrechnungsjahr', name: 'abrechnungsjahr', label: 'Ausstehendes Abrechnungsjahr', type: 'text', required: true, section: 'abrechnung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit fordere ich Sie auf, die ausstehende Nebenkostenabrechnung zu erstellen.
+
+Nach § 556 Abs. 3 BGB muss die Abrechnung innerhalb von 12 Monaten nach Ende des Abrechnungszeitraums erfolgen.
+
+Mit freundlichen Gruessen`,
+  },
+
+  // ===== ZUSAETZLICHE KOMMUNIKATION TEMPLATES =====
+  'kontaktdaten-mitteilung': {
+    id: 'kontaktdaten-mitteilung',
+    name: 'Kontaktdaten-Mitteilung',
+    description: 'Teilen Sie Aenderungen Ihrer Kontaktdaten mit',
+    category: 'kommunikation',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'neue_telefon', name: 'neue_telefon', label: 'Neue Telefonnummer', type: 'text', section: 'kontaktdaten' },
+      { id: 'neue_email', name: 'neue_email', label: 'Neue E-Mail-Adresse', type: 'text', section: 'kontaktdaten' },
+      { id: 'neue_bankverbindung', name: 'neue_bankverbindung', label: 'Neue Bankverbindung (IBAN)', type: 'text', section: 'kontaktdaten' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit teile ich Ihnen meine neuen Kontaktdaten mit.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'empfangsbestaetigung': {
+    id: 'empfangsbestaetigung',
+    name: 'Empfangsbestaetigung',
+    description: 'Fordern Sie eine Empfangsbestaetigung an',
+    category: 'kommunikation',
+    outputFormat: 'form',
+    fields: [
+      { id: 'absender', name: 'absender', label: 'Absender', type: 'text', required: true, section: 'dokument' },
+      { id: 'empfaenger', name: 'empfaenger', label: 'Empfaenger', type: 'text', required: true, section: 'dokument' },
+      { id: 'datum', name: 'datum', label: 'Datum', type: 'date', required: true, section: 'dokument' },
+      { id: 'dokument_art', name: 'dokument_art', label: 'Art des Dokuments', type: 'text', required: true, section: 'dokument' },
+      { id: 'dokument_betreff', name: 'dokument_betreff', label: 'Betreff', type: 'text', required: true, section: 'dokument' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift Empfaenger', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `EMPFANGSBESTAETIGUNG
+
+Der Empfaenger bestaetigt den Erhalt des oben genannten Dokuments.`,
+  },
+
+  'mieterbund-vollmacht': {
+    id: 'mieterbund-vollmacht',
+    name: 'Mieterbund-Vollmacht',
+    description: 'Vollmacht fuer den Mieterbund/Mieterverein',
+    category: 'kommunikation',
+    outputFormat: 'form',
+    fields: [
+      { id: 'vollmachtgeber_name', name: 'vollmachtgeber_name', label: 'Ihr Name', type: 'text', required: true, section: 'vollmachtgeber' },
+      { id: 'vollmachtgeber_adresse', name: 'vollmachtgeber_adresse', label: 'Ihre Adresse', type: 'text', required: true, section: 'vollmachtgeber' },
+      { id: 'vollmachtgeber_geburt', name: 'vollmachtgeber_geburt', label: 'Geburtsdatum', type: 'date', section: 'vollmachtgeber' },
+      { id: 'mieterverein', name: 'mieterverein', label: 'Name des Mietervereins', type: 'text', required: true, section: 'bevollmaechtigter' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'mietverhaeltnis' },
+      { id: 'wohnung_adresse', name: 'wohnung_adresse', label: 'Adresse der Mietwohnung', type: 'text', required: true, section: 'mietverhaeltnis' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `VOLLMACHT
+
+Ich bevollmaechtige den genannten Mieterverein, mich in allen Angelegenheiten des bezeichneten Mietverhaeltnisses zu vertreten.`,
+  },
+
+  'anwalt-vollmacht': {
+    id: 'anwalt-vollmacht',
+    name: 'Anwalts-Vollmacht',
+    description: 'Bevollmaechtigen Sie einen Rechtsanwalt',
+    category: 'kommunikation',
+    outputFormat: 'form',
+    fields: [
+      { id: 'vollmachtgeber_name', name: 'vollmachtgeber_name', label: 'Ihr Name', type: 'text', required: true, section: 'vollmachtgeber' },
+      { id: 'vollmachtgeber_adresse', name: 'vollmachtgeber_adresse', label: 'Ihre Adresse', type: 'text', required: true, section: 'vollmachtgeber' },
+      { id: 'vollmachtgeber_geburt', name: 'vollmachtgeber_geburt', label: 'Geburtsdatum', type: 'date', section: 'vollmachtgeber' },
+      { id: 'anwalt_name', name: 'anwalt_name', label: 'Name des Rechtsanwalts', type: 'text', required: true, section: 'bevollmaechtigter' },
+      { id: 'anwalt_kanzlei', name: 'anwalt_kanzlei', label: 'Kanzlei', type: 'text', section: 'bevollmaechtigter' },
+      { id: 'anwalt_adresse', name: 'anwalt_adresse', label: 'Adresse der Kanzlei', type: 'text', required: true, section: 'bevollmaechtigter' },
+      { id: 'vollmacht_umfang', name: 'vollmacht_umfang', label: 'Umfang der Vollmacht', type: 'textarea', required: true, section: 'vollmacht' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `PROZESSVOLLMACHT
+
+Ich bevollmaechtige den genannten Rechtsanwalt, mich in dem bezeichneten Umfang aussergerichtlich und gerichtlich zu vertreten.`,
+  },
+
+  // ===== ZUSAETZLICHE MIETERRECHTE TEMPLATES =====
+  'besichtigung-zustimmung': {
+    id: 'besichtigung-zustimmung',
+    name: 'Besichtigung-Zustimmung',
+    description: 'Zustimmung zu Wohnungsbesichtigung mit Bedingungen',
+    category: 'rechte',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'termin', name: 'termin', label: 'Vereinbarter Termin', type: 'text', required: true, section: 'besichtigung' },
+      { id: 'bedingungen', name: 'bedingungen', label: 'Bedingungen', type: 'textarea', section: 'besichtigung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+ich stimme der Wohnungsbesichtigung unter folgenden Bedingungen zu.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'parabolantenne-antrag': {
+    id: 'parabolantenne-antrag',
+    name: 'Parabolantenne-Antrag',
+    description: 'Antrag auf Installation einer Satellitenanlage',
+    category: 'rechte',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'antenne_art', name: 'antenne_art', label: 'Art der Antenne', type: 'text', required: true, section: 'antenne' },
+      { id: 'montageort', name: 'montageort', label: 'Geplanter Montageort', type: 'text', required: true, section: 'antenne' },
+      { id: 'begruendung', name: 'begruendung', label: 'Begruendung', type: 'textarea', required: true, section: 'antrag' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Erlaubnis zur Installation einer Satellitenanlage.
+
+Ich versichere fachmnnische Installation und Rueckbau bei Auszug.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'balkon-nutzung': {
+    id: 'balkon-nutzung',
+    name: 'Balkon-Nutzung',
+    description: 'Anfrage zur erlaubten Balkonnutzung',
+    category: 'rechte',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'nutzungsart', name: 'nutzungsart', label: 'Geplante Nutzung', type: 'textarea', required: true, section: 'nutzung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+ich moechte meinen Balkon wie beschrieben nutzen und bitte um Ihre Zustimmung.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'garten-nutzung': {
+    id: 'garten-nutzung',
+    name: 'Garten-Nutzung',
+    description: 'Anfrage zur Gartennutzung und -gestaltung',
+    category: 'rechte',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'nutzungsart', name: 'nutzungsart', label: 'Geplante Nutzung/Gestaltung', type: 'textarea', required: true, section: 'nutzung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+ich moechte den Garten wie beschrieben nutzen und bitte um Ihre Zustimmung.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'stellplatz-anfrage': {
+    id: 'stellplatz-anfrage',
+    name: 'Stellplatz-Anfrage',
+    description: 'Anfrage nach einem Parkplatz oder Stellplatz',
+    category: 'rechte',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'fahrzeug_art', name: 'fahrzeug_art', label: 'Art des Fahrzeugs', type: 'text', section: 'stellplatz' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit frage ich an, ob ein Stellplatz/Parkplatz fuer mich verfuegbar ist.
+
+Mit freundlichen Gruessen`,
+  },
+
+  // ===== ZUSAETZLICHE SONSTIGE TEMPLATES =====
+  'auskunftsanfrage': {
+    id: 'auskunftsanfrage',
+    name: 'Auskunftsanfrage',
+    description: 'Fordern Sie Informationen vom Vermieter an',
+    category: 'sonstige',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'anfrage', name: 'anfrage', label: 'Ihre Anfrage', type: 'textarea', required: true, section: 'auskunft' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit bitte ich um Auskunft.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'widerspruch-fotos': {
+    id: 'widerspruch-fotos',
+    name: 'Widerspruch Fotos',
+    description: 'Widerspruch gegen Fotoaufnahmen in der Wohnung',
+    category: 'sonstige',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'anlass', name: 'anlass', label: 'Anlass der Fotoaufnahmen', type: 'text', section: 'fotos' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit widerspreche ich der Anfertigung von Fotoaufnahmen in meiner Wohnung.
+
+Ich gestatte keine Aufnahmen ohne meine ausdrueckliche Zustimmung.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'kinderzuschlag-bescheinigung': {
+    id: 'kinderzuschlag-bescheinigung',
+    name: 'Bescheinigung Kinderzuschlag',
+    description: 'Vermieterbescheinigung fuer Kinderzuschlag',
+    category: 'sonstige',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+ich beantrage Kinderzuschlag und benoetige dafuer eine Vermieterbescheinigung.
+
+Bitte bestaetigen Sie die Mietkosten und Wohnflaeche.
+
+Mit freundlichen Gruessen`,
+  },
+
+  'ruhezeiten-beschwerde': {
+    id: 'ruhezeiten-beschwerde',
+    name: 'Ruhezeiten-Beschwerde',
+    description: 'Beschwerde wegen Verletzung der Ruhezeiten',
+    category: 'sonstige',
+    outputFormat: 'letter',
+    fields: [
+      { id: 'absender_name', name: 'absender_name', label: 'Ihr Name', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_strasse', name: 'absender_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_plz', name: 'absender_plz', label: 'PLZ', type: 'text', required: true, section: 'absender' },
+      { id: 'absender_ort', name: 'absender_ort', label: 'Ort', type: 'text', required: true, section: 'absender' },
+      { id: 'vermieter_name', name: 'vermieter_name', label: 'Name des Vermieters', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_strasse', name: 'vermieter_strasse', label: 'Strasse und Hausnummer', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_plz', name: 'vermieter_plz', label: 'PLZ', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'vermieter_ort', name: 'vermieter_ort', label: 'Ort', type: 'text', required: true, section: 'empfaenger' },
+      { id: 'stoerer', name: 'stoerer', label: 'Stoerungsquelle (Wohnung)', type: 'text', required: true, section: 'stoerung' },
+      { id: 'stoerung_art', name: 'stoerung_art', label: 'Art der Stoerung', type: 'textarea', required: true, section: 'stoerung' },
+      { id: 'stoerung_zeiten', name: 'stoerung_zeiten', label: 'Stoerungszeiten', type: 'textarea', required: true, section: 'stoerung' },
+      { id: 'signature', name: 'signature', label: 'Unterschrift', type: 'signature', section: 'unterschrift' },
+    ],
+    legalText: `Sehr geehrte Damen und Herren,
+
+hiermit beschwere ich mich ueber wiederholte Verletzung der Ruhezeiten.
+
+Ich bitte Sie, auf die Einhaltung der Ruhezeiten hinzuwirken.
+
+Mit freundlichen Gruessen`,
+  },
 }
 
 export function getFormTemplate(templateId: string): FormTemplate | null {
