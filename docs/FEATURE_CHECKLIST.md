@@ -77,12 +77,12 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 
 ---
 
-## 📋 Optionale Erweiterungen
+## 📋 Optionale Erweiterungen (Lovable Frontend)
 
 ### Zahlungsverkehr
-- [ ] **SEPA-Lastschriften** - Direkter Bankeinzug
-- [ ] **SEPA-Überweisungen** - Zahlungsaufträge erstellen
-- [ ] **Online-Payment** - Stripe/PayPal Integration
+- [x] **SEPA-Lastschriften** - Direkter Bankeinzug (pain.008 XML)
+- [x] **SEPA-Überweisungen** - Zahlungsaufträge erstellen (pain.001 XML)
+- [x] **Online-Payment** - Stripe, PayPal, Klarna, Sofort Integration
 
 ### Erweiterte Reports
 - [ ] **Cash-Flow-Analyse** - Liquiditätsplanung
@@ -90,13 +90,13 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [ ] **Forecast** - Prognose-Funktionen
 
 ### Integrationen
-- [ ] **Shopify/WooCommerce** - E-Commerce Anbindung
-- [ ] **Lexware/SAGE** - Import/Export
-- [ ] **Steuerberater-Portal** - Direkter Zugang
+- [x] **Shopify/WooCommerce/Amazon/eBay** - E-Commerce Anbindung
+- [x] **Lexware/SAGE/DATEV/sevDesk** - Import/Export mit Vorlagen
+- [x] **Steuerberater-Portal** - Zugang mit Berechtigungen
 
 ### Mobile
 - [ ] **Native App** - iOS/Android
-- [ ] **Beleg-Scanner** - Kamera-Integration
+- [x] **Beleg-Scanner** - Kamera-Integration mit KI-Analyse
 
 ---
 
