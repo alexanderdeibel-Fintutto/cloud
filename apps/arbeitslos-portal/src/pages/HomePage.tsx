@@ -487,6 +487,21 @@ export default function HomePage() {
       {/* 8. TESTIMONIALS                                               */}
       {/* ============================================================= */}
       <section className="container py-16">
+        {/* Live Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-16">
+          {[
+            { value: '12.847', label: 'Bescheide geprueft', color: 'text-blue-600' },
+            { value: '4.231', label: 'Widersprueche erstellt', color: 'text-red-600' },
+            { value: '€ 2,1 Mio.', label: 'Nachzahlungen erkaempft', color: 'text-green-600' },
+            { value: '93%', label: 'Erfolgsquote', color: 'text-amber-600' },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className={`text-3xl md:text-4xl font-extrabold ${stat.color}`}>{stat.value}</div>
+              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Das sagen unsere Nutzer</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">

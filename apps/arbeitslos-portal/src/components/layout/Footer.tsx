@@ -11,6 +11,7 @@ const footerLinks = {
     { name: 'Community-Forum', href: '/forum' },
     { name: 'Haeufige Probleme', href: '/probleme' },
     { name: 'FAQ', href: '/faq' },
+    { name: 'Checklisten', href: '/checklisten' },
     { name: 'Suche', href: '/suche' },
     { name: 'Kontakt & Hilfe', href: '/kontakt' },
   ],

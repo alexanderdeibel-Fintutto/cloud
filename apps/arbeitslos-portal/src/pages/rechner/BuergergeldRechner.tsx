@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calculator, Plus, Trash2, ArrowLeft, ArrowRight, Info, AlertTriangle, CheckCircle, Download } from 'lucide-react'
+import { Calculator, Plus, Trash2, ArrowLeft, ArrowRight, Info, AlertTriangle, CheckCircle, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneBuergergeld, BgMitglied, BuergergeldErgebnis } from '@/lib/rechner-logik'
 import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 // Local wrapper with id for UI management
@@ -586,6 +587,20 @@ export default function BuergergeldRechner() {
                 className="w-full py-4 bg-amber-600 hover:bg-amber-700"
               >
                 <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
+              <Button
+                onClick={() => {
+                  const formatEuro2 = (v: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v)
+                  shareResult({
+                    title: 'Buergergeld-Berechnung',
+                    text: `Mein Buergergeld-Anspruch: ${formatEuro2(ergebnis.anspruch)} / Monat (Regelbedarf: ${formatEuro2(ergebnis.regelbedarfGesamt)}, KdU: ${formatEuro2(ergebnis.kduGesamt)})`,
+                    url: window.location.href,
+                  })
+                }}
+                variant="outline"
+                className="w-full py-4"
+              >
+                <Share2 className="w-4 h-4 mr-2" />Teilen
               </Button>
               <Link to="/scan"><Button className="w-full py-4 bg-blue-600 hover:bg-blue-700">Bescheid scannen</Button></Link>
               <Link to="/chat"><Button className="w-full py-4 bg-green-600 hover:bg-green-700">KI-Berater fragen</Button></Link>
