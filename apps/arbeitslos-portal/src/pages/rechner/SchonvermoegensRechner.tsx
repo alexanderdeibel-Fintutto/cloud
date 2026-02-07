@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PiggyBank, Info, CheckCircle, AlertTriangle, Home as HomeIcon, Car } from 'lucide-react'
+import { PiggyBank, Info, CheckCircle, AlertTriangle, Home as HomeIcon, Car, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneSchonvermoegen, SchonvermoegensErgebnis } from '@/lib/rechner-logik'
+import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SchonvermoegensRechner() {
@@ -28,6 +30,12 @@ export default function SchonvermoegensRechner() {
       altersvorsorgeGeschuetzt: hatAltersvorsorge ? altersvorsorge : undefined,
     })
     setResult(r)
+    saveRechnerErgebnis('Schonvermoegens-Rechner', 'schonvermoegen', {
+      anspruch: r.anspruch ? 'Ja' : 'Nein',
+      freibetragGesamt: r.freibetragGesamt,
+      vermoegenAnrechenbar: r.vermoegenAnrechenbar,
+      vermoegen,
+    })
   }
 
   return (
@@ -192,7 +200,22 @@ export default function SchonvermoegensRechner() {
               </ul>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button
+                onClick={() => {
+                  const sections: RechnerSection[] = [
+                    ...result.details.map(d => ({ label: d.label, value: `${d.betrag.toLocaleString('de-DE')} EUR` })),
+                    { label: 'Barvermögen', value: `${vermoegen.toLocaleString('de-DE')} EUR` },
+                    { label: 'Ergebnis', value: result.anspruch ? 'Geschuetzt' : 'Ueber Freibetrag', highlight: true },
+                  ]
+                  generateRechnerPdf('Schonvermoegens-Pruefung (§ 12 SGB II)', sections,
+                    { label: 'Freibetrag gesamt', value: `${result.freibetragGesamt.toLocaleString('de-DE')} EUR` },
+                  )
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
               <Link to="/rechner/buergergeld"><Button variant="outline" className="w-full">Buergergeld berechnen</Button></Link>
               <Link to="/chat"><Button variant="outline" className="w-full">KI-Berater fragen</Button></Link>
               <Link to="/rechner"><Button variant="outline" className="w-full">Alle Rechner</Button></Link>

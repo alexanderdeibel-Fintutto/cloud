@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, Info } from 'lucide-react'
+import { Heart, Info, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneMehrbedarf, MehrbedarfErgebnis, REGELSAETZE_2025 } from '@/lib/rechner-logik'
+import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function MehrbedarfRechner() {
@@ -33,6 +35,13 @@ export default function MehrbedarfRechner() {
     })
     setResult(ergebnis)
     setCalculated(true)
+    if (ergebnis.gesamt > 0) {
+      saveRechnerErgebnis('Mehrbedarf-Rechner', 'mehrbedarf', {
+        gesamt: ergebnis.gesamt,
+        regelsatz,
+        positionen: ergebnis.details.length,
+      })
+    }
   }
 
   return (
@@ -197,6 +206,18 @@ export default function MehrbedarfRechner() {
                   </div>
                 )}
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={() => {
+                      const sections: RechnerSection[] = result.details.map(d => ({
+                        label: `${d.label} (${d.paragraph})`,
+                        value: `${d.betrag.toFixed(2)} EUR`,
+                      }))
+                      generateRechnerPdf('Mehrbedarf-Berechnung (§ 21 SGB II)', sections, { label: 'Gesamter Mehrbedarf', value: `${result.gesamt.toFixed(2)} EUR` })
+                    }}
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    <Download className="w-4 h-4 mr-2" />Als PDF
+                  </Button>
                   <Link to="/scan" className="flex-1"><Button variant="outline" className="w-full"><Heart className="w-4 h-4 mr-2" />Bescheid pruefen</Button></Link>
                   <Link to="/rechner" className="flex-1"><Button variant="outline" className="w-full">Alle Rechner</Button></Link>
                 </div>

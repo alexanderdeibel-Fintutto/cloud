@@ -1,388 +1,436 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
-  MapPin,
-  Users,
-  Baby,
-  Briefcase,
-  HelpCircle,
+  Swords,
   ArrowRight,
   ArrowLeft,
-  Swords,
+  ScanSearch,
+  MessageCircle,
+  Calculator,
+  FileText,
+  ClipboardList,
   CheckCircle2,
   Sparkles,
+  User,
+  Shield,
+  PartyPopper,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 
-interface OnboardingData {
-  plz: string
-  stadt: string
-  bgGroesse: number
-  kinder: { alter: number }[]
-  hatKinder: boolean
-  erwerbstaetig: boolean
-  einkommenArt: string
-  einkommen: number
-  problem: string[]
-}
+const TOTAL_STEPS = 4
 
-const PROBLEM_OPTIONS = [
-  { id: 'bescheid_falsch', label: 'Mein Bescheid stimmt nicht', icon: '📋' },
-  { id: 'sanktion', label: 'Ich wurde sanktioniert', icon: '⚠️' },
-  { id: 'miete_kdu', label: 'Meine Miete wird nicht voll gezahlt', icon: '🏠' },
-  { id: 'rueckforderung', label: 'Ich soll Geld zurueckzahlen', icon: '💸' },
-  { id: 'verstehe_nicht', label: 'Ich verstehe meinen Bescheid nicht', icon: '❓' },
-  { id: 'widerspruch', label: 'Ich brauche einen Widerspruch', icon: '✊' },
-  { id: 'mehrbedarf', label: 'Mir steht mehr zu', icon: '💰' },
-  { id: 'neu_im_system', label: 'Ich bin neu im System', icon: '🆕' },
+const SITUATION_OPTIONS = [
+  { id: 'bescheid', label: 'Bescheid erhalten & unsicher', icon: ScanSearch },
+  { id: 'sanktion', label: 'Sanktion oder Kuerzung', icon: Shield },
+  { id: 'umzug', label: 'Umzug geplant oder noetig', icon: ClipboardList },
+  { id: 'erstausstattung', label: 'Erstausstattung beantragen', icon: FileText },
+]
+
+const FEATURE_CARDS = [
+  {
+    to: '/scan',
+    icon: ScanSearch,
+    title: 'BescheidScan',
+    description: 'Lade deinen Bescheid hoch — unsere KI findet Fehler in Sekunden.',
+    color: 'text-blue-500',
+    bg: 'bg-blue-500/10',
+  },
+  {
+    to: '/chat',
+    icon: MessageCircle,
+    title: 'KI-Rechtsberater',
+    description: 'Stelle Fragen zu Buergergeld, Sanktionen, KdU und mehr.',
+    color: 'text-green-500',
+    bg: 'bg-green-500/10',
+  },
+  {
+    to: '/rechner',
+    icon: Calculator,
+    title: 'Rechner-Suite',
+    description: '10 Rechner fuer Buergergeld, Mehrbedarf, Fristen und mehr.',
+    color: 'text-orange-500',
+    bg: 'bg-orange-500/10',
+  },
+  {
+    to: '/musterschreiben',
+    icon: Swords,
+    title: 'Musterschreiben',
+    description: 'Widersprueche, Antraege und Schreiben per Klick erstellen.',
+    color: 'text-red-500',
+    bg: 'bg-red-500/10',
+  },
+  {
+    to: '/tracker',
+    icon: ClipboardList,
+    title: 'Widerspruch-Tracker',
+    description: 'Behalte Fristen und den Status deiner Widersprueche im Blick.',
+    color: 'text-indigo-500',
+    bg: 'bg-indigo-500/10',
+  },
 ]
 
 export default function OnboardingPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
-  const [data, setData] = useState<OnboardingData>({
-    plz: '',
-    stadt: '',
-    bgGroesse: 1,
-    kinder: [],
-    hatKinder: false,
-    erwerbstaetig: false,
-    einkommenArt: '',
-    einkommen: 0,
-    problem: [],
-  })
-
-  const totalSteps = 5
+  const [name, setName] = useState('')
+  const [receivesBuergergeld, setReceivesBuergergeld] = useState<boolean | null>(null)
+  const [situations, setSituations] = useState<string[]>([])
 
   const handleNext = () => {
-    if (step < totalSteps - 1) {
+    if (step < TOTAL_STEPS - 1) {
       setStep(step + 1)
-    } else {
-      handleComplete()
     }
   }
 
   const handleBack = () => {
-    if (step > 0) setStep(step - 1)
-  }
-
-  const handleComplete = () => {
-    // Save profile to localStorage (in production: save to Supabase)
-    localStorage.setItem('boxer_profile', JSON.stringify(data))
-    localStorage.setItem('boxer_onboarded', 'true')
-    // Navigate based on primary problem
-    if (data.problem.includes('bescheid_falsch') || data.problem.includes('verstehe_nicht')) {
-      navigate('/scan')
-    } else if (data.problem.includes('widerspruch')) {
-      navigate('/musterschreiben')
-    } else {
-      navigate('/chat')
+    if (step > 0) {
+      setStep(step - 1)
     }
   }
 
-  const toggleProblem = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      problem: prev.problem.includes(id)
-        ? prev.problem.filter(p => p !== id)
-        : [...prev.problem, id],
-    }))
+  const handleComplete = () => {
+    localStorage.setItem('bescheidboxer_onboarding_done', 'true')
+    if (name.trim()) {
+      localStorage.setItem('bescheidboxer_user_name', name.trim())
+    }
+    navigate('/dashboard')
   }
 
-  const addChild = () => {
-    setData(prev => ({ ...prev, kinder: [...prev.kinder, { alter: 0 }] }))
+  const toggleSituation = (id: string) => {
+    setSituations(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    )
   }
 
-  const updateChildAge = (index: number, alter: number) => {
-    setData(prev => ({
-      ...prev,
-      kinder: prev.kinder.map((k, i) => i === index ? { alter } : k),
-    }))
-  }
-
-  const removeChild = (index: number) => {
-    setData(prev => ({
-      ...prev,
-      kinder: prev.kinder.filter((_, i) => i !== index),
-    }))
-  }
+  const progressPercent = ((step + 1) / TOTAL_STEPS) * 100
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Progress */}
-      <div className="container max-w-2xl pt-8">
+      {/* Progress Header */}
+      <div className="container max-w-2xl pt-8 px-4">
         <div className="flex items-center gap-2 mb-2">
           <Swords className="h-6 w-6 text-primary" />
-          <span className="font-bold gradient-text-boxer">BescheidBoxer</span>
-          <span className="ml-auto text-sm text-muted-foreground">Schritt {step + 1} von {totalSteps}</span>
+          <span className="font-bold gradient-text-boxer text-lg">BescheidBoxer</span>
+          <span className="ml-auto text-sm text-muted-foreground">
+            Schritt {step + 1} von {TOTAL_STEPS}
+          </span>
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full gradient-boxer rounded-full transition-all duration-500"
-            style={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+            className="h-full gradient-boxer rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 container max-w-2xl py-8 flex flex-col">
-        {/* Step 0: PLZ / Stadt */}
-        {step === 0 && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <MapPin className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Wo wohnst du?</h2>
-                <p className="text-muted-foreground">Damit wir die richtigen KdU-Grenzen fuer deine Stadt kennen.</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">Postleitzahl</label>
-                <input
-                  type="text"
-                  maxLength={5}
-                  value={data.plz}
-                  onChange={(e) => setData(prev => ({ ...prev, plz: e.target.value.replace(/\D/g, '') }))}
-                  placeholder="z.B. 10115"
-                  className="chat-input text-lg"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Stadt / Gemeinde</label>
-                <input
-                  type="text"
-                  value={data.stadt}
-                  onChange={(e) => setData(prev => ({ ...prev, stadt: e.target.value }))}
-                  placeholder="z.B. Berlin"
-                  className="chat-input"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 1: Bedarfsgemeinschaft */}
-        {step === 1 && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Deine Bedarfsgemeinschaft</h2>
-                <p className="text-muted-foreground">Wie viele Personen leben in deinem Haushalt?</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setData(prev => ({ ...prev, bgGroesse: n }))}
-                  className={`p-4 rounded-xl border-2 text-center transition-all ${
-                    data.bgGroesse === n
-                      ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-border hover:border-primary/40'
-                  }`}
-                >
-                  <div className="text-2xl font-bold">{n}{n === 5 ? '+' : ''}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {n === 1 ? 'Person' : 'Personen'}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Kinder */}
-        {step === 2 && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <Baby className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Hast du Kinder?</h2>
-                <p className="text-muted-foreground">Wichtig fuer Mehrbedarf und Kindersofortzuschlag.</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setData(prev => ({ ...prev, hatKinder: true }))}
-                  className={`flex-1 p-4 rounded-xl border-2 text-center transition-all ${
-                    data.hatKinder ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
-                  }`}
-                >
-                  Ja
-                </button>
-                <button
-                  onClick={() => setData(prev => ({ ...prev, hatKinder: false, kinder: [] }))}
-                  className={`flex-1 p-4 rounded-xl border-2 text-center transition-all ${
-                    !data.hatKinder ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
-                  }`}
-                >
-                  Nein
-                </button>
-              </div>
-              {data.hatKinder && (
-                <div className="space-y-3">
-                  {data.kinder.map((kind, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <span className="text-sm font-medium w-20">Kind {i + 1}:</span>
-                      <input
-                        type="number"
-                        min={0}
-                        max={25}
-                        value={kind.alter}
-                        onChange={(e) => updateChildAge(i, parseInt(e.target.value) || 0)}
-                        className="chat-input w-24"
-                        placeholder="Alter"
-                      />
-                      <span className="text-sm text-muted-foreground">Jahre</span>
-                      <button onClick={() => removeChild(i)} className="text-destructive text-sm hover:underline">
-                        Entfernen
-                      </button>
-                    </div>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={addChild}>
-                    + Kind hinzufuegen
-                  </Button>
-                  {data.kinder.length > 0 && (
-                    <Card className="bg-primary/5 border-primary/20">
-                      <CardContent className="p-3">
-                        <p className="text-sm text-primary flex items-center gap-2">
-                          <Sparkles className="h-4 w-4" />
-                          {data.kinder.length === 1 && data.kinder[0].alter < 7
-                            ? 'Als Alleinerziehende/r steht dir Mehrbedarf von 36% zu!'
-                            : `Kindersofortzuschlag: ${data.kinder.length * 25} EUR/Monat moeglich`}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
+      {/* Step Content */}
+      <div className="flex-1 container max-w-2xl py-8 px-4 flex flex-col">
+        {/* ---------------------------------------------------------------- */}
+        {/* Step 1: Willkommen                                               */}
+        {/* ---------------------------------------------------------------- */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-400 ease-out ${
+            step === 0
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-4 pointer-events-none absolute'
+          }`}
+        >
+          {step === 0 && (
+            <>
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-boxer mb-4">
+                  <Swords className="h-8 w-8 text-white" />
                 </div>
-              )}
-            </div>
-          </div>
-        )}
+                <h1 className="text-3xl font-bold mb-3">
+                  Willkommen bei BescheidBoxer!
+                </h1>
+                <p className="text-muted-foreground text-lg leading-relaxed max-w-lg mx-auto">
+                  Dein KI-Assistent fuer Buergergeld &amp; Sozialrecht.
+                  Wir helfen dir, deine Rechte durchzusetzen.
+                </p>
+              </div>
 
-        {/* Step 3: Erwerbstaetigkeit */}
-        {step === 3 && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <Briefcase className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Arbeitest du nebenher?</h2>
-                <p className="text-muted-foreground">Wichtig fuer die korrekte Einkommensanrechnung.</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-8">
                 {[
-                  { id: 'nein', label: 'Nein' },
-                  { id: 'minijob', label: 'Minijob (bis 538 EUR)' },
-                  { id: 'teilzeit', label: 'Teilzeit' },
-                  { id: 'selbstaendig', label: 'Selbstaendig' },
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => setData(prev => ({
-                      ...prev,
-                      erwerbstaetig: option.id !== 'nein',
-                      einkommenArt: option.id,
-                    }))}
-                    className={`p-4 rounded-xl border-2 text-left transition-all ${
-                      data.einkommenArt === option.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/40'
-                    }`}
+                  { icon: MessageCircle, label: 'KI-Berater', desc: 'Fragen beantworten' },
+                  { icon: ScanSearch, label: 'BescheidScan', desc: 'Fehler finden' },
+                  { icon: Calculator, label: 'Rechner', desc: 'Ansprueche berechnen' },
+                  { icon: FileText, label: 'Musterschreiben', desc: 'Widersprueche erstellen' },
+                ].map((feature) => (
+                  <div
+                    key={feature.label}
+                    className="flex items-center gap-3 rounded-xl border border-border p-3 bg-card"
                   >
-                    <div className="font-medium text-sm">{option.label}</div>
-                  </button>
+                    <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+                      <feature.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{feature.label}</p>
+                      <p className="text-xs text-muted-foreground truncate">{feature.desc}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
-              {data.erwerbstaetig && (
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  Wie heisst du? (optional)
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="z.B. Max"
+                  className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Damit wir dich persoenlich ansprechen koennen.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Step 2: Deine Situation                                          */}
+        {/* ---------------------------------------------------------------- */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-400 ease-out ${
+            step === 1
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-4 pointer-events-none absolute'
+          }`}
+        >
+          {step === 1 && (
+            <>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Monatliches Bruttoeinkommen</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={data.einkommen || ''}
-                      onChange={(e) => setData(prev => ({ ...prev, einkommen: parseInt(e.target.value) || 0 }))}
-                      placeholder="z.B. 450"
-                      className="chat-input w-40"
-                    />
-                    <span className="text-muted-foreground">EUR / Monat</span>
+                  <h2 className="text-2xl font-bold">Deine Situation</h2>
+                  <p className="text-muted-foreground">
+                    Damit wir dir passende Empfehlungen geben koennen.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Buergergeld question */}
+                <div>
+                  <p className="text-sm font-medium mb-3">
+                    Beziehst du aktuell Buergergeld (SGB II)?
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setReceivesBuergergeld(true)}
+                      className={`flex-1 p-4 rounded-xl border-2 text-center font-medium transition-all ${
+                        receivesBuergergeld === true
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-border hover:border-primary/40'
+                      }`}
+                    >
+                      Ja
+                    </button>
+                    <button
+                      onClick={() => setReceivesBuergergeld(false)}
+                      className={`flex-1 p-4 rounded-xl border-2 text-center font-medium transition-all ${
+                        receivesBuergergeld === false
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-border hover:border-primary/40'
+                      }`}
+                    >
+                      Nein / Noch nicht
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* Step 4: Problem */}
-        {step === 4 && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <HelpCircle className="h-6 w-6 text-primary" />
+                {/* Current issues */}
+                <div>
+                  <p className="text-sm font-medium mb-3">
+                    Hast du gerade ein konkretes Anliegen? (Mehrfachauswahl)
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {SITUATION_OPTIONS.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => toggleSituation(option.id)}
+                        className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                          situations.includes(option.id)
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/40'
+                        }`}
+                      >
+                        <option.icon className={`h-5 w-5 shrink-0 ${
+                          situations.includes(option.id) ? 'text-primary' : 'text-muted-foreground'
+                        }`} />
+                        <span className="font-medium text-sm">{option.label}</span>
+                        {situations.includes(option.id) && (
+                          <CheckCircle2 className="h-5 w-5 text-primary ml-auto shrink-0" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold">Was beschaeftigt dich gerade?</h2>
-                <p className="text-muted-foreground">Waehle alles was zutrifft (Mehrfachauswahl).</p>
+            </>
+          )}
+        </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Step 3: Schnellstart                                             */}
+        {/* ---------------------------------------------------------------- */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-400 ease-out ${
+            step === 2
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-4 pointer-events-none absolute'
+          }`}
+        >
+          {step === 2 && (
+            <>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <ArrowRight className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Schnellstart</h2>
+                  <p className="text-muted-foreground">
+                    Entdecke die wichtigsten Funktionen von BescheidBoxer.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {PROBLEM_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => toggleProblem(option.id)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
-                    data.problem.includes(option.id)
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/40'
-                  }`}
+
+              <div className="space-y-3">
+                {FEATURE_CARDS.map((feature) => (
+                  <Link
+                    key={feature.to}
+                    to={feature.to}
+                    className="flex items-center gap-4 rounded-xl border border-border p-4 bg-card hover:border-primary/40 hover:shadow-sm transition-all group"
+                  >
+                    <div className={`p-3 rounded-xl ${feature.bg} shrink-0`}>
+                      <feature.icon className={`h-5 w-5 ${feature.color}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{feature.title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Step 4: Fertig                                                   */}
+        {/* ---------------------------------------------------------------- */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-400 ease-out ${
+            step === 3
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-4 pointer-events-none absolute'
+          }`}
+        >
+          {step === 3 && (
+            <>
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+                <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 mb-6">
+                  <PartyPopper className="h-10 w-10 text-green-600 dark:text-green-400" />
+                </div>
+                <h2 className="text-3xl font-bold mb-3">
+                  {name.trim() ? `Alles klar, ${name.trim()}!` : 'Alles klar!'}
+                </h2>
+                <p className="text-muted-foreground text-lg leading-relaxed max-w-md mb-2">
+                  Du bist bereit, deine Rechte durchzusetzen.
+                  BescheidBoxer steht dir ab jetzt zur Seite.
+                </p>
+
+                {situations.length > 0 && (
+                  <div className="mt-4 mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20 max-w-md">
+                    <p className="text-sm font-medium text-primary mb-2 flex items-center justify-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      Basierend auf deiner Situation empfehlen wir:
+                    </p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {situations.includes('bescheid') && (
+                        <Link to="/scan">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 text-xs font-medium">
+                            <ScanSearch className="h-3 w-3" />
+                            Bescheid scannen
+                          </span>
+                        </Link>
+                      )}
+                      {situations.includes('sanktion') && (
+                        <Link to="/chat">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1 text-xs font-medium">
+                            <MessageCircle className="h-3 w-3" />
+                            KI-Berater fragen
+                          </span>
+                        </Link>
+                      )}
+                      {situations.includes('umzug') && (
+                        <Link to="/rechner">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1 text-xs font-medium">
+                            <Calculator className="h-3 w-3" />
+                            Umzugskosten berechnen
+                          </span>
+                        </Link>
+                      )}
+                      {situations.includes('erstausstattung') && (
+                        <Link to="/musterschreiben">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-3 py-1 text-xs font-medium">
+                            <FileText className="h-3 w-3" />
+                            Antrag erstellen
+                          </span>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  size="lg"
+                  onClick={handleComplete}
+                  className="gap-2 mt-4"
                 >
-                  <span className="text-2xl">{option.icon}</span>
-                  <span className="font-medium text-sm">{option.label}</span>
-                  {data.problem.includes(option.id) && (
-                    <CheckCircle2 className="h-5 w-5 text-primary ml-auto" />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+                  Zum Dashboard
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
 
-        {/* Navigation */}
+        {/* ---------------------------------------------------------------- */}
+        {/* Navigation Footer                                                */}
+        {/* ---------------------------------------------------------------- */}
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
           <Button
             variant="ghost"
             onClick={handleBack}
             disabled={step === 0}
+            className="gap-2"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Zurueck
           </Button>
-          <Button variant="amt" onClick={handleNext}>
-            {step === totalSteps - 1 ? (
-              <>
-                Los geht's!
-                <Swords className="ml-2 h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Weiter
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
+
+          {step < TOTAL_STEPS - 1 ? (
+            <Button variant="amt" onClick={handleNext} className="gap-2">
+              Weiter
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button variant="amt" onClick={handleComplete} className="gap-2">
+              Abschliessen
+              <CheckCircle2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

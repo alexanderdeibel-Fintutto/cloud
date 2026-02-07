@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Clock, AlertTriangle, CheckCircle, Calendar, Info, Shield } from 'lucide-react'
+import { Clock, AlertTriangle, CheckCircle, Calendar, Info, Shield, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { generateRechnerPdf } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 type FristTyp = 'widerspruch' | 'klage' | 'ueberpruefung' | 'eilantrag' | 'berufung' | 'anhoerung' | 'mitwirkung'
@@ -157,6 +159,12 @@ export default function FristenRechner() {
     const datum = new Date(bescheidDatum)
     const result = berechneFrist(datum, fristTyp, perPost)
     setErgebnis(result)
+    saveRechnerErgebnis('Fristen-Rechner', 'fristen', {
+      fristTyp,
+      fristende: result.fristende.toLocaleDateString('de-DE'),
+      tageVerbleibend: result.tageVerbleibend,
+      paragraph: result.paragraph,
+    })
   }
 
   const getAmpelFarbe = (tage: number, keineStarreFrist: boolean) => {
@@ -410,6 +418,25 @@ export default function FristenRechner() {
                   </ul>
                 </div>
               )}
+
+              {/* PDF + Actions */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Button
+                  onClick={() => {
+                    generateRechnerPdf('Fristenberechnung (Sozialrecht)', [
+                      { label: 'Art der Frist', value: fristOptionen.find(f => f.value === fristTyp)?.label || fristTyp },
+                      { label: 'Bescheiddatum', value: bescheidDatum },
+                      { label: 'Per Post', value: perPost ? 'Ja (+3 Tage)' : 'Nein' },
+                      { label: 'Fristende', value: ergebnis.keineStarreFrist ? 'Keine starre Frist' : formatDatum(ergebnis.fristende), highlight: true },
+                      { label: 'Tage verbleibend', value: ergebnis.keineStarreFrist ? '-' : `${ergebnis.tageVerbleibend}`, highlight: true },
+                      { label: 'Rechtsgrundlage', value: ergebnis.paragraph },
+                    ])
+                  }}
+                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  <Download className="w-4 h-4 mr-2" />Als PDF
+                </Button>
+              </div>
             </div>
           </div>
         )}

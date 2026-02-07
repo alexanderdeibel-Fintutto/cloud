@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Scale, Info, CheckCircle, XCircle, AlertTriangle, HelpCircle } from 'lucide-react'
+import { Scale, Info, CheckCircle, XCircle, AlertTriangle, HelpCircle, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 interface PkhErgebnis {
@@ -136,7 +138,7 @@ export default function PkhRechner() {
 
     const gesamtKosten = monatlicherRate * MAX_RATEN
 
-    setResult({
+    const pkhResult = {
       einzusetzendesEinkommen,
       status: vermoegenOk ? status : 'unwahrscheinlich',
       monatlicherRate,
@@ -147,6 +149,13 @@ export default function PkhRechner() {
       vermoegenOk,
       vermoegenAnrechenbar,
       vermoegenFreibetrag: VERMOEGENSFREIBETRAG,
+    }
+    setResult(pkhResult)
+    saveRechnerErgebnis('PKH-Rechner', 'pkh', {
+      status: pkhResult.status,
+      einzusetzendesEinkommen,
+      monatlicherRate,
+      vermoegenOk: vermoegenOk ? 'Ja' : 'Nein',
     })
   }
 
@@ -551,7 +560,22 @@ export default function PkhRechner() {
             </div>
 
             {/* CTAs */}
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button
+                onClick={() => {
+                  const sections: RechnerSection[] = [
+                    ...result.freibetraege.map(f => ({ label: f.label, value: formatEuro(f.betrag) })),
+                    { label: 'Einzusetzendes Einkommen', value: formatEuro(Math.max(0, result.einzusetzendesEinkommen)), highlight: true },
+                    { label: 'Ergebnis', value: result.status === 'bewilligt' ? 'PKH bewilligt' : result.status === 'raten' ? 'PKH mit Raten' : 'PKH unwahrscheinlich', highlight: true },
+                  ]
+                  generateRechnerPdf('Prozesskostenhilfe-Berechnung (§ 114 ZPO)', sections,
+                    result.status === 'raten' ? { label: 'Monatliche Rate', value: formatEuro(result.monatlicherRate) } : undefined,
+                  )
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
               <Link to="/generator/klage">
                 <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">Klage erstellen</Button>
               </Link>

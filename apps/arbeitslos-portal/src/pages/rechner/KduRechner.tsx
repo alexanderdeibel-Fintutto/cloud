@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Home, AlertTriangle, CheckCircle, Info, MapPin } from 'lucide-react'
+import { Home, AlertTriangle, CheckCircle, Info, MapPin, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneKdu, KduRechnerErgebnis } from '@/lib/rechner-logik'
 import { KDU_TABELLEN } from '@/lib/kdu-tabellen'
+import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
@@ -176,6 +177,23 @@ export default function KduRechner() {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                onClick={() => {
+                  generateRechnerPdf('KdU-Pruefung (§ 22 SGB II)', [
+                    { label: 'PLZ / Stadt', value: ergebnis.stadt || plz },
+                    { label: 'BG-Groesse', value: `${bgGroesse} Person${bgGroesse > 1 ? 'en' : ''}` },
+                    { label: 'Kaltmiete', value: `${kaltmiete} EUR`, highlight: !ergebnis.kaltmieteAngemessen },
+                    { label: 'Kaltmiete-Grenze', value: `${ergebnis.kaltmieteGrenze} EUR` },
+                    { label: 'Heizkosten', value: `${heizkosten} EUR`, highlight: !ergebnis.heizkostenAngemessen },
+                    { label: 'Heizkosten-Grenze', value: `${ergebnis.heizkostenGrenze} EUR` },
+                    { label: 'Wohnflaeche', value: `${wohnflaeche} qm`, highlight: !ergebnis.qmAngemessen },
+                    { label: 'Wohnflaeche-Grenze', value: `${ergebnis.qmGrenze} qm` },
+                  ])
+                }}
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
               <Link to="/chat" className="flex-1"><Button className="w-full gradient-boxer text-white font-semibold py-3 rounded-lg">Widerspruch pruefen</Button></Link>
               <Link to="/rechner" className="flex-1"><Button variant="outline" className="w-full py-3">Alle Rechner</Button></Link>
             </div>

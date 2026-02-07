@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingBag, ArrowRight, Info, CheckCircle2, Euro } from 'lucide-react'
+import { ShoppingBag, ArrowRight, Info, CheckCircle2, Euro, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { generateRechnerPdf } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 const ERSTAUSSTATTUNG_KATEGORIEN = [
@@ -220,7 +222,29 @@ export default function ErstausstattungsRechner() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <Button asChild className="flex-1 bg-amber-600 hover:bg-amber-700">
+                  <Button
+                    onClick={() => {
+                      const sections = ERSTAUSSTATTUNG_KATEGORIEN.flatMap(k =>
+                        k.items.filter(item => selectedItems[`${k.kategorie}-${item.name}`]).map(item => ({
+                          label: item.name,
+                          value: `${item.betragMin}-${item.betragMax} EUR`,
+                        }))
+                      )
+                      generateRechnerPdf('Erstausstattung (§ 24 Abs. 3 SGB II)', sections,
+                        { label: 'Geschaetzter Gesamtbetrag', value: `${totals.avgTotal} EUR` },
+                      )
+                      saveRechnerErgebnis('Erstausstattungs-Rechner', 'erstausstattung', {
+                        durchschnitt: totals.avgTotal,
+                        minimum: totals.minTotal,
+                        maximum: totals.maxTotal,
+                        anzahlPosten: totals.count,
+                      })
+                    }}
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    <Download className="h-4 w-4 mr-2" />Als PDF
+                  </Button>
+                  <Button asChild className="flex-1 bg-green-600 hover:bg-green-700">
                     <Link to="/generator/antrag_einmalige_leistung" className="flex items-center justify-center gap-2">
                       <Euro className="h-4 w-4" />
                       Antrag erstellen

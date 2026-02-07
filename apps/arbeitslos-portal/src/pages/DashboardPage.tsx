@@ -27,6 +27,7 @@ import { Progress } from '@/components/ui/progress'
 import { PLANS } from '@/lib/credits'
 import { useCreditsContext } from '@/contexts/CreditsContext'
 import { loadRechnerVerlauf } from '@/lib/rechner-verlauf'
+import Fortschritt from '@/components/Fortschritt'
 import {
   getLevelForPoints,
   getNextLevel,
@@ -498,6 +499,11 @@ export default function DashboardPage() {
         {/* Activity Stats from localStorage                                 */}
         {/* ---------------------------------------------------------------- */}
         <AktivitaetsStatistik />
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Fortschritts-System (Milestones & Gamification)                  */}
+        {/* ---------------------------------------------------------------- */}
+        <Fortschritt />
 
         {/* ---------------------------------------------------------------- */}
         {/* Main + Sidebar layout                                            */}

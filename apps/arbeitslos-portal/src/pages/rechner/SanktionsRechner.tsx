@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, Info, Shield, Scale } from 'lucide-react'
+import { AlertTriangle, Info, Shield, Scale, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneSanktion, SanktionsErgebnis } from '@/lib/rechner-logik'
+import { generateRechnerPdf } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SanktionsRechner() {
@@ -15,6 +17,12 @@ export default function SanktionsRechner() {
   const handleBerechnen = () => {
     const result = berechneSanktion({ regelsatz, art, pflichtverletzungNr, unter25 })
     setErgebnis(result)
+    saveRechnerErgebnis('Sanktions-Rechner', 'sanktion', {
+      kuerzungProzent: result.kuerzungProzent,
+      kuerzungBetrag: result.kuerzungBetrag,
+      dauer: result.dauer,
+      art,
+    })
   }
 
   const widerspruchGruende = [
@@ -131,7 +139,22 @@ export default function SanktionsRechner() {
                     <li key={i} className="flex items-start gap-2"><span className="text-green-600 font-bold mt-1">✓</span><span className="text-gray-700">{g}</span></li>
                   ))}
                 </ul>
-                <div className="grid md:grid-cols-3 gap-3">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <Button
+                    onClick={() => {
+                      generateRechnerPdf('Sanktions-Berechnung (§§ 31-32 SGB II)', [
+                        { label: 'Regelsatz', value: `${regelsatz} EUR` },
+                        { label: 'Art der Sanktion', value: art },
+                        { label: 'Kuerzung', value: `${ergebnis.kuerzungProzent}%`, highlight: true },
+                        { label: 'Kuerzungsbetrag', value: `${ergebnis.kuerzungBetrag} EUR`, highlight: true },
+                        { label: 'Dauer', value: ergebnis.dauer },
+                        { label: 'Neuer Regelsatz', value: `${regelsatz - ergebnis.kuerzungBetrag} EUR` },
+                      ], { label: 'Monatliche Kuerzung', value: `-${ergebnis.kuerzungBetrag} EUR` })
+                    }}
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    <Download className="w-4 h-4 mr-2" />Als PDF
+                  </Button>
                   <Link to="/musterschreiben"><Button variant="outline" className="w-full">Widerspruch erstellen</Button></Link>
                   <Link to="/chat"><Button variant="outline" className="w-full">KI-Berater fragen</Button></Link>
                   <Link to="/rechner"><Button variant="outline" className="w-full">Alle Rechner</Button></Link>

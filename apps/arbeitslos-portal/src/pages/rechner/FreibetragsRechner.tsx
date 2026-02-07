@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { TrendingUp, Info } from 'lucide-react'
+import { TrendingUp, Info, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneFreibetrag, FreibetragsErgebnis } from '@/lib/rechner-logik'
+import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
@@ -224,6 +225,24 @@ export default function FreibetragsRechner() {
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div className="mt-4">
+              <Button
+                onClick={() => {
+                  generateRechnerPdf('Freibetrags-Berechnung (§ 11b SGB II)', [
+                    { label: 'Bruttoeinkommen', value: `${ergebnis.brutto} EUR` },
+                    { label: 'Grundfreibetrag (100 EUR)', value: `${formatEuro(ergebnis.grundfreibetrag)}` },
+                    { label: 'Stufe 1 (20%)', value: `${formatEuro(ergebnis.freibetragStufe1)}` },
+                    { label: 'Stufe 2 (30%)', value: `${formatEuro(ergebnis.freibetragStufe2)}` },
+                    ...(ergebnis.freibetragStufe3 > 0 ? [{ label: 'Stufe 3 (10%)', value: `${formatEuro(ergebnis.freibetragStufe3)}` }] : []),
+                    { label: 'Freibetrag gesamt', value: `${formatEuro(ergebnis.freibetragGesamt)}`, highlight: true },
+                    { label: 'Anrechenbares Einkommen', value: `${formatEuro(ergebnis.anrechenbaresEinkommen)}`, highlight: true },
+                  ], { label: 'Du darfst behalten', value: `${formatEuro(ergebnis.freibetragGesamt)}` })
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
             </div>
           </div>
         )}

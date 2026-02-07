@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Truck, ArrowRight, Info, CheckCircle2, Euro, AlertTriangle } from 'lucide-react'
+import { Truck, ArrowRight, Info, CheckCircle2, Euro, AlertTriangle, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { generateRechnerPdf } from '@/lib/pdf-export'
+import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 const UMZUGSKOSTEN_ITEMS = [
@@ -274,10 +276,32 @@ export default function UmzugskostenRechner() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <Button asChild className="flex-1 bg-amber-600 hover:bg-amber-700">
+                  <Button
+                    onClick={() => {
+                      const sections = UMZUGSKOSTEN_ITEMS.filter(item => selectedItems[item.name]).map(item => ({
+                        label: item.name,
+                        value: item.betragMin === item.betragMax ? `${item.betragMin.toFixed(2)} EUR` : `${item.betragMin}-${item.betragMax} EUR`,
+                      }))
+                      if (parseFloat(doppelmiete) > 0) sections.push({ label: 'Doppelmiete', value: `${parseFloat(doppelmiete).toFixed(2)} EUR` })
+                      if (totals.kaution > 0) sections.push({ label: 'Kaution (Darlehen)', value: `${totals.kaution.toFixed(2)} EUR` })
+                      generateRechnerPdf('Umzugskosten (§ 22 Abs. 6 SGB II)', sections,
+                        { label: 'Geschaetzte Gesamtkosten', value: `${totals.gesamtZurueckforderbar} EUR` },
+                      )
+                      saveRechnerErgebnis('Umzugskosten-Rechner', 'umzugskosten', {
+                        durchschnitt: totals.avgTotal,
+                        kaution: totals.kaution,
+                        gesamt: totals.gesamtZurueckforderbar,
+                        anzahlPosten: totals.count,
+                      })
+                    }}
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    <Download className="h-4 w-4 mr-2" />Als PDF
+                  </Button>
+                  <Button asChild className="flex-1 bg-green-600 hover:bg-green-700">
                     <Link to="/generator/antrag_umzug" className="flex items-center justify-center gap-2">
                       <Euro className="h-4 w-4" />
-                      Antrag auf Umzugskosten erstellen
+                      Antrag erstellen
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="flex-1">
