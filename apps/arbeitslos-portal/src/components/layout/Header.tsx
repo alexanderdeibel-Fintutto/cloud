@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import FristAlarm from '@/components/FristAlarm'
 
 const navigation = [
   { name: 'BescheidScan', href: '/scan', icon: ScanSearch },
@@ -50,6 +51,7 @@ export default function Header() {
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
+          <FristAlarm />
           <Button variant="ghost" size="sm" asChild>
             <Link to="/profil" className="flex items-center gap-1.5">
               <User className="h-4 w-4" />

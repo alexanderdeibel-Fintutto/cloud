@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   ScanSearch,
   MessageCircle,
@@ -98,6 +99,7 @@ function formatPlanLimit(value: number, unit: string): string {
 }
 
 export default function HomePage() {
+  useDocumentTitle('Dein KI-Assistent gegen falsche Bescheide')
   return (
     <div>
       {/* ============================================================= */}

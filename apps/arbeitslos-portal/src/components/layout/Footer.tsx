@@ -10,6 +10,7 @@ const footerLinks = {
     { name: 'Widerspruch-Tracker', href: '/tracker' },
     { name: 'Community-Forum', href: '/forum' },
     { name: 'Haeufige Probleme', href: '/probleme' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Suche', href: '/suche' },
   ],
   themen: [

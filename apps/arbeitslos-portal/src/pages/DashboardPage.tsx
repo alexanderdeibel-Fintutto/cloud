@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   LayoutDashboard,
   MessageCircle,
@@ -260,6 +261,7 @@ function TrackerPreview() {
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
+  useDocumentTitle('Dashboard')
   const { credits } = useCreditsContext()
 
   const userPlan = credits?.plan ?? 'schnupperer'

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import { Search, Calculator, FileText, HelpCircle, Wrench, ArrowRight, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -190,6 +191,7 @@ const SEARCH_ITEMS: SearchItem[] = [
 type CategoryFilter = 'alle' | 'rechner' | 'musterschreiben' | 'hilfe'
 
 export default function SuchePage() {
+  useDocumentTitle('Suche')
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('alle')
 

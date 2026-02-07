@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { CreditsProvider } from '@/contexts/CreditsContext'
 import Layout from '@/components/layout/Layout'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import ScrollToTop from '@/components/ScrollToTop'
 
 // Eagerly load the home page for fast first paint
 import HomePage from '@/pages/HomePage'
@@ -38,6 +39,7 @@ const ErstausstattungsRechner = lazy(() => import('@/pages/rechner/Erstausstattu
 const UmzugskostenRechner = lazy(() => import('@/pages/rechner/UmzugskostenRechner'))
 const ProfilPage = lazy(() => import('@/pages/ProfilPage'))
 const SuchePage = lazy(() => import('@/pages/SuchePage'))
+const FaqPage = lazy(() => import('@/pages/FaqPage'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
@@ -59,6 +61,7 @@ function App() {
     <AuthProvider>
       <CreditsProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Onboarding (no layout) */}
@@ -110,6 +113,7 @@ function App() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="profil" element={<ProfilPage />} />
                 <Route path="suche" element={<SuchePage />} />
+                <Route path="faq" element={<FaqPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

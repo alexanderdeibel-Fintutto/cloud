@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   Calculator,
   Home,
@@ -121,6 +122,7 @@ const calculators = [
 ]
 
 export default function RechnerPage() {
+  useDocumentTitle('AmtsRechner-Suite')
   return (
     <div>
       {/* ============================================================= */}
