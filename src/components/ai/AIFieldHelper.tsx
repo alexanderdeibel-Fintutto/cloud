@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/popover'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { suggestValue } from '@/services/aiService'
 
 interface AIFieldHelperProps {
   fieldId: string
@@ -122,36 +123,58 @@ const FIELD_HELP: Record<string, {
   }
 }
 
-// Simulierte KI-Vorschläge (in Produktion: API-Call zu OpenAI/Claude)
+// KI-Vorschläge via FinTutto AI Service (Claude/Edge Function)
 const generateAISuggestion = async (
   fieldId: string,
   fieldType: string,
   context: Record<string, unknown>
 ): Promise<{ suggestion: any; explanation: string }> => {
-  // Simulierte Verzögerung
-  await new Promise(resolve => setTimeout(resolve, 800))
+  try {
+    const response = await suggestValue(fieldId, fieldType, context)
 
-  // Kontext-basierte Vorschläge
-  if (fieldType === 'currency' && fieldId.toLowerCase().includes('kalt')) {
-    const qm = (context.wohnflaeche as number) || 80
-    const avgPricePerQm = 12 // Durchschnitt
-    return {
-      suggestion: Math.round(qm * avgPricePerQm * 100) / 100,
-      explanation: `Basierend auf ${qm}m² Wohnfläche und einem durchschnittlichen Quadratmeterpreis von ${avgPricePerQm}€ in Ihrer Region.`
+    if (response.success && response.suggestion !== undefined) {
+      return {
+        suggestion: response.suggestion,
+        explanation: response.explanation || 'KI-generierter Vorschlag'
+      }
     }
-  }
 
-  if (fieldType === 'currency' && fieldId.toLowerCase().includes('neben')) {
-    const qm = (context.wohnflaeche as number) || 80
-    return {
-      suggestion: Math.round(qm * 2.5 * 100) / 100,
-      explanation: `Typische Nebenkostenvorauszahlung von 2,50€/m² für ${qm}m² Wohnfläche.`
+    // Fallback: Lokale Berechnung für bestimmte Felder
+    if (fieldType === 'currency' && fieldId.toLowerCase().includes('kalt')) {
+      const qm = (context.wohnflaeche as number) || 80
+      const avgPricePerQm = 12
+      return {
+        suggestion: Math.round(qm * avgPricePerQm * 100) / 100,
+        explanation: `Basierend auf ${qm}m² Wohnfläche und ca. ${avgPricePerQm}€/m² Durchschnitt.`
+      }
     }
-  }
 
-  return {
-    suggestion: null,
-    explanation: 'Keine automatische Empfehlung verfügbar.'
+    if (fieldType === 'currency' && fieldId.toLowerCase().includes('neben')) {
+      const qm = (context.wohnflaeche as number) || 80
+      return {
+        suggestion: Math.round(qm * 2.5 * 100) / 100,
+        explanation: `Typische Nebenkostenvorauszahlung von 2,50€/m² für ${qm}m² Wohnfläche.`
+      }
+    }
+
+    if (fieldType === 'currency' && fieldId.toLowerCase().includes('kaution')) {
+      const kaltmiete = (context.kaltmiete as number) || (context.miete as number) || 500
+      return {
+        suggestion: kaltmiete * 3,
+        explanation: `Maximal 3 Kaltmieten nach § 551 BGB (3 × ${kaltmiete}€).`
+      }
+    }
+
+    return {
+      suggestion: null,
+      explanation: response.error || 'Keine automatische Empfehlung verfügbar.'
+    }
+  } catch (error) {
+    console.error('AI suggestion error:', error)
+    return {
+      suggestion: null,
+      explanation: 'Fehler beim Abrufen des KI-Vorschlags.'
+    }
   }
 }
 
