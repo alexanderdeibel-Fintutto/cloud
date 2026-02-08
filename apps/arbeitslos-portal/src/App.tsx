@@ -55,6 +55,9 @@ const AgbPage = lazy(() => import('@/pages/AgbPage'))
 const DokumentePage = lazy(() => import('@/pages/DokumentePage'))
 const AktenzeichenPage = lazy(() => import('@/pages/AktenzeichenPage'))
 const StatistikenPage = lazy(() => import('@/pages/StatistikenPage'))
+const TerminePage = lazy(() => import('@/pages/TerminePage'))
+const BewerbungsTracker = lazy(() => import('@/pages/BewerbungsTracker'))
+const NotfallSeite = lazy(() => import('@/pages/NotfallSeite'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -129,6 +132,9 @@ function App() {
                 <Route path="dokumente" element={<DokumentePage />} />
                 <Route path="aktenzeichen" element={<AktenzeichenPage />} />
                 <Route path="statistiken" element={<StatistikenPage />} />
+                <Route path="termine" element={<TerminePage />} />
+                <Route path="bewerbungen" element={<BewerbungsTracker />} />
+                <Route path="notfall" element={<NotfallSeite />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

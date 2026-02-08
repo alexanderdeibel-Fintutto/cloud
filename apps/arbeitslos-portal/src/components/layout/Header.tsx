@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor, Zap, StickyNote, FolderOpen, BookOpen, CheckSquare, BarChart3, Bell } from 'lucide-react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor, Zap, StickyNote, FolderOpen, BookOpen, CheckSquare, BarChart3, Calendar, Briefcase, AlertTriangle } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import FristAlarm from '@/components/FristAlarm'
@@ -36,11 +36,13 @@ function ThemeToggle() {
 
 const schnellzugriffItems = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-  { name: 'Notizen', href: '/notizen', icon: StickyNote },
+  { name: 'Termine', href: '/termine', icon: Calendar },
+  { name: 'Bewerbungen', href: '/bewerbungen', icon: Briefcase },
   { name: 'Dokumente', href: '/dokumente', icon: FolderOpen },
+  { name: 'Notizen', href: '/notizen', icon: StickyNote },
   { name: 'Checklisten', href: '/checklisten', icon: CheckSquare },
   { name: 'Glossar', href: '/glossar', icon: BookOpen },
-  { name: 'Benachrichtigungen', href: '/benachrichtigungen', icon: Bell },
+  { name: 'Notfall-Hilfe', href: '/notfall', icon: AlertTriangle },
 ]
 
 function Schnellzugriff() {

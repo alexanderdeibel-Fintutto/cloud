@@ -19,6 +19,9 @@ import {
   ClipboardList,
   Calculator,
   Scale,
+  Briefcase,
+  Calendar,
+  FolderOpen,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -494,6 +497,31 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">Credits uebrig</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Quick-Action Tiles                                               */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {[
+            { name: 'Bescheid scannen', href: '/scan', icon: ScanSearch, color: 'text-blue-600 bg-blue-50' },
+            { name: 'KI-Berater', href: '/chat', icon: MessageCircle, color: 'text-green-600 bg-green-50' },
+            { name: 'Rechner', href: '/rechner', icon: Calculator, color: 'text-amber-600 bg-amber-50' },
+            { name: 'Bewerbungen', href: '/bewerbungen', icon: Briefcase, color: 'text-purple-600 bg-purple-50' },
+            { name: 'Termine', href: '/termine', icon: Calendar, color: 'text-red-600 bg-red-50' },
+            { name: 'Dokumente', href: '/dokumente', icon: FolderOpen, color: 'text-cyan-600 bg-cyan-50' },
+          ].map((tile) => (
+            <Link key={tile.name} to={tile.href}>
+              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                <CardContent className="p-3 flex flex-col items-center text-center gap-2">
+                  <div className={`p-2.5 rounded-xl ${tile.color}`}>
+                    <tile.icon className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-medium">{tile.name}</span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
 
         {/* ---------------------------------------------------------------- */}
