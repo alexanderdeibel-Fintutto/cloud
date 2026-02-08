@@ -101,6 +101,8 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 ### Weitere Features
 - [x] **Budgetplanung** - Plan vs. Ist Vergleich, Kategorien, Charts
 - [x] **Datensicherung** - JSON-Backup/Restore, Speicherstatistiken
+- [x] **Dashboard Widgets** - Anpassbare Widgets, Edit-Modus, 12 Widget-Typen
+- [x] **Erweitertes Benachrichtigungssystem** - 13 Typen, Prioritäten, Ruhezeiten, Einstellungen
 
 ---
 
