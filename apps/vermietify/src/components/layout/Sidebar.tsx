@@ -13,6 +13,7 @@ import {
   LogOut,
   Gauge,
   Mail,
+  Inbox,
   Calculator,
   FolderOpen,
 } from 'lucide-react'
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Zähler', href: '/meters', icon: Gauge },
   { name: 'Dokumente', href: '/documents', icon: FolderOpen },
   { name: 'Kommunikation', href: '/communication', icon: Mail },
+  { name: 'E-Mail Posteingang', href: '/email-inbox', icon: Inbox },
   { name: 'Rechner', href: '/calculators', icon: Calculator },
 ]
 

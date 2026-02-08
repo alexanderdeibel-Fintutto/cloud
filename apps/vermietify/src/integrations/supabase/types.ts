@@ -341,6 +341,169 @@ export interface Database {
           subscription_status?: string
         }
       }
+      email_inboxes: {
+        Row: {
+          id: string
+          user_id: string
+          generated_address: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          generated_address: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          generated_address?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      verified_senders: {
+        Row: {
+          id: string
+          user_id: string
+          email: string
+          is_verified: boolean
+          verified_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          email: string
+          is_verified?: boolean
+          verified_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          email?: string
+          is_verified?: boolean
+          verified_at?: string | null
+          created_at?: string
+        }
+      }
+      inbound_emails: {
+        Row: {
+          id: string
+          inbox_id: string
+          user_id: string
+          sender_email: string
+          subject: string | null
+          body_text: string | null
+          received_at: string
+          status: 'pending' | 'processed' | 'unclear' | 'rejected'
+          processed_at: string | null
+          booking_id: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          inbox_id: string
+          user_id: string
+          sender_email: string
+          subject?: string | null
+          body_text?: string | null
+          received_at?: string
+          status?: 'pending' | 'processed' | 'unclear' | 'rejected'
+          processed_at?: string | null
+          booking_id?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          inbox_id?: string
+          user_id?: string
+          sender_email?: string
+          subject?: string | null
+          body_text?: string | null
+          received_at?: string
+          status?: 'pending' | 'processed' | 'unclear' | 'rejected'
+          processed_at?: string | null
+          booking_id?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+      }
+      email_attachments: {
+        Row: {
+          id: string
+          email_id: string
+          file_name: string
+          file_type: string
+          file_size: number
+          file_path: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email_id: string
+          file_name: string
+          file_type: string
+          file_size: number
+          file_path: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email_id?: string
+          file_name?: string
+          file_type?: string
+          file_size?: number
+          file_path?: string
+          created_at?: string
+        }
+      }
+      booking_questions: {
+        Row: {
+          id: string
+          user_id: string
+          email_id: string
+          question: string
+          suggested_category: string | null
+          suggested_amount: number | null
+          is_resolved: boolean
+          resolved_at: string | null
+          resolution_notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          email_id: string
+          question: string
+          suggested_category?: string | null
+          suggested_amount?: number | null
+          is_resolved?: boolean
+          resolved_at?: string | null
+          resolution_notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          email_id?: string
+          question?: string
+          suggested_category?: string | null
+          suggested_amount?: number | null
+          is_resolved?: boolean
+          resolved_at?: string | null
+          resolution_notes?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -349,7 +512,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      email_processing_status: 'pending' | 'processed' | 'unclear' | 'rejected'
     }
   }
 }

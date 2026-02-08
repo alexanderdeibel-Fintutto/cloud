@@ -11,6 +11,7 @@ import {
   Meters,
   Documents,
   Communication,
+  EmailInbox,
   Calculators,
   Settings,
   Auth,
@@ -109,6 +110,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Communication />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/email-inbox"
+        element={
+          <ProtectedRoute>
+            <EmailInbox />
           </ProtectedRoute>
         }
       />
