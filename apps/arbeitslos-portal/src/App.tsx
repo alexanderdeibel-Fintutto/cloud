@@ -53,6 +53,8 @@ const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
 const DokumentePage = lazy(() => import('@/pages/DokumentePage'))
+const AktenzeichenPage = lazy(() => import('@/pages/AktenzeichenPage'))
+const StatistikenPage = lazy(() => import('@/pages/StatistikenPage'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -125,6 +127,8 @@ function App() {
                 <Route path="glossar" element={<GlossarPage />} />
                 <Route path="notizen" element={<NotizenPage />} />
                 <Route path="dokumente" element={<DokumentePage />} />
+                <Route path="aktenzeichen" element={<AktenzeichenPage />} />
+                <Route path="statistiken" element={<StatistikenPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

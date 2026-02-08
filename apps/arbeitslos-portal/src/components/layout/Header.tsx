@@ -170,6 +170,20 @@ export default function Header() {
               </Link>
             ))}
             <div className="pt-4 space-y-2 border-t border-border">
+              <p className="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Schnellzugriff</p>
+              {schnellzugriffItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <item.icon className="h-5 w-5 text-muted-foreground" />
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+            <div className="pt-4 space-y-2 border-t border-border">
               <div className="flex items-center justify-between p-3">
                 <span className="text-sm text-muted-foreground">Erscheinungsbild</span>
                 <ThemeToggle />

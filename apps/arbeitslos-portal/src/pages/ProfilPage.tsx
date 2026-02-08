@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Settings, CreditCard, Shield, Download, Trash2, Key, Bell, MapPin, Users, Mail, ArrowRight, CheckCircle2, AlertCircle, User as UserIcon, ScanSearch, MessageCircle } from 'lucide-react'
+import { Settings, CreditCard, Shield, Download, Trash2, Key, Bell, MapPin, Users, Mail, ArrowRight, CheckCircle2, AlertCircle, User as UserIcon, ScanSearch, MessageCircle, Upload, HardDrive } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCreditsContext } from '@/contexts/CreditsContext'
 import { PLANS, CREDIT_COSTS } from '@/lib/credits'
+import { downloadExport, importData, getStorageStats } from '@/lib/daten-export'
 
 export default function ProfilPage() {
   const { profile } = useAuth()
@@ -43,20 +44,24 @@ export default function ProfilPage() {
     // TODO: Add toast notification
   }
 
+  const [importStatus, setImportStatus] = useState<string | null>(null)
+  const storageStats = getStorageStats()
+
   const handleExportData = () => {
-    const data = {
-      profile: { name, email, plz, bedarfsgemeinschaft },
-      plan: currentPlan,
-      credits: credits,
-      exportDate: new Date().toISOString()
+    downloadExport()
+  }
+
+  const handleImportData = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const result = await importData(file)
+    if (result.success) {
+      setImportStatus(`${result.keysImported} Datensaetze importiert. Seite wird neu geladen...`)
+      setTimeout(() => window.location.reload(), 1500)
+    } else {
+      setImportStatus(result.error || 'Import fehlgeschlagen')
     }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `bescheidboxer-daten-${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    console.log('Daten exportiert')
+    e.target.value = ''
   }
 
   const handleDeleteAccount = () => {
@@ -368,19 +373,56 @@ export default function ProfilPage() {
             <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Download className="h-5 w-5" />
-                  Daten & Datenschutz
+                  <HardDrive className="h-5 w-5" />
+                  Daten & Backup
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Storage Stats */}
+                <div className="p-3 bg-gray-50 rounded-lg text-sm">
+                  <p className="font-medium mb-1">Gespeicherte Daten: {storageStats.totalSize}</p>
+                  <div className="space-y-1 text-gray-600">
+                    {storageStats.keyDetails.map(k => (
+                      <div key={k.key} className="flex justify-between">
+                        <span>{k.key}</span>
+                        <span>{k.entries} {k.entries === 1 ? 'Eintrag' : 'Eintraege'} ({k.size})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <Button
                   variant="outline"
                   className="w-full justify-start"
                   onClick={handleExportData}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Meine Daten exportieren
+                  Backup herunterladen (JSON)
                 </Button>
+
+                <div>
+                  <label className="cursor-pointer">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <span>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Backup wiederherstellen
+                      </span>
+                    </Button>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleImportData}
+                      className="hidden"
+                    />
+                  </label>
+                  {importStatus && (
+                    <p className="text-sm mt-2 text-blue-600">{importStatus}</p>
+                  )}
+                </div>
 
                 <Link to="/datenschutz">
                   <Button variant="ghost" className="w-full justify-start">
