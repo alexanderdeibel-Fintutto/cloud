@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Info,
   GitCompare,
+  Wallet,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -129,6 +130,16 @@ const calculators = [
     route: '/rechner/vergleich',
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
+  },
+  {
+    id: 'einkommen',
+    title: 'Einkommens-Uebersicht',
+    description:
+      'Erfasse dein monatliches Einkommen und sieh, wie viel davon auf dein Buergergeld angerechnet wird',
+    icon: Wallet,
+    route: '/rechner/einkommen',
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-50',
   },
 ]
 

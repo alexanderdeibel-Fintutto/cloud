@@ -14,6 +14,9 @@ import {
   Shield,
   ExternalLink,
   ClipboardList,
+  AlertTriangle,
+  Phone,
+  Briefcase,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -646,7 +649,56 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================= */}
-      {/* 9. URGENCY CTA                                                */}
+      {/* 9b. NOTFALL + BEWERBUNGEN                                     */}
+      {/* ============================================================= */}
+      <section className="container py-12">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Notfall-Hilfe */}
+          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-red-100">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-red-900">Notfall-Hilfe</h3>
+            </div>
+            <p className="text-sm text-red-800 mb-4 flex-1">
+              Strom abgestellt? Kuendigung erhalten? Kein Geld fuer Essen? Hier findest du sofortige Hilfe, kostenlose Hotlines und konkrete Schritte.
+            </p>
+            <div className="flex gap-3">
+              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                <Link to="/notfall">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Notfall-Hilfe
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Bewerbungs-Tracker */}
+          <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-purple-100">
+                <Briefcase className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-purple-900">Bewerbungs-Tracker</h3>
+            </div>
+            <p className="text-sm text-purple-800 mb-4 flex-1">
+              Dokumentiere deine Eigenbemuehungen fuer die Eingliederungsvereinbarung. Behalte den Ueberblick ueber alle Bewerbungen und Fristen.
+            </p>
+            <div className="flex gap-3">
+              <Button asChild className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Link to="/bewerbungen">
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Bewerbungen verwalten
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================= */}
+      {/* 10. URGENCY CTA                                               */}
       {/* ============================================================= */}
       <section className="gradient-amt text-white py-16">
         <div className="container text-center">

@@ -6,6 +6,8 @@ import {
   Upload,
   Clock,
   ChevronDown,
+  Calendar,
+  Briefcase,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -43,7 +45,25 @@ interface DokumentEntry {
   typ: string;
 }
 
-type EreignisTyp = "widerspruch" | "rechner" | "notiz" | "dokument";
+interface TerminEntry {
+  id: string;
+  titel: string;
+  datum: string;
+  uhrzeit: string;
+  ort: string;
+  art: string;
+  erledigt: boolean;
+}
+
+interface BewerbungEntry {
+  id: string;
+  firma: string;
+  position: string;
+  datum: string;
+  status: string;
+}
+
+type EreignisTyp = "widerspruch" | "rechner" | "notiz" | "dokument" | "termin" | "bewerbung";
 
 interface ZeitstrahlEreignis {
   id: string;
@@ -94,6 +114,20 @@ const TYP_CONFIG: Record<
     dotFarbe: "bg-green-500",
     bgFarbe: "bg-green-50",
     borderFarbe: "border-green-200 hover:border-green-300",
+  },
+  termin: {
+    icon: Calendar,
+    farbe: "text-purple-600",
+    dotFarbe: "bg-purple-500",
+    bgFarbe: "bg-purple-50",
+    borderFarbe: "border-purple-200 hover:border-purple-300",
+  },
+  bewerbung: {
+    icon: Briefcase,
+    farbe: "text-cyan-600",
+    dotFarbe: "bg-cyan-500",
+    bgFarbe: "bg-cyan-50",
+    borderFarbe: "border-cyan-200 hover:border-cyan-300",
   },
 };
 
@@ -208,6 +242,34 @@ function ladeEreignisse(): ZeitstrahlEreignis[] {
       typ: "dokument",
       titel: d.name || "Dokument",
       beschreibung: `${d.kategorie || d.typ || "Datei"}${d.groesse ? ` — ${(d.groesse / 1024).toFixed(0)} KB` : ""}`,
+      datum,
+    });
+  });
+
+  // Termine
+  const termine = safeParse<TerminEntry>("bescheidboxer_termine");
+  termine.forEach((t) => {
+    const datum = new Date(t.datum);
+    if (isNaN(datum.getTime())) return;
+    ereignisse.push({
+      id: `termin-${t.id}`,
+      typ: "termin",
+      titel: `Termin: ${t.titel || t.art || "Jobcenter"}`,
+      beschreibung: `${t.uhrzeit ? t.uhrzeit + " Uhr" : ""}${t.ort ? ` — ${t.ort}` : ""}${t.erledigt ? " (erledigt)" : ""}`,
+      datum,
+    });
+  });
+
+  // Bewerbungen
+  const bewerbungen = safeParse<BewerbungEntry>("bescheidboxer_bewerbungen");
+  bewerbungen.forEach((b) => {
+    const datum = new Date(b.datum);
+    if (isNaN(datum.getTime())) return;
+    ereignisse.push({
+      id: `bewerbung-${b.id}`,
+      typ: "bewerbung",
+      titel: `Bewerbung: ${b.firma || "Unbekannt"}`,
+      beschreibung: `${b.position || ""}${b.status ? ` — ${b.status}` : ""}`,
       datum,
     });
   });

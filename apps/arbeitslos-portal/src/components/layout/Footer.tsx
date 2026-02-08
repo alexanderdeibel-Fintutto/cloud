@@ -8,6 +8,7 @@ const footerLinks = {
     { name: 'Dokumenten-Werkstatt', href: '/musterschreiben' },
     { name: 'AmtsRechner-Suite', href: '/rechner' },
     { name: 'Widerspruch-Tracker', href: '/tracker' },
+    { name: 'Widerspruch-Vorlagen', href: '/widerspruch-vorlagen' },
     { name: 'Community-Forum', href: '/forum' },
     { name: 'Haeufige Probleme', href: '/probleme' },
     { name: 'FAQ', href: '/faq' },

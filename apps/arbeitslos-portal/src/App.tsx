@@ -58,6 +58,8 @@ const StatistikenPage = lazy(() => import('@/pages/StatistikenPage'))
 const TerminePage = lazy(() => import('@/pages/TerminePage'))
 const BewerbungsTracker = lazy(() => import('@/pages/BewerbungsTracker'))
 const NotfallSeite = lazy(() => import('@/pages/NotfallSeite'))
+const EinkommenRechner = lazy(() => import('@/pages/rechner/EinkommenRechner'))
+const WiderspruchVorlagen = lazy(() => import('@/pages/WiderspruchVorlagen'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -110,6 +112,10 @@ function App() {
                 <Route path="rechner/erstausstattung" element={<ErstausstattungsRechner />} />
                 <Route path="rechner/umzugskosten" element={<UmzugskostenRechner />} />
                 <Route path="rechner/vergleich" element={<VergleichsRechner />} />
+                <Route path="rechner/einkommen" element={<EinkommenRechner />} />
+
+                {/* Widerspruch-Vorlagen */}
+                <Route path="widerspruch-vorlagen" element={<WiderspruchVorlagen />} />
 
                 {/* Widerspruch-Tracker */}
                 <Route path="tracker" element={<WiderspruchTracker />} />
