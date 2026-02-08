@@ -95,8 +95,12 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **Steuerberater-Portal** - Zugang mit Berechtigungen
 
 ### Mobile
-- [ ] **Native App** - iOS/Android
+- [x] **PWA Support** - Installierbare Web-App mit Offline-Funktionalität
 - [x] **Beleg-Scanner** - Kamera-Integration mit KI-Analyse
+
+### Weitere Features
+- [x] **Budgetplanung** - Plan vs. Ist Vergleich, Kategorien, Charts
+- [x] **Datensicherung** - JSON-Backup/Restore, Speicherstatistiken
 
 ---
 
