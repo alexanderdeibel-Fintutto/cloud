@@ -28,6 +28,7 @@ const footerLinks = {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Mein Verlauf', href: '/verlauf' },
     { name: 'Meine Notizen', href: '/notizen' },
+    { name: 'Meine Dokumente', href: '/dokumente' },
     { name: 'Preise & Abos', href: '/preise' },
   ],
   oekosystem: [

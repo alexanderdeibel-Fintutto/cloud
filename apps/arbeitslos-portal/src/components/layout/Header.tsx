@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor } from 'lucide-react'
-import { useState } from 'react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor, Zap, StickyNote, FolderOpen, BookOpen, CheckSquare, BarChart3, Bell } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import FristAlarm from '@/components/FristAlarm'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -31,6 +31,57 @@ function ThemeToggle() {
       {theme === 'dark' && <Moon className="h-4 w-4" />}
       {theme === 'system' && <Monitor className="h-4 w-4" />}
     </button>
+  )
+}
+
+const schnellzugriffItems = [
+  { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
+  { name: 'Notizen', href: '/notizen', icon: StickyNote },
+  { name: 'Dokumente', href: '/dokumente', icon: FolderOpen },
+  { name: 'Checklisten', href: '/checklisten', icon: CheckSquare },
+  { name: 'Glossar', href: '/glossar', icon: BookOpen },
+  { name: 'Benachrichtigungen', href: '/benachrichtigungen', icon: Bell },
+]
+
+function Schnellzugriff() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    if (open) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+        title="Schnellzugriff"
+        aria-expanded={open}
+      >
+        <Zap className="h-4 w-4" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 bg-background border border-border rounded-xl shadow-lg py-2 z-50">
+          <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Schnellzugriff</p>
+          {schnellzugriffItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className="flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted transition-colors"
+              onClick={() => setOpen(false)}
+            >
+              <item.icon className="h-4 w-4 text-muted-foreground" />
+              {item.name}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -72,6 +123,7 @@ export default function Header() {
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
           <FristAlarm />
+          <Schnellzugriff />
           <ThemeToggle />
           <Button variant="ghost" size="sm" asChild>
             <Link to="/profil" className="flex items-center gap-1.5">

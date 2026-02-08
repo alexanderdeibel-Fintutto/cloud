@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingBag, ArrowRight, Info, CheckCircle2, Euro, Download } from 'lucide-react'
+import { ShoppingBag, ArrowRight, Info, CheckCircle2, Euro, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 const ERSTAUSSTATTUNG_KATEGORIEN = [
@@ -243,6 +244,17 @@ export default function ErstausstattungsRechner() {
                     className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
                   >
                     <Download className="h-4 w-4 mr-2" />Als PDF
+                  </Button>
+                  <Button
+                    onClick={() => shareResult({
+                      title: 'Erstausstattungs-Berechnung',
+                      text: `Erstausstattungs-Rechner: ca. ${totals.avgTotal} EUR fuer ${totals.count} Posten (${totals.minTotal}-${totals.maxTotal} EUR)`,
+                      url: window.location.href,
+                    })}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />Teilen
                   </Button>
                   <Button asChild className="flex-1 bg-green-600 hover:bg-green-700">
                     <Link to="/generator/antrag_einmalige_leistung" className="flex items-center justify-center gap-2">

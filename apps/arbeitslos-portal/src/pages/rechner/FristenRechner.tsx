@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Clock, AlertTriangle, CheckCircle, Calendar, Info, Shield, Download } from 'lucide-react'
+import { Clock, AlertTriangle, CheckCircle, Calendar, Info, Shield, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 type FristTyp = 'widerspruch' | 'klage' | 'ueberpruefung' | 'eilantrag' | 'berufung' | 'anhoerung' | 'mitwirkung'
@@ -435,6 +436,17 @@ export default function FristenRechner() {
                   className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   <Download className="w-4 h-4 mr-2" />Als PDF
+                </Button>
+                <Button
+                  onClick={() => shareResult({
+                    title: 'Fristenberechnung',
+                    text: `Fristenberechnung: ${ergebnis.keineStarreFrist ? 'Keine starre Frist' : `Fristende ${formatDatum(ergebnis.fristende)}, noch ${ergebnis.tageVerbleibend} Tage`}`,
+                    url: window.location.href,
+                  })}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />Teilen
                 </Button>
               </div>
             </div>

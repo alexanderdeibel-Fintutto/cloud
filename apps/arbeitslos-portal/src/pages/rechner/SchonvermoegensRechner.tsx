@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PiggyBank, Info, CheckCircle, AlertTriangle, Home as HomeIcon, Car, Download } from 'lucide-react'
+import { PiggyBank, Info, CheckCircle, AlertTriangle, Home as HomeIcon, Car, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneSchonvermoegen, SchonvermoegensErgebnis } from '@/lib/rechner-logik'
 import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SchonvermoegensRechner() {
@@ -215,6 +216,17 @@ export default function SchonvermoegensRechner() {
                 className="bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
+              <Button
+                onClick={() => shareResult({
+                  title: 'Schonvermoegens-Pruefung',
+                  text: `Schonvermoegens-Pruefung: Freibetrag ${result.freibetragGesamt.toLocaleString('de-DE')} EUR - ${result.anspruch ? 'Vermoegen geschuetzt' : 'Ueber Freibetrag'}`,
+                  url: window.location.href,
+                })}
+                variant="outline"
+                className="w-full"
+              >
+                <Share2 className="w-4 h-4 mr-2" />Teilen
               </Button>
               <Link to="/rechner/buergergeld"><Button variant="outline" className="w-full">Buergergeld berechnen</Button></Link>
               <Link to="/chat"><Button variant="outline" className="w-full">KI-Berater fragen</Button></Link>

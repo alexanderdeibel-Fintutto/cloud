@@ -28,6 +28,7 @@ import { PLANS } from '@/lib/credits'
 import { useCreditsContext } from '@/contexts/CreditsContext'
 import { loadRechnerVerlauf } from '@/lib/rechner-verlauf'
 import Fortschritt from '@/components/Fortschritt'
+import Zeitstrahl from '@/components/Zeitstrahl'
 import {
   getLevelForPoints,
   getNextLevel,
@@ -504,6 +505,11 @@ export default function DashboardPage() {
         {/* Fortschritts-System (Milestones & Gamification)                  */}
         {/* ---------------------------------------------------------------- */}
         <Fortschritt />
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Zeitstrahl (Timeline)                                            */}
+        {/* ---------------------------------------------------------------- */}
+        <Zeitstrahl />
 
         {/* ---------------------------------------------------------------- */}
         {/* Main + Sidebar layout                                            */}

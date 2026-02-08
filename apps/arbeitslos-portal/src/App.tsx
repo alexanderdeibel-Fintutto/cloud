@@ -52,6 +52,7 @@ const VergleichsRechner = lazy(() => import('@/pages/VergleichsRechner'))
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
 const AgbPage = lazy(() => import('@/pages/AgbPage'))
+const DokumentePage = lazy(() => import('@/pages/DokumentePage'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -123,6 +124,7 @@ function App() {
                 <Route path="checklisten" element={<ChecklistenPage />} />
                 <Route path="glossar" element={<GlossarPage />} />
                 <Route path="notizen" element={<NotizenPage />} />
+                <Route path="dokumente" element={<DokumentePage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

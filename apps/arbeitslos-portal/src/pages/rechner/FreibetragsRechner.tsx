@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { TrendingUp, Info, Download } from 'lucide-react'
+import { TrendingUp, Info, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneFreibetrag, FreibetragsErgebnis } from '@/lib/rechner-logik'
 import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function FreibetragsRechner() {
@@ -242,6 +243,16 @@ export default function FreibetragsRechner() {
                 className="bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
+              <Button
+                onClick={() => shareResult({
+                  title: 'Freibetrags-Berechnung',
+                  text: `Freibetrags-Rechner: ${formatEuro(ergebnis.freibetragGesamt)} darfst du behalten, ${formatEuro(ergebnis.anrechenbaresEinkommen)} wird angerechnet`,
+                  url: window.location.href,
+                })}
+                variant="outline"
+              >
+                <Share2 className="w-4 h-4 mr-2" />Teilen
               </Button>
             </div>
           </div>

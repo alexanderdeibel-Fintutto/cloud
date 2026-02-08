@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Scale, Info, CheckCircle, XCircle, AlertTriangle, HelpCircle, Download } from 'lucide-react'
+import { Scale, Info, CheckCircle, XCircle, AlertTriangle, HelpCircle, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 interface PkhErgebnis {
@@ -575,6 +576,17 @@ export default function PkhRechner() {
                 className="bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
+              <Button
+                onClick={() => shareResult({
+                  title: 'PKH-Berechnung',
+                  text: `PKH-Rechner: ${result.status === 'bewilligt' ? 'PKH bewilligt' : result.status === 'raten' ? `PKH mit Raten (${formatEuro(result.monatlicherRate)}/Monat)` : 'PKH unwahrscheinlich'}`,
+                  url: window.location.href,
+                })}
+                variant="outline"
+                className="w-full"
+              >
+                <Share2 className="w-4 h-4 mr-2" />Teilen
               </Button>
               <Link to="/generator/klage">
                 <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">Klage erstellen</Button>

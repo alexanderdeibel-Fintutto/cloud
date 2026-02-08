@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Truck, ArrowRight, Info, CheckCircle2, Euro, AlertTriangle, Download } from 'lucide-react'
+import { Truck, ArrowRight, Info, CheckCircle2, Euro, AlertTriangle, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 const UMZUGSKOSTEN_ITEMS = [
@@ -297,6 +298,17 @@ export default function UmzugskostenRechner() {
                     className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
                   >
                     <Download className="h-4 w-4 mr-2" />Als PDF
+                  </Button>
+                  <Button
+                    onClick={() => shareResult({
+                      title: 'Umzugskosten-Berechnung',
+                      text: `Umzugskosten-Rechner: ca. ${totals.gesamtZurueckforderbar} EUR Gesamtkosten (${totals.count} Posten)`,
+                      url: window.location.href,
+                    })}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />Teilen
                   </Button>
                   <Button asChild className="flex-1 bg-green-600 hover:bg-green-700">
                     <Link to="/generator/antrag_umzug" className="flex items-center justify-center gap-2">

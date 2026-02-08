@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Minus, Download, Info } from 'lucide-react'
+import { ArrowRight, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Minus, Download, Info, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { generateRechnerPdf, RechnerSection } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import useDocumentTitle from '@/hooks/useDocumentTitle'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
@@ -225,6 +226,16 @@ export default function VergleichsRechner() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Button onClick={handlePdf} className="bg-amber-600 hover:bg-amber-700 text-white">
                 <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
+              <Button
+                onClick={() => shareResult({
+                  title: 'Bescheid-Vergleich',
+                  text: `Bescheid-Vergleich: ${differenz > 0 ? '+' : ''}${formatEuro(differenz)} Differenz (${altMonat || 'Alt'} vs. ${neuMonat || 'Neu'})`,
+                  url: window.location.href,
+                })}
+                variant="outline"
+              >
+                <Share2 className="w-4 h-4 mr-2" />Teilen
               </Button>
               {differenz < 0 && (
                 <Link to="/musterschreiben">

@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Home, AlertTriangle, CheckCircle, Info, MapPin, Download } from 'lucide-react'
+import { Home, AlertTriangle, CheckCircle, Info, MapPin, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneKdu, KduRechnerErgebnis } from '@/lib/rechner-logik'
 import { KDU_TABELLEN } from '@/lib/kdu-tabellen'
 import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function KduRechner() {
@@ -193,6 +194,17 @@ export default function KduRechner() {
                 className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <Download className="w-4 h-4 mr-2" />Als PDF
+              </Button>
+              <Button
+                onClick={() => shareResult({
+                  title: 'KdU-Pruefung',
+                  text: `KdU-Pruefung: Gesamt-KdU ${ergebnis.gesamtKdu} EUR, Angemessene KdU ${ergebnis.angemesseneKdu} EUR (${ergebnis.stadt})`,
+                  url: window.location.href,
+                })}
+                variant="outline"
+                className="flex-1"
+              >
+                <Share2 className="w-4 h-4 mr-2" />Teilen
               </Button>
               <Link to="/chat" className="flex-1"><Button className="w-full gradient-boxer text-white font-semibold py-3 rounded-lg">Widerspruch pruefen</Button></Link>
               <Link to="/rechner" className="flex-1"><Button variant="outline" className="w-full py-3">Alle Rechner</Button></Link>

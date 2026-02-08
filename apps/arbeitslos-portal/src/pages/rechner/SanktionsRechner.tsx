@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, Info, Shield, Scale, Download } from 'lucide-react'
+import { AlertTriangle, Info, Shield, Scale, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { berechneSanktion, SanktionsErgebnis } from '@/lib/rechner-logik'
 import { generateRechnerPdf } from '@/lib/pdf-export'
 import { saveRechnerErgebnis } from '@/lib/rechner-verlauf'
+import { shareResult } from '@/lib/share'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 export default function SanktionsRechner() {
@@ -154,6 +155,17 @@ export default function SanktionsRechner() {
                     className="bg-amber-600 hover:bg-amber-700 text-white"
                   >
                     <Download className="w-4 h-4 mr-2" />Als PDF
+                  </Button>
+                  <Button
+                    onClick={() => shareResult({
+                      title: 'Sanktions-Berechnung',
+                      text: `Sanktions-Rechner: ${ergebnis.kuerzungProzent}% Kuerzung = -${ergebnis.kuerzungBetrag} EUR / Monat (${ergebnis.dauer})`,
+                      url: window.location.href,
+                    })}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />Teilen
                   </Button>
                   <Link to="/musterschreiben"><Button variant="outline" className="w-full">Widerspruch erstellen</Button></Link>
                   <Link to="/chat"><Button variant="outline" className="w-full">KI-Berater fragen</Button></Link>
