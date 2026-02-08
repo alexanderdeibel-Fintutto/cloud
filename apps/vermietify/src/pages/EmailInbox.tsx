@@ -23,6 +23,7 @@ import {
   HelpCircle,
   RefreshCw,
   Shield,
+  Send,
 } from 'lucide-react'
 
 type Tab = 'inbox' | 'questions' | 'senders'
@@ -190,10 +191,10 @@ export function EmailInbox() {
       return
     }
 
-    const { error } = await supabase.from('verified_senders').insert({
+    const { data: newSender, error } = await supabase.from('verified_senders').insert({
       user_id: user.id,
       email: newSenderEmail.trim().toLowerCase(),
-    })
+    }).select().single()
 
     if (error) {
       if (error.code === '23505') {
@@ -204,9 +205,43 @@ export function EmailInbox() {
       return
     }
 
-    toast.success('Absenderadresse hinzugefuegt')
+    toast.success('Absenderadresse hinzugefuegt - Verifizierungs-E-Mail wird gesendet...')
     setNewSenderEmail('')
     loadSenders()
+
+    // Trigger verification email
+    if (newSender) {
+      handleSendVerification(newSender.id)
+    }
+  }
+
+  const handleSendVerification = async (senderId: string) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+
+    try {
+      const response = await fetch('/api/verify-sender', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ sender_id: senderId }),
+      })
+
+      const result = await response.json()
+
+      if (result.dev_mode) {
+        toast.success('Absenderadresse automatisch verifiziert (Dev-Modus)')
+        loadSenders()
+      } else if (result.status === 'verification_sent') {
+        toast.success('Verifizierungs-E-Mail gesendet! Bitte pruefen Sie Ihr Postfach.')
+      } else {
+        toast.error(result.error || 'Fehler beim Senden der Verifizierung')
+      }
+    } catch {
+      toast.error('Verifizierungs-E-Mail konnte nicht gesendet werden')
+    }
   }
 
   const handleRemoveSender = async (id: string) => {
@@ -526,13 +561,25 @@ export function EmailInbox() {
                           </span>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveSender(sender.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {!sender.is_verified && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSendVerification(sender.id)}
+                          >
+                            <Send className="mr-1 h-3.5 w-3.5" />
+                            Verifizieren
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveSender(sender.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
