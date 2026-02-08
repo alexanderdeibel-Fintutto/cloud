@@ -85,9 +85,9 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **Online-Payment** - Stripe, PayPal, Klarna, Sofort Integration
 
 ### Erweiterte Reports
-- [ ] **Cash-Flow-Analyse** - Liquiditätsplanung
-- [ ] **Vergleichsberichte** - Jahr-zu-Jahr Vergleiche
-- [ ] **Forecast** - Prognose-Funktionen
+- [x] **Cash-Flow-Analyse** - Liquiditätsplanung mit Kategorien und Prognosen
+- [x] **Vergleichsberichte** - Jahr-zu-Jahr/Quartals/Monatsvergleiche mit Trends
+- [x] **Forecast** - Szenarioplanung, What-if-Analyse, Risikobewertung
 
 ### Integrationen
 - [x] **Shopify/WooCommerce/Amazon/eBay** - E-Commerce Anbindung
