@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   ClipboardList,
   ChevronDown,
@@ -351,6 +352,7 @@ function saveCheckedState(state: CheckedState) {
 }
 
 export default function ChecklistenPage() {
+  useDocumentTitle('Checklisten - BescheidBoxer')
   const [checked, setChecked] = useState<CheckedState>(loadCheckedState)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 

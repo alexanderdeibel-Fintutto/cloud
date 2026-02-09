@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   ScanSearch,
   Upload,
@@ -84,6 +85,7 @@ function generateDemoScanResult(): ScanResult {
 }
 
 export default function BescheidScanPage() {
+  useDocumentTitle('BescheidScan - BescheidBoxer')
   const [scanState, setScanState] = useState<'upload' | 'scanning' | 'result'>('upload')
   const [result, setResult] = useState<ScanResult | null>(null)
   const [fileName, setFileName] = useState<string>('')

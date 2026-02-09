@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   Users,
   MessageSquare,
@@ -161,6 +162,7 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 export default function ForumPage() {
+  useDocumentTitle('Community-Forum - BescheidBoxer')
   const [activeCategory, setActiveCategory] = useState('all')
   const [search, setSearch] = useState('')
   const { checkForum } = useCreditsContext()

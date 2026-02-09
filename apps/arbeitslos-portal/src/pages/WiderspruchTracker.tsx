@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   FileText,
   Plus,
@@ -230,6 +231,7 @@ function exportToIcs(entries: WiderspruchEntry[]) {
 // ---------------------------------------------------------------------------
 
 export default function WiderspruchTracker() {
+  useDocumentTitle('Widerspruch-Tracker - BescheidBoxer')
   const [entries, setEntries] = useState<WiderspruchEntry[]>(loadEntries)
   const [showForm, setShowForm] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   FileText,
   ArrowLeft,
@@ -23,6 +24,7 @@ import { useCreditsContext } from '@/contexts/CreditsContext'
 import { generateLetterPdf } from '@/lib/pdf-export'
 
 export default function GeneratorPage() {
+  useDocumentTitle('Dokumenten-Werkstatt - BescheidBoxer')
   const { templateId } = useParams<{ templateId: string }>()
   const { checkLetter } = useCreditsContext()
 

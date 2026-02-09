@@ -16,6 +16,7 @@ const footerLinks = {
     { name: 'Suche', href: '/suche' },
     { name: 'Kontakt & Hilfe', href: '/kontakt' },
     { name: 'Notfall-Hilfe', href: '/notfall' },
+    { name: 'Anbieter-Vergleich', href: '/anbieter-vergleich' },
   ],
   themen: [
     { name: 'Buergergeld (SGB II)', href: '/musterschreiben?kategorie=sgb2' },

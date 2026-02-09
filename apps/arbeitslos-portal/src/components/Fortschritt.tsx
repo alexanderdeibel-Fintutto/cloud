@@ -21,10 +21,10 @@ interface Level {
 }
 
 const LEVELS: Level[] = [
-  { name: "Neuling", farbe: "bg-gray-100 text-gray-600 border-gray-300", ringFarbe: "stroke-gray-400", min: 0, max: 1 },
-  { name: "Einsteiger", farbe: "bg-blue-100 text-blue-700 border-blue-300", ringFarbe: "stroke-blue-500", min: 2, max: 3 },
-  { name: "Kaempfer", farbe: "bg-amber-100 text-amber-700 border-amber-300", ringFarbe: "stroke-amber-500", min: 4, max: 5 },
-  { name: "Bescheid-Boxer", farbe: "gradient-boxer text-white border-red-400", ringFarbe: "stroke-red-500", min: 6, max: 6 },
+  { name: "Neuling", farbe: "bg-gray-100 text-gray-600 border-gray-300", ringFarbe: "stroke-gray-400", min: 0, max: 2 },
+  { name: "Einsteiger", farbe: "bg-blue-100 text-blue-700 border-blue-300", ringFarbe: "stroke-blue-500", min: 3, max: 5 },
+  { name: "Kaempfer", farbe: "bg-amber-100 text-amber-700 border-amber-300", ringFarbe: "stroke-amber-500", min: 6, max: 7 },
+  { name: "Bescheid-Boxer", farbe: "gradient-boxer text-white border-red-400", ringFarbe: "stroke-red-500", min: 8, max: 9 },
 ];
 
 function getLevel(erreicht: number): Level {
@@ -66,14 +66,45 @@ function pruefeMeilensteine(): Meilenstein[] {
     rechnerErgebnisse = 0;
   }
 
+  const termine = localStorage.getItem("bescheidboxer_termine");
+  const bewerbungen = localStorage.getItem("bescheidboxer_bewerbungen");
+  const dokumente = localStorage.getItem("bescheidboxer_dokumente");
+
+  let terminEintraege = 0;
+  try {
+    const parsed = termine ? JSON.parse(termine) : [];
+    terminEintraege = Array.isArray(parsed) ? parsed.length : 0;
+  } catch {
+    terminEintraege = 0;
+  }
+
+  let bewerbungEintraege = 0;
+  try {
+    const parsed = bewerbungen ? JSON.parse(bewerbungen) : [];
+    bewerbungEintraege = Array.isArray(parsed) ? parsed.length : 0;
+  } catch {
+    bewerbungEintraege = 0;
+  }
+
+  let dokumentEintraege = 0;
+  try {
+    const parsed = dokumente ? JSON.parse(dokumente) : [];
+    dokumentEintraege = Array.isArray(parsed) ? parsed.length : 0;
+  } catch {
+    dokumentEintraege = 0;
+  }
+
   const hatOnboarding = onboardingDone === "true";
   const hatChat = chatNachrichten > 0;
   const hatRechner = rechnerErgebnisse > 0;
   const hatWiderspruch = trackerEintraege > 0;
   const hat5Berechnungen = rechnerErgebnisse >= 5;
+  const hatTermin = terminEintraege > 0;
+  const hatBewerbung = bewerbungEintraege > 0;
+  const hatDokument = dokumentEintraege > 0;
 
-  const genutzteFeatures = [hatChat, hatRechner, hatWiderspruch].filter(Boolean).length;
-  const istProfi = genutzteFeatures >= 3;
+  const genutzteFeatures = [hatChat, hatRechner, hatWiderspruch, hatTermin, hatBewerbung, hatDokument].filter(Boolean).length;
+  const istProfi = genutzteFeatures >= 4;
 
   return [
     {
@@ -117,9 +148,33 @@ function pruefeMeilensteine(): Meilenstein[] {
       linkText: "Weiter rechnen",
     },
     {
+      id: "termin",
+      titel: "Termin geplant",
+      beschreibung: "Ersten Jobcenter-Termin angelegt",
+      erreicht: hatTermin,
+      link: "/termine",
+      linkText: "Termin anlegen",
+    },
+    {
+      id: "bewerbung",
+      titel: "Bewerbung erfasst",
+      beschreibung: "Erste Bewerbung dokumentiert",
+      erreicht: hatBewerbung,
+      link: "/bewerbungen",
+      linkText: "Bewerbung erfassen",
+    },
+    {
+      id: "dokument",
+      titel: "Dokument hochgeladen",
+      beschreibung: "Erstes Dokument abgelegt",
+      erreicht: hatDokument,
+      link: "/dokumente",
+      linkText: "Dokument hochladen",
+    },
+    {
       id: "profi",
       titel: "Profi-Nutzer",
-      beschreibung: "3+ verschiedene Features genutzt",
+      beschreibung: "4+ verschiedene Features genutzt",
       erreicht: istProfi,
       link: "/dashboard",
       linkText: "Features entdecken",

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   CheckCircle2,
   Swords,
@@ -108,6 +109,7 @@ const faqItems = [
 ]
 
 export default function PricingPage() {
+  useDocumentTitle('Preise - BescheidBoxer')
   return (
     <div className="container py-12">
       {/* Header */}

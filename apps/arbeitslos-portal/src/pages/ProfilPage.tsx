@@ -9,8 +9,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useCreditsContext } from '@/contexts/CreditsContext'
 import { PLANS, CREDIT_COSTS } from '@/lib/credits'
 import { downloadExport, importData, getStorageStats } from '@/lib/daten-export'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 
 export default function ProfilPage() {
+  useDocumentTitle('Mein Profil - BescheidBoxer')
   const { profile } = useAuth()
   const { credits } = useCreditsContext()
 

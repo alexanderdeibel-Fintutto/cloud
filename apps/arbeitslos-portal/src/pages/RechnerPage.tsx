@@ -141,6 +141,16 @@ const calculators = [
     color: 'text-teal-600',
     bgColor: 'bg-teal-50',
   },
+  {
+    id: 'haushalt',
+    title: 'Haushalts-Planer',
+    description:
+      'Plane dein monatliches Budget: Einnahmen und Ausgaben im Ueberblick mit Spar-Tipps',
+    icon: Home,
+    route: '/rechner/haushalt',
+    color: 'text-violet-600',
+    bgColor: 'bg-violet-50',
+  },
 ]
 
 export default function RechnerPage() {

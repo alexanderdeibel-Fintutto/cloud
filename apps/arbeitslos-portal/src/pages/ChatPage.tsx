@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   Send,
   Swords,
@@ -516,6 +517,7 @@ function saveChatHistory(messages: ChatMessage[]) {
 }
 
 export default function ChatPage() {
+  useDocumentTitle('KI-Rechtsberater - BescheidBoxer')
   const restored = loadChatHistory()
   const [messages, setMessages] = useState<ChatMessage[]>(restored || [OPENING_MESSAGE])
   const [input, setInput] = useState('')
