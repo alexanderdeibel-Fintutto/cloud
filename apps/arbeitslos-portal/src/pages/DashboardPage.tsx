@@ -22,6 +22,8 @@ import {
   Briefcase,
   Calendar,
   FolderOpen,
+  FolderKanban,
+  GraduationCap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -506,7 +508,9 @@ export default function DashboardPage() {
           {[
             { name: 'Bescheid scannen', href: '/scan', icon: ScanSearch, color: 'text-blue-600 bg-blue-50' },
             { name: 'KI-Berater', href: '/chat', icon: MessageCircle, color: 'text-green-600 bg-green-50' },
+            { name: 'Meine Faelle', href: '/faelle', icon: FolderKanban, color: 'text-indigo-600 bg-indigo-50' },
             { name: 'Rechner', href: '/rechner', icon: Calculator, color: 'text-amber-600 bg-amber-50' },
+            { name: 'Lernbereich', href: '/lernen', icon: GraduationCap, color: 'text-teal-600 bg-teal-50' },
             { name: 'Bewerbungen', href: '/bewerbungen', icon: Briefcase, color: 'text-purple-600 bg-purple-50' },
             { name: 'Termine', href: '/termine', icon: Calendar, color: 'text-red-600 bg-red-50' },
             { name: 'Dokumente', href: '/dokumente', icon: FolderOpen, color: 'text-cyan-600 bg-cyan-50' },

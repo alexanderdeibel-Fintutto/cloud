@@ -62,6 +62,9 @@ const EinkommenRechner = lazy(() => import('@/pages/rechner/EinkommenRechner'))
 const WiderspruchVorlagen = lazy(() => import('@/pages/WiderspruchVorlagen'))
 const HaushaltsRechner = lazy(() => import('@/pages/rechner/HaushaltsRechner'))
 const AnbieterVergleich = lazy(() => import('@/pages/AnbieterVergleich'))
+const MeineFaellePage = lazy(() => import('@/pages/MeineFaellePage'))
+const AnwaltsSuche = lazy(() => import('@/pages/AnwaltsSuche'))
+const LernbereichPage = lazy(() => import('@/pages/LernbereichPage'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -145,6 +148,9 @@ function App() {
                 <Route path="bewerbungen" element={<BewerbungsTracker />} />
                 <Route path="notfall" element={<NotfallSeite />} />
                 <Route path="anbieter-vergleich" element={<AnbieterVergleich />} />
+                <Route path="faelle" element={<MeineFaellePage />} />
+                <Route path="anwaltssuche" element={<AnwaltsSuche />} />
+                <Route path="lernen" element={<LernbereichPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

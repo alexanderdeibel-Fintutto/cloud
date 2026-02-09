@@ -17,6 +17,8 @@ const footerLinks = {
     { name: 'Kontakt & Hilfe', href: '/kontakt' },
     { name: 'Notfall-Hilfe', href: '/notfall' },
     { name: 'Anbieter-Vergleich', href: '/anbieter-vergleich' },
+    { name: 'Anwaltssuche', href: '/anwaltssuche' },
+    { name: 'Lernbereich', href: '/lernen' },
   ],
   themen: [
     { name: 'Buergergeld (SGB II)', href: '/musterschreiben?kategorie=sgb2' },
@@ -35,6 +37,7 @@ const footerLinks = {
     { name: 'Aktenzeichen', href: '/aktenzeichen' },
     { name: 'Termine', href: '/termine' },
     { name: 'Bewerbungen', href: '/bewerbungen' },
+    { name: 'Meine Faelle', href: '/faelle' },
     { name: 'Statistiken', href: '/statistiken' },
     { name: 'Preise & Abos', href: '/preise' },
   ],

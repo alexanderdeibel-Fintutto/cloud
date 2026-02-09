@@ -17,6 +17,8 @@ import {
   AlertTriangle,
   Phone,
   Briefcase,
+  GraduationCap,
+  Scale,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -698,7 +700,54 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================= */}
-      {/* 10. URGENCY CTA                                               */}
+      {/* 10. LERNBEREICH + ANWALTSSUCHE                                */}
+      {/* ============================================================= */}
+      <section className="container py-12">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="bg-teal-50 dark:bg-teal-950/30 border-2 border-teal-200 dark:border-teal-800 rounded-2xl p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-teal-100 dark:bg-teal-900">
+                <GraduationCap className="h-6 w-6 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-teal-900 dark:text-teal-100">Lernbereich</h3>
+            </div>
+            <p className="text-sm text-teal-800 dark:text-teal-200 mb-4 flex-1">
+              Verstehe deine Rechte Schritt fuer Schritt. 8 Module zu Buergergeld, Widerspruch, KdU, Sanktionen und mehr.
+            </p>
+            <div className="flex gap-3">
+              <Button asChild className="bg-teal-600 hover:bg-teal-700 text-white">
+                <Link to="/lernen">
+                  <GraduationCap className="h-4 w-4 mr-2" />
+                  Jetzt lernen
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-900">
+                <Scale className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">Anwaltssuche</h3>
+            </div>
+            <p className="text-sm text-blue-800 dark:text-blue-200 mb-4 flex-1">
+              Finde Fachanwaelte fuer Sozialrecht in deiner Naehe. Filtere nach PKH, kostenloser Erstberatung und Fachgebiet.
+            </p>
+            <div className="flex gap-3">
+              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Link to="/anwaltssuche">
+                  <Scale className="h-4 w-4 mr-2" />
+                  Anwalt finden
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================= */}
+      {/* 11. URGENCY CTA                                               */}
       {/* ============================================================= */}
       <section className="gradient-amt text-white py-16">
         <div className="container text-center">
