@@ -7,6 +7,8 @@ Monorepo für alle selbst-gehosteten Fintutto Apps.
 | App | Beschreibung | Domain |
 |-----|--------------|--------|
 | `vermietify` | Immobilienverwaltung für Vermieter | vermietify.fintutto.cloud |
+| `vermieter-portal` | Rechner & Formulare für Vermieter (legacy, wird ersetzt) | - |
+| `fintutto-portal` | **NEU** Unified Portal: Rechner + Checker + Formulare | portal.fintutto.cloud |
 
 ## Tech Stack
 
@@ -54,16 +56,20 @@ Jede App wird separat auf Vercel deployed:
 ```
 fintutto-ecosystem/
 ├── apps/
-│   ├── vermietify/          # Vermieter-App
-│   └── (weitere apps)
+│   ├── vermietify/          # Vermieter-Dashboard (Referenz)
+│   ├── vermieter-portal/    # Rechner + Formulare (legacy → fintutto-portal)
+│   └── fintutto-portal/     # NEU: Unified Portal (Rechner + Checker + Formulare)
 ├── packages/
 │   └── shared/              # Geteilte Komponenten
-├── docs/                    # Dokumentation
+├── src/                     # Mieter-Checker (Root-App, wird in Portal integriert)
+├── supabase/                # Datenbank-Schema
 └── pnpm-workspace.yaml
 ```
 
 ## Dokumentation
 
+- [Inventar Komplett](./INVENTAR_KOMPLETT.md) - Vollständige Bestandsaufnahme aller 39 Repos
+- [6-App-Architektur](./ARCHITEKTUR_6_APPS.md) - Konsolidierungsplan auf 6 Apps
 - [Konsolidierungsplan](./KONSOLIDIERUNGSPLAN_VERMIETIFY.md)
 - [Gap Analyse](./GAP_ANALYSE_VERMIETIFY.md)
 - [Lovable Prompts](./LOVABLE_PROMPTS_KOMPLETT.md)
