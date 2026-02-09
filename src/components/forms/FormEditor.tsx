@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import SignaturePad from './SignaturePad'
 import VersionHistoryPanel from './VersionHistoryPanel'
+import SendEmailDialog from './SendEmailDialog'
 
 interface FormEditorProps {
   templateId: string
@@ -42,6 +43,7 @@ export default function FormEditor({ templateId, prefilledData }: FormEditorProp
   const [formValues, setFormValues] = useState<Record<string, unknown>>({})
   const [showVersionHistory, setShowVersionHistory] = useState(false)
   const [showSignature, setShowSignature] = useState(false)
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
   const [versions, setVersions] = useState<FormVersion[]>([])
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -126,9 +128,8 @@ export default function FormEditor({ templateId, prefilledData }: FormEditorProp
     }
   }
 
-  const handleSend = async () => {
-    // TODO: Open email dialog
-    toast.info('E-Mail-Versand wird implementiert...')
+  const handleSend = () => {
+    setShowEmailDialog(true)
   }
 
   const handleSignature = (signatureData: string) => {
@@ -460,6 +461,13 @@ export default function FormEditor({ templateId, prefilledData }: FormEditorProp
             </CardContent>
           </Card>
         )}
+
+        {/* Email Dialog */}
+        <SendEmailDialog
+          open={showEmailDialog}
+          onOpenChange={setShowEmailDialog}
+          documentTitle={template?.name || 'Dokument'}
+        />
       </div>
     </div>
   )
