@@ -6,7 +6,7 @@ set -e
 
 SUPABASE_URL="https://aaefocdqgdgexkcrjhks.supabase.co"
 SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhZWZvY2RxZ2RnZXhrY3JqaGtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNTU2NzYsImV4cCI6MjA1MzgzMTY3Nn0.KzAlgorLEJf_yfPY4RFEs1MERPyt5sYjIEvVPmPsWH4"
-WIDGET_URL="https://raw.githubusercontent.com/alexanderdeibel-Fintutto/fintutto-ecosystem/main/packages/ai-widget/dist/fintutto-ai-widget.js"
+WIDGET_URL="https://cdn.jsdelivr.net/gh/alexanderdeibel-Fintutto/fintutto-ecosystem@main/packages/ai-widget/dist/fintutto-ai-widget.js"
 
 # Apps und ihre IDs
 declare -A APPS=(
