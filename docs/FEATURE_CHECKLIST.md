@@ -104,6 +104,7 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **Dashboard Widgets** - Anpassbare Widgets, Edit-Modus, 12 Widget-Typen
 - [x] **Erweitertes Benachrichtigungssystem** - 13 Typen, Prioritäten, Ruhezeiten, Einstellungen
 - [x] **Bank-Abstimmung** - Auto-Matching, Konfidenzwertung, Vorschläge, Statusverwaltung
+- [x] **Anlagenverwaltung** - AfA-Berechnung, Abschreibungsmethoden (linear/degressiv/sofort), GWG-Erkennung
 
 ---
 
