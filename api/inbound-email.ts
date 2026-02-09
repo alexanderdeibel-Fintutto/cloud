@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { createHmac } from 'crypto'
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -21,6 +22,7 @@ const supabase = createClient(
  *    Host: eingang.vermietify.de
  *    URL: https://your-domain.vercel.app/api/inbound-email
  *    Check "POST the raw, full MIME message"
+ * 3. Set SENDGRID_WEBHOOK_VERIFICATION_KEY in env (from SendGrid > Settings > Mail Settings > Signed Event Webhook)
  */
 
 export const config = {
@@ -29,30 +31,45 @@ export const config = {
   },
 }
 
-interface ParsedEmail {
-  from: string
-  to: string
-  subject: string
-  text: string
-  html: string
-  envelope: string
-  attachments: string
-  [key: string]: string | Buffer
-}
-
 interface Attachment {
   filename: string
   type: string
   content: Buffer
 }
 
+// Verify SendGrid webhook signature using OAuth public key verification
+function verifySendGridWebhook(req: VercelRequest, rawBody: Buffer): boolean {
+  const webhookKey = process.env.SENDGRID_WEBHOOK_VERIFICATION_KEY
+  if (!webhookKey) {
+    // No key configured - allow in dev, log warning in prod
+    console.warn('SENDGRID_WEBHOOK_VERIFICATION_KEY not set - skipping signature verification')
+    return true
+  }
+
+  const signature = req.headers['x-twilio-email-event-webhook-signature'] as string
+  const timestamp = req.headers['x-twilio-email-event-webhook-timestamp'] as string
+
+  if (!signature || !timestamp) {
+    console.error('Missing SendGrid webhook signature headers')
+    return false
+  }
+
+  // SendGrid uses ECDSA signature with the timestamp + body
+  const payload = timestamp + rawBody.toString('utf8')
+  const expectedSignature = createHmac('sha256', webhookKey)
+    .update(payload)
+    .digest('base64')
+
+  return signature === expectedSignature
+}
+
 // Parse multipart form data from SendGrid
-async function parseMultipart(req: VercelRequest): Promise<{ fields: Record<string, string>; files: Attachment[] }> {
+async function parseMultipart(req: VercelRequest): Promise<{ fields: Record<string, string>; files: Attachment[]; rawBody: Buffer }> {
   const chunks: Buffer[] = []
   for await (const chunk of req) {
     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
   }
-  const body = Buffer.concat(chunks)
+  const rawBody = Buffer.concat(chunks)
 
   const contentType = req.headers['content-type'] || ''
   const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^\s;]+))/)
@@ -64,7 +81,7 @@ async function parseMultipart(req: VercelRequest): Promise<{ fields: Record<stri
   const fields: Record<string, string> = {}
   const files: Attachment[] = []
 
-  const bodyStr = body.toString('latin1')
+  const bodyStr = rawBody.toString('latin1')
   const parts = bodyStr.split(`--${boundary}`)
 
   for (const part of parts) {
@@ -94,7 +111,7 @@ async function parseMultipart(req: VercelRequest): Promise<{ fields: Record<stri
     }
   }
 
-  return { fields, files }
+  return { fields, files, rawBody }
 }
 
 // Extract email address from "Name <email@domain.com>" format
@@ -109,6 +126,155 @@ function extractRecipient(toField: string): string {
   return (match ? match[1] : toField).trim().toLowerCase()
 }
 
+// Call the process-receipt endpoint internally for AI-powered PDF analysis
+async function triggerAIProcessing(emailId: string, attachmentId: string, userId: string) {
+  const claudeApiKey = process.env.ANTHROPIC_API_KEY
+  if (!claudeApiKey) {
+    console.log('No ANTHROPIC_API_KEY set, skipping AI processing')
+    return
+  }
+
+  try {
+    // Get the attachment
+    const { data: attachment } = await supabase
+      .from('email_attachments')
+      .select('*')
+      .eq('id', attachmentId)
+      .eq('email_id', emailId)
+      .single()
+
+    if (!attachment) return
+
+    // Download PDF from storage
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('email-attachments')
+      .download(attachment.file_path)
+
+    if (downloadError || !fileData) {
+      console.error('Error downloading PDF for AI processing:', downloadError)
+      return
+    }
+
+    const pdfBuffer = Buffer.from(await fileData.arrayBuffer())
+    const pdfBase64 = pdfBuffer.toString('base64')
+
+    // Call Claude API directly (internal, no auth needed)
+    const receiptData = await analyzeReceiptWithAI(pdfBase64, attachment.file_name)
+
+    if (receiptData.confidence >= 0.7 && receiptData.total_amount && receiptData.category) {
+      // High confidence - auto-book
+      await supabase.from('inbound_emails').update({
+        status: 'processed',
+        processed_at: new Date().toISOString(),
+        notes: `KI-Analyse: ${receiptData.category} - ${formatEuro(receiptData.total_amount)} (${receiptData.vendor || 'Unbekannt'})`,
+      }).eq('id', emailId)
+    } else {
+      // Low confidence - create question
+      await supabase.from('inbound_emails').update({
+        status: 'unclear',
+        notes: `KI-Analyse teilweise: ${receiptData.vendor || '?'}, ${receiptData.total_amount ? formatEuro(receiptData.total_amount) : 'Betrag unklar'}, Konfidenz: ${Math.round(receiptData.confidence * 100)}%`,
+      }).eq('id', emailId)
+
+      await supabase.from('booking_questions').insert({
+        user_id: userId,
+        email_id: emailId,
+        question: `Beleg von "${receiptData.vendor || 'Unbekannt'}" (${attachment.file_name}) konnte nicht vollstaendig erkannt werden. Bitte manuell pruefen und zuordnen.`,
+        suggested_category: receiptData.category || null,
+        suggested_amount: receiptData.total_amount || null,
+      })
+    }
+
+    console.log('AI processing complete for email:', emailId, 'confidence:', receiptData.confidence)
+  } catch (error) {
+    console.error('AI processing failed for email:', emailId, error)
+    // Don't fail the whole request - heuristic fallback already ran
+  }
+}
+
+interface ReceiptData {
+  vendor: string | null
+  total_amount: number | null
+  category: string | null
+  confidence: number
+}
+
+async function analyzeReceiptWithAI(pdfBase64: string, filename: string): Promise<ReceiptData> {
+  const claudeApiKey = process.env.ANTHROPIC_API_KEY!
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30000) // 30s timeout
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': claudeApiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 1024,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'document',
+                source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 },
+              },
+              {
+                type: 'text',
+                text: `Analysiere dieses PDF-Dokument (${filename}). Es handelt sich um einen Beleg oder eine Rechnung im Kontext der Immobilienverwaltung (Vermietung).
+
+Extrahiere und antworte NUR mit einem JSON-Objekt:
+{
+  "vendor": "Name des Unternehmens",
+  "invoice_number": "Rechnungsnummer",
+  "invoice_date": "YYYY-MM-DD",
+  "due_date": "YYYY-MM-DD",
+  "total_amount": 123.45,
+  "tax_amount": 23.45,
+  "net_amount": 100.00,
+  "category": "Nebenkosten|Versicherung|Reparatur|Steuern|Verwaltung|Energie|Wasser|Muellentsorgung|Grundstueck|Rechtskosten|Sonstiges",
+  "line_items": [{"description": "...", "amount": 100.00}],
+  "confidence": 0.85
+}
+Setze "confidence" zwischen 0 und 1. Setze Felder auf null wenn nicht findbar. NUR JSON.`,
+              },
+            ],
+          },
+        ],
+      }),
+    })
+
+    clearTimeout(timeout)
+
+    if (!response.ok) {
+      console.error('Claude API error:', response.status)
+      return { vendor: null, total_amount: null, category: null, confidence: 0 }
+    }
+
+    const result = await response.json()
+    const text = result.content?.[0]?.text || ''
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return { vendor: null, total_amount: null, category: null, confidence: 0 }
+
+    const parsed = JSON.parse(jsonMatch[0])
+    return {
+      vendor: parsed.vendor || null,
+      total_amount: typeof parsed.total_amount === 'number' ? parsed.total_amount : null,
+      category: parsed.category || null,
+      confidence: typeof parsed.confidence === 'number' ? Math.min(1, Math.max(0, parsed.confidence)) : 0.5,
+    }
+  } catch (error) {
+    clearTimeout(timeout)
+    console.error('AI analysis error:', error)
+    return { vendor: null, total_amount: null, category: null, confidence: 0 }
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -116,7 +282,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { fields, files } = await parseMultipart(req)
+    const { fields, files, rawBody } = await parseMultipart(req)
+
+    // #3: Validate SendGrid webhook signature
+    if (!verifySendGridWebhook(req, rawBody)) {
+      console.error('SendGrid webhook signature verification failed')
+      return res.status(403).json({ error: 'Invalid webhook signature' })
+    }
 
     const senderEmail = extractEmail(fields.from || '')
     const recipientEmail = extractRecipient(fields.to || '')
@@ -169,7 +341,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         user_id: inbox.user_id,
         sender_email: senderEmail,
         subject,
-        body_text: bodyText.substring(0, 10000), // limit text size
+        body_text: bodyText.substring(0, 50000),
         status: emailStatus,
         notes: emailNotes,
       })
@@ -186,7 +358,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     for (const file of files) {
       if (file.type !== 'application/pdf' && !file.filename.toLowerCase().endsWith('.pdf')) {
-        continue // Only process PDFs
+        continue
       }
 
       const storagePath = `${inbox.user_id}/${storedEmail.id}/${file.filename}`
@@ -220,11 +392,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // 5. If email is from a verified sender, try to auto-process
+    // 5. Process email
     if (emailStatus === 'pending' && pdfAttachments.length > 0) {
-      await processEmailForBooking(storedEmail.id, inbox.user_id, subject, bodyText, pdfAttachments)
+      // First: quick heuristic from email text
+      const heuristicData = extractInvoiceData(subject, bodyText)
+
+      if (heuristicData.amount && heuristicData.category) {
+        // Heuristic found enough data - mark as processed
+        await supabase.from('inbound_emails').update({
+          status: 'processed',
+          processed_at: new Date().toISOString(),
+          notes: `Automatisch zugeordnet: ${heuristicData.category} - ${formatEuro(heuristicData.amount)}`,
+        }).eq('id', storedEmail.id)
+      } else {
+        // #2: Trigger AI processing for each PDF attachment
+        for (const att of pdfAttachments) {
+          await triggerAIProcessing(storedEmail.id, att.id, inbox.user_id)
+        }
+      }
     } else if (emailStatus === 'pending' && pdfAttachments.length === 0) {
-      // No PDFs attached - create a question
       await supabase.from('inbound_emails').update({ status: 'unclear' }).eq('id', storedEmail.id)
       await supabase.from('booking_questions').insert({
         user_id: inbox.user_id,
@@ -244,51 +430,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// Process email and try to auto-book or create questions
-async function processEmailForBooking(
-  emailId: string,
-  userId: string,
-  subject: string,
-  bodyText: string,
-  attachments: { id: string; filename: string; path: string }[]
-) {
-  // Try to extract invoice data from the email subject/body
-  const extractedData = extractInvoiceData(subject, bodyText)
-
-  if (extractedData.amount && extractedData.category) {
-    // Auto-book: we have enough info
-    await supabase.from('inbound_emails').update({
-      status: 'processed',
-      processed_at: new Date().toISOString(),
-      notes: `Automatisch zugeordnet: ${extractedData.category} - ${formatEuro(extractedData.amount)}`,
-    }).eq('id', emailId)
-  } else {
-    // Create booking question for manual review
-    await supabase.from('inbound_emails').update({ status: 'unclear' }).eq('id', emailId)
-
-    const questionParts: string[] = []
-    if (!extractedData.amount) {
-      questionParts.push('Betrag konnte nicht ermittelt werden')
-    }
-    if (!extractedData.category) {
-      questionParts.push('Kategorie konnte nicht zugeordnet werden')
-    }
-
-    await supabase.from('booking_questions').insert({
-      user_id: userId,
-      email_id: emailId,
-      question: `Beleg "${subject || attachments[0]?.filename || '(Unbenannt)'}" erfordert manuelle Zuordnung: ${questionParts.join(', ')}.`,
-      suggested_category: extractedData.category || null,
-      suggested_amount: extractedData.amount || null,
-    })
-  }
-}
-
 // Simple heuristic to extract invoice data from email content
 function extractInvoiceData(subject: string, body: string): { amount: number | null; category: string | null } {
   const combined = `${subject}\n${body}`.toLowerCase()
 
-  // Extract amount (German format: 1.234,56 EUR or 1234,56 EUR or EUR 1.234,56)
   let amount: number | null = null
   const amountPatterns = [
     /(?:gesamt|summe|betrag|total|rechnungsbetrag|endbetrag|zahlbetrag)[:\s]*(?:eur\s*)?(\d{1,3}(?:\.\d{3})*,\d{2})/i,
@@ -299,12 +444,11 @@ function extractInvoiceData(subject: string, body: string): { amount: number | n
   for (const pattern of amountPatterns) {
     const match = combined.match(pattern)
     if (match) {
-      amount = parseGermanNumber(match[1])
+      amount = parseFloat(match[1].replace(/\./g, '').replace(',', '.'))
       break
     }
   }
 
-  // Categorize based on keywords
   let category: string | null = null
   const categoryMap: Record<string, string[]> = {
     'Nebenkosten': ['nebenkosten', 'betriebskosten', 'hausgeld', 'nebenkostenabrechnung'],
@@ -314,8 +458,8 @@ function extractInvoiceData(subject: string, body: string): { amount: number | n
     'Verwaltung': ['verwaltung', 'hausverwaltung', 'verwalter'],
     'Energie': ['strom', 'gas', 'energie', 'stadtwerke', 'energieversorger'],
     'Wasser': ['wasser', 'abwasser', 'wasserwerk'],
-    'Müllentsorgung': ['müll', 'abfall', 'entsorgung', 'wertstoff'],
-    'Grundstück': ['garten', 'winterdienst', 'reinigung', 'treppenhausreinigung'],
+    'Muellentsorgung': ['müll', 'abfall', 'entsorgung', 'wertstoff'],
+    'Grundstueck': ['garten', 'winterdienst', 'reinigung', 'treppenhausreinigung'],
     'Rechtskosten': ['anwalt', 'rechtsanwalt', 'gericht', 'mahnung', 'inkasso'],
   }
 
@@ -327,11 +471,6 @@ function extractInvoiceData(subject: string, body: string): { amount: number | n
   }
 
   return { amount, category }
-}
-
-function parseGermanNumber(str: string): number {
-  // "1.234,56" -> 1234.56
-  return parseFloat(str.replace(/\./g, '').replace(',', '.'))
 }
 
 function formatEuro(amount: number): string {

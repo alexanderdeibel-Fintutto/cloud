@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { createHmac, timingSafeEqual } from 'crypto'
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -152,9 +153,8 @@ async function handleConfirmVerification(req: VercelRequest, res: VercelResponse
     return redirectWithMessage(res, 'Diese Adresse ist bereits verifiziert.')
   }
 
-  // Verify token
-  const expectedToken = generateToken(sender.id, sender.email)
-  if (token !== expectedToken) {
+  // Verify token (timing-safe comparison)
+  if (!verifyToken(token, sender.id, sender.email)) {
     return res.status(400).json({ error: 'Invalid verification token' })
   }
 
@@ -191,15 +191,13 @@ function redirectWithMessage(res: VercelResponse, message: string) {
 
 function generateToken(senderId: string, email: string): string {
   const secret = process.env.VERIFICATION_SECRET || 'dev-secret-change-in-production'
-  // Simple hash-based token using Web Crypto-compatible approach
-  const data = `${senderId}:${email}:${secret}`
-  let hash = 0
-  for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i)
-    hash = ((hash << 5) - hash + char) | 0
-  }
-  // Convert to hex and add entropy from the secret
-  const base = Math.abs(hash).toString(36)
-  const suffix = Buffer.from(`${senderId}${secret.slice(0, 8)}`).toString('base64url').slice(0, 16)
-  return `${base}-${suffix}`
+  return createHmac('sha256', secret)
+    .update(`${senderId}:${email}`)
+    .digest('base64url')
+}
+
+function verifyToken(token: string, senderId: string, email: string): boolean {
+  const expected = generateToken(senderId, email)
+  if (token.length !== expected.length) return false
+  return timingSafeEqual(Buffer.from(token), Buffer.from(expected))
 }

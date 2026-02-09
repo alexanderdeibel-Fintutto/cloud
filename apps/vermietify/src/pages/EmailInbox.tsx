@@ -24,6 +24,12 @@ import {
   RefreshCw,
   Shield,
   Send,
+  Download,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  X,
+  Eye,
 } from 'lucide-react'
 
 type Tab = 'inbox' | 'questions' | 'senders'
@@ -34,13 +40,24 @@ interface EmailInboxData {
   is_active: boolean
 }
 
+interface EmailAttachment {
+  id: string
+  email_id: string
+  file_name: string
+  file_type: string
+  file_size: number
+  file_path: string
+}
+
 interface InboundEmail {
   id: string
   sender_email: string
   subject: string | null
+  body_text: string | null
   received_at: string
   status: 'pending' | 'processed' | 'unclear' | 'rejected'
   notes: string | null
+  attachments?: EmailAttachment[]
 }
 
 interface BookingQuestion {
@@ -76,6 +93,12 @@ function formatDateTime(dateStr: string): string {
   }).format(new Date(dateStr))
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 const statusConfig = {
   pending: { label: 'Ausstehend', icon: Clock, className: 'text-yellow-600 bg-yellow-50' },
   processed: { label: 'Gebucht', icon: CheckCircle2, className: 'text-green-600 bg-green-50' },
@@ -93,6 +116,8 @@ export function EmailInbox() {
   const [copied, setCopied] = useState(false)
   const [newSenderEmail, setNewSenderEmail] = useState('')
   const [loading, setLoading] = useState(true)
+  const [expandedEmailId, setExpandedEmailId] = useState<string | null>(null)
+  const [processingEmailId, setProcessingEmailId] = useState<string | null>(null)
 
   const loadInbox = useCallback(async () => {
     if (!user) return
@@ -126,11 +151,18 @@ export function EmailInbox() {
 
     const { data } = await supabase
       .from('inbound_emails')
-      .select('*')
+      .select('*, email_attachments(*)')
       .eq('user_id', user.id)
       .order('received_at', { ascending: false })
 
-    if (data) setEmails(data)
+    if (data) {
+      setEmails(
+        data.map((e: Record<string, unknown>) => ({
+          ...e,
+          attachments: (e.email_attachments as EmailAttachment[]) || [],
+        })) as InboundEmail[]
+      )
+    }
   }, [user])
 
   const loadQuestions = useCallback(async () => {
@@ -209,7 +241,6 @@ export function EmailInbox() {
     setNewSenderEmail('')
     loadSenders()
 
-    // Trigger verification email
     if (newSender) {
       handleSendVerification(newSender.id)
     }
@@ -269,6 +300,57 @@ export function EmailInbox() {
 
     toast.success('Frage als erledigt markiert')
     loadQuestions()
+  }
+
+  // #8: Manual AI processing trigger
+  const handleProcessReceipt = async (emailId: string, attachmentId: string) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+
+    setProcessingEmailId(emailId)
+
+    try {
+      const response = await fetch('/api/process-receipt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ email_id: emailId, attachment_id: attachmentId }),
+      })
+
+      const result = await response.json()
+
+      if (result.status === 'analyzed') {
+        toast.success(
+          result.data?.confidence >= 0.7
+            ? 'Beleg erfolgreich erkannt und verbucht!'
+            : 'Beleg teilweise erkannt - bitte manuell pruefen.'
+        )
+        loadEmails()
+        loadQuestions()
+      } else {
+        toast.error(result.error || 'Fehler bei der Verarbeitung')
+      }
+    } catch {
+      toast.error('Verarbeitung fehlgeschlagen')
+    } finally {
+      setProcessingEmailId(null)
+    }
+  }
+
+  // #10: Download attachment via signed URL
+  const handleDownloadAttachment = async (attachment: EmailAttachment) => {
+    const { data, error } = await supabase.storage
+      .from('email-attachments')
+      .createSignedUrl(attachment.file_path, 60) // 60 seconds
+
+    if (error || !data?.signedUrl) {
+      toast.error('Download fehlgeschlagen')
+      return
+    }
+
+    window.open(data.signedUrl, '_blank')
   }
 
   if (loading) {
@@ -400,13 +482,25 @@ export function EmailInbox() {
             emails.map((email) => {
               const status = statusConfig[email.status]
               const StatusIcon = status.icon
+              const isExpanded = expandedEmailId === email.id
+              const attachments = email.attachments || []
+              const isProcessing = processingEmailId === email.id
+
               return (
                 <Card key={email.id} className="hover:shadow-sm transition-shadow">
                   <CardContent className="py-4">
-                    <div className="flex items-start justify-between gap-4">
+                    {/* Email header row */}
+                    <div
+                      className="flex items-start justify-between gap-4 cursor-pointer"
+                      onClick={() => setExpandedEmailId(isExpanded ? null : email.id)}
+                    >
                       <div className="flex items-start gap-3 min-w-0">
                         <div className="mt-0.5 shrink-0">
-                          <Paperclip className="h-4 w-4 text-muted-foreground" />
+                          {attachments.length > 0 ? (
+                            <Paperclip className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                          )}
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium truncate">
@@ -415,20 +509,117 @@ export function EmailInbox() {
                           <p className="text-sm text-muted-foreground truncate">
                             Von: {email.sender_email}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {formatDateTime(email.received_at)}
-                          </p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <p className="text-xs text-muted-foreground">
+                              {formatDateTime(email.received_at)}
+                            </p>
+                            {attachments.length > 0 && (
+                              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Paperclip className="h-3 w-3" />
+                                {attachments.length} {attachments.length === 1 ? 'Anhang' : 'Anhaenge'}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium shrink-0 ${status.className}`}>
-                        <StatusIcon className="h-3.5 w-3.5" />
-                        {status.label}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${status.className}`}>
+                          <StatusIcon className="h-3.5 w-3.5" />
+                          {status.label}
+                        </div>
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
                       </div>
                     </div>
-                    {email.notes && (
-                      <p className="text-sm text-muted-foreground mt-2 pl-7">
+
+                    {/* Notes (always visible if present) */}
+                    {email.notes && !isExpanded && (
+                      <p className="text-sm text-muted-foreground mt-2 pl-7 truncate">
                         {email.notes}
                       </p>
+                    )}
+
+                    {/* #9: Expanded detail view */}
+                    {isExpanded && (
+                      <div className="mt-4 pl-7 space-y-4">
+                        <Separator />
+
+                        {/* Notes */}
+                        {email.notes && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Verarbeitungshinweis</p>
+                            <p className="text-sm">{email.notes}</p>
+                          </div>
+                        )}
+
+                        {/* Email body preview */}
+                        {email.body_text && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">E-Mail-Inhalt</p>
+                            <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap max-h-48 overflow-y-auto">
+                              {email.body_text.substring(0, 2000)}
+                              {(email.body_text?.length ?? 0) > 2000 && '...'}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* #10: Attachments with download */}
+                        {attachments.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Anhaenge</p>
+                            <div className="space-y-2">
+                              {attachments.map((att) => (
+                                <div
+                                  key={att.id}
+                                  className="flex items-center justify-between rounded-md border bg-background p-3"
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <FileText className="h-5 w-5 text-red-500 shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium truncate">{att.file_name}</p>
+                                      <p className="text-xs text-muted-foreground">{formatFileSize(att.file_size)}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {/* #8: Manual process button */}
+                                    {(email.status === 'pending' || email.status === 'unclear') && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={isProcessing}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleProcessReceipt(email.id, att.id)
+                                        }}
+                                      >
+                                        {isProcessing ? (
+                                          <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                          <Sparkles className="mr-1 h-3.5 w-3.5" />
+                                        )}
+                                        {isProcessing ? 'Wird analysiert...' : 'KI-Analyse'}
+                                      </Button>
+                                    )}
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDownloadAttachment(att)
+                                      }}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </CardContent>
                 </Card>
@@ -473,6 +664,11 @@ export function EmailInbox() {
                             Betrag: <span className="font-medium">
                               {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(q.suggested_amount)}
                             </span>
+                          </p>
+                        )}
+                        {q.email && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            E-Mail: {q.email.subject || '(Kein Betreff)'} - Von: {q.email.sender_email}
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
