@@ -441,12 +441,29 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   // Generate PDF
   const generatePDF = async (): Promise<string> => {
+    if (!currentDocument) {
+      throw new Error('No document to generate PDF for')
+    }
+
     // Create a version first
     const version = await createVersion('printed')
 
-    // In a real implementation, this would call a PDF generation service
-    // For now, we'll use browser print functionality
-    const pdfUrl = `/api/generate-pdf?documentId=${currentDocument?.id}&versionId=${version.id}`
+    // Get template name
+    const template = getFormTemplate(currentDocument.formTemplateId)
+    const templateName = template?.name || 'Rechtsdokument'
+
+    // Build PDF URL with form data
+    const params = new URLSearchParams({
+      documentId: currentDocument.id,
+      versionId: version.id,
+      data: JSON.stringify(formData),
+      templateName,
+    })
+
+    const pdfUrl = `/api/generate-pdf?${params.toString()}`
+
+    // Trigger download
+    window.open(pdfUrl, '_blank')
 
     return pdfUrl
   }

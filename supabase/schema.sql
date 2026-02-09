@@ -150,8 +150,39 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Email logs table
+CREATE TABLE IF NOT EXISTS public.email_logs (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    document_id UUID NOT NULL,
+    version_id UUID NOT NULL,
+    recipient TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    sent_at TIMESTAMPTZ DEFAULT NOW(),
+    status TEXT DEFAULT 'sent',
+    error_message TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE public.email_logs ENABLE ROW LEVEL SECURITY;
+
+-- Email logs policies (service role can insert, users can view their own)
+CREATE POLICY "Service role can insert email logs" ON public.email_logs
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Users can view own email logs" ON public.email_logs
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.form_documents fd
+            WHERE fd.id = email_logs.document_id
+            AND fd.user_id = auth.uid()
+        )
+    );
+
 -- Indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.checker_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_checker_type ON public.checker_sessions(checker_type);
 CREATE INDEX IF NOT EXISTS idx_results_user_id ON public.checker_results(user_id);
 CREATE INDEX IF NOT EXISTS idx_results_checker_type ON public.checker_results(checker_type);
+CREATE INDEX IF NOT EXISTS idx_email_logs_document_id ON public.email_logs(document_id);
+CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON public.email_logs(sent_at);
