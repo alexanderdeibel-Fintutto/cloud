@@ -1,0 +1,125 @@
+diff --git a/src/hooks/useInboundEmail.ts b/src/hooks/useInboundEmail.ts
+index 6efd306..9658e4f 100644
+--- a/src/hooks/useInboundEmail.ts
++++ b/src/hooks/useInboundEmail.ts
+@@ -1,3 +1,4 @@
++import { useEffect } from "react";
+ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+ import { supabase } from "@/integrations/supabase/client";
+ import { useAuth } from "@/hooks/useAuth";
+@@ -205,6 +206,43 @@ export function useInboundEmail() {
+     },
+   });
+ 
++  // Realtime subscription for live updates
++  useEffect(() => {
++    if (!orgId) return;
++
++    const channel = supabase
++      .channel("inbound-emails-realtime")
++      .on(
++        "postgres_changes",
++        { event: "*", schema: "public", table: "inbound_emails", filter: `organization_id=eq.${orgId}` },
++        () => {
++          queryClient.invalidateQueries({ queryKey: ["inbound-emails", orgId] });
++        }
++      )
++      .subscribe();
++
++    return () => {
++      supabase.removeChannel(channel);
++    };
++  }, [orgId, queryClient]);
++
++  // Download attachment via signed URL
++  const downloadAttachment = async (filePath: string, fileName: string) => {
++    const { data, error } = await supabase.storage
++      .from("inbound-attachments")
++      .createSignedUrl(filePath, 60);
++
++    if (error || !data?.signedUrl) {
++      toast({ title: "Fehler", description: "Anhang konnte nicht heruntergeladen werden", variant: "destructive" });
++      return;
++    }
++
++    const a = document.createElement("a");
++    a.href = data.signedUrl;
++    a.download = fileName;
++    a.click();
++  };
++
+   return {
+     emailAddress,
+     isLoadingAddress,
+@@ -214,5 +252,6 @@ export function useInboundEmail() {
+     emails: emails || [],
+     isLoadingEmails,
+     updateEmailStatus,
++    downloadAttachment,
+   };
+ }
+diff --git a/src/pages/inbound/InboundEmailQueue.tsx b/src/pages/inbound/InboundEmailQueue.tsx
+index b15faca..49db006 100644
+--- a/src/pages/inbound/InboundEmailQueue.tsx
++++ b/src/pages/inbound/InboundEmailQueue.tsx
+@@ -25,6 +25,7 @@ import {
+   Building2,
+   Receipt,
+   Eye,
++  Download,
+ } from "lucide-react";
+ import { format } from "date-fns";
+ import { de } from "date-fns/locale";
+@@ -38,7 +39,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }>
+ };
+ 
+ export default function InboundEmailQueue() {
+-  const { emails, isLoadingEmails, updateEmailStatus } = useInboundEmail();
++  const { emails, isLoadingEmails, updateEmailStatus, downloadAttachment } = useInboundEmail();
+   const { costTypes } = useCostTypes();
+   const { profile } = useAuth();
+ 
+@@ -259,13 +260,40 @@ export default function InboundEmailQueue() {
+                   </div>
+                 )}
+                 {selectedEmail.attachments?.length > 0 && (
+-                  <div className="flex justify-between text-sm">
+-                    <span className="text-muted-foreground">Anhänge:</span>
+-                    <span>{selectedEmail.attachments.map((a: any) => a.name).join(", ")}</span>
++                  <div className="space-y-1.5">
++                    <span className="text-sm text-muted-foreground">Anhänge:</span>
++                    <div className="space-y-1">
++                      {selectedEmail.attachments.map((a: any, i: number) => (
++                        <div key={i} className="flex items-center justify-between bg-background rounded px-2 py-1.5 border">
++                          <div className="flex items-center gap-2 min-w-0">
++                            <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
++                            <span className="text-sm truncate">{a.name || a.file_name || `Anhang ${i + 1}`}</span>
++                          </div>
++                          {a.path && (
++                            <Button
++                              variant="ghost"
++                              size="sm"
++                              className="shrink-0 h-7"
++                              onClick={() => downloadAttachment(a.path, a.name || `anhang-${i + 1}.pdf`)}
++                            >
++                              <Download className="h-3.5 w-3.5" />
++                            </Button>
++                          )}
++                        </div>
++                      ))}
++                    </div>
+                   </div>
+                 )}
+               </div>
+ 
++              {/* Email Body */}
++              {selectedEmail.body_text && (
++                <div className="rounded-lg border p-3 bg-muted/20 max-h-40 overflow-y-auto">
++                  <p className="text-xs font-medium text-muted-foreground mb-1">E-Mail-Inhalt:</p>
++                  <p className="text-sm whitespace-pre-wrap">{selectedEmail.body_text}</p>
++                </div>
++              )}
++
+               {selectedEmail.review_notes && (
+                 <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3">
+                   <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />

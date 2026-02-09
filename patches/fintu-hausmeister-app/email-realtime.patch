@@ -1,0 +1,66 @@
+diff --git a/src/hooks/useDocuments.ts b/src/hooks/useDocuments.ts
+index b0f924e..15469fe 100644
+--- a/src/hooks/useDocuments.ts
++++ b/src/hooks/useDocuments.ts
+@@ -1,3 +1,4 @@
++import { useEffect } from "react";
+ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+ import { supabase } from "@/integrations/supabase/client";
+ import { useAuth } from "@/contexts/AuthContext";
+@@ -264,3 +265,35 @@ export function useUserCompany() {
+     enabled: !!user,
+   });
+ }
++
++// Realtime subscription for live document and question updates
++export function useDocumentsRealtime() {
++  const { user } = useAuth();
++  const queryClient = useQueryClient();
++
++  useEffect(() => {
++    if (!user) return;
++
++    const channel = supabase
++      .channel("documents-realtime")
++      .on(
++        "postgres_changes",
++        { event: "*", schema: "public", table: "documents" },
++        () => {
++          queryClient.invalidateQueries({ queryKey: ["documents"] });
++        }
++      )
++      .on(
++        "postgres_changes",
++        { event: "*", schema: "public", table: "document_questions" },
++        () => {
++          queryClient.invalidateQueries({ queryKey: ["document-questions"] });
++        }
++      )
++      .subscribe();
++
++    return () => {
++      supabase.removeChannel(channel);
++    };
++  }, [user, queryClient]);
++}
+diff --git a/src/pages/DocumentsPage.tsx b/src/pages/DocumentsPage.tsx
+index 1e8b78c..cf6e88b 100644
+--- a/src/pages/DocumentsPage.tsx
++++ b/src/pages/DocumentsPage.tsx
+@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
+ import { EmailSetupCard } from "@/components/documents/EmailSetupCard";
+ import { DocumentList } from "@/components/documents/DocumentList";
+ import { QuestionsList } from "@/components/documents/QuestionsList";
+-import { useDocuments, useDocumentQuestions } from "@/hooks/useDocuments";
++import { useDocuments, useDocumentQuestions, useDocumentsRealtime } from "@/hooks/useDocuments";
+ import { cn } from "@/lib/utils";
+ 
+ const statusFilters = [
+@@ -20,6 +20,7 @@ const statusFilters = [
+ export default function DocumentsPage() {
+   const { data: documents = [], isLoading: docsLoading } = useDocuments();
+   const { data: questions = [], isLoading: questionsLoading } = useDocumentQuestions();
++  useDocumentsRealtime();
+   const [statusFilter, setStatusFilter] = useState<string>("all");
+ 
+   const openQuestionsCount = questions.length;

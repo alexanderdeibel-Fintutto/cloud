@@ -1,0 +1,141 @@
+diff --git a/src/components/receipts/EmailInboxTab.tsx b/src/components/receipts/EmailInboxTab.tsx
+index 0d28bf7..386834a 100644
+--- a/src/components/receipts/EmailInboxTab.tsx
++++ b/src/components/receipts/EmailInboxTab.tsx
+@@ -14,6 +14,7 @@ import {
+   XCircle,
+   BookOpen,
+   Trash2,
++  Download,
+ } from 'lucide-react';
+ import { Button } from '@/components/ui/button';
+ import { Input } from '@/components/ui/input';
+@@ -42,6 +43,7 @@ export function EmailInboxTab() {
+     toggleInboxActive,
+     bookEmailReceipt,
+     deleteEmailReceipt,
++    downloadAttachment,
+   } = useEmailInbox();
+ 
+   const [newSenderEmail, setNewSenderEmail] = useState('');
+@@ -247,6 +249,7 @@ export function EmailInboxTab() {
+                   receipt={receipt}
+                   onBook={() => bookEmailReceipt(receipt.id)}
+                   onDelete={() => deleteEmailReceipt(receipt.id)}
++                  onDownload={receipt.file_url ? () => downloadAttachment(receipt.file_url!, receipt.file_name || 'beleg.pdf') : undefined}
+                   formatCurrency={formatCurrency}
+                   formatDate={formatDate}
+                 />
+@@ -263,12 +266,14 @@ function EmailReceiptCard({
+   receipt,
+   onBook,
+   onDelete,
++  onDownload,
+   formatCurrency,
+   formatDate,
+ }: {
+   receipt: EmailReceipt;
+   onBook: () => void;
+   onDelete: () => void;
++  onDownload?: () => void;
+   formatCurrency: (v: number | null) => string;
+   formatDate: (v: string | null) => string;
+ }) {
+@@ -292,7 +297,17 @@ function EmailReceiptCard({
+           <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+             <span>Von: {receipt.sender_email}</span>
+             <span>{formatDate(receipt.received_at)}</span>
+-            {receipt.file_name && <span>{receipt.file_name}</span>}
++            {receipt.file_name && (
++              <span className="flex items-center gap-1">
++                <FileText className="h-3 w-3" />
++                {receipt.file_name}
++                {onDownload && (
++                  <button onClick={onDownload} className="ml-1 hover:text-primary transition-colors" title="Herunterladen">
++                    <Download className="h-3.5 w-3.5" />
++                  </button>
++                )}
++              </span>
++            )}
+           </div>
+           {receipt.vendor && (
+             <div className="flex items-center gap-4 text-sm flex-wrap">
+diff --git a/src/hooks/useEmailInbox.ts b/src/hooks/useEmailInbox.ts
+index 896d53b..cbb5490 100644
+--- a/src/hooks/useEmailInbox.ts
++++ b/src/hooks/useEmailInbox.ts
+@@ -90,6 +90,29 @@ export function useEmailInbox() {
+     fetchEmailReceipts();
+   }, [fetchInbox, fetchEmailReceipts]);
+ 
++  // Realtime subscription for live updates
++  useEffect(() => {
++    if (!currentCompany) return;
++
++    const channel = supabase
++      .channel('email-receipts-realtime')
++      .on(
++        'postgres_changes',
++        { event: '*', schema: 'public', table: 'email_receipts', filter: `company_id=eq.${currentCompany.id}` },
++        () => { fetchEmailReceipts(); }
++      )
++      .on(
++        'postgres_changes',
++        { event: '*', schema: 'public', table: 'email_inboxes', filter: `company_id=eq.${currentCompany.id}` },
++        () => { fetchInbox(); }
++      )
++      .subscribe();
++
++    return () => {
++      supabase.removeChannel(channel);
++    };
++  }, [currentCompany, fetchInbox, fetchEmailReceipts]);
++
+   const createInbox = async () => {
+     if (!currentCompany) return;
+ 
+@@ -266,6 +289,36 @@ export function useEmailInbox() {
+     }
+   };
+ 
++  const downloadAttachment = async (fileUrl: string, fileName: string) => {
++    try {
++      // If it's a storage path, generate signed URL
++      if (fileUrl && !fileUrl.startsWith('http')) {
++        const { data, error } = await supabase.storage
++          .from('email-attachments')
++          .createSignedUrl(fileUrl, 60);
++
++        if (error || !data?.signedUrl) {
++          toast.error('Anhang konnte nicht heruntergeladen werden');
++          return;
++        }
++
++        const a = document.createElement('a');
++        a.href = data.signedUrl;
++        a.download = fileName;
++        a.click();
++      } else if (fileUrl) {
++        // Direct URL
++        const a = document.createElement('a');
++        a.href = fileUrl;
++        a.download = fileName;
++        a.target = '_blank';
++        a.click();
++      }
++    } catch {
++      toast.error('Fehler beim Herunterladen');
++    }
++  };
++
+   return {
+     inbox,
+     emailReceipts,
+@@ -278,6 +331,7 @@ export function useEmailInbox() {
+     bookEmailReceipt,
+     resolveQuestion,
+     deleteEmailReceipt,
++    downloadAttachment,
+     refetch: () => {
+       fetchInbox();
+       fetchEmailReceipts();
