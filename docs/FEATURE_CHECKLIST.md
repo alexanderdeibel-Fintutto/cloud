@@ -106,6 +106,15 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **Bank-Abstimmung** - Auto-Matching, Konfidenzwertung, Vorschläge, Statusverwaltung
 - [x] **Anlagenverwaltung** - AfA-Berechnung, Abschreibungsmethoden (linear/degressiv/sofort), GWG-Erkennung
 
+### Erweiterte Systemfunktionen
+- [x] **Mehrsprachigkeit (i18n)** - Deutsch/Englisch mit LanguageContext, Browser-Erkennung
+- [x] **Multi-Currency** - Wechselkurse, Umrechnung, ECB-Rates, Kursverlauf, Kursgewinne/-verluste
+- [x] **Dokumenten-Archiv** - GoBD-konforme Archivierung, 6/10 Jahre Fristen, SHA-256 Hash-Verifizierung
+- [x] **KPI-Dashboard** - 18 Finanzkennzahlen (ROE, ROA, Liquidität, DSO/DPO), Trends, Alerts
+- [x] **Benutzer & Rollen** - RBAC mit 5 System-Rollen, granulare Berechtigungen pro Modul
+- [x] **API-Dokumentation** - Interaktive Swagger-ähnliche Referenz mit Beispielen
+- [x] **Bank Auto-Sync** - Zeitgesteuerte Synchronisierung (stündlich/täglich/wöchentlich)
+
 ---
 
 ## 🔧 API-Endpunkte Übersicht
