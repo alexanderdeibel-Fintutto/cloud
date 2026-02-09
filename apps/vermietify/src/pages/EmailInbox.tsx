@@ -118,6 +118,9 @@ export function EmailInbox() {
   const [loading, setLoading] = useState(true)
   const [expandedEmailId, setExpandedEmailId] = useState<string | null>(null)
   const [processingEmailId, setProcessingEmailId] = useState<string | null>(null)
+  const [bookingQuestionId, setBookingQuestionId] = useState<string | null>(null)
+  const [bookingCategory, setBookingCategory] = useState('')
+  const [bookingAmount, setBookingAmount] = useState('')
 
   const loadInbox = useCallback(async () => {
     if (!user) return
@@ -206,6 +209,29 @@ export function EmailInbox() {
     loadAll()
   }, [loadInbox, loadEmails, loadQuestions, loadSenders])
 
+  // Realtime subscription for live updates
+  useEffect(() => {
+    if (!user) return
+
+    const emailChannel = supabase
+      .channel('inbound-emails-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'inbound_emails', filter: `user_id=eq.${user.id}` },
+        () => { loadEmails() }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'booking_questions', filter: `user_id=eq.${user.id}` },
+        () => { loadQuestions() }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(emailChannel)
+    }
+  }, [user, loadEmails, loadQuestions])
+
   const handleCopyAddress = async () => {
     if (!inbox) return
     await navigator.clipboard.writeText(inbox.generated_address)
@@ -285,6 +311,59 @@ export function EmailInbox() {
 
     toast.success('Absenderadresse entfernt')
     loadSenders()
+  }
+
+  const handleOpenBooking = (q: BookingQuestion) => {
+    setBookingQuestionId(q.id)
+    setBookingCategory(q.suggested_category || '')
+    setBookingAmount(q.suggested_amount != null ? String(q.suggested_amount).replace('.', ',') : '')
+  }
+
+  const handleConfirmBooking = async () => {
+    if (!bookingQuestionId) return
+
+    const question = questions.find((q) => q.id === bookingQuestionId)
+    if (!question) return
+
+    const amount = bookingAmount ? parseFloat(bookingAmount.replace(',', '.')) : null
+    const notes = `Manuell gebucht: ${bookingCategory || 'Ohne Kategorie'}${amount ? ` - ${new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount)}` : ''}`
+
+    // Mark question resolved
+    const { error } = await supabase
+      .from('booking_questions')
+      .update({
+        is_resolved: true,
+        resolved_at: new Date().toISOString(),
+        resolution_notes: notes,
+      })
+      .eq('id', bookingQuestionId)
+
+    if (error) {
+      toast.error('Fehler beim Buchen')
+      return
+    }
+
+    // Mark the email as processed
+    if (question.email_id) {
+      await supabase.from('inbound_emails').update({
+        status: 'processed',
+        processed_at: new Date().toISOString(),
+        notes,
+      }).eq('id', question.email_id)
+    }
+
+    toast.success('Beleg erfolgreich gebucht')
+    setBookingQuestionId(null)
+    setBookingCategory('')
+    setBookingAmount('')
+    loadQuestions()
+    loadEmails()
+  }
+
+  const handleCancelBooking = () => {
+    setBookingQuestionId(null)
+    setBookingCategory('')
+    setBookingAmount('')
   }
 
   const handleResolveQuestion = async (questionId: string) => {
@@ -652,7 +731,7 @@ export function EmailInbox() {
                       <div className="mt-0.5 shrink-0">
                         <AlertCircle className="h-4 w-4 text-orange-500" />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium">{q.question}</p>
                         {q.suggested_category && (
                           <p className="text-sm text-muted-foreground mt-1">
@@ -674,16 +753,77 @@ export function EmailInbox() {
                         <p className="text-xs text-muted-foreground mt-1">
                           {formatDateTime(q.created_at)}
                         </p>
+
+                        {/* Inline Booking Form */}
+                        {bookingQuestionId === q.id && (
+                          <div className="mt-3 p-3 bg-muted/50 rounded-lg border space-y-3">
+                            <div>
+                              <Label htmlFor={`cat-${q.id}`} className="text-xs font-medium">Kategorie</Label>
+                              <select
+                                id={`cat-${q.id}`}
+                                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={bookingCategory}
+                                onChange={(e) => setBookingCategory(e.target.value)}
+                              >
+                                <option value="">Kategorie waehlen...</option>
+                                <option value="Nebenkosten">Nebenkosten</option>
+                                <option value="Versicherung">Versicherung</option>
+                                <option value="Reparatur">Reparatur</option>
+                                <option value="Steuern">Steuern</option>
+                                <option value="Verwaltung">Verwaltung</option>
+                                <option value="Energie">Energie</option>
+                                <option value="Wasser">Wasser</option>
+                                <option value="Muellentsorgung">Muellentsorgung</option>
+                                <option value="Grundstueck">Grundstueck</option>
+                                <option value="Rechtskosten">Rechtskosten</option>
+                                <option value="Sonstiges">Sonstiges</option>
+                              </select>
+                            </div>
+                            <div>
+                              <Label htmlFor={`amt-${q.id}`} className="text-xs font-medium">Betrag (EUR)</Label>
+                              <Input
+                                id={`amt-${q.id}`}
+                                type="text"
+                                placeholder="z.B. 123,45"
+                                value={bookingAmount}
+                                onChange={(e) => setBookingAmount(e.target.value)}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={handleConfirmBooking}>
+                                <Check className="mr-1 h-3.5 w-3.5" />
+                                Bestaetigen
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={handleCancelBooking}>
+                                <X className="mr-1 h-3.5 w-3.5" />
+                                Abbrechen
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleResolveQuestion(q.id)}
-                    >
-                      <Check className="mr-1 h-3.5 w-3.5" />
-                      Erledigt
-                    </Button>
+                    {bookingQuestionId !== q.id && (
+                      <div className="flex gap-2 shrink-0">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleOpenBooking(q)}
+                        >
+                          <FileText className="mr-1 h-3.5 w-3.5" />
+                          Buchen
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleResolveQuestion(q.id)}
+                        >
+                          <Check className="mr-1 h-3.5 w-3.5" />
+                          Erledigt
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
