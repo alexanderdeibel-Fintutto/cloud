@@ -68,6 +68,9 @@ const LernbereichPage = lazy(() => import('@/pages/LernbereichPage'))
 const MietspiegelRechner = lazy(() => import('@/pages/rechner/MietspiegelRechner'))
 const ErfolgsgeschichtenPage = lazy(() => import('@/pages/ErfolgsgeschichtenPage'))
 const SanktionsTracker = lazy(() => import('@/pages/SanktionsTracker'))
+const BescheidArchivPage = lazy(() => import('@/pages/BescheidArchivPage'))
+const KostenUebersichtPage = lazy(() => import('@/pages/KostenUebersichtPage'))
+const ErinnerungenPage = lazy(() => import('@/pages/ErinnerungenPage'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -157,6 +160,9 @@ function App() {
                 <Route path="lernen" element={<LernbereichPage />} />
                 <Route path="erfolgsgeschichten" element={<ErfolgsgeschichtenPage />} />
                 <Route path="sanktions-tracker" element={<SanktionsTracker />} />
+                <Route path="bescheid-archiv" element={<BescheidArchivPage />} />
+                <Route path="kosten" element={<KostenUebersichtPage />} />
+                <Route path="erinnerungen" element={<ErinnerungenPage />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

@@ -9,6 +9,8 @@ import {
   Calendar,
   Briefcase,
   AlertTriangle,
+  Archive,
+  Wallet,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -73,7 +75,26 @@ interface SanktionEntry {
   status: string;
 }
 
-type EreignisTyp = "widerspruch" | "rechner" | "notiz" | "dokument" | "termin" | "bewerbung" | "sanktion";
+interface BescheidEntry {
+  id: string;
+  titel: string;
+  typ: string;
+  datum: string;
+  behoerde: string;
+  status: string;
+  betrag?: number;
+}
+
+interface FinanzEintrag {
+  id: string;
+  typ: string;
+  bezeichnung: string;
+  betrag: number;
+  datum: string;
+  status: string;
+}
+
+type EreignisTyp = "widerspruch" | "rechner" | "notiz" | "dokument" | "termin" | "bewerbung" | "sanktion" | "bescheid" | "finanzen";
 
 interface ZeitstrahlEreignis {
   id: string;
@@ -145,6 +166,20 @@ const TYP_CONFIG: Record<
     dotFarbe: "bg-orange-500",
     bgFarbe: "bg-orange-50",
     borderFarbe: "border-orange-200 hover:border-orange-300",
+  },
+  bescheid: {
+    icon: Archive,
+    farbe: "text-rose-600",
+    dotFarbe: "bg-rose-500",
+    bgFarbe: "bg-rose-50",
+    borderFarbe: "border-rose-200 hover:border-rose-300",
+  },
+  finanzen: {
+    icon: Wallet,
+    farbe: "text-emerald-600",
+    dotFarbe: "bg-emerald-500",
+    bgFarbe: "bg-emerald-50",
+    borderFarbe: "border-emerald-200 hover:border-emerald-300",
   },
 };
 
@@ -301,6 +336,34 @@ function ladeEreignisse(): ZeitstrahlEreignis[] {
       typ: "sanktion",
       titel: `Sanktion: ${s.grund || "Unbekannt"}`,
       beschreibung: `${s.kuerzungProzent}% Kuerzung (${s.kuerzungBetrag} EUR) — ${s.status || "aktiv"}`,
+      datum,
+    });
+  });
+
+  // Bescheide
+  const bescheide = safeParse<BescheidEntry>("bescheidboxer_bescheide");
+  bescheide.forEach((b) => {
+    const datum = new Date(b.datum);
+    if (isNaN(datum.getTime())) return;
+    ereignisse.push({
+      id: `bescheid-${b.id}`,
+      typ: "bescheid",
+      titel: b.titel || "Bescheid",
+      beschreibung: `${b.behoerde || ""} — ${b.status || "neu"}${b.betrag ? ` (${b.betrag} EUR)` : ""}`,
+      datum,
+    });
+  });
+
+  // Finanzen
+  const finanzen = safeParse<FinanzEintrag>("bescheidboxer_finanzen");
+  finanzen.forEach((f) => {
+    const datum = new Date(f.datum);
+    if (isNaN(datum.getTime())) return;
+    ereignisse.push({
+      id: `finanzen-${f.id}`,
+      typ: "finanzen",
+      titel: f.bezeichnung || "Finanzeintrag",
+      beschreibung: `${f.typ} — ${f.betrag} EUR (${f.status})`,
       datum,
     });
   });

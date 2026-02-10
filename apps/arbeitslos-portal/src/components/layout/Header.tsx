@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor, Zap, StickyNote, FolderOpen, BookOpen, CheckSquare, BarChart3, Calendar, Briefcase, AlertTriangle, FolderKanban, Scale, GraduationCap } from 'lucide-react'
+import { Swords, MessageCircle, FileText, Users, Menu, X, CreditCard, ScanSearch, Calculator, ClipboardList, User, Sun, Moon, Monitor, Zap, StickyNote, FolderOpen, BookOpen, CheckSquare, BarChart3, Calendar, Briefcase, AlertTriangle, FolderKanban, Scale, GraduationCap, Archive, Wallet, Bell } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import FristAlarm from '@/components/FristAlarm'
@@ -43,6 +43,9 @@ const schnellzugriffItems = [
   { name: 'Notizen', href: '/notizen', icon: StickyNote },
   { name: 'Lernbereich', href: '/lernen', icon: GraduationCap },
   { name: 'Anwaltssuche', href: '/anwaltssuche', icon: Scale },
+  { name: 'Bescheid-Archiv', href: '/bescheid-archiv', icon: Archive },
+  { name: 'Kosten-Uebersicht', href: '/kosten', icon: Wallet },
+  { name: 'Erinnerungen', href: '/erinnerungen', icon: Bell },
   { name: 'Checklisten', href: '/checklisten', icon: CheckSquare },
   { name: 'Glossar', href: '/glossar', icon: BookOpen },
   { name: 'Notfall-Hilfe', href: '/notfall', icon: AlertTriangle },

@@ -21,6 +21,8 @@ const footerLinks = {
     { name: 'Lernbereich', href: '/lernen' },
     { name: 'Erfolgsgeschichten', href: '/erfolgsgeschichten' },
     { name: 'Sanktions-Tracker', href: '/sanktions-tracker' },
+    { name: 'Bescheid-Archiv', href: '/bescheid-archiv' },
+    { name: 'Erinnerungen', href: '/erinnerungen' },
   ],
   themen: [
     { name: 'Buergergeld (SGB II)', href: '/musterschreiben?kategorie=sgb2' },
@@ -41,6 +43,7 @@ const footerLinks = {
     { name: 'Bewerbungen', href: '/bewerbungen' },
     { name: 'Meine Faelle', href: '/faelle' },
     { name: 'Statistiken', href: '/statistiken' },
+    { name: 'Kosten-Uebersicht', href: '/kosten' },
     { name: 'Preise & Abos', href: '/preise' },
   ],
   oekosystem: [
