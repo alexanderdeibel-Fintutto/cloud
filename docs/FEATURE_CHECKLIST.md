@@ -115,6 +115,15 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **API-Dokumentation** - Interaktive Swagger-ähnliche Referenz mit Beispielen
 - [x] **Bank Auto-Sync** - Zeitgesteuerte Synchronisierung (stündlich/täglich/wöchentlich)
 
+### UX & Produktivität
+- [x] **Globale Suche** - Cmd+K Suche über alle Seiten und Funktionen
+- [x] **Tastaturkürzel** - Cmd+/ zeigt Übersicht aller Shortcuts
+- [x] **Schnellaktionen** - Quick-Access für Erstellen, Import, Export
+- [x] **Favoriten** - Seiten mit Stern bookmarken
+- [x] **Audit-Log** - Vollständige Aktivitätshistorie mit Filter und Export
+- [x] **Steuerkalender** - Alle deutschen Steuertermine (UStVA, LohnSt, GewSt, ESt)
+- [x] **Header-Toolbar** - Integrierte Suche, Aktionen, Sprache, Theme-Toggle
+
 ---
 
 ## 🔧 API-Endpunkte Übersicht
