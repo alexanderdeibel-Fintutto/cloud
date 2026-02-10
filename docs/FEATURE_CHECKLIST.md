@@ -124,6 +124,13 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **Steuerkalender** - Alle deutschen Steuertermine (UStVA, LohnSt, GewSt, ESt)
 - [x] **Header-Toolbar** - Integrierte Suche, Aktionen, Sprache, Theme-Toggle
 
+### Produktivität & Automatisierung
+- [x] **Batch-Operationen** - Massenaktionen (löschen, archivieren, exportieren, Status ändern)
+- [x] **Import-Wizard** - CSV/JSON Import mit Feld-Mapping und Validierung
+- [x] **Report-Scheduler** - Automatische Berichte (täglich/wöchentlich/monatlich) per E-Mail/Webhook
+- [x] **Rechnungsvorlagen** - PDF-Template Anpassung (Farben, Schriften, Layout, Texte)
+- [x] **Datenvalidierung** - Deutsche Buchhaltungsregeln (IBAN, USt-ID, Buchungsgleichgewicht)
+
 ---
 
 ## 🔧 API-Endpunkte Übersicht
