@@ -16,6 +16,7 @@ import {
   Info,
   GitCompare,
   Wallet,
+  MapPin,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -150,6 +151,16 @@ const calculators = [
     route: '/rechner/haushalt',
     color: 'text-violet-600',
     bgColor: 'bg-violet-50',
+  },
+  {
+    id: 'mietspiegel',
+    title: 'Mietspiegel-Rechner',
+    description:
+      'Ist deine Miete angemessen? Pruefe die KdU-Grenzen fuer deine Stadt nach § 22 SGB II',
+    icon: MapPin,
+    route: '/rechner/mietspiegel',
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-50',
   },
 ]
 

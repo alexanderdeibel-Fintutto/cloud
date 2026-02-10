@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Calendar,
   Briefcase,
+  AlertTriangle,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -63,7 +64,16 @@ interface BewerbungEntry {
   status: string;
 }
 
-type EreignisTyp = "widerspruch" | "rechner" | "notiz" | "dokument" | "termin" | "bewerbung";
+interface SanktionEntry {
+  id: string;
+  grund: string;
+  startDatum: string;
+  kuerzungProzent: number;
+  kuerzungBetrag: number;
+  status: string;
+}
+
+type EreignisTyp = "widerspruch" | "rechner" | "notiz" | "dokument" | "termin" | "bewerbung" | "sanktion";
 
 interface ZeitstrahlEreignis {
   id: string;
@@ -128,6 +138,13 @@ const TYP_CONFIG: Record<
     dotFarbe: "bg-cyan-500",
     bgFarbe: "bg-cyan-50",
     borderFarbe: "border-cyan-200 hover:border-cyan-300",
+  },
+  sanktion: {
+    icon: AlertTriangle,
+    farbe: "text-orange-600",
+    dotFarbe: "bg-orange-500",
+    bgFarbe: "bg-orange-50",
+    borderFarbe: "border-orange-200 hover:border-orange-300",
   },
 };
 
@@ -270,6 +287,20 @@ function ladeEreignisse(): ZeitstrahlEreignis[] {
       typ: "bewerbung",
       titel: `Bewerbung: ${b.firma || "Unbekannt"}`,
       beschreibung: `${b.position || ""}${b.status ? ` — ${b.status}` : ""}`,
+      datum,
+    });
+  });
+
+  // Sanktionen
+  const sanktionen = safeParse<SanktionEntry>("bescheidboxer_sanktionen");
+  sanktionen.forEach((s) => {
+    const datum = new Date(s.startDatum);
+    if (isNaN(datum.getTime())) return;
+    ereignisse.push({
+      id: `sanktion-${s.id}`,
+      typ: "sanktion",
+      titel: `Sanktion: ${s.grund || "Unbekannt"}`,
+      beschreibung: `${s.kuerzungProzent}% Kuerzung (${s.kuerzungBetrag} EUR) — ${s.status || "aktiv"}`,
       datum,
     });
   });

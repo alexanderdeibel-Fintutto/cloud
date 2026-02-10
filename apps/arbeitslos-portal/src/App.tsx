@@ -65,6 +65,9 @@ const AnbieterVergleich = lazy(() => import('@/pages/AnbieterVergleich'))
 const MeineFaellePage = lazy(() => import('@/pages/MeineFaellePage'))
 const AnwaltsSuche = lazy(() => import('@/pages/AnwaltsSuche'))
 const LernbereichPage = lazy(() => import('@/pages/LernbereichPage'))
+const MietspiegelRechner = lazy(() => import('@/pages/rechner/MietspiegelRechner'))
+const ErfolgsgeschichtenPage = lazy(() => import('@/pages/ErfolgsgeschichtenPage'))
+const SanktionsTracker = lazy(() => import('@/pages/SanktionsTracker'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -119,6 +122,7 @@ function App() {
                 <Route path="rechner/vergleich" element={<VergleichsRechner />} />
                 <Route path="rechner/einkommen" element={<EinkommenRechner />} />
                 <Route path="rechner/haushalt" element={<HaushaltsRechner />} />
+                <Route path="rechner/mietspiegel" element={<MietspiegelRechner />} />
 
                 {/* Widerspruch-Vorlagen */}
                 <Route path="widerspruch-vorlagen" element={<WiderspruchVorlagen />} />
@@ -151,6 +155,8 @@ function App() {
                 <Route path="faelle" element={<MeineFaellePage />} />
                 <Route path="anwaltssuche" element={<AnwaltsSuche />} />
                 <Route path="lernen" element={<LernbereichPage />} />
+                <Route path="erfolgsgeschichten" element={<ErfolgsgeschichtenPage />} />
+                <Route path="sanktions-tracker" element={<SanktionsTracker />} />
 
                 {/* Auth */}
                 <Route path="login" element={<LoginPage />} />

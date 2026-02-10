@@ -19,6 +19,8 @@ const footerLinks = {
     { name: 'Anbieter-Vergleich', href: '/anbieter-vergleich' },
     { name: 'Anwaltssuche', href: '/anwaltssuche' },
     { name: 'Lernbereich', href: '/lernen' },
+    { name: 'Erfolgsgeschichten', href: '/erfolgsgeschichten' },
+    { name: 'Sanktions-Tracker', href: '/sanktions-tracker' },
   ],
   themen: [
     { name: 'Buergergeld (SGB II)', href: '/musterschreiben?kategorie=sgb2' },
