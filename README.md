@@ -70,6 +70,7 @@ fintutto-ecosystem/
 
 - [Inventar Komplett](./INVENTAR_KOMPLETT.md) - Vollständige Bestandsaufnahme aller 39 Repos
 - [6-App-Architektur](./ARCHITEKTUR_6_APPS.md) - Konsolidierungsplan auf 6 Apps
+- [Vercel Env Guide](./VERCEL_ENV_GUIDE.md) - Environment Variables Konfiguration
 - [Konsolidierungsplan](./KONSOLIDIERUNGSPLAN_VERMIETIFY.md)
 - [Gap Analyse](./GAP_ANALYSE_VERMIETIFY.md)
 - [Lovable Prompts](./LOVABLE_PROMPTS_KOMPLETT.md)

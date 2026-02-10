@@ -1,6 +1,6 @@
 # Fintutto Ecosystem - Vollständiges Inventar & Konsolidierungsplan
 
-*Stand: 09.02.2026*
+*Stand: 10.02.2026 (aktualisiert mit neuen Repo-Namen)*
 
 ---
 
@@ -19,57 +19,75 @@
 
 ## 1. DIE 5 HAUPT-APPS (Kern des Ökosystems)
 
-### 1.1 Firma/Website: `fintutto-your-financial-compass`
+### 1.1 Firma/Website: `fintutto` *(ehem. fintutto-your-financial-compass)*
 | Eigenschaft | Wert |
 |-------------|------|
 | **Zweck** | Fintutto Firmen-Website / Landing Page |
 | **GitHub** | https://github.com/alexanderdeibel-Fintutto/fintutto-your-financial-compass |
+| **Vercel** | fintutto.vercel.app |
 | **Plattform** | Lovable |
-| **Status** | Optisch finalisiert |
-| **Letztes Update** | 08.02.2026 |
+| **Status** | Optisch finalisiert, auf Vercel deployed |
+| **Letztes Update** | 10.02.2026 |
 | **Lokale Kopie?** | NEIN - nur in Lovable/GitHub |
 
-### 1.2 Vermietify (Vermieter-Plattform): `vermieter-freude`
+### 1.2 Vermietify (Vermieter-Plattform): `vermietify` *(ehem. vermieter-freude)*
 | Eigenschaft | Wert |
 |-------------|------|
 | **Zweck** | Haupt-Plattform für Vermieter (Immobilienverwaltung) |
 | **GitHub** | https://github.com/alexanderdeibel-Fintutto/vermieter-freude |
+| **Vercel** | vermietify.vercel.app |
 | **Plattform** | Lovable |
 | **Status** | Optisch finalisiert, funktional ~3% (16 Seiten von 631 geplant) |
-| **Letztes Update** | 09.02.2026 |
+| **Letztes Update** | 10.02.2026 |
 | **Lokale Kopie?** | JA - aber veraltet → `apps/vermietify` (andere Version!) |
 
 > **PROBLEM:** Vermietify existiert in 3 verschiedenen Versionen (siehe Abschnitt 4)
 
-### 1.3 Mieter-App: `wohn-held`
+### 1.3 Mieter-App: `mieter` *(ehem. wohn-held)*
 | Eigenschaft | Wert |
 |-------------|------|
 | **Zweck** | Portal für Mieter (Mangel melden, Zähler ablesen, Dokumente, Chat) |
-| **GitHub** | https://github.com/alexanderdeibel-Fintutto/wohn-held |
+| **GitHub** | https://github.com/alexanderdeibel-Fintutto/mieter |
+| **Vercel** | mieter-kw8d.vercel.app |
 | **Plattform** | Lovable |
-| **Status** | Optisch finalisiert |
-| **Letztes Update** | 08.02.2026 |
+| **Status** | Optisch finalisiert, auf Vercel deployed |
+| **Letztes Update** | 10.02.2026 |
 | **Lokale Kopie?** | NEIN - nur in Lovable/GitHub |
 
-### 1.4 Hausmeister-App: `fintu-hausmeister-app`
+### 1.4 Hausmeister-App: `hausmeisterPro` *(ehem. fintu-hausmeister-app)*
 | Eigenschaft | Wert |
 |-------------|------|
 | **Zweck** | App für Hausmeister (Aufgaben, Belege, Chat mit Vermieter) |
-| **GitHub** | https://github.com/alexanderdeibel-Fintutto/fintu-hausmeister-app |
+| **GitHub** | https://github.com/alexanderdeibel-Fintutto/hausmeisterPro |
+| **Vercel** | hausmeister-pro.vercel.app |
 | **Plattform** | Lovable |
-| **Status** | Optisch finalisiert |
-| **Letztes Update** | 08.02.2026 |
+| **Status** | Optisch finalisiert, auf Vercel deployed |
+| **Letztes Update** | 10.02.2026 |
 | **Lokale Kopie?** | NEIN - nur in Lovable/GitHub |
 
-### 1.5 Zähler-App: `leserally-all`
+### 1.5 Zähler-App: `ablesung` *(ehem. leserally-all)*
 | Eigenschaft | Wert |
 |-------------|------|
 | **Zweck** | Zählerstand-Erfassung (Strom, Gas, Wasser, Heizung) |
-| **GitHub** | https://github.com/alexanderdeibel-Fintutto/leserally-all |
+| **GitHub** | https://github.com/alexanderdeibel-Fintutto/ablesung |
+| **Vercel** | ablesung.vercel.app |
 | **Plattform** | Lovable |
-| **Status** | Optisch finalisiert |
-| **Letztes Update** | 08.02.2026 |
+| **Status** | Optisch finalisiert, auf Vercel deployed |
+| **Letztes Update** | 10.02.2026 |
 | **Lokale Kopie?** | NEIN - nur in Lovable/GitHub |
+
+### 1.6 Unified Portal: `fintutto-portal` *(NEU - im Monorepo)*
+| Eigenschaft | Wert |
+|-------------|------|
+| **Zweck** | Alle Rechner (7) + Checker (10) + Formulare (5) in EINER App |
+| **GitHub** | fintutto-ecosystem/apps/fintutto-portal |
+| **Vercel** | portal.fintutto.cloud (geplant) |
+| **Plattform** | Lokal/Claude |
+| **Status** | Gebaut, 22+ Tools, noch nicht deployed |
+| **Letztes Update** | 10.02.2026 |
+| **Lokale Kopie?** | JA - apps/fintutto-portal |
+
+> **Ersetzt:** apps/vermieter-portal + Root src/ Checker + Einzelrechner-Lovable-Apps
 
 ---
 
@@ -81,7 +99,7 @@ Alle Rechner sind eigenständige Lovable-Apps mit eigenem GitHub-Repo.
 |---|------|-------------|----------|--------|
 | 1 | Kaufnebenkostenrechner | `your-property-costs` | Kaufnebenkosten berechnen | Fertig |
 | 2 | Mietrenditerechner | `fintutto-rent-wizard` | Rendite einer Immobilie | Fertig |
-| 3 | BK-Rechner | `betriebskosten-helfer` | Betriebskostenabrechnung | Fertig |
+| 3 | BK-Rechner | `betriebskosten` *(ehem. betriebskosten-helfer)* | Betriebskostenabrechnung | Fertig |
 | 4 | Miet-Check | `miet-check-pro-458b8dcf` | Mietpreisbremse prüfen | Fertig |
 | 5 | Eigenkapitalrechner | `property-equity-partner` | Eigenkapital berechnen | Fertig |
 | 6 | Kautionsrechner | `kaution-klar` | Kaution berechnen | Fertig |
@@ -259,13 +277,34 @@ Version 3: 5 Einzel-Checker-Repos (Lovable)
 
 ---
 
-## 10. VERCEL DEPLOYMENTS
+## 10. VERCEL DEPLOYMENTS (Stand 10.02.2026)
 
-| Deployment | Quelle | Status |
-|-----------|--------|--------|
-| `vermieter-portal-masz5xod2-alexander-deibels-projects.vercel.app` | apps/vermieter-portal | Deployed, falsches Design |
-| Vermietify (lokal) | apps/vermietify | vercel.json vorhanden, Status unklar |
-| Root Mieter-Checker | Root src/ | vercel.json vorhanden, Status unklar |
+### Aktive Vercel-Projekte:
+| Vercel-Projekt | Domain | GitHub Repo | Status |
+|----------------|--------|-------------|--------|
+| **vermietify** | vermietify.vercel.app | `vermieter-freude` | Deployed |
+| **hausmeister-pro** | hausmeister-pro.vercel.app | `hausmeisterPro` | Deployed |
+| **ablesung** | ablesung.vercel.app | `ablesung` | Deployed |
+| **mieter** | mieter-kw8d.vercel.app | `mieter` | Deployed |
+| **fintutto** | fintutto.vercel.app | `fintutto-your-financial-compass` | Deployed |
+| **betriebskosten** | betriebskosten-helfer.vercel.app | `betriebskosten` | Deployed |
+| **fintutto-admin-hub** | fintutto-admin-hub.vercel.app | `fintutto-admin-hub` | Deployed |
+| **portal-vermieter** | vermieterportal.fintutto.cloud | Portal-V Repo | Deployed |
+| **portal-mieter** | mieterportal.fintutto.cloud | Portal-M Repo | Deployed |
+| **fintutto-portal** (NEU) | portal.fintutto.cloud (geplant) | `fintutto-ecosystem` | Noch nicht deployed |
+
+### Zu löschende Vercel-Projekte:
+| Vercel-Projekt | Grund |
+|----------------|-------|
+| `ft-nebenkostenabrechnung` | Legacy JavaScript |
+| `ft-nebenkostenabrechnung-vrju` | Duplikat |
+| `ft-formulare-alle` | Legacy JavaScript |
+| `x_mieter` | Duplikat von "mieter" |
+| `command-center` | In admin-hub konsolidieren |
+
+### Team-Level Environment Variables:
+Alle Apps erben automatisch von `vercel.com/fintutto/~/settings/environment-variables`.
+Siehe [VERCEL_ENV_GUIDE.md](./VERCEL_ENV_GUIDE.md) für Details.
 
 ---
 
@@ -335,29 +374,29 @@ Version 3: 5 Einzel-Checker-Repos (Lovable)
 
 ## 14. REPO-ÜBERSICHT KOMPLETT (alle 39)
 
-### Aktiv & Behalten (20 Repos)
-| # | Repo | Typ | Plattform |
-|---|------|-----|-----------|
-| 1 | `fintutto-ecosystem` | Monorepo | Lokal/GitHub |
-| 2 | `fintutto-your-financial-compass` | Firma/Website | Lovable |
-| 3 | `vermieter-freude` | Vermietify (Haupt) | Lovable |
-| 4 | `wohn-held` | Mieter-Portal | Lovable |
-| 5 | `fintu-hausmeister-app` | Hausmeister | Lovable |
-| 6 | `leserally-all` | Zähler | Lovable |
-| 7 | `your-property-costs` | Kaufnebenkosten-Rechner | Lovable |
-| 8 | `fintutto-rent-wizard` | Mietrendite-Rechner | Lovable |
-| 9 | `betriebskosten-helfer` | BK-Rechner | Lovable |
-| 10 | `miet-check-pro-458b8dcf` | Miet-Check-Rechner | Lovable |
-| 11 | `property-equity-partner` | Eigenkapital-Rechner | Lovable |
-| 12 | `kaution-klar` | Kautions-Rechner | Lovable |
-| 13 | `mietenplus-rechner` | Mieterhöhungs-Rechner | Lovable |
-| 14 | `grundsteuer-easy` | Grundsteuer-Rechner | Lovable |
-| 15 | `fintutto-miet-recht` | Mietrecht-Checker | Lovable |
-| 16 | `schoenheit-fintutto` | Schönheitsreparatur-Checker | Lovable |
-| 17 | `k-ndigungs-check-pro` | Kündigungs-Checker | Lovable |
-| 18 | `check-mieterhoehung2-fintutto` | Mieterhöhungs-Checker | Lovable |
-| 19 | `fintutto-admin-hub` | Admin-Dashboard | Lovable |
-| 20 | `Google-API-f-r-Fintutto` | Google API | Sonstig |
+### Aktiv & Behalten (20 Repos) - *Aktualisiert mit neuen Namen*
+| # | Repo (aktuell) | Ehem. Name | Typ | Plattform |
+|---|------|------------|-----|-----------|
+| 1 | `fintutto-ecosystem` | - | Monorepo (inkl. fintutto-portal) | Lokal/GitHub |
+| 2 | `fintutto-your-financial-compass` | - | Firma/Website | Lovable |
+| 3 | `vermieter-freude` → **vermietify** | vermieter-freude | Vermietify (Haupt) | Lovable |
+| 4 | `mieter` | wohn-held | Mieter-Portal | Lovable |
+| 5 | `hausmeisterPro` | fintu-hausmeister-app | Hausmeister | Lovable |
+| 6 | `ablesung` | leserally-all | Zähler | Lovable |
+| 7 | `your-property-costs` | - | Kaufnebenkosten-Rechner | Lovable |
+| 8 | `fintutto-rent-wizard` | - | Mietrendite-Rechner | Lovable |
+| 9 | `betriebskosten` | betriebskosten-helfer | BK-Rechner | Lovable |
+| 10 | `miet-check-pro-458b8dcf` | - | Miet-Check-Rechner | Lovable |
+| 11 | `property-equity-partner` | - | Eigenkapital-Rechner | Lovable |
+| 12 | `kaution-klar` | - | Kautions-Rechner | Lovable |
+| 13 | `mietenplus-rechner` | - | Mieterhöhungs-Rechner | Lovable |
+| 14 | `grundsteuer-easy` | - | Grundsteuer-Rechner | Lovable |
+| 15 | `fintutto-miet-recht` | - | Mietrecht-Checker | Lovable |
+| 16 | `schoenheit-fintutto` | - | Schönheitsreparatur-Checker | Lovable |
+| 17 | `k-ndigungs-check-pro` | - | Kündigungs-Checker | Lovable |
+| 18 | `check-mieterhoehung2-fintutto` | - | Mieterhöhungs-Checker | Lovable |
+| 19 | `fintutto-admin-hub` | - | Admin-Dashboard | Lovable |
+| 20 | `Google-API-f-r-Fintutto` | - | Google API | Sonstig |
 
 ### Referenz behalten, als archived markieren (9 Legacy)
 | # | Repo | Zweck |
@@ -394,12 +433,22 @@ Version 3: 5 Einzel-Checker-Repos (Lovable)
 
 ## 15. NÄCHSTE KONKRETE SCHRITTE
 
-1. **Sofort:** Dieses Inventar reviewen und Entscheidungen zu Abschnitt 13 treffen
-2. **Diese Woche:** Duplikate archivieren, Legacy-Repos als archived markieren
-3. **Dann:** Vermieter-Portal-Design fixen (sieht wie Mieterportal aus)
-4. **Dann:** Rechner & Formulare aus apps/vermieter-portal in vermieter-freude (Lovable) übertragen
-5. **Dann:** Checker-Logik aus Root src/ in wohn-held (Lovable) übertragen
-6. **Dann:** Phase-weise Konsolidierung gemäß dem existierenden KONSOLIDIERUNGSPLAN_VERMIETIFY.md
+### Erledigt (10.02.2026):
+- [x] Vollständiges Inventar erstellt
+- [x] 6-App-Architektur definiert (siehe ARCHITEKTUR_6_APPS.md)
+- [x] Unified fintutto-portal gebaut (7 Rechner + 10 Checker + 5 Formulare)
+- [x] Vercel Environment Guide erstellt (siehe VERCEL_ENV_GUIDE.md)
+- [x] GitHub Repos umbenannt (vermietify, mieter, hausmeisterPro, ablesung, betriebskosten)
+- [x] Alle Lovable-Apps auf Vercel deployed
+
+### Nächste Schritte:
+1. **Sofort:** `VITE_SUPABASE_URL` und `VITE_SUPABASE_ANON_KEY` als Vercel Team-Variablen setzen
+2. **Sofort:** 5 Legacy-Vercel-Projekte löschen (siehe Abschnitt 10)
+3. **Diese Woche:** fintutto-portal auf Vercel deployen (portal.fintutto.cloud)
+4. **Diese Woche:** 8 Duplikat-Repos auf GitHub archivieren
+5. **Dann:** Formulare im Portal ausbauen (aktuell Stubs)
+6. **Dann:** portal-vermieter + portal-mieter in fintutto-portal konsolidieren
+7. **Dann:** Phase-weise Konsolidierung gemäß KONSOLIDIERUNGSPLAN_VERMIETIFY.md
 
 ---
 
