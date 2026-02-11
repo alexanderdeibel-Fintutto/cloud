@@ -131,6 +131,13 @@ Diese Features wurden im Lovable Frontend implementiert, basierend auf den berei
 - [x] **Rechnungsvorlagen** - PDF-Template Anpassung (Farben, Schriften, Layout, Texte)
 - [x] **Datenvalidierung** - Deutsche Buchhaltungsregeln (IBAN, USt-ID, Buchungsgleichgewicht)
 
+### Buchhaltungs-Workflows
+- [x] **Bankregeln** - Automatische Kategorisierung von Transaktionen mit Bedingungen und Aktionen
+- [x] **Buchungsvorlagen** - Wiederverwendbare Kontierungsvorlagen für häufige Buchungen
+- [x] **Eingangsrechnungen** - Lieferantenrechnungsverwaltung mit Zahlungsverfolgung
+- [x] **Jahresabschluss** - Strukturierter Workflow mit 34 Aufgaben und Checkliste
+- [x] **Zahlungstracking** - Zahlungseingänge/-ausgänge, Mahnungen, Ratenzahlungspläne
+
 ---
 
 ## 🔧 API-Endpunkte Übersicht
