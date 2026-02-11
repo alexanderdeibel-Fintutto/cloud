@@ -66,11 +66,13 @@ async function handleSendVerification(req: VercelRequest, res: VercelResponse) {
 
   const verifyUrl = `${process.env.APP_URL || 'https://vermietify.fintutto.cloud'}/api/verify-sender?token=${verificationToken}&id=${sender.id}`
 
-  // Send verification email via SendGrid
+  // Send verification email via SendGrid or Brevo
   const sendgridApiKey = process.env.SENDGRID_API_KEY
-  if (!sendgridApiKey) {
+  const brevoApiKey = process.env.BREVO_API_KEY
+
+  if (!sendgridApiKey && !brevoApiKey) {
     // In development: auto-verify
-    console.log('No SENDGRID_API_KEY - auto-verifying sender in dev mode')
+    console.log('No SENDGRID_API_KEY or BREVO_API_KEY - auto-verifying sender in dev mode')
     await supabase
       .from('verified_senders')
       .update({ is_verified: true, verified_at: new Date().toISOString() })
@@ -79,47 +81,75 @@ async function handleSendVerification(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ status: 'verified', dev_mode: true })
   }
 
-  const emailPayload = {
-    personalizations: [{ to: [{ email: sender.email }] }],
-    from: { email: 'noreply@vermietify.de', name: 'Vermietify' },
-    subject: 'Vermietify - Absenderadresse bestätigen',
-    content: [
-      {
-        type: 'text/html',
-        value: `
+  const htmlContent = `
 <!DOCTYPE html>
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="text-align: center; margin-bottom: 30px;">
     <h1 style="color: #2563eb; margin: 0;">Vermietify</h1>
   </div>
-  <h2>Absenderadresse bestätigen</h2>
+  <h2>Absenderadresse best&auml;tigen</h2>
   <p>Sie haben die E-Mail-Adresse <strong>${sender.email}</strong> als verifizierte Absenderadresse in Vermietify hinterlegt.</p>
-  <p>Um Belege von dieser Adresse an Ihren persönlichen Posteingang senden zu können, bestätigen Sie bitte diese Adresse:</p>
+  <p>Um Belege von dieser Adresse an Ihren pers&ouml;nlichen Posteingang senden zu k&ouml;nnen, best&auml;tigen Sie bitte diese Adresse:</p>
   <div style="text-align: center; margin: 30px 0;">
-    <a href="${verifyUrl}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Adresse bestätigen</a>
+    <a href="${verifyUrl}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Adresse best&auml;tigen</a>
   </div>
-  <p style="color: #6b7280; font-size: 14px;">Wenn Sie diese Aktion nicht angefordert haben, können Sie diese E-Mail ignorieren.</p>
+  <p style="color: #6b7280; font-size: 14px;">Wenn Sie diese Aktion nicht angefordert haben, k&ouml;nnen Sie diese E-Mail ignorieren.</p>
   <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
   <p style="color: #9ca3af; font-size: 12px; text-align: center;">Vermietify - Immobilienverwaltung einfach gemacht</p>
 </body>
-</html>`,
-      },
-    ],
-  }
+</html>`
 
   try {
-    const sgResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${sendgridApiKey}`,
-      },
-      body: JSON.stringify(emailPayload),
-    })
+    let emailSent = false
 
-    if (!sgResponse.ok) {
-      console.error('SendGrid error:', sgResponse.status, await sgResponse.text())
+    // Try Brevo first (user already has BREVO_API_KEY)
+    if (brevoApiKey) {
+      const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': brevoApiKey,
+        },
+        body: JSON.stringify({
+          sender: { email: 'noreply@vermietify.de', name: 'Vermietify' },
+          to: [{ email: sender.email }],
+          subject: 'Vermietify - Absenderadresse bestaetigen',
+          htmlContent,
+        }),
+      })
+
+      if (brevoResponse.ok) {
+        emailSent = true
+      } else {
+        console.error('Brevo error:', brevoResponse.status, await brevoResponse.text())
+      }
+    }
+
+    // Fallback to SendGrid
+    if (!emailSent && sendgridApiKey) {
+      const sgResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sendgridApiKey}`,
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: sender.email }] }],
+          from: { email: 'noreply@vermietify.de', name: 'Vermietify' },
+          subject: 'Vermietify - Absenderadresse bestaetigen',
+          content: [{ type: 'text/html', value: htmlContent }],
+        }),
+      })
+
+      if (sgResponse.ok) {
+        emailSent = true
+      } else {
+        console.error('SendGrid error:', sgResponse.status, await sgResponse.text())
+      }
+    }
+
+    if (!emailSent) {
       return res.status(500).json({ error: 'Failed to send verification email' })
     }
 
