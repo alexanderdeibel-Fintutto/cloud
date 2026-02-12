@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client'
-import type { User as SupabaseUser, Session } from '@supabase/supabase-js'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface User {
   id: string
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -173,13 +173,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (data.user) {
-      // Create profile
-      await supabase.from('profiles').upsert({
+      // Create profile (ignore if already exists - trigger handles it)
+      await supabase.from('profiles').insert({
         id: data.user.id,
         email: data.user.email,
         full_name: name,
         subscription_tier: 'free'
-      })
+      } as any)
 
       setUser(toUser(data.user, { full_name: name }))
       setIsLoginModalOpen(false)

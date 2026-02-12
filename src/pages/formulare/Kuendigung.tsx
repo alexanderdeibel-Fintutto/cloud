@@ -75,20 +75,23 @@ export default function KuendigungFormularPage() {
   React.useEffect(() => {
     const id = searchParams.get('id')
     if (id && user) {
-      const doc = getDocument(id, user.id)
-      if (doc?.data) {
-        const data = doc.data
-        if (data.kuendigender) setKuendigender(data.kuendigender)
-        if (data.kuendigungsart) setKuendigungsart(data.kuendigungsart)
-        if (data.absender) setAbsender({ ...EMPTY_PERSON, ...data.absender })
-        if (data.absenderAdresse) setAbsenderAdresse({ ...EMPTY_ADDRESS, ...data.absenderAdresse })
-        if (data.empfaenger) setEmpfaenger({ ...EMPTY_PERSON, ...data.empfaenger })
-        if (data.empfaengerAdresse) setEmpfaengerAdresse({ ...EMPTY_ADDRESS, ...data.empfaengerAdresse })
-        if (data.mietobjektAdresse) setMietobjektAdresse({ ...EMPTY_ADDRESS, ...data.mietobjektAdresse })
-        if (data.mietbeginn) setMietbeginn(data.mietbeginn)
-        if (data.kuendigungsgrund) setKuendigungsgrund(data.kuendigungsgrund)
-        if (data.unterschrift) setUnterschrift({ ...EMPTY_SIGNATURE, ...data.unterschrift })
+      const loadDocument = async () => {
+        const doc = await getDocument(id, user.id)
+        if (doc?.data) {
+          const data = doc.data
+          if (data.kuendigender) setKuendigender(data.kuendigender)
+          if (data.kuendigungsart) setKuendigungsart(data.kuendigungsart)
+          if (data.absender) setAbsender({ ...EMPTY_PERSON, ...data.absender })
+          if (data.absenderAdresse) setAbsenderAdresse({ ...EMPTY_ADDRESS, ...data.absenderAdresse })
+          if (data.empfaenger) setEmpfaenger({ ...EMPTY_PERSON, ...data.empfaenger })
+          if (data.empfaengerAdresse) setEmpfaengerAdresse({ ...EMPTY_ADDRESS, ...data.empfaengerAdresse })
+          if (data.mietobjektAdresse) setMietobjektAdresse({ ...EMPTY_ADDRESS, ...data.mietobjektAdresse })
+          if (data.mietbeginn) setMietbeginn(data.mietbeginn)
+          if (data.kuendigungsgrund) setKuendigungsgrund(data.kuendigungsgrund)
+          if (data.unterschrift) setUnterschrift({ ...EMPTY_SIGNATURE, ...data.unterschrift })
+        }
       }
+      loadDocument()
     }
   }, [searchParams, user])
 

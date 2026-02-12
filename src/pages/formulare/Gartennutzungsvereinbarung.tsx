@@ -99,10 +99,13 @@ export default function GartennutzungsvereinbarungPage() {
   React.useEffect(() => {
     const id = searchParams.get('id')
     if (id && user) {
-      const doc = getDocument(id, user.id)
-      if (doc?.data) {
-        setFormData({ ...INITIAL_DATA, ...doc.data })
+      const loadDocument = async () => {
+        const doc = await getDocument(id, user.id)
+        if (doc?.data) {
+          setFormData({ ...INITIAL_DATA, ...doc.data })
+        }
       }
+      loadDocument()
     }
   }, [searchParams, user])
 

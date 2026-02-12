@@ -122,24 +122,33 @@ export default function UebergabeprotokollPage() {
   React.useEffect(() => {
     const id = searchParams.get('id')
     if (id && user) {
-      const doc = getDocument(id, user.id)
-      if (doc?.data) {
-        setFormData({ ...INITIAL_DATA, ...doc.data })
-        return // Don't load draft if editing existing document
+      const loadDocument = async () => {
+        const doc = await getDocument(id, user.id)
+        if (doc?.data) {
+          setFormData({ ...INITIAL_DATA, ...doc.data })
+          return // Don't load draft if editing existing document
+        }
+        loadDraft()
       }
+      loadDocument()
+    } else {
+      loadDraft()
     }
-    // Load draft only if not editing existing document
-    const draft = localStorage.getItem('uebergabeprotokoll-draft')
-    if (draft) {
-      try {
-        const parsed = JSON.parse(draft)
-        setFormData({ ...INITIAL_DATA, ...parsed })
-        toast({
-          title: "Entwurf geladen",
-          description: "Ihr gespeicherter Entwurf wurde wiederhergestellt.",
-        })
-      } catch (error) {
-        console.error('Could not load draft:', error)
+
+    function loadDraft() {
+      // Load draft only if not editing existing document
+      const draft = localStorage.getItem('uebergabeprotokoll-draft')
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft)
+          setFormData({ ...INITIAL_DATA, ...parsed })
+          toast({
+            title: "Entwurf geladen",
+            description: "Ihr gespeicherter Entwurf wurde wiederhergestellt.",
+          })
+        } catch (error) {
+          console.error('Could not load draft:', error)
+        }
       }
     }
   }, [searchParams, user])

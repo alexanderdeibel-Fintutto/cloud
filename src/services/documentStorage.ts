@@ -10,6 +10,18 @@ export interface SavedDocument {
   userId: string
 }
 
+// Database row type for user_documents
+interface UserDocumentRow {
+  id: string
+  user_id: string
+  app_id: string
+  doc_type: string
+  title: string
+  data: any
+  created_at: string
+  updated_at: string
+}
+
 const STORAGE_KEY = 'mietrecht_documents'
 const APP_ID = import.meta.env.VITE_APP_ID || 'ft-formulare'
 
@@ -20,12 +32,12 @@ export async function getDocuments(userId: string): Promise<SavedDocument[]> {
   }
 
   try {
-    const { data, error } = await supabase
-      .from('user_documents')
+    const { data, error } = await (supabase
+      .from('user_documents') as any)
       .select('*')
       .eq('user_id', userId)
       .eq('app_id', APP_ID)
-      .order('updated_at', { ascending: false })
+      .order('updated_at', { ascending: false }) as { data: UserDocumentRow[] | null; error: any }
 
     if (error) {
       console.error('Error loading documents from Supabase:', error)
@@ -54,12 +66,12 @@ export async function getDocument(id: string, userId: string): Promise<SavedDocu
   }
 
   try {
-    const { data, error } = await supabase
-      .from('user_documents')
+    const { data, error } = await (supabase
+      .from('user_documents') as any)
       .select('*')
       .eq('id', id)
       .eq('user_id', userId)
-      .single()
+      .single() as { data: UserDocumentRow | null; error: any }
 
     if (error || !data) {
       return getLocalDocument(id, userId)
@@ -97,8 +109,8 @@ export async function saveDocument(
   try {
     if (existingId) {
       // Update existing document
-      const { data: updated, error } = await supabase
-        .from('user_documents')
+      const { data: updated, error } = await (supabase
+        .from('user_documents') as any)
         .update({
           title,
           data,
@@ -107,9 +119,9 @@ export async function saveDocument(
         .eq('id', existingId)
         .eq('user_id', userId)
         .select()
-        .single()
+        .single() as { data: UserDocumentRow | null; error: any }
 
-      if (error) {
+      if (error || !updated) {
         console.error('Error updating document:', error)
         return saveLocalDocument(userId, type, title, data, existingId)
       }
@@ -126,8 +138,8 @@ export async function saveDocument(
     }
 
     // Create new document
-    const { data: created, error } = await supabase
-      .from('user_documents')
+    const { data: created, error } = await (supabase
+      .from('user_documents') as any)
       .insert({
         user_id: userId,
         app_id: APP_ID,
@@ -136,9 +148,9 @@ export async function saveDocument(
         data
       })
       .select()
-      .single()
+      .single() as { data: UserDocumentRow | null; error: any }
 
-    if (error) {
+    if (error || !created) {
       console.error('Error creating document:', error)
       return saveLocalDocument(userId, type, title, data)
     }
@@ -165,8 +177,8 @@ export async function deleteDocument(id: string, userId: string): Promise<boolea
   }
 
   try {
-    const { error } = await supabase
-      .from('user_documents')
+    const { error } = await (supabase
+      .from('user_documents') as any)
       .delete()
       .eq('id', id)
       .eq('user_id', userId)

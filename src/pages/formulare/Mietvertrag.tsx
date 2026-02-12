@@ -81,10 +81,13 @@ export default function MietvertragFormularPage() {
   React.useEffect(() => {
     const id = searchParams.get('id')
     if (id && user) {
-      const doc = getDocument(id, user.id)
-      if (doc?.data) {
-        setFormData({ ...INITIAL_MIETVERTRAG, ...doc.data })
+      const loadDocument = async () => {
+        const doc = await getDocument(id, user.id)
+        if (doc?.data) {
+          setFormData({ ...INITIAL_MIETVERTRAG, ...doc.data })
+        }
       }
+      loadDocument()
     }
   }, [searchParams, user])
 
