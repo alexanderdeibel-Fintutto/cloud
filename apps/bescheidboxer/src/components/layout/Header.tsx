@@ -1,13 +1,22 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FileSearch, Menu, X, Bell, ExternalLink } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+import { useAuth } from '../../contexts/AuthContext'
 
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'https://portal.fintutto.cloud'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const { profile, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/login')
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -67,6 +76,60 @@ export default function Header() {
             </Badge>
           </Button>
 
+          {/* User menu (desktop) */}
+          <div className="relative hidden md:block">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                {profile?.name?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+              <span className="hidden lg:inline text-sm">
+                {profile?.name || profile?.email || 'Benutzer'}
+              </span>
+            </Button>
+
+            {userMenuOpen && (
+              <div className="absolute right-0 mt-1 w-56 rounded-lg border bg-background shadow-lg z-50">
+                <div className="p-3 border-b">
+                  <p className="text-sm font-medium">{profile?.name || 'Benutzer'}</p>
+                  <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                </div>
+                <div className="p-1">
+                  <Link
+                    to="/einstellungen"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Einstellungen
+                  </Link>
+                  <Link
+                    to="/referral"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    Freunde werben
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setUserMenuOpen(false)
+                      handleSignOut()
+                    }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-accent transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Abmelden
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Mobile menu toggle */}
           <Button
             variant="ghost"
@@ -101,6 +164,21 @@ export default function Header() {
             <Link to="/referral" onClick={() => setMobileMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">Freunde werben</Button>
             </Link>
+            <Link to="/einstellungen" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" className="w-full justify-start">Einstellungen</Button>
+            </Link>
+            <div className="border-t border-border/40 mt-2 pt-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  handleSignOut()
+                }}
+                className="flex w-full items-center gap-2 rounded-md px-4 py-2 text-sm text-destructive hover:bg-accent transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Abmelden
+              </button>
+            </div>
           </nav>
         </div>
       )}

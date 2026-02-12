@@ -7,7 +7,7 @@ import { Label } from '../ui/label'
 import { useToast } from '../../hooks/use-toast'
 
 interface ReferralInviteFormProps {
-  onInvite: (email: string) => void
+  onInvite: (email: string) => void | Promise<unknown>
 }
 
 export default function ReferralInviteForm({ onInvite }: ReferralInviteFormProps) {
@@ -15,7 +15,7 @@ export default function ReferralInviteForm({ onInvite }: ReferralInviteFormProps
   const [sending, setSending] = useState(false)
   const { toast } = useToast()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!email.trim()) return
@@ -31,16 +31,22 @@ export default function ReferralInviteForm({ onInvite }: ReferralInviteFormProps
     }
 
     setSending(true)
-    // Simulate API call
-    setTimeout(() => {
-      onInvite(email)
-      setEmail('')
-      setSending(false)
+    try {
+      await onInvite(email)
       toast({
         title: 'Einladung gesendet!',
         description: `Eine Einladung wurde an ${email} gesendet.`,
       })
-    }, 500)
+      setEmail('')
+    } catch {
+      toast({
+        title: 'Fehler',
+        description: 'Einladung konnte nicht gesendet werden.',
+        variant: 'destructive',
+      })
+    } finally {
+      setSending(false)
+    }
   }
 
   return (

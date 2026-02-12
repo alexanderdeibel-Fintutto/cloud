@@ -1,11 +1,7 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { Referral, ReferralStats, ReferralUser } from '../types/referral'
-
-const MOCK_REFERRAL_USER: ReferralUser = {
-  referralCode: 'BX4F7K2M',
-  referralCredits: 3,
-  referredBy: null,
-}
+import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../integrations/supabase/client'
 
 const MOCK_REFERRALS: Referral[] = [
   {
@@ -66,8 +62,54 @@ const MOCK_REFERRALS: Referral[] = [
 ]
 
 export function useReferral() {
-  const [referralUser] = useState<ReferralUser>(MOCK_REFERRAL_USER)
+  const { profile, user } = useAuth()
   const [referrals, setReferrals] = useState<Referral[]>(MOCK_REFERRALS)
+  const [loading, setLoading] = useState(false)
+
+  const referralUser: ReferralUser = {
+    referralCode: profile?.referralCode || 'BX4F7K2M',
+    referralCredits: profile?.referralCredits ?? 3,
+    referredBy: null,
+  }
+
+  // Fetch real referrals from Supabase when user is authenticated
+  useEffect(() => {
+    if (!user?.id) return
+
+    const fetchReferrals = async () => {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from('referrals')
+          .select('*')
+          .eq('referrer_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (!error && data && data.length > 0) {
+          setReferrals(
+            data.map((r: Record<string, unknown>) => ({
+              id: r.id as string,
+              referrerId: r.referrer_id as string,
+              referredEmail: r.referred_email as string,
+              referredUserId: (r.referred_user_id as string) || null,
+              status: r.status as Referral['status'],
+              referralCode: referralUser.referralCode,
+              rewardClaimed: (r.reward_claimed as boolean) || false,
+              createdAt: r.created_at as string,
+              convertedAt: (r.converted_at as string) || null,
+            }))
+          )
+        }
+        // If no data or error, keep mock data as fallback
+      } catch {
+        // Keep mock data on error
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchReferrals()
+  }, [user?.id, referralUser.referralCode])
 
   const stats: ReferralStats = {
     totalInvites: referrals.length,
@@ -77,10 +119,44 @@ export function useReferral() {
     pendingInvites: referrals.filter(r => r.status === 'pending').length,
   }
 
-  const inviteByEmail = useCallback((email: string) => {
+  const inviteByEmail = useCallback(async (email: string) => {
+    // Try to create referral in Supabase
+    if (user?.id) {
+      try {
+        const { data, error } = await supabase
+          .from('referrals')
+          .insert({
+            referrer_id: user.id,
+            referred_email: email,
+            status: 'pending',
+          })
+          .select()
+          .single()
+
+        if (!error && data) {
+          const newReferral: Referral = {
+            id: data.id,
+            referrerId: data.referrer_id,
+            referredEmail: data.referred_email,
+            referredUserId: null,
+            status: 'pending',
+            referralCode: referralUser.referralCode,
+            rewardClaimed: false,
+            createdAt: data.created_at,
+            convertedAt: null,
+          }
+          setReferrals(prev => [newReferral, ...prev])
+          return newReferral
+        }
+      } catch {
+        // Fall through to local-only creation
+      }
+    }
+
+    // Fallback: create locally only
     const newReferral: Referral = {
       id: `r${Date.now()}`,
-      referrerId: 'user1',
+      referrerId: user?.id || 'user1',
       referredEmail: email,
       referredUserId: null,
       status: 'pending',
@@ -91,16 +167,17 @@ export function useReferral() {
     }
     setReferrals(prev => [newReferral, ...prev])
     return newReferral
-  }, [referralUser.referralCode])
+  }, [user?.id, referralUser.referralCode])
 
   const getReferralLink = useCallback(() => {
-    return `https://bescheidboxer.fintutto.de/ref/${referralUser.referralCode}`
+    return `https://bescheidboxer.fintutto.de/register?ref=${referralUser.referralCode}`
   }, [referralUser.referralCode])
 
   return {
     referralUser,
     referrals,
     stats,
+    loading,
     inviteByEmail,
     getReferralLink,
   }

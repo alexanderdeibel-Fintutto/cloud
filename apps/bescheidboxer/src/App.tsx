@@ -1,7 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from './components/ui/toaster'
 import { AuthProvider } from './contexts/AuthContext'
+import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/layout/Layout'
+import LoginPage from './pages/auth/LoginPage'
+import RegisterPage from './pages/auth/RegisterPage'
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import DashboardPage from './pages/DashboardPage'
 import BescheidePage from './pages/bescheide/BescheidePage'
 import BescheidDetailPage from './pages/bescheide/BescheidDetailPage'
@@ -11,6 +15,7 @@ import FristenPage from './pages/fristen/FristenPage'
 import EinspruchPage from './pages/einspruch/EinspruchPage'
 import EinspruchNeuPage from './pages/einspruch/EinspruchNeuPage'
 import ReferralPage from './pages/referral/ReferralPage'
+import EinstellungenPage from './pages/einstellungen/EinstellungenPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -18,20 +23,34 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="bescheide" element={<BescheidePage />} />
-          <Route path="bescheide/:id" element={<BescheidDetailPage />} />
-          <Route path="upload" element={<UploadPage />} />
-          <Route path="analyse" element={<AnalysePage />} />
-          <Route path="analyse/:id" element={<AnalysePage />} />
-          <Route path="fristen" element={<FristenPage />} />
-          <Route path="einspruch" element={<EinspruchPage />} />
-          <Route path="einspruch/neu/:bescheidId" element={<EinspruchNeuPage />} />
-          <Route path="referral" element={<ReferralPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
+          {/* Public auth routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/passwort-vergessen" element={<ForgotPasswordPage />} />
+
+          {/* Protected app routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DashboardPage />} />
+            <Route path="bescheide" element={<BescheidePage />} />
+            <Route path="bescheide/:id" element={<BescheidDetailPage />} />
+            <Route path="upload" element={<UploadPage />} />
+            <Route path="analyse" element={<AnalysePage />} />
+            <Route path="analyse/:id" element={<AnalysePage />} />
+            <Route path="fristen" element={<FristenPage />} />
+            <Route path="einspruch" element={<EinspruchPage />} />
+            <Route path="einspruch/neu/:bescheidId" element={<EinspruchNeuPage />} />
+            <Route path="referral" element={<ReferralPage />} />
+            <Route path="einstellungen" element={<EinstellungenPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
         <Toaster />
       </BrowserRouter>
     </AuthProvider>
