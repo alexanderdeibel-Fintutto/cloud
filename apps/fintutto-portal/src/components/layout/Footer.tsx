@@ -4,24 +4,24 @@ import { Sparkles } from 'lucide-react'
 const footerLinks = {
   rechner: [
     { name: 'Kautions-Rechner', href: '/rechner/kaution' },
-    { name: 'Mieterh\u00f6hungs-Rechner', href: '/rechner/mieterhoehung' },
+    { name: 'Mieterhöhungs-Rechner', href: '/rechner/mieterhoehung' },
     { name: 'Kaufnebenkosten-Rechner', href: '/rechner/kaufnebenkosten' },
     { name: 'Rendite-Rechner', href: '/rechner/rendite' },
     { name: 'Grundsteuer-Rechner', href: '/rechner/grundsteuer' },
   ],
   checker: [
     { name: 'Mietpreisbremse', href: '/checker/mietpreisbremse' },
-    { name: 'Mieterh\u00f6hung', href: '/checker/mieterhoehung' },
+    { name: 'Mieterhöhung', href: '/checker/mieterhoehung' },
     { name: 'Nebenkosten', href: '/checker/nebenkosten' },
-    { name: 'K\u00fcndigung', href: '/checker/kuendigung' },
+    { name: 'Kündigung', href: '/checker/kuendigung' },
     { name: 'Kaution', href: '/checker/kaution' },
   ],
   formulare: [
     { name: 'Mietvertrag', href: '/formulare/mietvertrag' },
-    { name: '\u00dcbergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
+    { name: 'Übergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
     { name: 'Betriebskosten', href: '/formulare/betriebskosten' },
     { name: 'Selbstauskunft', href: '/formulare/selbstauskunft' },
-    { name: 'Mieterh\u00f6hung', href: '/formulare/mieterhoehung' },
+    { name: 'Mieterhöhung', href: '/formulare/mieterhoehung' },
   ],
   oekosystem: [
     { name: 'Alle Apps', href: '/apps' },
@@ -32,7 +32,7 @@ const footerLinks = {
     { name: 'Impressum', href: '/impressum' },
     { name: 'Datenschutz', href: '/datenschutz' },
     { name: 'AGB', href: '/agb' },
-    { name: '\u00dcber uns', href: '/ueber-uns' },
+    { name: 'Über uns', href: '/ueber-uns' },
   ],
 }
 
@@ -52,7 +52,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Professionelle Tools f\u00fcr Mieter & Vermieter. Rechtssicher, einfach, digital.
+              Professionelle Tools für Mieter & Vermieter. Rechtssicher, einfach, digital.
             </p>
           </div>
 
@@ -96,7 +96,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-3">&Ouml;kosystem</h3>
+            <h3 className="font-semibold mb-3">Ökosystem</h3>
             <ul className="space-y-2">
               {footerLinks.oekosystem.map((link) => (
                 <li key={link.name}>
@@ -124,7 +124,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            \u00a9 {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
+            © {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
           </p>
           <p className="text-xs text-muted-foreground">
             Basierend auf deutschem Mietrecht. Keine Rechtsberatung.
