@@ -76,6 +76,8 @@ import ProfitLoss from "./pages/ProfitLoss";
 import PeriodClosing from "./pages/PeriodClosing";
 import Tools from "./pages/Tools";
 import Pricing from "./pages/Pricing";
+import VATCalculator from "./pages/VATCalculator";
+import Import from "./pages/Import";
 
 const queryClient = new QueryClient();
 
@@ -174,6 +176,8 @@ function AppRoutes() {
       <Route path="/periodenabschluss" element={<ProtectedRoute><PeriodClosing /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
       <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+      <Route path="/mwst-rechner" element={<ProtectedRoute><VATCalculator /></ProtectedRoute>} />
+      <Route path="/import" element={<ProtectedRoute><Import /></ProtectedRoute>} />
       <Route path="/einstellungen" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/firmen" element={<ProtectedRoute><Companies /></ProtectedRoute>} />
       <Route path="/uebergabe" element={<ProtectedRoute><Handover /></ProtectedRoute>} />

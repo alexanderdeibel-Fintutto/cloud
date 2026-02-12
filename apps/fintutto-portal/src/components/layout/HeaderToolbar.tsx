@@ -64,6 +64,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/periodenabschluss': 'Periodenabschluss',
   '/tools': 'Tools & Services',
   '/pricing': 'Preise & Pläne',
+  '/mwst-rechner': 'MwSt-Rechner',
+  '/import': 'Daten-Import',
 };
 
 export function HeaderToolbar() {
