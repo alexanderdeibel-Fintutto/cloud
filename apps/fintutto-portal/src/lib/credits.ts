@@ -218,7 +218,7 @@ export function canPerformAction(
 
   return {
     allowed: false,
-    reason: `Du ben\u00f6tigst ${totalCost} Credits, hast aber nur ${userCredits.creditsRemaining} \u00fcbrig.`,
+    reason: `Du benötigst ${totalCost} Credits, hast aber nur ${userCredits.creditsRemaining} übrig.`,
     cost: totalCost,
   }
 }
@@ -227,7 +227,7 @@ export function canUseAI(userCredits: UserCredits): { allowed: boolean; reason?:
   const plan = PLANS[userCredits.plan]
 
   if (plan.aiMessages === 0) {
-    return { allowed: false, reason: 'Der KI-Assistent ist nur in kostenpflichtigen Pl\u00e4nen verf\u00fcgbar.' }
+    return { allowed: false, reason: 'Der KI-Assistent ist nur in kostenpflichtigen Plänen verfügbar.' }
   }
 
   if (plan.aiMessages === -1) {
@@ -245,6 +245,6 @@ export function canUseAI(userCredits: UserCredits): { allowed: boolean; reason?:
 }
 
 export function formatCreditsDisplay(credits: number): string {
-  if (credits === -1) return '\u221e'
+  if (credits === -1) return '∞'
   return credits.toString()
 }
