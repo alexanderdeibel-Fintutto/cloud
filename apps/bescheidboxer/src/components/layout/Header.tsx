@@ -80,6 +80,9 @@ export default function Header() {
             <Link to="/einspruch" onClick={() => setMobileMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">Einspruch</Button>
             </Link>
+            <Link to="/referral" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" className="w-full justify-start">Freunde werben</Button>
+            </Link>
           </nav>
         </div>
       )}

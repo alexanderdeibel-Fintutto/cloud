@@ -9,6 +9,7 @@ import AnalysePage from './pages/analyse/AnalysePage'
 import FristenPage from './pages/fristen/FristenPage'
 import EinspruchPage from './pages/einspruch/EinspruchPage'
 import EinspruchNeuPage from './pages/einspruch/EinspruchNeuPage'
+import ReferralPage from './pages/referral/ReferralPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="fristen" element={<FristenPage />} />
           <Route path="einspruch" element={<EinspruchPage />} />
           <Route path="einspruch/neu/:bescheidId" element={<EinspruchNeuPage />} />
+          <Route path="referral" element={<ReferralPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

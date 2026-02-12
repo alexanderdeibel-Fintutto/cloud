@@ -6,6 +6,7 @@ import {
   Clock,
   ShieldAlert,
   Search,
+  Users,
   Settings,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Analyse', href: '/analyse', icon: Search },
   { name: 'Fristen', href: '/fristen', icon: Clock },
   { name: 'Einspruch', href: '/einspruch', icon: ShieldAlert },
+  { name: 'Freunde werben', href: '/referral', icon: Users },
   { name: 'Einstellungen', href: '/einstellungen', icon: Settings },
 ]
 
