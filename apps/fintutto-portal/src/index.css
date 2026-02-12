@@ -66,78 +66,30 @@
 }
 
 @layer components {
-  /* Hero-Streifen: diagonaler Gradient mit subtilen Streifen (sw-inspired) */
+  /* Gamma-BG: Dark Navy → Indigo → Lila → Mauve/Rosé → Pfirsich */
   .gradient-portal {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(255,255,255,0.03) 0px,
-        rgba(255,255,255,0.03) 1px,
-        transparent 1px,
-        transparent 12px
-      ),
-      linear-gradient(135deg, #1a1225 0%, #2d1f3d 20%, #4f3668 45%, #64748b 75%, #94a3b8 100%);
+    background: linear-gradient(135deg, #13101e 0%, #2a1f50 25%, #6b3a80 50%, #c07888 75%, #e8a494 100%);
   }
   .gradient-mieter {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(255,255,255,0.04) 0px,
-        rgba(255,255,255,0.04) 1px,
-        transparent 1px,
-        transparent 14px
-      ),
-      linear-gradient(135deg, #0f172a 0%, #1e3a5f 25%, #2563eb 60%, #3b82f6 100%);
+    background: linear-gradient(135deg, #13101e 0%, #1e1845 20%, #3a2d6b 45%, #7b4a8d 70%, #c07888 100%);
   }
   .gradient-vermieter {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(255,255,255,0.03) 0px,
-        rgba(255,255,255,0.03) 1px,
-        transparent 1px,
-        transparent 10px
-      ),
-      linear-gradient(135deg, #1a1225 0%, #2d1f3d 30%, #4f3668 60%, #6b4d8a 100%);
+    background: linear-gradient(135deg, #2a1f50 0%, #6b3a80 40%, #c07888 75%, #e8a494 100%);
   }
 
-  /* Position-basierte Card-Gradienten: links → mitte → rechts */
+  /* Position-basierte Card-Gradienten: Ausschnitte aus dem Gamma-BG */
   .gradient-card-left {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(255,255,255,0.05) 0px,
-        rgba(255,255,255,0.05) 1px,
-        transparent 1px,
-        transparent 8px
-      ),
-      linear-gradient(135deg, #1a1225 0%, #3b2557 50%, #5a3d7a 100%);
+    background: linear-gradient(135deg, #13101e 0%, #2a1f50 50%, #4a2d6b 100%);
   }
   .gradient-card-center {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(255,255,255,0.05) 0px,
-        rgba(255,255,255,0.05) 1px,
-        transparent 1px,
-        transparent 8px
-      ),
-      linear-gradient(135deg, #2d1f3d 0%, #4f3668 40%, #64748b 100%);
+    background: linear-gradient(135deg, #2a1f50 0%, #6b3a80 50%, #9b5e88 100%);
   }
   .gradient-card-right {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(255,255,255,0.05) 0px,
-        rgba(255,255,255,0.05) 1px,
-        transparent 1px,
-        transparent 8px
-      ),
-      linear-gradient(135deg, #3b2557 0%, #64748b 50%, #94a3b8 100%);
+    background: linear-gradient(135deg, #6b3a80 0%, #c07888 50%, #e8a494 100%);
   }
 
   .gradient-text-portal {
-    background: linear-gradient(135deg, #4f3668 0%, #64748b 100%);
+    background: linear-gradient(135deg, #6b3a80 0%, #c07888 50%, #e8a494 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
