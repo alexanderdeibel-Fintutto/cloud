@@ -1,17 +1,36 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+import { cn } from '../../lib/utils'
 import { useAuth } from '../../contexts/AuthContext'
 
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'https://portal.fintutto.cloud'
+
+const NAV_ITEMS = [
+  { label: 'Dashboard', href: '/' },
+  { label: 'Bescheide', href: '/bescheide' },
+  { label: 'Upload', href: '/upload' },
+  { label: 'Fristen', href: '/fristen' },
+  { label: 'Einspruch', href: '/einspruch' },
+]
+
+const MOBILE_NAV_ITEMS = [
+  ...NAV_ITEMS,
+  { label: 'Freunde werben', href: '/referral' },
+  { label: 'Einstellungen', href: '/einstellungen' },
+]
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const isActive = (href: string) =>
+    href === '/' ? location.pathname === '/' : location.pathname.startsWith(href)
 
   const handleSignOut = async () => {
     await signOut()
@@ -49,27 +68,25 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 flex-1">
-          <Link to="/">
-            <Button variant="ghost" size="sm">Dashboard</Button>
-          </Link>
-          <Link to="/bescheide">
-            <Button variant="ghost" size="sm">Bescheide</Button>
-          </Link>
-          <Link to="/upload">
-            <Button variant="ghost" size="sm">Upload</Button>
-          </Link>
-          <Link to="/fristen">
-            <Button variant="ghost" size="sm">Fristen</Button>
-          </Link>
-          <Link to="/einspruch">
-            <Button variant="ghost" size="sm">Einspruch</Button>
-          </Link>
+        <nav className="hidden md:flex items-center gap-1 flex-1" aria-label="Hauptnavigation">
+          {NAV_ITEMS.map((item) => (
+            <Link key={item.href} to={item.href}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  isActive(item.href) && 'bg-accent text-accent-foreground font-semibold'
+                )}
+              >
+                {item.label}
+              </Button>
+            </Link>
+          ))}
         </nav>
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto">
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative" aria-label="Benachrichtigungen">
             <Bell className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]" variant="destructive">
               3
@@ -83,6 +100,8 @@ export default function Header() {
               size="sm"
               className="gap-2"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
+              aria-label="Benutzermenue"
+              aria-expanded={userMenuOpen}
             >
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                 {profile?.name?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
@@ -93,7 +112,7 @@ export default function Header() {
             </Button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 mt-1 w-56 rounded-lg border bg-background shadow-lg z-50">
+              <div className="absolute right-0 mt-1 w-56 rounded-lg border bg-background shadow-lg z-50" role="menu">
                 <div className="p-3 border-b">
                   <p className="text-sm font-medium">{profile?.name || 'Benutzer'}</p>
                   <p className="text-xs text-muted-foreground">{profile?.email}</p>
@@ -103,6 +122,7 @@ export default function Header() {
                     to="/einstellungen"
                     onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
+                    role="menuitem"
                   >
                     <Settings className="h-4 w-4" />
                     Einstellungen
@@ -111,6 +131,7 @@ export default function Header() {
                     to="/referral"
                     onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
+                    role="menuitem"
                   >
                     <User className="h-4 w-4" />
                     Freunde werben
@@ -121,6 +142,7 @@ export default function Header() {
                       handleSignOut()
                     }}
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-accent transition-colors"
+                    role="menuitem"
                   >
                     <LogOut className="h-4 w-4" />
                     Abmelden
@@ -136,6 +158,8 @@ export default function Header() {
             size="icon"
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Menue schliessen' : 'Menue oeffnen'}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -145,28 +169,20 @@ export default function Header() {
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border/40 bg-background p-4">
-          <nav className="flex flex-col gap-2">
-            <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Dashboard</Button>
-            </Link>
-            <Link to="/bescheide" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Bescheide</Button>
-            </Link>
-            <Link to="/upload" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Upload</Button>
-            </Link>
-            <Link to="/fristen" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Fristen</Button>
-            </Link>
-            <Link to="/einspruch" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Einspruch</Button>
-            </Link>
-            <Link to="/referral" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Freunde werben</Button>
-            </Link>
-            <Link to="/einstellungen" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Einstellungen</Button>
-            </Link>
+          <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
+            {MOBILE_NAV_ITEMS.map((item) => (
+              <Link key={item.href} to={item.href} onClick={() => setMobileMenuOpen(false)}>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    'w-full justify-start',
+                    isActive(item.href) && 'bg-accent text-accent-foreground font-semibold'
+                  )}
+                >
+                  {item.label}
+                </Button>
+              </Link>
+            ))}
             <div className="border-t border-border/40 mt-2 pt-2">
               <button
                 onClick={() => {

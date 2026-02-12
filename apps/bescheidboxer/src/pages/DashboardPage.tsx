@@ -9,12 +9,32 @@ import {
   ArrowRight,
   Upload,
 } from 'lucide-react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { formatCurrency, formatDate, daysUntil } from '../lib/utils'
 import { useMockData } from '../hooks/use-mock-data'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../types/bescheid'
+
+const STATUS_COLORS: Record<string, string> = {
+  neu: '#6b7280',
+  in_pruefung: '#f59e0b',
+  geprueft: '#3b82f6',
+  einspruch: '#ef4444',
+  erledigt: '#22c55e',
+}
 
 export default function DashboardPage() {
   const { bescheide, fristen, stats } = useMockData()
@@ -24,6 +44,28 @@ export default function DashboardPage() {
     .filter(f => !f.erledigt)
     .sort((a, b) => new Date(a.fristdatum).getTime() - new Date(b.fristdatum).getTime())
     .slice(0, 4)
+
+  // Chart data: Steuer pro Jahr
+  const steuerProJahr = bescheide.reduce<Record<number, { year: number; festgesetzt: number; erwartet: number }>>((acc, b) => {
+    if (!acc[b.steuerjahr]) {
+      acc[b.steuerjahr] = { year: b.steuerjahr, festgesetzt: 0, erwartet: 0 }
+    }
+    acc[b.steuerjahr].festgesetzt += b.festgesetzteSteuer ?? 0
+    acc[b.steuerjahr].erwartet += b.erwarteteSteuer ?? 0
+    return acc
+  }, {})
+  const barChartData = Object.values(steuerProJahr).sort((a, b) => a.year - b.year)
+
+  // Chart data: Status-Verteilung
+  const statusCounts = bescheide.reduce<Record<string, number>>((acc, b) => {
+    acc[b.status] = (acc[b.status] || 0) + 1
+    return acc
+  }, {})
+  const pieChartData = Object.entries(statusCounts).map(([status, count]) => ({
+    name: BESCHEID_STATUS_LABELS[status as keyof typeof BESCHEID_STATUS_LABELS] || status,
+    value: count,
+    color: STATUS_COLORS[status] || '#6b7280',
+  }))
 
   return (
     <div className="space-y-8">
@@ -116,6 +158,75 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Steuervergleich pro Jahr</CardTitle>
+            <CardDescription>Festgesetzte vs. erwartete Steuer</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barChartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="year" className="text-xs" />
+                  <YAxis tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} className="text-xs" />
+                  <Tooltip
+                    formatter={(value: number) => formatCurrency(value)}
+                    labelFormatter={(label) => `Steuerjahr ${label}`}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                  />
+                  <Bar dataKey="erwartet" name="Erwartet" fill="hsl(210 80% 60% / 0.3)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="festgesetzt" name="Festgesetzt" fill="hsl(210 80% 50%)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Status-Verteilung</CardTitle>
+            <CardDescription>Aktuelle Bescheide nach Status</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={70}
+                    dataKey="value"
+                    strokeWidth={2}
+                    stroke="hsl(0 0% 100%)"
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => [`${value} Bescheid(e)`, '']}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex flex-wrap gap-3 justify-center mt-2">
+              {pieChartData.map((entry) => (
+                <div key={entry.name} className="flex items-center gap-1.5 text-xs">
+                  <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                  <span className="text-muted-foreground">{entry.name}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Content Grid */}

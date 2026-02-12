@@ -17,9 +17,11 @@ import EinspruchNeuPage from './pages/einspruch/EinspruchNeuPage'
 import ReferralPage from './pages/referral/ReferralPage'
 import EinstellungenPage from './pages/einstellungen/EinstellungenPage'
 import NotFoundPage from './pages/NotFoundPage'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -54,6 +56,7 @@ function App() {
         <Toaster />
       </BrowserRouter>
     </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

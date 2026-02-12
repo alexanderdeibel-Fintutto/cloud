@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { User, Shield, Bell, CreditCard, LogOut, Loader2, Copy, Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { User, Shield, Bell, CreditCard, LogOut, Loader2, Copy, Check, AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -8,6 +9,7 @@ import { Separator } from '../../components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Badge } from '../../components/ui/badge'
 import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../integrations/supabase/client'
 import { useToast } from '../../hooks/use-toast'
 
 const TIER_LABELS: Record<string, string> = {
@@ -27,20 +29,37 @@ const TIER_LIMITS: Record<string, { checks: number; einsprueche: number }> = {
 export default function EinstellungenPage() {
   const { profile, user, signOut } = useAuth()
   const { toast } = useToast()
+  const navigate = useNavigate()
   const [name, setName] = useState(profile?.name || '')
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+
+  // Password change state
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [changingPassword, setChangingPassword] = useState(false)
+
+  // Delete account state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
 
   const tier = profile?.tier || 'free'
   const limits = TIER_LIMITS[tier] || TIER_LIMITS.free
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!user?.id) return
+
     setSaving(true)
     try {
-      // TODO: Connect to Supabase profile update
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const { error } = await supabase
+        .from('users')
+        .update({ name: name || null })
+        .eq('id', user.id)
+
+      if (error) throw error
+
       toast({
         title: 'Gespeichert',
         description: 'Ihre Profileinstellungen wurden aktualisiert.',
@@ -64,10 +83,54 @@ export default function EinstellungenPage() {
     }
   }
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (newPassword.length < 6) {
+      toast({
+        title: 'Fehler',
+        description: 'Das Passwort muss mindestens 6 Zeichen lang sein.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: 'Fehler',
+        description: 'Die Passwoerter stimmen nicht ueberein.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setChangingPassword(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+
+      setNewPassword('')
+      setConfirmPassword('')
+      toast({
+        title: 'Passwort geaendert',
+        description: 'Ihr Passwort wurde erfolgreich aktualisiert.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Fehler',
+        description: error instanceof Error ? error.message : 'Passwort konnte nicht geaendert werden.',
+        variant: 'destructive',
+      })
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
   const handleLogout = async () => {
     setLoggingOut(true)
     try {
       await signOut()
+      navigate('/login')
     } catch {
       toast({
         title: 'Fehler',
@@ -76,6 +139,17 @@ export default function EinstellungenPage() {
       })
       setLoggingOut(false)
     }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'LOESCHEN') return
+
+    toast({
+      title: 'Hinweis',
+      description: 'Bitte kontaktieren Sie den Support, um Ihr Konto zu loeschen: support@fintutto.de',
+    })
+    setShowDeleteConfirm(false)
+    setDeleteConfirmText('')
   }
 
   return (
@@ -152,6 +226,7 @@ export default function EinstellungenPage() {
                       variant="outline"
                       size="sm"
                       onClick={handleCopyId}
+                      aria-label="Benutzer-ID kopieren"
                     >
                       {copied ? (
                         <Check className="h-4 w-4" />
@@ -285,7 +360,7 @@ export default function EinstellungenPage() {
             <CardHeader>
               <CardTitle>Benachrichtigungen</CardTitle>
               <CardDescription>
-                Legen Sie fest, worueberSie informiert werden moechten
+                Legen Sie fest, worueber Sie informiert werden moechten
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -342,20 +417,43 @@ export default function EinstellungenPage() {
                   Aendern Sie Ihr Passwort regelmaessig fuer mehr Sicherheit
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">Aktuelles Passwort</Label>
-                  <Input id="current-password" type="password" placeholder="Aktuelles Passwort" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">Neues Passwort</Label>
-                  <Input id="new-password" type="password" placeholder="Min. 6 Zeichen" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Neues Passwort wiederholen</Label>
-                  <Input id="confirm-password" type="password" placeholder="Passwort bestaetigen" />
-                </div>
-                <Button>Passwort aendern</Button>
+              <CardContent>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Neues Passwort</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="Min. 6 Zeichen"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Neues Passwort wiederholen</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="Passwort bestaetigen"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" disabled={changingPassword || !newPassword || !confirmPassword}>
+                    {changingPassword ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Aendern...
+                      </>
+                    ) : (
+                      'Passwort aendern'
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 
@@ -381,16 +479,60 @@ export default function EinstellungenPage() {
                   </Button>
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-destructive">Konto loeschen</p>
-                    <p className="text-xs text-muted-foreground">
-                      Alle Daten unwiderruflich loeschen
-                    </p>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-destructive">Konto loeschen</p>
+                      <p className="text-xs text-muted-foreground">
+                        Alle Daten unwiderruflich loeschen
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                    >
+                      Konto loeschen
+                    </Button>
                   </div>
-                  <Button variant="destructive" size="sm">
-                    Konto loeschen
-                  </Button>
+
+                  {showDeleteConfirm && (
+                    <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-destructive">
+                            Sind Sie sicher? Diese Aktion kann nicht rueckgaengig gemacht werden.
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Alle Ihre Bescheide, Analysen, Einsprueche und Credits werden dauerhaft geloescht.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="delete-confirm" className="text-xs">
+                          Geben Sie <strong>LOESCHEN</strong> ein, um zu bestaetigen
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="delete-confirm"
+                            value={deleteConfirmText}
+                            onChange={e => setDeleteConfirmText(e.target.value)}
+                            placeholder="LOESCHEN"
+                            className="max-w-[200px]"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            disabled={deleteConfirmText !== 'LOESCHEN'}
+                            onClick={handleDeleteAccount}
+                          >
+                            Unwiderruflich loeschen
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
