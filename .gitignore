@@ -43,4 +43,4 @@ coverage
 *.pem
 
 # Cloned sub-repos (separate GitHub repos)
-ablesung/
+# ablesung/ - now tracked for feature implementation
