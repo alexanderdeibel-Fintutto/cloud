@@ -7,7 +7,12 @@ import {
   Receipt,
   ArrowRight,
   Download,
-  Mail
+  Mail,
+  Ban,
+  AlertTriangle,
+  FileCheck,
+  Home,
+  Wallet
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
@@ -52,6 +57,46 @@ const formulare = [
     features: ['17 Kostenarten', 'Umlageschlüssel', 'Vorauszahlungen'],
     popular: false,
   },
+  {
+    title: 'Kündigungsschreiben',
+    description: 'Rechtssichere Kündigung für Mieter oder Vermieter nach §573/§543 BGB.',
+    icon: Ban,
+    href: '/formulare/kuendigung',
+    features: ['Mieter & Vermieter', 'Ordentlich & Außerordentlich', '§573/§543 BGB'],
+    popular: true,
+  },
+  {
+    title: 'Mahnschreiben',
+    description: 'Von Zahlungserinnerung bis letzte Mahnung – mit Mahngebühr und Fristsetzung.',
+    icon: AlertTriangle,
+    href: '/formulare/mahnung',
+    features: ['4 Mahnstufen', 'Mahngebühr', 'Bankverbindung'],
+    popular: false,
+  },
+  {
+    title: 'Mietbescheinigung',
+    description: 'Offizielle Bestätigung des Mietverhältnisses für Behörden, Banken oder neue Vermieter.',
+    icon: FileCheck,
+    href: '/formulare/mietbescheinigung',
+    features: ['Zahlungsverhalten', 'Mietkosten', 'Mehrere Zwecke'],
+    popular: false,
+  },
+  {
+    title: 'Wohnungsgeberbestätigung',
+    description: 'Pflichtdokument nach §19 BMG für die Anmeldung beim Einwohnermeldeamt.',
+    icon: Home,
+    href: '/formulare/wohnungsgeberbestaetigung',
+    features: ['§19 BMG konform', 'Ein- & Auszug', 'Mehrere Personen'],
+    popular: true,
+  },
+  {
+    title: 'Nebenkostenvorauszahlung',
+    description: 'Anpassungsschreiben für die monatliche Nebenkostenvorauszahlung nach §560 BGB.',
+    icon: Wallet,
+    href: '/formulare/nebenkostenvorauszahlung',
+    features: ['§560 BGB konform', '8 Kostenarten', 'Vergleichsübersicht'],
+    popular: false,
+  },
 ]
 
 export default function FormularePage() {
@@ -65,8 +110,8 @@ export default function FormularePage() {
               Formulare & Vorlagen
             </h1>
             <p className="text-lg text-white/80">
-              Rechtssichere Dokumente für Vermieter.
-              Ausfüllen, herunterladen, fertig.
+              10 rechtssichere Dokumente für Mieter & Vermieter.
+              Ausfüllen, drucken, fertig.
             </p>
           </div>
         </div>

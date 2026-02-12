@@ -33,12 +33,17 @@ import EigenbedarfChecker from '@/pages/checker/EigenbedarfChecker'
 import ModernisierungChecker from '@/pages/checker/ModernisierungChecker'
 import SchoenheitsreparaturenChecker from '@/pages/checker/SchoenheitsreparaturenChecker'
 
-// Formulare (5 Vorlagen)
+// Formulare (10 Vorlagen)
 import MietvertragFormular from '@/pages/formulare/MietvertragFormular'
 import UebergabeprotokollFormular from '@/pages/formulare/UebergabeprotokollFormular'
 import MieterhoehungFormular from '@/pages/formulare/MieterhoehungFormular'
 import SelbstauskunftFormular from '@/pages/formulare/SelbstauskunftFormular'
 import BetriebskostenFormular from '@/pages/formulare/BetriebskostenFormular'
+import KuendigungFormular from '@/pages/formulare/KuendigungFormular'
+import MahnungFormular from '@/pages/formulare/MahnungFormular'
+import MietbescheinigungFormular from '@/pages/formulare/MietbescheinigungFormular'
+import WohnungsgeberbestaetigungFormular from '@/pages/formulare/WohnungsgeberbestaetigungFormular'
+import NebenkostenvorauszahlungFormular from '@/pages/formulare/NebenkostenvorauszahlungFormular'
 
 function App() {
   return (
@@ -70,13 +75,18 @@ function App() {
           <Route path="checker/modernisierung" element={<ModernisierungChecker />} />
           <Route path="checker/schoenheitsreparaturen" element={<SchoenheitsreparaturenChecker />} />
 
-          {/* === FORMULARE (Mieter + Vermieter) === */}
+          {/* === FORMULARE (10 Vorlagen – Mieter + Vermieter) === */}
           <Route path="formulare" element={<FormularePage />} />
           <Route path="formulare/mietvertrag" element={<MietvertragFormular />} />
           <Route path="formulare/uebergabeprotokoll" element={<UebergabeprotokollFormular />} />
           <Route path="formulare/mieterhoehung" element={<MieterhoehungFormular />} />
           <Route path="formulare/selbstauskunft" element={<SelbstauskunftFormular />} />
           <Route path="formulare/betriebskosten" element={<BetriebskostenFormular />} />
+          <Route path="formulare/kuendigung" element={<KuendigungFormular />} />
+          <Route path="formulare/mahnung" element={<MahnungFormular />} />
+          <Route path="formulare/mietbescheinigung" element={<MietbescheinigungFormular />} />
+          <Route path="formulare/wohnungsgeberbestaetigung" element={<WohnungsgeberbestaetigungFormular />} />
+          <Route path="formulare/nebenkostenvorauszahlung" element={<NebenkostenvorauszahlungFormular />} />
 
           {/* === META === */}
           <Route path="preise" element={<PricingPage />} />
