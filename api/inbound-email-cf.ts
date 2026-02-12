@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { createHmac, timingSafeEqual } from 'crypto'
+import { simpleParser } from 'mailparser'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
@@ -8,29 +9,19 @@ const supabase = createClient(
 )
 
 /**
- * Inbound Email Webhook - receives emails from Cloudflare Email Worker
+ * Inbound Email Webhook - receives raw MIME from Cloudflare Email Worker
  *
- * The Cloudflare Worker sends a JSON payload with:
- * - from, to, subject, text, html
- * - attachments: [{ filename, mimeType, size, content (base64) }]
- * - receivedAt
+ * The Cloudflare Worker sends:
+ * { from: string, to: string, raw_mime: string (base64) }
  *
- * Signed with HMAC-SHA256 via X-Webhook-Signature header.
+ * This endpoint parses the MIME, extracts attachments, stores in Supabase,
+ * and triggers AI processing for PDF invoices.
  */
 
-interface InboundEmailPayload {
+interface CloudflarePayload {
   from: string
   to: string
-  subject: string
-  text: string
-  html: string
-  attachments: Array<{
-    filename: string
-    mimeType: string
-    size: number
-    content: string // base64
-  }>
-  receivedAt: string
+  raw_mime: string // base64 encoded raw MIME
 }
 
 // Verify HMAC-SHA256 webhook signature
@@ -53,10 +44,56 @@ function verifySignature(payload: string, signature: string): boolean {
   }
 }
 
-// Extract email from "Name <email>" format
-function extractEmail(fromField: string): string {
-  const match = fromField.match(/<([^>]+)>/)
-  return (match ? match[1] : fromField).trim().toLowerCase()
+function extractEmail(field: string): string {
+  const match = field.match(/<([^>]+)>/)
+  return (match ? match[1] : field).trim().toLowerCase()
+}
+
+function formatEuro(amount: number): string {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount)
+}
+
+// Heuristic extraction from email text
+function extractInvoiceData(subject: string, body: string): { amount: number | null; category: string | null } {
+  const combined = `${subject}\n${body}`.toLowerCase()
+
+  let amount: number | null = null
+  const amountPatterns = [
+    /(?:gesamt|summe|betrag|total|rechnungsbetrag|endbetrag|zahlbetrag)[:\s]*(?:eur\s*)?(\d{1,3}(?:\.\d{3})*,\d{2})/i,
+    /(\d{1,3}(?:\.\d{3})*,\d{2})\s*(?:eur|€)/i,
+    /(?:eur|€)\s*(\d{1,3}(?:\.\d{3})*,\d{2})/i,
+  ]
+
+  for (const pattern of amountPatterns) {
+    const match = combined.match(pattern)
+    if (match) {
+      amount = parseFloat(match[1].replace(/\./g, '').replace(',', '.'))
+      break
+    }
+  }
+
+  let category: string | null = null
+  const categoryMap: Record<string, string[]> = {
+    Nebenkosten: ['nebenkosten', 'betriebskosten', 'hausgeld', 'nebenkostenabrechnung'],
+    Versicherung: ['versicherung', 'police', 'haftpflicht', 'gebäudeversicherung'],
+    Reparatur: ['reparatur', 'instandhaltung', 'handwerker', 'sanitär', 'wartung'],
+    Steuern: ['grundsteuer', 'steuer', 'finanzamt', 'steuerbescheid'],
+    Verwaltung: ['verwaltung', 'hausverwaltung', 'verwalter'],
+    Energie: ['strom', 'gas', 'energie', 'stadtwerke'],
+    Wasser: ['wasser', 'abwasser', 'wasserwerk'],
+    Muellentsorgung: ['müll', 'abfall', 'entsorgung', 'wertstoff'],
+    Grundstueck: ['garten', 'winterdienst', 'reinigung', 'treppenhausreinigung'],
+    Rechtskosten: ['anwalt', 'rechtsanwalt', 'gericht', 'mahnung', 'inkasso'],
+  }
+
+  for (const [cat, keywords] of Object.entries(categoryMap)) {
+    if (keywords.some((kw) => combined.includes(kw))) {
+      category = cat
+      break
+    }
+  }
+
+  return { amount, category }
 }
 
 // Call Claude API for PDF analysis
@@ -134,55 +171,7 @@ Setze "confidence" zwischen 0 und 1. Setze Felder auf null wenn nicht findbar. N
   }
 }
 
-// Heuristic extraction from email text
-function extractInvoiceData(subject: string, body: string): { amount: number | null; category: string | null } {
-  const combined = `${subject}\n${body}`.toLowerCase()
-
-  let amount: number | null = null
-  const amountPatterns = [
-    /(?:gesamt|summe|betrag|total|rechnungsbetrag|endbetrag|zahlbetrag)[:\s]*(?:eur\s*)?(\d{1,3}(?:\.\d{3})*,\d{2})/i,
-    /(\d{1,3}(?:\.\d{3})*,\d{2})\s*(?:eur|€)/i,
-    /(?:eur|€)\s*(\d{1,3}(?:\.\d{3})*,\d{2})/i,
-  ]
-
-  for (const pattern of amountPatterns) {
-    const match = combined.match(pattern)
-    if (match) {
-      amount = parseFloat(match[1].replace(/\./g, '').replace(',', '.'))
-      break
-    }
-  }
-
-  let category: string | null = null
-  const categoryMap: Record<string, string[]> = {
-    Nebenkosten: ['nebenkosten', 'betriebskosten', 'hausgeld', 'nebenkostenabrechnung'],
-    Versicherung: ['versicherung', 'police', 'haftpflicht', 'gebäudeversicherung'],
-    Reparatur: ['reparatur', 'instandhaltung', 'handwerker', 'sanitär', 'wartung'],
-    Steuern: ['grundsteuer', 'steuer', 'finanzamt', 'steuerbescheid'],
-    Verwaltung: ['verwaltung', 'hausverwaltung', 'verwalter'],
-    Energie: ['strom', 'gas', 'energie', 'stadtwerke'],
-    Wasser: ['wasser', 'abwasser', 'wasserwerk'],
-    Muellentsorgung: ['müll', 'abfall', 'entsorgung', 'wertstoff'],
-    Grundstueck: ['garten', 'winterdienst', 'reinigung', 'treppenhausreinigung'],
-    Rechtskosten: ['anwalt', 'rechtsanwalt', 'gericht', 'mahnung', 'inkasso'],
-  }
-
-  for (const [cat, keywords] of Object.entries(categoryMap)) {
-    if (keywords.some((kw) => combined.includes(kw))) {
-      category = cat
-      break
-    }
-  }
-
-  return { amount, category }
-}
-
-function formatEuro(amount: number): string {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount)
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS for health checks
   if (req.method === 'GET') {
     return res.status(200).json({ status: 'ok', endpoint: 'inbound-email-cf' })
   }
@@ -202,24 +191,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(403).json({ error: 'Invalid signature' })
     }
 
-    const payload: InboundEmailPayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+    const payload: CloudflarePayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
 
     const senderEmail = extractEmail(payload.from)
     const recipientEmail = extractEmail(payload.to)
-    const subject = payload.subject || ''
-    const bodyText = payload.text || ''
 
-    console.log('Cloudflare inbound email:', { senderEmail, recipientEmail, subject, attachments: payload.attachments.length })
+    console.log('Cloudflare inbound email:', { senderEmail, recipientEmail })
+
+    // Parse the raw MIME message
+    const mimeBuffer = Buffer.from(payload.raw_mime, 'base64')
+    const parsed = await simpleParser(mimeBuffer)
+
+    const subject = parsed.subject || ''
+    const bodyText = parsed.text || ''
+
+    // Extract attachments from parsed MIME
+    const attachments = (parsed.attachments || []).map((att) => ({
+      filename: att.filename || 'attachment',
+      mimeType: att.contentType || 'application/octet-stream',
+      size: att.size,
+      content: att.content, // Buffer
+    }))
+
+    console.log('Parsed email:', { subject, attachments: attachments.length })
 
     // 1. Find the inbox by the generated address
-    const { data: inbox, error: inboxError } = await supabase
+    let inbox: { id: string; user_id: string; is_active: boolean } | null = null
+
+    const { data: inboxByAddress } = await supabase
       .from('email_inboxes')
       .select('id, user_id, is_active')
       .eq('generated_address', recipientEmail)
       .single()
 
-    if (inboxError || !inbox) {
-      // Try partial match (prefix before @)
+    if (inboxByAddress) {
+      inbox = inboxByAddress
+    } else {
+      // Try prefix match
       const prefix = recipientEmail.split('@')[0]
       const { data: inboxByPrefix } = await supabase
         .from('email_inboxes')
@@ -227,18 +235,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .eq('email_prefix', prefix)
         .single()
 
-      if (!inboxByPrefix) {
-        console.log('No inbox found for:', recipientEmail)
-        return res.status(200).json({ status: 'ignored', reason: 'unknown_recipient' })
+      if (inboxByPrefix) {
+        inbox = inboxByPrefix
+        // Update generated_address for future lookups
+        await supabase
+          .from('email_inboxes')
+          .update({ generated_address: recipientEmail })
+          .eq('id', inboxByPrefix.id)
       }
+    }
 
-      // Update generated_address with full email for future lookups
-      await supabase
-        .from('email_inboxes')
-        .update({ generated_address: recipientEmail })
-        .eq('id', inboxByPrefix.id)
-
-      return processEmail(inboxByPrefix, senderEmail, recipientEmail, subject, bodyText, payload.attachments, res)
+    if (!inbox) {
+      console.log('No inbox found for:', recipientEmail)
+      return res.status(200).json({ status: 'ignored', reason: 'unknown_recipient' })
     }
 
     if (!inbox.is_active) {
@@ -246,133 +255,119 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ status: 'ignored', reason: 'inbox_inactive' })
     }
 
-    return processEmail(inbox, senderEmail, recipientEmail, subject, bodyText, payload.attachments, res)
-  } catch (error) {
-    console.error('Inbound email processing error:', error)
-    return res.status(500).json({ error: 'Failed to process email' })
-  }
-}
+    // 2. Verify the sender is whitelisted
+    const { data: verifiedSender } = await supabase
+      .from('verified_senders')
+      .select('id, is_verified')
+      .eq('user_id', inbox.user_id)
+      .eq('email', senderEmail)
+      .single()
 
-async function processEmail(
-  inbox: { id: string; user_id: string; is_active: boolean },
-  senderEmail: string,
-  recipientEmail: string,
-  subject: string,
-  bodyText: string,
-  attachments: InboundEmailPayload['attachments'],
-  res: VercelResponse
-) {
-  // 2. Verify the sender is whitelisted
-  const { data: verifiedSender } = await supabase
-    .from('verified_senders')
-    .select('id, is_verified')
-    .eq('user_id', inbox.user_id)
-    .eq('email', senderEmail)
-    .single()
+    let emailStatus: 'pending' | 'rejected' = 'pending'
+    let emailNotes: string | null = null
 
-  let emailStatus: 'pending' | 'rejected' = 'pending'
-  let emailNotes: string | null = null
-
-  if (!verifiedSender) {
-    emailStatus = 'rejected'
-    emailNotes = `Absender ${senderEmail} ist nicht als verifizierter Absender hinterlegt.`
-  } else if (!verifiedSender.is_verified) {
-    emailStatus = 'rejected'
-    emailNotes = `Absender ${senderEmail} ist noch nicht verifiziert.`
-  }
-
-  // 3. Store the inbound email
-  const { data: storedEmail, error: emailError } = await supabase
-    .from('inbound_emails')
-    .insert({
-      inbox_id: inbox.id,
-      user_id: inbox.user_id,
-      sender_email: senderEmail,
-      subject,
-      body_text: bodyText.substring(0, 50000),
-      status: emailStatus,
-      notes: emailNotes,
-    })
-    .select('id')
-    .single()
-
-  if (emailError || !storedEmail) {
-    console.error('Error storing email:', emailError)
-    return res.status(500).json({ error: 'Failed to store email' })
-  }
-
-  // 4. Upload PDF attachments to Supabase Storage
-  const pdfAttachments: { id: string; filename: string; path: string }[] = []
-
-  for (const att of attachments) {
-    const isPdf = att.mimeType === 'application/pdf' || att.filename.toLowerCase().endsWith('.pdf')
-    if (!isPdf) continue
-
-    const storagePath = `${inbox.user_id}/${storedEmail.id}/${att.filename}`
-    const fileBuffer = Buffer.from(att.content, 'base64')
-
-    const { error: uploadError } = await supabase.storage
-      .from('email-attachments')
-      .upload(storagePath, fileBuffer, {
-        contentType: 'application/pdf',
-        upsert: false,
-      })
-
-    if (uploadError) {
-      console.error('Upload error:', uploadError)
-      continue
+    if (!verifiedSender) {
+      emailStatus = 'rejected'
+      emailNotes = `Absender ${senderEmail} ist nicht als verifizierter Absender hinterlegt.`
+    } else if (!verifiedSender.is_verified) {
+      emailStatus = 'rejected'
+      emailNotes = `Absender ${senderEmail} ist noch nicht verifiziert.`
     }
 
-    const { data: attachment, error: attachError } = await supabase
-      .from('email_attachments')
+    // 3. Store the inbound email
+    const { data: storedEmail, error: emailError } = await supabase
+      .from('inbound_emails')
       .insert({
-        email_id: storedEmail.id,
-        file_name: att.filename,
-        file_type: 'application/pdf',
-        file_size: att.size,
-        file_path: storagePath,
+        inbox_id: inbox.id,
+        user_id: inbox.user_id,
+        sender_email: senderEmail,
+        subject,
+        body_text: bodyText.substring(0, 50000),
+        status: emailStatus,
+        notes: emailNotes,
       })
       .select('id')
       .single()
 
-    if (!attachError && attachment) {
-      pdfAttachments.push({ id: attachment.id, filename: att.filename, path: storagePath })
+    if (emailError || !storedEmail) {
+      console.error('Error storing email:', emailError)
+      return res.status(500).json({ error: 'Failed to store email' })
     }
-  }
 
-  // 5. Process the email
-  if (emailStatus === 'pending' && pdfAttachments.length > 0) {
-    const heuristicData = extractInvoiceData(subject, bodyText)
+    // 4. Upload PDF attachments to Supabase Storage
+    const pdfAttachments: { id: string; filename: string; path: string }[] = []
 
-    if (heuristicData.amount && heuristicData.category) {
-      await supabase
-        .from('inbound_emails')
-        .update({
-          status: 'processed',
-          processed_at: new Date().toISOString(),
-          notes: `Automatisch zugeordnet: ${heuristicData.category} - ${formatEuro(heuristicData.amount)}`,
+    for (const att of attachments) {
+      const isPdf = att.mimeType === 'application/pdf' || att.filename.toLowerCase().endsWith('.pdf')
+      if (!isPdf) continue
+
+      const storagePath = `${inbox.user_id}/${storedEmail.id}/${att.filename}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('email-attachments')
+        .upload(storagePath, att.content, {
+          contentType: 'application/pdf',
+          upsert: false,
         })
-        .eq('id', storedEmail.id)
-    } else {
-      // AI processing for each PDF
-      for (const att of pdfAttachments) {
-        await triggerAIProcessing(storedEmail.id, att, inbox.user_id)
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        continue
+      }
+
+      const { data: attachment, error: attachError } = await supabase
+        .from('email_attachments')
+        .insert({
+          email_id: storedEmail.id,
+          file_name: att.filename,
+          file_type: 'application/pdf',
+          file_size: att.size,
+          file_path: storagePath,
+        })
+        .select('id')
+        .single()
+
+      if (!attachError && attachment) {
+        pdfAttachments.push({ id: attachment.id, filename: att.filename, path: storagePath })
       }
     }
-  } else if (emailStatus === 'pending' && pdfAttachments.length === 0) {
-    await supabase.from('inbound_emails').update({ status: 'unclear' }).eq('id', storedEmail.id)
-    await supabase.from('booking_questions').insert({
-      user_id: inbox.user_id,
-      email_id: storedEmail.id,
-      question: `E-Mail ohne PDF-Anhang empfangen: "${subject || '(Kein Betreff)'}". Bitte Beleg manuell hochladen oder erneut mit PDF senden.`,
-    })
-  }
 
-  return res.status(200).json({
-    status: 'processed',
-    email_id: storedEmail.id,
-    attachments: pdfAttachments.length,
-  })
+    // 5. Process the email
+    if (emailStatus === 'pending' && pdfAttachments.length > 0) {
+      const heuristicData = extractInvoiceData(subject, bodyText)
+
+      if (heuristicData.amount && heuristicData.category) {
+        await supabase
+          .from('inbound_emails')
+          .update({
+            status: 'processed',
+            processed_at: new Date().toISOString(),
+            notes: `Automatisch zugeordnet: ${heuristicData.category} - ${formatEuro(heuristicData.amount)}`,
+          })
+          .eq('id', storedEmail.id)
+      } else {
+        for (const att of pdfAttachments) {
+          await triggerAIProcessing(storedEmail.id, att, inbox.user_id)
+        }
+      }
+    } else if (emailStatus === 'pending' && pdfAttachments.length === 0) {
+      await supabase.from('inbound_emails').update({ status: 'unclear' }).eq('id', storedEmail.id)
+      await supabase.from('booking_questions').insert({
+        user_id: inbox.user_id,
+        email_id: storedEmail.id,
+        question: `E-Mail ohne PDF-Anhang empfangen: "${subject || '(Kein Betreff)'}". Bitte Beleg manuell hochladen oder erneut mit PDF senden.`,
+      })
+    }
+
+    return res.status(200).json({
+      status: 'processed',
+      email_id: storedEmail.id,
+      attachments: pdfAttachments.length,
+    })
+  } catch (error) {
+    console.error('Inbound email processing error:', error)
+    return res.status(500).json({ error: 'Failed to process email' })
+  }
 }
 
 async function triggerAIProcessing(
