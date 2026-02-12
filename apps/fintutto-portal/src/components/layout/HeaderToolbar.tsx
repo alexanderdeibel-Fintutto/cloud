@@ -58,6 +58,10 @@ const PAGE_TITLES: Record<string, string> = {
   '/saldenliste': 'Summen- und Saldenliste',
   '/kontoauszuege': 'Kontoauszüge',
   '/inventar': 'Inventarverwaltung',
+  '/journal': 'Buchungsjournal',
+  '/bilanz': 'Bilanz',
+  '/guv': 'Gewinn- und Verlustrechnung',
+  '/periodenabschluss': 'Periodenabschluss',
 };
 
 export function HeaderToolbar() {

@@ -70,6 +70,10 @@ import BWA from "./pages/BWA";
 import TrialBalance from "./pages/TrialBalance";
 import AccountStatements from "./pages/AccountStatements";
 import Inventory from "./pages/Inventory";
+import Journal from "./pages/Journal";
+import BalanceSheet from "./pages/BalanceSheet";
+import ProfitLoss from "./pages/ProfitLoss";
+import PeriodClosing from "./pages/PeriodClosing";
 
 const queryClient = new QueryClient();
 
@@ -162,6 +166,10 @@ function AppRoutes() {
       <Route path="/saldenliste" element={<ProtectedRoute><TrialBalance /></ProtectedRoute>} />
       <Route path="/kontoauszuege" element={<ProtectedRoute><AccountStatements /></ProtectedRoute>} />
       <Route path="/inventar" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+      <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
+      <Route path="/bilanz" element={<ProtectedRoute><BalanceSheet /></ProtectedRoute>} />
+      <Route path="/guv" element={<ProtectedRoute><ProfitLoss /></ProtectedRoute>} />
+      <Route path="/periodenabschluss" element={<ProtectedRoute><PeriodClosing /></ProtectedRoute>} />
       <Route path="/einstellungen" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/firmen" element={<ProtectedRoute><Companies /></ProtectedRoute>} />
       <Route path="/uebergabe" element={<ProtectedRoute><Handover /></ProtectedRoute>} />
