@@ -1,0 +1,51 @@
+From e252b79f670e38fb10987170a3510b57aa353ab7 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 12 Feb 2026 17:23:59 +0000
+Subject: [PATCH] Add yearly pricing with 20% discount for Basic and Pro plans
+
+- Added yearlyPrice field (Basic: 95.90, Pro: 191.90)
+- Added yearlyPriceId placeholder for Stripe yearly prices
+- Consistent 20% yearly discount across all Fintutto apps
+
+https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
+---
+ src/hooks/useSubscription.ts | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/hooks/useSubscription.ts b/src/hooks/useSubscription.ts
+index 7bfa1d4..d238207 100644
+--- a/src/hooks/useSubscription.ts
++++ b/src/hooks/useSubscription.ts
+@@ -14,7 +14,9 @@ export const PLAN_CONFIG = {
+   free: {
+     name: 'Free',
+     price: 0,
++    yearlyPrice: 0,
+     priceId: null,
++    yearlyPriceId: null,
+     productId: null,
+     features: [
+       '1 Firma',
+@@ -26,7 +28,9 @@ export const PLAN_CONFIG = {
+   basic: {
+     name: 'Basic',
+     price: 9.99,
++    yearlyPrice: 95.90, // 20% Rabatt
+     priceId: 'price_1Szr9X52lqSgjCzeFZ88yFlw',
++    yearlyPriceId: null as string | null, // TODO: Replace after running create-all-stripe-products.sh
+     productId: 'prod_TxmipPdak8JwmT',
+     features: [
+       'Unbegrenzte Firmen',
+@@ -40,7 +44,9 @@ export const PLAN_CONFIG = {
+   pro: {
+     name: 'Pro',
+     price: 19.99,
++    yearlyPrice: 191.90, // 20% Rabatt
+     priceId: 'price_1Szr9Z52lqSgjCzeY83WUERb',
++    yearlyPriceId: null as string | null, // TODO: Replace after running create-all-stripe-products.sh
+     productId: 'prod_Txmjs0RZOVqFzS',
+     features: [
+       'Alles aus Basic',
+-- 
+2.43.0
+

@@ -1,0 +1,112 @@
+From c961d01892ee6acf59933ceb8e4cb624b7a8c88b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 12 Feb 2026 17:23:56 +0000
+Subject: [PATCH] Fix cross-app product prices, add enterprise tiers,
+ standardize discounts
+
+- Fixed Vermietify prices (14.99->9.99 Basic, 39.99->24.99 Pro)
+- Fixed HausmeisterPro price (29.99->9.99 Starter + added Pro tier)
+- Added Enterprise tiers for Ablesung and HausmeisterPro (49.99/mo)
+- Standardized all yearly discounts to 20%
+
+https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
+---
+ .../20260212120000_fix_product_prices.sql     | 86 +++++++++++++++++++
+ 1 file changed, 86 insertions(+)
+ create mode 100644 supabase/migrations/20260212120000_fix_product_prices.sql
+
+diff --git a/supabase/migrations/20260212120000_fix_product_prices.sql b/supabase/migrations/20260212120000_fix_product_prices.sql
+new file mode 100644
+index 0000000..ec5af0c
+--- /dev/null
++++ b/supabase/migrations/20260212120000_fix_product_prices.sql
+@@ -0,0 +1,86 @@
++-- Fix #4: Korrigiere falsche Preise in der products-Tabelle
++-- Die Preise fuer Vermietify und HausmeisterPro waren nicht konsistent mit den echten App-Preisen
++
++-- Vermietify Basic: war 14.99, korrekt ist 9.99
++UPDATE public.products
++SET price_monthly = 9.99,
++    price_yearly = 95.90,
++    stripe_price_id_monthly = 'price_1Sr56K52lqSgjCzeqfCfOudX',
++    stripe_price_id_yearly = NULL,
++    updated_at = NOW()
++WHERE app_id = 'vermietify' AND name = 'Vermietify Basic';
++
++-- Vermietify Pro: war 39.99, korrekt ist 24.99
++UPDATE public.products
++SET price_monthly = 24.99,
++    price_yearly = 239.90,
++    stripe_price_id_monthly = 'price_1Sr56o52lqSgjCzeRuGrant2',
++    stripe_price_id_yearly = NULL,
++    updated_at = NOW()
++WHERE app_id = 'vermietify' AND name = 'Vermietify Pro';
++
++-- HausmeisterPro: war 29.99, korrekt ist Starter 9.99 + Pro 24.99
++-- Aktualisiere bestehenden Eintrag auf Starter-Preis
++UPDATE public.products
++SET name = 'HausmeisterPro Starter',
++    price_monthly = 9.99,
++    price_yearly = 95.90,
++    stripe_price_id_monthly = 'price_1St3Eg52lqSgjCze5l6pqANG',
++    stripe_price_id_yearly = 'price_1St3FA52lqSgjCzeE8lXHzKH',
++    features = '["Bis zu 10 Gebaeude", "Erweiterte Aufgabenverwaltung", "Kalender-Integration", "Nachrichten-System"]'::jsonb,
++    updated_at = NOW()
++WHERE app_id = 'hausmeister' AND name = 'HausmeisterPro';
++
++-- Fuege HausmeisterPro Pro Tier hinzu
++INSERT INTO public.products (app_id, name, description, price_monthly, price_yearly, stripe_price_id_monthly, stripe_price_id_yearly, features, sort_order)
++VALUES (
++  'hausmeister',
++  'HausmeisterPro Pro',
++  'Fuer wachsende Unternehmen',
++  24.99,
++  239.90,
++  'price_1St3FA52lqSgjCzeE8lXHzKH',
++  NULL,
++  '["Unbegrenzte Gebaeude", "Alle Starter-Features", "Dokumenten-Management", "Berichterstellung", "API-Zugang"]'::jsonb,
++  2
++) ON CONFLICT DO NOTHING;
++
++-- Aktualisiere Nebenkosten Starter auf konsistenten 20% Jahresrabatt
++UPDATE public.products
++SET price_yearly = 191.90,
++    updated_at = NOW()
++WHERE app_id = 'nebenkosten' AND name = 'Nebenkosten Starter';
++
++-- Zählerstand yearly Preise auf 20% Rabatt korrigieren
++UPDATE public.products
++SET price_yearly = 95.90,
++    updated_at = NOW()
++WHERE app_id = 'zaehler' AND name = 'Zählerstand Basic';
++
++UPDATE public.products
++SET price_yearly = 239.90,
++    updated_at = NOW()
++WHERE app_id = 'zaehler' AND name = 'Zählerstand Pro';
++
++-- #16: Enterprise-Tiers fuer Ablesung und HausmeisterPro
++INSERT INTO public.products (app_id, name, description, price_monthly, price_yearly, features, sort_order)
++VALUES (
++  'zaehler',
++  'Zählerstand Enterprise',
++  'Fuer grosse Hausverwaltungen',
++  49.99,
++  479.90,
++  '["Unbegrenzte Einheiten", "Alle Pro-Features", "API-Zugang", "Dedizierter Support", "Custom Reports", "SLA-Garantie", "Multi-Team-Verwaltung"]'::jsonb,
++  3
++) ON CONFLICT DO NOTHING;
++
++INSERT INTO public.products (app_id, name, description, price_monthly, price_yearly, features, sort_order)
++VALUES (
++  'hausmeister',
++  'HausmeisterPro Enterprise',
++  'Fuer grosse Hausverwaltungen',
++  49.99,
++  479.90,
++  '["Unbegrenzte Gebaeude", "Alle Pro-Features", "Multi-Team-Verwaltung", "Custom Branding", "SLA-Garantie", "Dedizierter Account-Manager", "API mit hoeheren Limits"]'::jsonb,
++  3
++) ON CONFLICT DO NOTHING;
+-- 
+2.43.0
+

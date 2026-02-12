@@ -1,0 +1,45 @@
+From b08b0f61cd18c111c6ce48865b8fee894e63a6de Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 12 Feb 2026 17:24:04 +0000
+Subject: [PATCH] Add Enterprise tier for large property management companies
+
+- New Enterprise plan: 49.99/mo, 479.90/yr
+- Features: unlimited buildings, multi-team, custom branding, SLA, API
+
+https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
+---
+ src/config/pricing.ts | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/src/config/pricing.ts b/src/config/pricing.ts
+index 81826d4..4e911d1 100644
+--- a/src/config/pricing.ts
++++ b/src/config/pricing.ts
+@@ -55,6 +55,24 @@ export const PRICING_PLANS: PricingPlan[] = [
+     ],
+     highlighted: true,
+   },
++  {
++    id: 'enterprise',
++    name: 'Enterprise',
++    description: 'Für große Hausverwaltungen',
++    monthlyPrice: 49.99,
++    yearlyPrice: 479.90,
++    priceId: '', // TODO: Replace after running create-all-stripe-products.sh
++    features: [
++      'Unbegrenzte Gebäude',
++      'Alle Pro-Features',
++      'Multi-Team-Verwaltung',
++      'Custom Branding',
++      'SLA-Garantie',
++      'Dedizierter Account-Manager',
++      'API-Zugang mit höheren Limits',
++      'Onboarding-Support',
++    ],
++  },
+ ];
+ 
+ // Price ID to plan mapping for check-subscription function
+-- 
+2.43.0
+
