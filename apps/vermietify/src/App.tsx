@@ -13,6 +13,7 @@ import {
   Communication,
   Calculators,
   Settings,
+  URLManagement,
   Auth,
 } from '@/pages'
 
@@ -117,6 +118,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Calculators />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/url-management"
+        element={
+          <ProtectedRoute>
+            <URLManagement />
           </ProtectedRoute>
         }
       />

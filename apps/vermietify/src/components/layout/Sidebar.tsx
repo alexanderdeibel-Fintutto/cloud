@@ -15,6 +15,7 @@ import {
   Mail,
   Calculator,
   FolderOpen,
+  Globe,
 } from 'lucide-react'
 
 const navigation = [
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Dokumente', href: '/documents', icon: FolderOpen },
   { name: 'Kommunikation', href: '/communication', icon: Mail },
   { name: 'Rechner', href: '/calculators', icon: Calculator },
+  { name: 'URL Management', href: '/url-management', icon: Globe },
 ]
 
 export function Sidebar() {
