@@ -66,6 +66,8 @@ import {
   Scale,
   BookOpen,
   FileQuestion,
+  Upload,
+  Percent,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
@@ -99,6 +101,8 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
   { title: 'Tools & Services', url: '/tools', icon: Sparkles },
+  { title: 'MwSt-Rechner', url: '/mwst-rechner', icon: Percent },
+  { title: 'Daten-Import', url: '/import', icon: Upload },
   { title: 'Buchungen', url: '/buchungen', icon: Receipt },
   { title: 'Wiederkehrend', url: '/wiederkehrend', icon: Repeat },
   { title: 'Angebote', url: '/angebote', icon: FileCheck },

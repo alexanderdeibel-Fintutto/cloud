@@ -7,6 +7,7 @@ import { NotificationCenter } from '@/components/NotificationCenter';
 import { CommandPalette } from '@/components/CommandPalette';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { TrialBanner } from '@/components/TrialBanner';
 import { useAppShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -75,6 +76,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <NotificationCenter />
             </div>
           </header>
+          <TrialBanner />
           <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto pb-24 lg:pb-8">
             {children}
           </div>
