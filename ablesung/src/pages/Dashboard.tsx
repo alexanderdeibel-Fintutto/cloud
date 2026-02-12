@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Camera, Loader2, Building2, ChevronRight, Gauge, Trash2, BarChart3, FileText, Lightbulb, Sun, TrendingDown, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plus, Camera, Loader2, Building2, ChevronRight, Gauge, Trash2, BarChart3, FileText, Lightbulb, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { CrossMarketingBanner } from '@/components/dashboard/CrossMarketingBanne
 import { FintuttoSuiteSection } from '@/components/dashboard/FintuttoSuiteSection';
 import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
-import { BuildingWithUnits, getReadingStatus, formatNumber, METER_TYPE_LABELS, METER_TYPE_UNITS } from '@/types/database';
+import { BuildingWithUnits, getReadingStatus } from '@/types/database';
 import { useEnergyContracts } from '@/hooks/useEnergyContracts';
 
 // Animation variants
