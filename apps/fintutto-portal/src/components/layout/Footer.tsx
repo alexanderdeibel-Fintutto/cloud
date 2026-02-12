@@ -23,6 +23,11 @@ const footerLinks = {
     { name: 'Selbstauskunft', href: '/formulare/selbstauskunft' },
     { name: 'Mieterh\u00f6hung', href: '/formulare/mieterhoehung' },
   ],
+  oekosystem: [
+    { name: 'Alle Apps', href: '/apps' },
+    { name: 'Referral-Programm', href: '/referral' },
+    { name: 'Preise', href: '/preise' },
+  ],
   rechtliches: [
     { name: 'Impressum', href: '/impressum' },
     { name: 'Datenschutz', href: '/datenschutz' },
@@ -35,7 +40,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-portal">
@@ -81,6 +86,19 @@ export default function Footer() {
             <h3 className="font-semibold mb-3">Formulare</h3>
             <ul className="space-y-2">
               {footerLinks.formulare.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-3">&Ouml;kosystem</h3>
+            <ul className="space-y-2">
+              {footerLinks.oekosystem.map((link) => (
                 <li key={link.name}>
                   <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                     {link.name}

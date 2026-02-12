@@ -145,22 +145,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Vermietify Integration Teaser */}
+      {/* Ecosystem Teaser */}
       <section className="py-16 bg-muted/30">
         <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-4">
-              Mehr als nur Tools? Entdecke Vermietify
+              Das komplette Fintutto &Ouml;kosystem
             </h2>
-            <p className="text-muted-foreground mb-6">
-              Alle deine Berechnungen und Formulare flie\u00dfen nahtlos in Vermietify \u2013
-              die komplette Immobilienverwaltung. Geb\u00e4ude, Mieter, Vertr\u00e4ge, Zahlungen
-              und mehr \u2013 alles an einem Ort.
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              6 Apps f&uuml;r jeden Schritt im Mietalltag &ndash; alle verbunden, alle kostenlos starten.
             </p>
-            <Button variant="outline" size="lg" asChild>
-              <a href="https://vermietify.fintutto.cloud" target="_blank" rel="noopener noreferrer">
-                Vermietify kennenlernen <ArrowRight className="h-4 w-4 ml-2" />
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto mb-8">
+            {[
+              { icon: '🏠', name: 'Vermietify', desc: 'Immobilienverwaltung', url: 'https://vermietify.vercel.app' },
+              { icon: '🔑', name: 'Mieter-App', desc: 'Mieter-Dashboard', url: 'https://mieter-kw8d.vercel.app' },
+              { icon: '🔧', name: 'HausmeisterPro', desc: 'Facility Management', url: 'https://hausmeister-pro.vercel.app' },
+              { icon: '📊', name: 'Ablesung', desc: 'Z&auml;hlerst&auml;nde', url: 'https://ablesung.vercel.app' },
+              { icon: '🥊', name: 'BescheidBoxer', desc: 'Bescheid-Analyse', url: 'https://bescheidboxer.vercel.app' },
+              { icon: '✨', name: 'Portal', desc: '28+ Tools', url: '/apps' },
+            ].map((app) => (
+              <a
+                key={app.name}
+                href={app.url.startsWith('/') ? undefined : app.url}
+                target={app.url.startsWith('/') ? undefined : '_blank'}
+                rel={app.url.startsWith('/') ? undefined : 'noopener noreferrer'}
+                className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/30 transition-all group"
+              >
+                <span className="text-3xl mb-2">{app.icon}</span>
+                <span className="font-semibold text-sm">{app.name}</span>
+                <span className="text-xs text-muted-foreground" dangerouslySetInnerHTML={{ __html: app.desc }} />
               </a>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/apps">
+                Alle Apps entdecken <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
             </Button>
           </div>
         </div>

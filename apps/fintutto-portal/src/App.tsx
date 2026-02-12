@@ -8,6 +8,8 @@ import RechnerPage from '@/pages/RechnerPage'
 import CheckerPage from '@/pages/CheckerPage'
 import FormularePage from '@/pages/FormularePage'
 import PricingPage from '@/pages/PricingPage'
+import AppsPage from '@/pages/AppsPage'
+import ReferralPage from '@/pages/ReferralPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 // Rechner (7 Vermieter-Tools)
@@ -79,6 +81,8 @@ function App() {
           {/* === META === */}
           <Route path="preise" element={<PricingPage />} />
           <Route path="pricing" element={<PricingPage />} />
+          <Route path="apps" element={<AppsPage />} />
+          <Route path="referral" element={<ReferralPage />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
