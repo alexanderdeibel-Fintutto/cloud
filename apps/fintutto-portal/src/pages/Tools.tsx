@@ -9,7 +9,8 @@ import {
   Calculator, FileText, Receipt, Building2, Scale, TrendingUp, Calendar,
   CreditCard, Landmark, FileSpreadsheet, Upload, PiggyBank, Euro, Percent,
   Clock, Users, Wallet, ArrowRightLeft, Search, Star, Sparkles, Lock,
-  BookOpen, AlertTriangle, BarChart3, Briefcase, Globe, Mail, FileCheck
+  BookOpen, AlertTriangle, BarChart3, Briefcase, Globe, Mail, FileCheck,
+  Paintbrush
 } from 'lucide-react';
 
 interface Tool {
@@ -29,6 +30,7 @@ const TOOLS: Tool[] = [
   { id: 'chart-of-accounts', name: 'Kontenrahmen', description: 'SKR03/SKR04 Kontenplan verwalten', icon: BookOpen, route: '/kontenrahmen', category: 'accounting', tier: 'free' },
   { id: 'journal', name: 'Buchungsjournal', description: 'Alle Buchungen erfassen und verwalten', icon: FileText, route: '/journal', category: 'accounting', tier: 'free', isPopular: true },
   { id: 'invoices', name: 'Rechnungen', description: 'Rechnungen erstellen und verwalten', icon: Receipt, route: '/invoices', category: 'accounting', tier: 'free', isPopular: true },
+  { id: 'invoice-designer', name: 'Rechnungs-Designer', description: 'Individuelle Rechnungsvorlagen gestalten', icon: Paintbrush, route: '/rechnungs-designer', category: 'accounting', tier: 'starter', isNew: true },
   { id: 'receipts', name: 'Belege', description: 'Belege hochladen und kategorisieren', icon: FileCheck, route: '/receipts', category: 'accounting', tier: 'free' },
   { id: 'open-items', name: 'Offene Posten', description: 'Offene Forderungen & Verbindlichkeiten', icon: AlertTriangle, route: '/offene-posten', category: 'accounting', tier: 'starter' },
   { id: 'dunning', name: 'Mahnwesen', description: 'Automatische Zahlungserinnerungen', icon: Mail, route: '/mahnwesen', category: 'accounting', tier: 'starter' },

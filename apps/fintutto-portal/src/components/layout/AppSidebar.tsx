@@ -68,6 +68,7 @@ import {
   FileQuestion,
   Upload,
   Percent,
+  Paintbrush,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
@@ -108,6 +109,7 @@ const navItems = [
   { title: 'Angebote', url: '/angebote', icon: FileCheck },
   { title: 'Aufträge', url: '/auftraege', icon: ClipboardList },
   { title: 'Rechnungen', url: '/rechnungen', icon: FileText },
+  { title: 'Rechnungs-Designer', url: '/rechnungs-designer', icon: Paintbrush },
   { title: 'Belege', url: '/belege', icon: FolderOpen },
   { title: 'Beleg-Scanner', url: '/scanner', icon: ScanLine },
   { title: 'Kontakte', url: '/kontakte', icon: Users },

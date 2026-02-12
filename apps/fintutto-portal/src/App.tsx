@@ -78,6 +78,7 @@ import Tools from "./pages/Tools";
 import Pricing from "./pages/Pricing";
 import VATCalculator from "./pages/VATCalculator";
 import Import from "./pages/Import";
+import InvoiceDesigner from "./pages/InvoiceDesigner";
 
 const queryClient = new QueryClient();
 
@@ -178,6 +179,7 @@ function AppRoutes() {
       <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
       <Route path="/mwst-rechner" element={<ProtectedRoute><VATCalculator /></ProtectedRoute>} />
       <Route path="/import" element={<ProtectedRoute><Import /></ProtectedRoute>} />
+      <Route path="/rechnungs-designer" element={<ProtectedRoute><InvoiceDesigner /></ProtectedRoute>} />
       <Route path="/einstellungen" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/firmen" element={<ProtectedRoute><Companies /></ProtectedRoute>} />
       <Route path="/uebergabe" element={<ProtectedRoute><Handover /></ProtectedRoute>} />

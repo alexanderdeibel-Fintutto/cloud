@@ -66,6 +66,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/pricing': 'Preise & Pläne',
   '/mwst-rechner': 'MwSt-Rechner',
   '/import': 'Daten-Import',
+  '/rechnungs-designer': 'Rechnungs-Designer',
 };
 
 export function HeaderToolbar() {
