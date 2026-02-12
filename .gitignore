@@ -41,3 +41,6 @@ coverage
 
 # Misc
 *.pem
+
+# Cloned sub-repos (separate GitHub repos)
+ablesung/
