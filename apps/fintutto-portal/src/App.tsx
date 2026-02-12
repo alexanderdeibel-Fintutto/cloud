@@ -74,6 +74,8 @@ import Journal from "./pages/Journal";
 import BalanceSheet from "./pages/BalanceSheet";
 import ProfitLoss from "./pages/ProfitLoss";
 import PeriodClosing from "./pages/PeriodClosing";
+import Tools from "./pages/Tools";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -170,6 +172,8 @@ function AppRoutes() {
       <Route path="/bilanz" element={<ProtectedRoute><BalanceSheet /></ProtectedRoute>} />
       <Route path="/guv" element={<ProtectedRoute><ProfitLoss /></ProtectedRoute>} />
       <Route path="/periodenabschluss" element={<ProtectedRoute><PeriodClosing /></ProtectedRoute>} />
+      <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
+      <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
       <Route path="/einstellungen" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/firmen" element={<ProtectedRoute><Companies /></ProtectedRoute>} />
       <Route path="/uebergabe" element={<ProtectedRoute><Handover /></ProtectedRoute>} />

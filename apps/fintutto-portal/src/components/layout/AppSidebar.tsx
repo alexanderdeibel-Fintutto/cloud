@@ -61,6 +61,11 @@ import {
   TableProperties,
   FileBarChart,
   Boxes,
+  Sparkles,
+  CreditCardIcon,
+  Scale,
+  BookOpen,
+  FileQuestion,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
@@ -93,6 +98,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+  { title: 'Tools & Services', url: '/tools', icon: Sparkles },
   { title: 'Buchungen', url: '/buchungen', icon: Receipt },
   { title: 'Wiederkehrend', url: '/wiederkehrend', icon: Repeat },
   { title: 'Angebote', url: '/angebote', icon: FileCheck },
@@ -144,9 +150,14 @@ const navItems = [
   { title: 'BWA', url: '/bwa', icon: BarChart },
   { title: 'Saldenliste', url: '/saldenliste', icon: TableProperties },
   { title: 'Kontoauszüge', url: '/kontoauszuege', icon: FileBarChart },
+  { title: 'Journal', url: '/journal', icon: BookOpen },
+  { title: 'Bilanz', url: '/bilanz', icon: Scale },
+  { title: 'GuV', url: '/guv', icon: TrendingUp },
+  { title: 'Periodenabschluss', url: '/periodenabschluss', icon: CalendarCheck },
   { title: 'Inventar', url: '/inventar', icon: Boxes },
   { title: 'Firmen', url: '/firmen', icon: Building2 },
   { title: 'Vorlagen', url: '/vorlagen', icon: Mail },
+  { title: 'Preise & Pläne', url: '/pricing', icon: CreditCardIcon },
   { title: 'Einstellungen', url: '/einstellungen', icon: Settings },
   { title: 'Hilfe', url: '/hilfe', icon: HelpCircle },
 ];

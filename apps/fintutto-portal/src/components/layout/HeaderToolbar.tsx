@@ -62,6 +62,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/bilanz': 'Bilanz',
   '/guv': 'Gewinn- und Verlustrechnung',
   '/periodenabschluss': 'Periodenabschluss',
+  '/tools': 'Tools & Services',
+  '/pricing': 'Preise & Pläne',
 };
 
 export function HeaderToolbar() {
