@@ -1,6 +1,7 @@
-import { Plus, Upload, FileText, Receipt, Command } from 'lucide-react';
+import { Plus, Upload, FileText, Receipt, Command, Calculator, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useNavigate } from 'react-router-dom';
 
 interface QuickActionsProps {
   onNewBooking?: () => void;
@@ -19,6 +20,8 @@ export function QuickActions({
   onOpenCommandPalette,
   variant = 'full',
 }: QuickActionsProps) {
+  const navigate = useNavigate();
+
   const actions = [
     {
       icon: Plus,
@@ -47,6 +50,12 @@ export function QuickActions({
       onClick: onExport,
       color: 'hover:bg-purple-500/10 hover:border-purple-500/50 hover:text-purple-600',
     },
+  ];
+
+  const toolLinks = [
+    { icon: Calculator, label: 'MwSt-Rechner', route: '/mwst-rechner', color: 'text-emerald-600' },
+    { icon: Upload, label: 'Daten-Import', route: '/import', color: 'text-blue-600' },
+    { icon: Sparkles, label: 'Alle Tools', route: '/tools', color: 'text-primary' },
   ];
 
   if (variant === 'compact') {
@@ -126,6 +135,26 @@ export function QuickActions({
             )}
           </Button>
         ))}
+      </div>
+
+      {/* Tool Links */}
+      <div className="mt-4 pt-4 border-t border-border/50">
+        <p className="text-xs text-muted-foreground mb-2">Tools & Rechner</p>
+        <div className="flex flex-wrap gap-2">
+          {toolLinks.map((tool) => (
+            <Button
+              key={tool.route}
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => navigate(tool.route)}
+            >
+              <tool.icon className={`h-3.5 w-3.5 mr-1.5 ${tool.color}`} />
+              {tool.label}
+              <ArrowRight className="h-3 w-3 ml-1 opacity-50" />
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* Keyboard hint */}
