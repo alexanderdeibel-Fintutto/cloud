@@ -18,13 +18,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, userEmail, tierId } = req.body
+    const { priceId, userId, userEmail, tierId, couponId, trialDays } = req.body
 
     if (!priceId) {
       return res.status(400).json({ error: 'Price ID is required' })
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [
@@ -44,7 +44,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       locale: 'de',
-    })
+    }
+
+    // #15: Apply referral coupon if provided (1 Monat gratis fuer Geworbenen)
+    if (couponId) {
+      sessionParams.discounts = [{ coupon: couponId }]
+      delete sessionParams.allow_promotion_codes
+    }
+
+    // #18: Add trial period if specified (7 Tage Standard)
+    if (trialDays && trialDays > 0) {
+      sessionParams.subscription_data = {
+        trial_period_days: trialDays,
+      }
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams)
 
     return res.status(200).json({ url: session.url })
   } catch (error) {

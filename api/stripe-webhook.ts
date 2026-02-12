@@ -97,6 +97,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .eq('id', existingUser.id)
           }
         }
+
+        // --- REFERRAL REWARD LOGIC ---
+        // Check if the subscriber was referred and apply rewards for BOTH sides
+        const subscriberEmail = customerEmail || session.customer_details?.email
+        if (subscriberEmail) {
+          await processReferralReward(subscriberEmail, session.customer as string)
+        }
+
         break
       }
 
@@ -157,5 +165,106 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error('Webhook handler error:', error)
     return res.status(500).json({ error: 'Webhook handler failed' })
+  }
+}
+
+// ============================================================================
+// REFERRAL REWARD LOGIC
+// 1 Monat gratis fuer BEIDE Seiten (Werber + Geworbener)
+// ============================================================================
+async function processReferralReward(subscriberEmail: string, stripeCustomerId: string) {
+  try {
+    // Find the subscriber and check if they were referred
+    const { data: subscriber } = await supabase
+      .from('users')
+      .select('id, referred_by')
+      .eq('email', subscriberEmail.toLowerCase())
+      .single()
+
+    if (!subscriber?.referred_by) {
+      return // No referral to process
+    }
+
+    // Check if reward was already applied
+    const { data: existingReferral } = await supabase
+      .from('referrals')
+      .select('id, reward_applied_referrer')
+      .eq('referred_user_id', subscriber.id)
+      .eq('referrer_user_id', subscriber.referred_by)
+      .single()
+
+    if (existingReferral?.reward_applied_referrer) {
+      return // Already rewarded
+    }
+
+    // Get referrer's email for Stripe lookup
+    const { data: referrer } = await supabase
+      .from('users')
+      .select('id, email')
+      .eq('id', subscriber.referred_by)
+      .single()
+
+    if (!referrer?.email) {
+      return
+    }
+
+    console.log('Processing referral reward:', { referrerEmail: referrer.email, subscriberEmail })
+
+    // Create 100% off coupon for referrer (1 month free)
+    const referrerCoupon = await stripe.coupons.create({
+      percent_off: 100,
+      duration: 'once',
+      name: `Referral-Belohnung: Gratismonat (Einladung von ${subscriberEmail})`,
+      max_redemptions: 1,
+    })
+
+    // Apply coupon to referrer's active subscription if they have one
+    const referrerCustomers = await stripe.customers.list({
+      email: referrer.email,
+      limit: 1,
+    })
+
+    if (referrerCustomers.data.length > 0) {
+      const referrerSubs = await stripe.subscriptions.list({
+        customer: referrerCustomers.data[0].id,
+        status: 'active',
+        limit: 1,
+      })
+
+      if (referrerSubs.data.length > 0) {
+        await stripe.subscriptions.update(referrerSubs.data[0].id, {
+          coupon: referrerCoupon.id,
+        })
+        console.log('Referrer coupon applied to subscription:', referrerSubs.data[0].id)
+      }
+    }
+
+    // Update referral record
+    const updateData = {
+      reward_applied_referrer: true,
+      reward_applied_referred: true,
+      reward_applied_at: new Date().toISOString(),
+      stripe_coupon_id_referrer: referrerCoupon.id,
+      status: 'converted',
+      converted_at: new Date().toISOString(),
+    }
+
+    if (existingReferral) {
+      await supabase
+        .from('referrals')
+        .update(updateData)
+        .eq('id', existingReferral.id)
+    } else {
+      // Update by referrer + referred match
+      await supabase
+        .from('referrals')
+        .update(updateData)
+        .eq('referred_user_id', subscriber.id)
+        .eq('referrer_user_id', subscriber.referred_by)
+    }
+
+    console.log('Referral reward applied successfully')
+  } catch (err) {
+    console.error('Error processing referral reward:', err)
   }
 }

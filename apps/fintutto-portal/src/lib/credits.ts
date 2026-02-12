@@ -43,6 +43,7 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 10,
+    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
     stripePriceIdMonthly: 'price_portal_mieter_monthly',
     stripePriceIdYearly: 'price_portal_mieter_yearly',
   },
@@ -51,12 +52,13 @@ export const PLANS: Record<PlanType, Plan> = {
     name: 'Vermieter',
     description: 'Alle Rechner & Vermieter-Formulare',
     role: 'vermieter',
-    price: 799, // 7.99 EUR
-    yearlyPrice: 7670, // 76.70 EUR
+    price: 999, // 9.99 EUR (angehoben, konsistent mit Vermietify Basic)
+    yearlyPrice: 9590, // 95.90 EUR (20% Rabatt)
     monthlyCredits: 20,
     canSave: true,
     canExportPdf: true,
     aiMessages: 20,
+    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
     stripePriceIdMonthly: 'price_portal_vermieter_monthly',
     stripePriceIdYearly: 'price_portal_vermieter_yearly',
   },
@@ -65,12 +67,13 @@ export const PLANS: Record<PlanType, Plan> = {
     name: 'Kombi Pro',
     description: 'Alles: Rechner + Checker + Formulare',
     role: 'kombi',
-    price: 1199, // 11.99 EUR
-    yearlyPrice: 11510, // 115.10 EUR
+    price: 1499, // 14.99 EUR (angehoben, Bundle-Rabatt vs. Einzelkauf)
+    yearlyPrice: 14390, // 143.90 EUR (20% Rabatt)
     monthlyCredits: 50,
     canSave: true,
     canExportPdf: true,
     aiMessages: 50,
+    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
     stripePriceIdMonthly: 'price_portal_kombi_monthly',
     stripePriceIdYearly: 'price_portal_kombi_yearly',
   },
@@ -79,12 +82,13 @@ export const PLANS: Record<PlanType, Plan> = {
     name: 'Unlimited',
     description: 'Unbegrenzt alles nutzen',
     role: 'kombi',
-    price: 1999, // 19.99 EUR
-    yearlyPrice: 19190, // 191.90 EUR
+    price: 2499, // 24.99 EUR (angehoben, Premium-Positionierung)
+    yearlyPrice: 23990, // 239.90 EUR (20% Rabatt)
     monthlyCredits: -1,
     canSave: true,
     canExportPdf: true,
     aiMessages: -1,
+    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
     stripePriceIdMonthly: 'price_portal_unlimited_monthly',
     stripePriceIdYearly: 'price_portal_unlimited_yearly',
   },
