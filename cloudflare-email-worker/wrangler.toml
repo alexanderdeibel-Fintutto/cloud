@@ -1,0 +1,9 @@
+name = "fintutto-email-worker"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+
+[vars]
+WEBHOOK_URL = "https://vermietify.fintutto.cloud/api/inbound-email-cf"
+
+# WEBHOOK_SECRET is set via: wrangler secret put WEBHOOK_SECRET
+# Use the same VERIFICATION_SECRET as in Vercel env

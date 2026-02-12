@@ -80,7 +80,7 @@ interface VerifiedSender {
 
 function generateEmailAddress(userId: string): string {
   const shortId = userId.replace(/-/g, '').slice(0, 8)
-  return `belege-${shortId}@eingang.vermietify.de`
+  return `belege-${shortId}@fintutto.de`
 }
 
 function formatDateTime(dateStr: string): string {
@@ -135,9 +135,10 @@ export function EmailInbox() {
       setInbox(existingInbox)
     } else {
       const generatedAddress = generateEmailAddress(user.id)
+      const emailPrefix = generatedAddress.split('@')[0]
       const { data: newInbox, error } = await supabase
         .from('email_inboxes')
-        .insert({ user_id: user.id, generated_address: generatedAddress })
+        .insert({ user_id: user.id, generated_address: generatedAddress, email_prefix: emailPrefix })
         .select()
         .single()
 
