@@ -13,12 +13,12 @@ import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { formatCurrency, formatDate } from '../../lib/utils'
-import { useMockData } from '../../hooks/use-mock-data'
+import { useBescheide } from '../../hooks/use-bescheide'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
 
 export default function BescheidePage() {
-  const { bescheide } = useMockData()
+  const { bescheide } = useBescheide()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterTyp, setFilterTyp] = useState<string>('alle')
   const [filterStatus, setFilterStatus] = useState<string>('alle')

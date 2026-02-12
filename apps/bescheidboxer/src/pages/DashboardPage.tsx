@@ -25,7 +25,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { formatCurrency, formatDate, daysUntil } from '../lib/utils'
-import { useMockData } from '../hooks/use-mock-data'
+import { useBescheide } from '../hooks/use-bescheide'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../types/bescheid'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -37,7 +37,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function DashboardPage() {
-  const { bescheide, fristen, stats } = useMockData()
+  const { bescheide, fristen, stats } = useBescheide()
 
   const recentBescheide = bescheide.slice(0, 3)
   const urgentFristen = fristen

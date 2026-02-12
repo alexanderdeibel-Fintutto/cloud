@@ -16,6 +16,9 @@ import { Label } from '../components/ui/label'
 import { Progress } from '../components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useToast } from '../hooks/use-toast'
+import { useFileUpload } from '../hooks/use-file-upload'
+import { useBescheide } from '../hooks/use-bescheide'
+import type { Bescheid } from '../types/bescheid'
 
 type UploadStep = 'upload' | 'processing' | 'details' | 'complete'
 
@@ -34,8 +37,11 @@ export default function UploadPage() {
   const [steuerjahr, setSteuerjahr] = useState('')
   const [finanzamt, setFinanzamt] = useState('')
   const [aktenzeichen, setAktenzeichen] = useState('')
+  const [rawFile, setRawFile] = useState<File | null>(null)
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { uploadFile, error: uploadError } = useFileUpload()
+  const { createBescheid } = useBescheide()
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -64,6 +70,7 @@ export default function UploadPage() {
   }, [])
 
   const processFile = (file: File) => {
+    setRawFile(file)
     setUploadedFile({
       name: file.name,
       size: file.size,
@@ -89,14 +96,36 @@ export default function UploadPage() {
     }, 300)
   }
 
-  const handleSubmit = () => {
-    if (!bescheidTyp || !steuerjahr) {
+  const handleSubmit = async () => {
+    if (!bescheidTyp || !steuerjahr || !finanzamt) {
       toast({
         title: 'Fehlende Angaben',
         description: 'Bitte fuellen Sie alle Pflichtfelder aus.',
         variant: 'destructive',
       })
       return
+    }
+
+    // Create the Bescheid in Supabase
+    const bescheid = await createBescheid({
+      titel: `${bescheidTyp.charAt(0).toUpperCase() + bescheidTyp.slice(1)} ${steuerjahr}`,
+      typ: bescheidTyp as Bescheid['typ'],
+      steuerjahr: parseInt(steuerjahr),
+      finanzamt,
+      aktenzeichen: aktenzeichen || undefined,
+    })
+
+    // Upload file to storage if we have a raw file and a bescheid
+    if (rawFile && bescheid) {
+      await uploadFile(rawFile, bescheid.id)
+    }
+
+    if (uploadError) {
+      toast({
+        title: 'Upload-Fehler',
+        description: uploadError,
+        variant: 'destructive',
+      })
     }
 
     setStep('complete')

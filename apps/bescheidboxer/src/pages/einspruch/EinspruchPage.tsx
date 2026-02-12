@@ -10,12 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { formatCurrency, formatDate } from '../../lib/utils'
-import { useMockData } from '../../hooks/use-mock-data'
+import { useBescheide } from '../../hooks/use-bescheide'
 import { EINSPRUCH_STATUS_LABELS } from '../../types/bescheid'
 import type { EinspruchStatus } from '../../types/bescheid'
 
 export default function EinspruchPage() {
-  const { einsprueche, bescheide } = useMockData()
+  const { einsprueche, bescheide } = useBescheide()
 
   const bescheideMitEinspruchOption = bescheide.filter(
     b => b.pruefungsergebnis?.empfehlung === 'einspruch' && b.status !== 'einspruch' && b.status !== 'erledigt'

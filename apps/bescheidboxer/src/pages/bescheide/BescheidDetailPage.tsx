@@ -17,14 +17,14 @@ import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Separator } from '../../components/ui/separator'
 import { formatCurrency, formatDate, daysUntil } from '../../lib/utils'
-import { useMockData } from '../../hooks/use-mock-data'
+import { useBescheide } from '../../hooks/use-bescheide'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
 
 export default function BescheidDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { bescheide } = useMockData()
+  const { bescheide } = useBescheide()
   const bescheid = bescheide.find(b => b.id === id)
 
   if (!bescheid) {

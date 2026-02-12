@@ -18,7 +18,7 @@ import { Badge } from '../../components/ui/badge'
 import { Separator } from '../../components/ui/separator'
 import { formatCurrency, formatDate } from '../../lib/utils'
 import { useToast } from '../../hooks/use-toast'
-import { useMockData } from '../../hooks/use-mock-data'
+import { useBescheide } from '../../hooks/use-bescheide'
 
 type EinspruchStep = 'generate' | 'review' | 'complete'
 
@@ -26,7 +26,7 @@ export default function EinspruchNeuPage() {
   const { bescheidId } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { bescheide } = useMockData()
+  const { bescheide, createEinspruch } = useBescheide()
 
   const bescheid = bescheide.find(b => b.id === bescheidId)
   const [step, setStep] = useState<EinspruchStep>('generate')
@@ -81,7 +81,7 @@ Mit freundlichen Gruessen`
     }, 2000)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!begruendung.trim()) {
       toast({
         title: 'Fehler',
@@ -89,6 +89,16 @@ Mit freundlichen Gruessen`
         variant: 'destructive',
       })
       return
+    }
+
+    // Save to Supabase
+    if (bescheid) {
+      await createEinspruch({
+        bescheidId: bescheid.id,
+        begruendung,
+        forderung: bescheid.abweichung ?? 0,
+        frist: bescheid.einspruchsfrist,
+      })
     }
 
     setStep('complete')

@@ -12,11 +12,11 @@ import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { formatDate, daysUntil } from '../../lib/utils'
-import { useMockData } from '../../hooks/use-mock-data'
+import { useBescheide } from '../../hooks/use-bescheide'
 import type { Frist } from '../../types/bescheid'
 
 export default function FristenPage() {
-  const { fristen } = useMockData()
+  const { fristen, toggleFrist } = useBescheide()
   const [filterTyp, setFilterTyp] = useState<string>('alle')
   const [showErledigt, setShowErledigt] = useState(false)
 
@@ -115,7 +115,7 @@ export default function FristenPage() {
       ) : (
         <div className="space-y-3">
           {filteredFristen.map((frist) => (
-            <FristCard key={frist.id} frist={frist} />
+            <FristCard key={frist.id} frist={frist} onToggle={() => toggleFrist(frist.id)} />
           ))}
         </div>
       )}
@@ -123,7 +123,7 @@ export default function FristenPage() {
   )
 }
 
-function FristCard({ frist }: { frist: Frist }) {
+function FristCard({ frist, onToggle }: { frist: Frist; onToggle: () => void }) {
   const days = daysUntil(frist.fristdatum)
   const isOverdue = days < 0
   const isUrgent = days >= 0 && days <= 7
@@ -181,6 +181,15 @@ function FristCard({ frist }: { frist: Frist }) {
                 <Badge variant="success" className="mt-1">Erledigt</Badge>
               )}
             </div>
+            <Button
+              variant={frist.erledigt ? 'outline' : 'default'}
+              size="sm"
+              onClick={onToggle}
+              className="gap-1 shrink-0"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              {frist.erledigt ? 'Oeffnen' : 'Erledigen'}
+            </Button>
           </div>
         </div>
       </CardContent>
