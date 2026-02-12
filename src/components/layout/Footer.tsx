@@ -88,6 +88,12 @@ export default function Footer() {
             >
               Rendite-Rechner
             </a>
+            <a
+              href="https://bescheidboxer.fintutto.de"
+              className="text-sm text-gray-400 hover:text-fintutto-accent"
+            >
+              Bescheidboxer
+            </a>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from './components/ui/toaster'
+import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/layout/Layout'
 import DashboardPage from './pages/DashboardPage'
 import BescheidePage from './pages/bescheide/BescheidePage'
@@ -14,8 +15,9 @@ import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<DashboardPage />} />
           <Route path="bescheide" element={<BescheidePage />} />
@@ -30,8 +32,9 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
-      <Toaster />
-    </BrowserRouter>
+        <Toaster />
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

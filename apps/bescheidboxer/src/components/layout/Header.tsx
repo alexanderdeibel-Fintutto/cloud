@@ -1,14 +1,32 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FileSearch, Menu, X, Bell } from 'lucide-react'
+import { FileSearch, Menu, X, Bell, ExternalLink } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+
+const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'https://portal.fintutto.cloud'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Fintutto Ecosystem Bar */}
+      <div className="bg-fintutto-blue-900 text-white/80 text-xs py-1 px-4 lg:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <a href={PORTAL_URL} className="hover:text-white transition-colors flex items-center gap-1">
+            Fintutto Portal <ExternalLink className="h-3 w-3" />
+          </a>
+          <a href="https://formulare.fintutto.cloud" className="hover:text-white transition-colors hidden sm:inline">
+            Formulare
+          </a>
+          <a href="https://rendite.fintutto.cloud" className="hover:text-white transition-colors hidden sm:inline">
+            Rendite-Rechner
+          </a>
+        </div>
+        <span className="text-white/50 hidden sm:inline">Fintutto Oekosystem</span>
+      </div>
+
       <div className="flex h-16 items-center px-4 lg:px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 mr-6">

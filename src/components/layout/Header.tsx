@@ -70,6 +70,15 @@ export default function Header() {
             >
               Formulare
             </a>
+
+            <a
+              href="https://bescheidboxer.fintutto.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-fintutto-primary font-medium"
+            >
+              Bescheidboxer
+            </a>
           </nav>
 
           {/* Auth Section */}
@@ -132,6 +141,12 @@ export default function Header() {
               >
                 Preise
               </Link>
+              <a
+                href="https://bescheidboxer.fintutto.de"
+                className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+              >
+                Bescheidboxer
+              </a>
               <hr className="my-2" />
               {!user && (
                 <>
