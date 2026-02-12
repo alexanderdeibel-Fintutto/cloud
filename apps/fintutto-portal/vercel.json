@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd ../.. && pnpm install && cd apps/fintutto-portal && pnpm build",
+  "outputDirectory": "dist",
+  "installCommand": "echo 'skip'",
+  "framework": "vite"
+}
