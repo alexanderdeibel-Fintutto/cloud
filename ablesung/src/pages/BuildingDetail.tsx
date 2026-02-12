@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CascadeDeleteDialog } from '@/components/ui/cascade-delete-dialog';
 import { MeterIcon } from '@/components/meters/MeterIcon';
+import { ReadingStatusBadge } from '@/components/meters/ReadingStatusBadge';
 import { useBuildings } from '@/hooks/useBuildings';
 import { useToast } from '@/hooks/use-toast';
 import { MeterWithReadings, METER_TYPE_LABELS, METER_TYPE_UNITS, UnitWithMeters } from '@/types/database';
@@ -262,7 +263,7 @@ export default function BuildingDetail() {
                     key={meter.id}
                     meter={meter}
                     index={index}
-                    badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary"><Building2 className="w-3 h-3 mr-1" />Gebäude</Badge>}
+                    badge={<><Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary"><Building2 className="w-3 h-3 mr-1" />Gebäude</Badge><ReadingStatusBadge lastReadingDate={meter.lastReading?.reading_date} /></>}
                     onNavigate={() => navigate(`/meters/${meter.id}`)}
                     onDelete={() => setDeleteMeterData(meter)}
                   />
@@ -286,7 +287,7 @@ export default function BuildingDetail() {
                     key={meter.id}
                     meter={meter}
                     index={index}
-                    badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 border-secondary/50 text-secondary-foreground"><Home className="w-3 h-3 mr-1" />{meter.unitName}</Badge>}
+                    badge={<><Badge variant="outline" className="text-[10px] px-1.5 py-0 border-secondary/50 text-secondary-foreground"><Home className="w-3 h-3 mr-1" />{meter.unitName}</Badge><ReadingStatusBadge lastReadingDate={meter.lastReading?.reading_date} /></>}
                     onNavigate={() => navigate(`/meters/${meter.id}`)}
                     onDelete={() => setDeleteMeterData(meter)}
                   />

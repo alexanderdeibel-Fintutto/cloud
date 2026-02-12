@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, TrendingUp, TrendingDown, Minus, Zap, Flame, Droplets, Thermometer, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Download, TrendingUp, TrendingDown, Minus, Zap, Flame, Droplets, Thermometer, AlertTriangle, Sun, Cloud, FileSpreadsheet, ArrowRightLeft, ChevronRight } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -406,6 +406,36 @@ export default function ConsumptionAnalysis() {
           </CardContent>
         </Card>
       )}
+
+      {/* Mehr entdecken - Links zu weiteren Analyse-Seiten */}
+      <Card className="mb-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Mehr entdecken</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="divide-y divide-border">
+            {[
+              { href: '/solar', icon: Sun, label: 'Solar/PV Dashboard', desc: 'Produktion, Eigenverbrauch, Autarkie', color: 'text-yellow-500' },
+              { href: '/weather', icon: Cloud, label: 'Wetterdaten', desc: 'Heizgradtage, Temperatur-Korrelation', color: 'text-blue-400' },
+              { href: '/comparison', icon: ArrowRightLeft, label: 'Anbietervergleich', desc: 'Check24, Verivox, Wechselpilot', color: 'text-green-500' },
+              { href: '/bk-integration', icon: FileSpreadsheet, label: 'BK-Abrechnung', desc: 'Verbrauchsanteile & CSV-Export', color: 'text-purple-500' },
+            ].map(({ href, icon: Icon, label, desc, color }) => (
+              <div
+                key={href}
+                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => navigate(href)}
+              >
+                <Icon className={`w-5 h-5 ${color} shrink-0`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{label}</p>
+                  <p className="text-xs text-muted-foreground">{desc}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </AppLayout>
   );
 }

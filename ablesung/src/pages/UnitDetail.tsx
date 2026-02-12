@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MeterIcon } from '@/components/meters/MeterIcon';
+import { ReadingStatusBadge } from '@/components/meters/ReadingStatusBadge';
 import { MeterNumberScanner } from '@/components/meters/MeterNumberScanner';
 import { CascadeDeleteDialog } from '@/components/ui/cascade-delete-dialog';
 import { useBuildings } from '@/hooks/useBuildings';
@@ -181,9 +182,12 @@ export default function UnitDetail() {
                   >
                     <MeterIcon type={meter.meter_type} />
                     <div className="flex-1">
-                      <p className="font-medium">
-                        {METER_TYPE_LABELS[meter.meter_type]}
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium">
+                          {METER_TYPE_LABELS[meter.meter_type]}
+                        </p>
+                        <ReadingStatusBadge lastReadingDate={meter.lastReading?.reading_date} />
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         Nr. {meter.meter_number}
                       </p>
