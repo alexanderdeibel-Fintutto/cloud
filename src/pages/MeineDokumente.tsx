@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -18,7 +18,8 @@ import {
   Key,
   Users,
   Euro,
-  LogIn
+  LogIn,
+  Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -65,18 +66,35 @@ function getIconForType(type: string) {
 }
 
 export default function MeineDokumente() {
-  const { user, isAuthenticated, showLoginModal } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, showLoginModal } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
   const [suchbegriff, setSuchbegriff] = useState('')
   const [filterTyp, setFilterTyp] = useState('alle')
   const [dokumente, setDokumente] = useState<SavedDocument[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const loadDocuments = useCallback(async () => {
+    if (!user) return
+    setIsLoading(true)
+    try {
+      const docs = await getDocuments(user.id)
+      setDokumente(docs)
+    } catch (error) {
+      console.error('Error loading documents:', error)
+      toast({ title: 'Fehler', description: 'Dokumente konnten nicht geladen werden.', variant: 'destructive' })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [user, toast])
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      setDokumente(getDocuments(user.id))
+      loadDocuments()
+    } else {
+      setIsLoading(false)
     }
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user, loadDocuments])
 
   const gefilterteDokumente = dokumente.filter(dok => {
     const matchSuche = dok.title.toLowerCase().includes(suchbegriff.toLowerCase()) ||
@@ -85,12 +103,16 @@ export default function MeineDokumente() {
     return matchSuche && matchTyp
   })
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!user) return
     if (confirm('Möchten Sie dieses Dokument wirklich löschen?')) {
-      deleteDocument(id, user.id)
-      setDokumente(prev => prev.filter(d => d.id !== id))
-      toast({ title: 'Gelöscht', description: 'Dokument wurde gelöscht.' })
+      const success = await deleteDocument(id, user.id)
+      if (success) {
+        setDokumente(prev => prev.filter(d => d.id !== id))
+        toast({ title: 'Gelöscht', description: 'Dokument wurde gelöscht.' })
+      } else {
+        toast({ title: 'Fehler', description: 'Dokument konnte nicht gelöscht werden.', variant: 'destructive' })
+      }
     }
   }
 
@@ -124,6 +146,18 @@ export default function MeineDokumente() {
         })
       }
     }
+  }
+
+  // Loading view
+  if (authLoading || (isAuthenticated && isLoading)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+          <p className="text-muted-foreground">Dokumente werden geladen...</p>
+        </div>
+      </div>
+    )
   }
 
   // Not logged in view

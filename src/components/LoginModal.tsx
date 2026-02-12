@@ -35,9 +35,9 @@ export function LoginModal() {
     setIsLoading(true)
 
     try {
-      const success = await login(loginEmail, loginPassword)
-      if (!success) {
-        setError('E-Mail oder Passwort ist falsch.')
+      const result = await login(loginEmail, loginPassword)
+      if (!result.success) {
+        setError(result.error || 'E-Mail oder Passwort ist falsch.')
       }
     } catch {
       setError('Ein Fehler ist aufgetreten.')
@@ -63,9 +63,9 @@ export function LoginModal() {
     setIsLoading(true)
 
     try {
-      const success = await register(registerEmail, registerPassword, registerName)
-      if (!success) {
-        setError('Diese E-Mail-Adresse ist bereits registriert.')
+      const result = await register(registerEmail, registerPassword, registerName)
+      if (!result.success) {
+        setError(result.error || 'Diese E-Mail-Adresse ist bereits registriert.')
       }
     } catch {
       setError('Ein Fehler ist aufgetreten.')

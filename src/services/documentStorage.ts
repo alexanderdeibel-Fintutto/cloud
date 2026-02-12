@@ -1,3 +1,5 @@
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client'
+
 export interface SavedDocument {
   id: string
   type: string
@@ -9,18 +11,191 @@ export interface SavedDocument {
 }
 
 const STORAGE_KEY = 'mietrecht_documents'
+const APP_ID = import.meta.env.VITE_APP_ID || 'ft-formulare'
 
-export function getDocuments(userId: string): SavedDocument[] {
+// Get documents from Supabase or localStorage fallback
+export async function getDocuments(userId: string): Promise<SavedDocument[]> {
+  if (!isSupabaseConfigured()) {
+    return getLocalDocuments(userId)
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('user_documents')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('app_id', APP_ID)
+      .order('updated_at', { ascending: false })
+
+    if (error) {
+      console.error('Error loading documents from Supabase:', error)
+      return getLocalDocuments(userId)
+    }
+
+    return (data || []).map(doc => ({
+      id: doc.id,
+      type: doc.doc_type,
+      title: doc.title,
+      data: doc.data,
+      createdAt: doc.created_at,
+      updatedAt: doc.updated_at,
+      userId: doc.user_id
+    }))
+  } catch (err) {
+    console.error('Error fetching documents:', err)
+    return getLocalDocuments(userId)
+  }
+}
+
+// Get single document
+export async function getDocument(id: string, userId: string): Promise<SavedDocument | null> {
+  if (!isSupabaseConfigured()) {
+    return getLocalDocument(id, userId)
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('user_documents')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (error || !data) {
+      return getLocalDocument(id, userId)
+    }
+
+    return {
+      id: data.id,
+      type: data.doc_type,
+      title: data.title,
+      data: data.data,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      userId: data.user_id
+    }
+  } catch (err) {
+    console.error('Error fetching document:', err)
+    return getLocalDocument(id, userId)
+  }
+}
+
+// Save document to Supabase or localStorage fallback
+export async function saveDocument(
+  userId: string,
+  type: string,
+  title: string,
+  data: any,
+  existingId?: string
+): Promise<SavedDocument> {
+  if (!isSupabaseConfigured()) {
+    return saveLocalDocument(userId, type, title, data, existingId)
+  }
+
+  const now = new Date().toISOString()
+
+  try {
+    if (existingId) {
+      // Update existing document
+      const { data: updated, error } = await supabase
+        .from('user_documents')
+        .update({
+          title,
+          data,
+          updated_at: now
+        })
+        .eq('id', existingId)
+        .eq('user_id', userId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating document:', error)
+        return saveLocalDocument(userId, type, title, data, existingId)
+      }
+
+      return {
+        id: updated.id,
+        type: updated.doc_type,
+        title: updated.title,
+        data: updated.data,
+        createdAt: updated.created_at,
+        updatedAt: updated.updated_at,
+        userId: updated.user_id
+      }
+    }
+
+    // Create new document
+    const { data: created, error } = await supabase
+      .from('user_documents')
+      .insert({
+        user_id: userId,
+        app_id: APP_ID,
+        doc_type: type,
+        title,
+        data
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating document:', error)
+      return saveLocalDocument(userId, type, title, data)
+    }
+
+    return {
+      id: created.id,
+      type: created.doc_type,
+      title: created.title,
+      data: created.data,
+      createdAt: created.created_at,
+      updatedAt: created.updated_at,
+      userId: created.user_id
+    }
+  } catch (err) {
+    console.error('Error saving document:', err)
+    return saveLocalDocument(userId, type, title, data, existingId)
+  }
+}
+
+// Delete document
+export async function deleteDocument(id: string, userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) {
+    return deleteLocalDocument(id, userId)
+  }
+
+  try {
+    const { error } = await supabase
+      .from('user_documents')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+
+    if (error) {
+      console.error('Error deleting document:', error)
+      return deleteLocalDocument(id, userId)
+    }
+
+    return true
+  } catch (err) {
+    console.error('Error deleting document:', err)
+    return deleteLocalDocument(id, userId)
+  }
+}
+
+// ============= LocalStorage Fallback Functions =============
+
+function getLocalDocuments(userId: string): SavedDocument[] {
   const all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
   return all.filter((doc: SavedDocument) => doc.userId === userId)
 }
 
-export function getDocument(id: string, userId: string): SavedDocument | null {
-  const docs = getDocuments(userId)
+function getLocalDocument(id: string, userId: string): SavedDocument | null {
+  const docs = getLocalDocuments(userId)
   return docs.find(doc => doc.id === id) || null
 }
 
-export function saveDocument(
+function saveLocalDocument(
   userId: string,
   type: string,
   title: string,
@@ -31,7 +206,6 @@ export function saveDocument(
   const now = new Date().toISOString()
 
   if (existingId) {
-    // Update existing
     const index = all.findIndex((d: SavedDocument) => d.id === existingId && d.userId === userId)
     if (index >= 0) {
       all[index] = {
@@ -45,7 +219,6 @@ export function saveDocument(
     }
   }
 
-  // Create new
   const newDoc: SavedDocument = {
     id: crypto.randomUUID(),
     type,
@@ -61,7 +234,7 @@ export function saveDocument(
   return newDoc
 }
 
-export function deleteDocument(id: string, userId: string): boolean {
+function deleteLocalDocument(id: string, userId: string): boolean {
   const all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
   const filtered = all.filter((d: SavedDocument) => !(d.id === id && d.userId === userId))
 
@@ -88,6 +261,7 @@ export const DOCUMENT_TYPES: Record<string, string> = {
   aufhebungsvertrag: 'Aufhebungsvertrag',
   eigenbedarfskuendigung: 'Eigenbedarfskündigung',
   raeumungsaufforderung: 'Räumungsaufforderung',
+  abmahnung: 'Abmahnung',
   mieterhoehung: 'Mieterhöhung',
   modernisierungsankuendigung: 'Modernisierungsankündigung',
   mietanpassung: 'Mietanpassung',
@@ -132,6 +306,5 @@ export const DOCUMENT_TYPES: Record<string, string> = {
   verwaltervertrag: 'Verwaltervertrag',
   'bauliche-aenderung': 'Bauliche Änderungen',
   sondervereinbarung: 'Sondervereinbarung',
-  abmahnung: 'Abmahnung',
   gartennutzungsvereinbarung: 'Gartennutzungsvereinbarung',
 }

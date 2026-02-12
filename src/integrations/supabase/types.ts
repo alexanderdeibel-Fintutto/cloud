@@ -258,6 +258,34 @@ export type Database = {
           is_active?: boolean
         }
       }
+      user_documents: {
+        Row: {
+          id: string
+          user_id: string
+          app_id: string
+          doc_type: string
+          title: string
+          data: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          app_id: string
+          doc_type: string
+          title: string
+          data: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          doc_type?: string
+          title?: string
+          data?: Json
+          updated_at?: string
+        }
+      }
     }
     Functions: {
       check_user_access: {
