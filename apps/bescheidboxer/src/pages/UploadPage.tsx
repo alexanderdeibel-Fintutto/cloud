@@ -38,6 +38,7 @@ export default function UploadPage() {
   const [finanzamt, setFinanzamt] = useState('')
   const [aktenzeichen, setAktenzeichen] = useState('')
   const [rawFile, setRawFile] = useState<File | null>(null)
+  const [filePreview, setFilePreview] = useState<string | null>(null)
   const navigate = useNavigate()
   const { toast } = useToast()
   const { uploadFile, error: uploadError } = useFileUpload()
@@ -76,6 +77,16 @@ export default function UploadPage() {
       size: file.size,
       type: file.type,
     })
+
+    // Generate preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => setFilePreview(e.target?.result as string)
+      reader.readAsDataURL(file)
+    } else {
+      setFilePreview(null)
+    }
+
     setStep('processing')
 
     // Simulate OCR processing
@@ -138,6 +149,7 @@ export default function UploadPage() {
   const resetUpload = () => {
     setStep('upload')
     setUploadedFile(null)
+    setFilePreview(null)
     setProgress(0)
     setBescheidTyp('')
     setSteuerjahr('')
@@ -250,7 +262,11 @@ export default function UploadPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-3 rounded-lg border border-border p-4">
-              <FileText className="h-8 w-8 text-muted-foreground" />
+              {filePreview ? (
+                <img src={filePreview} alt="Vorschau" className="h-16 w-16 rounded object-cover" />
+              ) : (
+                <FileText className="h-8 w-8 text-muted-foreground" />
+              )}
               <div>
                 <p className="font-medium">{uploadedFile.name}</p>
                 <p className="text-sm text-muted-foreground">
@@ -314,9 +330,18 @@ export default function UploadPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {uploadedFile && (
-              <div className="flex items-center gap-3 rounded-lg bg-green-50 border border-green-200 p-3 text-sm">
-                <FileText className="h-5 w-5 text-green-600" />
-                <span className="font-medium text-green-800">{uploadedFile.name}</span>
+              <div className="flex items-center gap-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-3 text-sm">
+                {filePreview ? (
+                  <img src={filePreview} alt="Vorschau" className="h-12 w-12 rounded object-cover" />
+                ) : (
+                  <FileText className="h-5 w-5 text-green-600" />
+                )}
+                <div>
+                  <span className="font-medium text-green-800 dark:text-green-200">{uploadedFile.name}</span>
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB &middot; {uploadedFile.type.startsWith('image/') ? 'Bild' : 'PDF'}
+                  </p>
+                </div>
               </div>
             )}
 

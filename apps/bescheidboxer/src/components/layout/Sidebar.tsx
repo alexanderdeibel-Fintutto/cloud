@@ -8,6 +8,7 @@ import {
   Search,
   Users,
   Settings,
+  HelpCircle,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Fristen', href: '/fristen', icon: Clock },
   { name: 'Einspruch', href: '/einspruch', icon: ShieldAlert },
   { name: 'Freunde werben', href: '/referral', icon: Users },
+  { name: 'Hilfe & Glossar', href: '/hilfe', icon: HelpCircle },
   { name: 'Einstellungen', href: '/einstellungen', icon: Settings },
 ]
 

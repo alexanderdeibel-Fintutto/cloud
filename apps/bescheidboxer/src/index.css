@@ -131,4 +131,15 @@
   .upload-zone.drag-over {
     @apply border-primary bg-primary/5;
   }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Focus visible for keyboard accessibility */
+@layer base {
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
 }

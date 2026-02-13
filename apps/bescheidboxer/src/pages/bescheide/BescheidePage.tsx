@@ -6,6 +6,7 @@ import {
   Search,
   Filter,
   ArrowUpDown,
+  Download,
 } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -17,6 +18,7 @@ import { useBescheidContext } from '../../contexts/BescheidContext'
 import { ListSkeleton } from '../../components/LoadingSkeleton'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
+import { exportBescheideAsCsv } from '../../lib/csv-export'
 
 export default function BescheidePage() {
   const { bescheide, loading } = useBescheidContext()
@@ -58,12 +60,20 @@ export default function BescheidePage() {
             Alle Ihre Steuerbescheide auf einen Blick
           </p>
         </div>
-        <Link to="/upload">
-          <Button className="gap-2">
-            <Upload className="h-4 w-4" />
-            Neuer Bescheid
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          {bescheide.length > 0 && (
+            <Button variant="outline" className="gap-2" onClick={() => exportBescheideAsCsv(bescheide)}>
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">CSV Export</span>
+            </Button>
+          )}
+          <Link to="/upload">
+            <Button className="gap-2">
+              <Upload className="h-4 w-4" />
+              Neuer Bescheid
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

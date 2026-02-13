@@ -18,6 +18,7 @@ import EinspruchPage from './pages/einspruch/EinspruchPage'
 import EinspruchNeuPage from './pages/einspruch/EinspruchNeuPage'
 import ReferralPage from './pages/referral/ReferralPage'
 import EinstellungenPage from './pages/einstellungen/EinstellungenPage'
+import HilfePage from './pages/HilfePage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -55,6 +56,7 @@ function App() {
             <Route path="einspruch/neu/:bescheidId" element={<EinspruchNeuPage />} />
             <Route path="referral" element={<ReferralPage />} />
             <Route path="einstellungen" element={<EinstellungenPage />} />
+            <Route path="hilfe" element={<HilfePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
