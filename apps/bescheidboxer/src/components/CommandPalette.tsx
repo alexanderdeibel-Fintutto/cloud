@@ -1,0 +1,245 @@
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  LayoutDashboard,
+  FileText,
+  Upload,
+  Search,
+  Clock,
+  ShieldAlert,
+  Settings,
+  HelpCircle,
+  Users,
+  Moon,
+  Sun,
+  Type,
+  Download,
+} from 'lucide-react'
+import { useBescheidContext } from '../contexts/BescheidContext'
+import { useTheme } from '../contexts/ThemeContext'
+import { exportBescheideAsCsv } from '../lib/csv-export'
+
+interface CommandItem {
+  id: string
+  label: string
+  description?: string
+  icon: React.ElementType
+  action: () => void
+  keywords?: string[]
+  category: 'navigation' | 'aktion' | 'einstellung'
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  navigation: 'Navigation',
+  aktion: 'Aktionen',
+  einstellung: 'Einstellungen',
+}
+
+export default function CommandPalette() {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
+  const { bescheide } = useBescheidContext()
+  const { theme, setTheme, fontSize, setFontSize } = useTheme()
+
+  const runAndClose = useCallback((fn: () => void) => {
+    fn()
+    setOpen(false)
+    setQuery('')
+  }, [])
+
+  const commands: CommandItem[] = [
+    // Navigation
+    { id: 'nav-dashboard', label: 'Dashboard', description: 'Zur Uebersicht', icon: LayoutDashboard, category: 'navigation', keywords: ['home', 'start', 'uebersicht'], action: () => runAndClose(() => navigate('/')) },
+    { id: 'nav-bescheide', label: 'Bescheide', description: 'Alle Steuerbescheide', icon: FileText, category: 'navigation', keywords: ['steuer', 'liste'], action: () => runAndClose(() => navigate('/bescheide')) },
+    { id: 'nav-upload', label: 'Bescheid hochladen', description: 'Neuen Bescheid hochladen', icon: Upload, category: 'navigation', keywords: ['neu', 'pdf', 'foto', 'dokument'], action: () => runAndClose(() => navigate('/upload')) },
+    { id: 'nav-analyse', label: 'Analyse', description: 'Bescheid pruefen lassen', icon: Search, category: 'navigation', keywords: ['ki', 'pruefen', 'check'], action: () => runAndClose(() => navigate('/analyse')) },
+    { id: 'nav-fristen', label: 'Fristen', description: 'Fristen & Termine', icon: Clock, category: 'navigation', keywords: ['termin', 'deadline', 'ablauf'], action: () => runAndClose(() => navigate('/fristen')) },
+    { id: 'nav-einspruch', label: 'Einspruch', description: 'Einsprueche verwalten', icon: ShieldAlert, category: 'navigation', keywords: ['widerspruch', 'beschwerde'], action: () => runAndClose(() => navigate('/einspruch')) },
+    { id: 'nav-referral', label: 'Freunde werben', description: 'Referral-Programm', icon: Users, category: 'navigation', keywords: ['empfehlung', 'werben', 'bonus'], action: () => runAndClose(() => navigate('/referral')) },
+    { id: 'nav-hilfe', label: 'Hilfe & Glossar', description: 'Steuer-Begriffe erklaert', icon: HelpCircle, category: 'navigation', keywords: ['faq', 'glossar', 'hilfe', 'erklaerung'], action: () => runAndClose(() => navigate('/hilfe')) },
+    { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['profil', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
+
+    // Aktionen
+    { id: 'act-export', label: 'Bescheide exportieren', description: 'Als CSV herunterladen', icon: Download, category: 'aktion', keywords: ['csv', 'download', 'export', 'excel'], action: () => runAndClose(() => exportBescheideAsCsv(bescheide)) },
+
+    // Einstellungen
+    { id: 'set-dark', label: 'Dunkles Design', description: theme === 'dark' ? 'Aktiv' : 'Aktivieren', icon: Moon, category: 'einstellung', keywords: ['dark', 'dunkel', 'nacht'], action: () => runAndClose(() => setTheme('dark')) },
+    { id: 'set-light', label: 'Helles Design', description: theme === 'light' ? 'Aktiv' : 'Aktivieren', icon: Sun, category: 'einstellung', keywords: ['light', 'hell', 'tag'], action: () => runAndClose(() => setTheme('light')) },
+    { id: 'set-font-large', label: 'Grosse Schrift', description: fontSize === 'large' ? 'Aktiv' : 'Aktivieren', icon: Type, category: 'einstellung', keywords: ['schrift', 'gross', 'font', 'accessibility'], action: () => runAndClose(() => setFontSize(fontSize === 'large' ? 'normal' : 'large')) },
+    { id: 'set-font-xlarge', label: 'Sehr grosse Schrift', description: fontSize === 'xlarge' ? 'Aktiv' : 'Aktivieren', icon: Type, category: 'einstellung', keywords: ['schrift', 'sehr gross', 'font', 'xl'], action: () => runAndClose(() => setFontSize(fontSize === 'xlarge' ? 'normal' : 'xlarge')) },
+  ]
+
+  const filtered = query.trim()
+    ? commands.filter(cmd => {
+        const q = query.toLowerCase()
+        return (
+          cmd.label.toLowerCase().includes(q) ||
+          cmd.description?.toLowerCase().includes(q) ||
+          cmd.keywords?.some(k => k.includes(q))
+        )
+      })
+    : commands
+
+  // Group by category
+  const grouped = filtered.reduce<Record<string, CommandItem[]>>((acc, cmd) => {
+    if (!acc[cmd.category]) acc[cmd.category] = []
+    acc[cmd.category].push(cmd)
+    return acc
+  }, {})
+
+  // Flat list for keyboard navigation
+  const flatList = Object.values(grouped).flat()
+
+  // Keyboard shortcut to open
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setOpen(prev => !prev)
+      }
+      if (e.key === 'Escape') {
+        setOpen(false)
+        setQuery('')
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Focus input when opened
+  useEffect(() => {
+    if (open) {
+      setSelectedIndex(0)
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
+  }, [open])
+
+  // Scroll selected item into view
+  useEffect(() => {
+    if (!listRef.current) return
+    const items = listRef.current.querySelectorAll('[data-cmd-item]')
+    items[selectedIndex]?.scrollIntoView({ block: 'nearest' })
+  }, [selectedIndex])
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSelectedIndex(prev => Math.min(prev + 1, flatList.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSelectedIndex(prev => Math.max(prev - 1, 0))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      flatList[selectedIndex]?.action()
+    }
+  }
+
+  // Reset index when query changes
+  useEffect(() => {
+    setSelectedIndex(0)
+  }, [query])
+
+  if (!open) return null
+
+  let flatIdx = -1
+
+  return (
+    <div className="fixed inset-0 z-[100]" role="dialog" aria-label="Befehlspalette">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={() => { setOpen(false); setQuery('') }}
+      />
+
+      {/* Dialog */}
+      <div className="absolute left-1/2 top-[20%] -translate-x-1/2 w-full max-w-lg">
+        <div className="mx-4 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+          {/* Search Input */}
+          <div className="flex items-center gap-3 border-b px-4 py-3">
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Suche oder Befehl eingeben..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <kbd className="hidden sm:inline-flex items-center gap-1 rounded border bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+              ESC
+            </kbd>
+          </div>
+
+          {/* Results */}
+          <div ref={listRef} className="max-h-80 overflow-y-auto p-2">
+            {flatList.length === 0 ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                Keine Ergebnisse fuer &ldquo;{query}&rdquo;
+              </div>
+            ) : (
+              Object.entries(grouped).map(([category, items]) => (
+                <div key={category}>
+                  <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {CATEGORY_LABELS[category] || category}
+                  </p>
+                  {items.map(cmd => {
+                    flatIdx++
+                    const idx = flatIdx
+                    const Icon = cmd.icon
+                    return (
+                      <button
+                        key={cmd.id}
+                        data-cmd-item
+                        onClick={cmd.action}
+                        onMouseEnter={() => setSelectedIndex(idx)}
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                          selectedIndex === idx
+                            ? 'bg-accent text-accent-foreground'
+                            : 'text-foreground hover:bg-accent/50'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium">{cmd.label}</span>
+                          {cmd.description && (
+                            <span className="ml-2 text-xs text-muted-foreground">{cmd.description}</span>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between border-t px-4 py-2 text-[10px] text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
+                <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↑</kbd>
+                <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↓</kbd>
+                Navigieren
+              </span>
+              <span className="flex items-center gap-1">
+                <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">↵</kbd>
+                Ausfuehren
+              </span>
+            </div>
+            <span className="flex items-center gap-1">
+              <kbd className="rounded border bg-muted px-1 py-0.5 font-mono">⌘K</kbd>
+              Oeffnen
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

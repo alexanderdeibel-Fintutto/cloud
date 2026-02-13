@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  ArrowLeft,
   ShieldAlert,
   FileText,
   Loader2,
@@ -20,6 +19,7 @@ import { formatCurrency, formatDate } from '../../lib/utils'
 import { useToast } from '../../hooks/use-toast'
 import { useBescheidContext } from '../../contexts/BescheidContext'
 import { exportEinspruchAsPdf } from '../../lib/pdf-export'
+import Breadcrumbs from '../../components/Breadcrumbs'
 
 type EinspruchStep = 'generate' | 'review' | 'complete'
 
@@ -121,17 +121,13 @@ Mit freundlichen Gruessen`
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <Breadcrumbs items={[
+        { label: 'Einsprueche', href: '/einspruch' },
+        { label: 'Neuer Einspruch' },
+      ]} />
+
       {/* Header */}
       <div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1 mb-2 -ml-2"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-3 w-3" />
-          Zurueck
-        </Button>
         <h1 className="text-3xl font-bold">Einspruch erstellen</h1>
         <p className="text-muted-foreground mt-1">
           Gegen: {bescheid.titel}

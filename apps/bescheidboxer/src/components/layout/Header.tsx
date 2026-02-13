@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User, Sun, Moon } from 'lucide-react'
+import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User, Sun, Moon, Search } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { cn } from '../../lib/utils'
@@ -88,6 +88,17 @@ export default function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto">
+          {/* Cmd+K search trigger */}
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+            className="hidden md:flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
+            aria-label="Suche oeffnen (Strg+K)"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Suche...</span>
+            <kbd className="ml-2 rounded border bg-background px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
+          </button>
+
           <Button
             variant="ghost"
             size="icon"

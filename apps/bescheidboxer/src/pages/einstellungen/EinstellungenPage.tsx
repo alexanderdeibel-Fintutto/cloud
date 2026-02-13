@@ -42,6 +42,12 @@ export default function EinstellungenPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [changingPassword, setChangingPassword] = useState(false)
 
+  // Notification preferences state
+  const [notifFristen, setNotifFristen] = useState(true)
+  const [notifAnalyse, setNotifAnalyse] = useState(true)
+  const [notifReferral, setNotifReferral] = useState(true)
+  const [notifNewsletter, setNotifNewsletter] = useState(false)
+
   // Delete account state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
@@ -370,45 +376,33 @@ export default function EinstellungenPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Fristen-Erinnerungen</p>
-                  <p className="text-xs text-muted-foreground">
-                    E-Mail bei ablaufenden Fristen (7 Tage / 3 Tage / 1 Tag vorher)
-                  </p>
-                </div>
-                <Badge variant="success">Aktiv</Badge>
-              </div>
+              <NotificationToggle
+                label="Fristen-Erinnerungen"
+                description="E-Mail bei ablaufenden Fristen (7 Tage / 3 Tage / 1 Tag vorher)"
+                checked={notifFristen}
+                onChange={setNotifFristen}
+              />
               <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Analyse-Ergebnisse</p>
-                  <p className="text-xs text-muted-foreground">
-                    E-Mail wenn eine Bescheid-Analyse abgeschlossen ist
-                  </p>
-                </div>
-                <Badge variant="success">Aktiv</Badge>
-              </div>
+              <NotificationToggle
+                label="Analyse-Ergebnisse"
+                description="E-Mail wenn eine Bescheid-Analyse abgeschlossen ist"
+                checked={notifAnalyse}
+                onChange={setNotifAnalyse}
+              />
               <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Referral-Updates</p>
-                  <p className="text-xs text-muted-foreground">
-                    E-Mail wenn ein geworbener Nutzer sich registriert
-                  </p>
-                </div>
-                <Badge variant="success">Aktiv</Badge>
-              </div>
+              <NotificationToggle
+                label="Referral-Updates"
+                description="E-Mail wenn ein geworbener Nutzer sich registriert"
+                checked={notifReferral}
+                onChange={setNotifReferral}
+              />
               <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Newsletter & Updates</p>
-                  <p className="text-xs text-muted-foreground">
-                    Neuigkeiten und Tipps rund um Steuerbescheide
-                  </p>
-                </div>
-                <Badge variant="secondary">Inaktiv</Badge>
-              </div>
+              <NotificationToggle
+                label="Newsletter & Updates"
+                description="Neuigkeiten und Tipps rund um Steuerbescheide"
+                checked={notifNewsletter}
+                onChange={setNotifNewsletter}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -639,6 +633,42 @@ export default function EinstellungenPage() {
           </div>
         </TabsContent>
       </Tabs>
+    </div>
+  )
+}
+
+function NotificationToggle({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string
+  description: string
+  checked: boolean
+  onChange: (val: boolean) => void
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex-1 min-w-0 mr-4">
+        <p className="text-sm font-medium">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <button
+        role="switch"
+        aria-checked={checked}
+        aria-label={`${label} ${checked ? 'deaktivieren' : 'aktivieren'}`}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+          checked ? 'bg-primary' : 'bg-input'
+        }`}
+      >
+        <span
+          className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+            checked ? 'translate-x-5' : 'translate-x-0'
+          }`}
+        />
+      </button>
     </div>
   )
 }

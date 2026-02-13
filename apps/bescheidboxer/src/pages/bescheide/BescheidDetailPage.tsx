@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
   FileText,
   Search,
   ShieldAlert,
@@ -32,6 +31,7 @@ import {
 } from '../../components/ui/alert-dialog'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
+import Breadcrumbs from '../../components/Breadcrumbs'
 
 const STATUS_TRANSITIONS: Record<BescheidStatus, BescheidStatus[]> = {
   neu: ['in_pruefung'],
@@ -71,18 +71,13 @@ export default function BescheidDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[
+        { label: 'Bescheide', href: '/bescheide' },
+        { label: bescheid.titel },
+      ]} />
+
       {/* Header */}
       <div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1 mb-2 -ml-2"
-          onClick={() => navigate('/bescheide')}
-        >
-          <ArrowLeft className="h-3 w-3" />
-          Zurueck
-        </Button>
-
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
