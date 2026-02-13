@@ -123,6 +123,61 @@ export function useBescheide() {
     }
 
     fetchData()
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('bescheidboxer-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bescheide', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const mapped = mapBescheid(payload.new as Record<string, unknown>)
+            setBescheide(prev => {
+              if (prev.some(b => b.id === mapped.id)) return prev
+              return [mapped, ...prev]
+            })
+          } else if (payload.eventType === 'UPDATE') {
+            const mapped = mapBescheid(payload.new as Record<string, unknown>)
+            setBescheide(prev => prev.map(b => b.id === mapped.id ? mapped : b))
+          } else if (payload.eventType === 'DELETE') {
+            const id = (payload.old as Record<string, unknown>).id as string
+            setBescheide(prev => prev.filter(b => b.id !== id))
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'fristen', filter: `user_id=eq.${user.id}` },
+        () => {
+          // Re-fetch fristen on any change (simpler than mapping individually)
+          fetchData()
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'einsprueche', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const mapped = mapEinspruch(payload.new as Record<string, unknown>)
+            setEinsprueche(prev => {
+              if (prev.some(e => e.id === mapped.id)) return prev
+              return [mapped, ...prev]
+            })
+          } else if (payload.eventType === 'UPDATE') {
+            const mapped = mapEinspruch(payload.new as Record<string, unknown>)
+            setEinsprueche(prev => prev.map(e => e.id === mapped.id ? mapped : e))
+          } else if (payload.eventType === 'DELETE') {
+            const id = (payload.old as Record<string, unknown>).id as string
+            setEinsprueche(prev => prev.filter(e => e.id !== id))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [user?.id])
 
   // Create a new Bescheid
@@ -275,6 +330,85 @@ export function useBescheide() {
     }
   }, [user?.id, fristen])
 
+  // Delete Bescheid
+  const deleteBescheid = useCallback(async (id: string): Promise<boolean> => {
+    if (!user?.id) return false
+
+    const { error } = await supabase
+      .from('bescheide')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (!error || id.startsWith('local-')) {
+      setBescheide(prev => prev.filter(b => b.id !== id))
+      setFristen(prev => prev.filter(f => f.bescheidId !== id))
+      setEinsprueche(prev => prev.filter(e => e.bescheidId !== id))
+      return true
+    }
+    return false
+  }, [user?.id])
+
+  // Update Bescheid details
+  const updateBescheid = useCallback(async (id: string, data: {
+    titel?: string
+    finanzamt?: string
+    aktenzeichen?: string
+    festgesetzteSteuer?: number
+    erwarteteSteuer?: number
+    einspruchsfrist?: string
+    notizen?: string
+  }) => {
+    if (!user?.id) return false
+
+    const updateData: Record<string, unknown> = {}
+    if (data.titel !== undefined) updateData.titel = data.titel
+    if (data.finanzamt !== undefined) updateData.finanzamt = data.finanzamt
+    if (data.aktenzeichen !== undefined) updateData.aktenzeichen = data.aktenzeichen
+    if (data.festgesetzteSteuer !== undefined) updateData.festgesetzte_steuer = data.festgesetzteSteuer
+    if (data.erwarteteSteuer !== undefined) updateData.erwartete_steuer = data.erwarteteSteuer
+    if (data.einspruchsfrist !== undefined) updateData.einspruchsfrist = data.einspruchsfrist
+    if (data.notizen !== undefined) updateData.notizen = data.notizen
+
+    // Recalculate abweichung if financials changed
+    if (data.festgesetzteSteuer !== undefined || data.erwarteteSteuer !== undefined) {
+      const bescheid = bescheide.find(b => b.id === id)
+      const fest = data.festgesetzteSteuer ?? bescheid?.festgesetzteSteuer ?? 0
+      const erw = data.erwarteteSteuer ?? bescheid?.erwarteteSteuer
+      if (erw != null) {
+        updateData.abweichung = fest - erw
+        updateData.abweichung_prozent = erw > 0 ? ((fest - erw) / erw) * 100 : null
+      }
+    }
+
+    const { error } = await supabase
+      .from('bescheide')
+      .update(updateData)
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (!error || id.startsWith('local-')) {
+      setBescheide(prev => prev.map(b => {
+        if (b.id !== id) return b
+        return {
+          ...b,
+          titel: data.titel ?? b.titel,
+          finanzamt: data.finanzamt ?? b.finanzamt,
+          aktenzeichen: data.aktenzeichen ?? b.aktenzeichen,
+          festgesetzteSteuer: data.festgesetzteSteuer ?? b.festgesetzteSteuer,
+          erwarteteSteuer: data.erwarteteSteuer ?? b.erwarteteSteuer,
+          einspruchsfrist: data.einspruchsfrist ?? b.einspruchsfrist,
+          notizen: data.notizen ?? b.notizen,
+          abweichung: updateData.abweichung as number ?? b.abweichung,
+          abweichungProzent: updateData.abweichung_prozent as number ?? b.abweichungProzent,
+          updatedAt: new Date().toISOString(),
+        }
+      }))
+      return true
+    }
+    return false
+  }, [user?.id, bescheide])
+
   // Compute stats
   const stats: DashboardStats = {
     bescheideGesamt: bescheide.length,
@@ -293,7 +427,9 @@ export function useBescheide() {
     loading,
     usingRealData,
     createBescheid,
+    updateBescheid,
     updateBescheidStatus,
+    deleteBescheid,
     createEinspruch,
     toggleFrist,
   }

@@ -20,7 +20,17 @@ interface BescheidContextValue {
     einspruchsfrist?: string
     notizen?: string
   }) => Promise<Bescheid | null>
+  updateBescheid: (id: string, data: {
+    titel?: string
+    finanzamt?: string
+    aktenzeichen?: string
+    festgesetzteSteuer?: number
+    erwarteteSteuer?: number
+    einspruchsfrist?: string
+    notizen?: string
+  }) => Promise<boolean>
   updateBescheidStatus: (id: string, status: Bescheid['status']) => Promise<void>
+  deleteBescheid: (id: string) => Promise<boolean>
   createEinspruch: (data: {
     bescheidId: string
     begruendung: string

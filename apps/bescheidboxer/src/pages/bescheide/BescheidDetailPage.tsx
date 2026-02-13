@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -11,6 +12,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   ExternalLink,
+  Trash2,
+  ChevronDown,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -19,13 +22,33 @@ import { Separator } from '../../components/ui/separator'
 import { formatCurrency, formatDate, daysUntil } from '../../lib/utils'
 import { useBescheidContext } from '../../contexts/BescheidContext'
 import { DetailSkeleton } from '../../components/LoadingSkeleton'
+import { useToast } from '../../hooks/use-toast'
+import {
+  AlertDialog,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from '../../components/ui/alert-dialog'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
+
+const STATUS_TRANSITIONS: Record<BescheidStatus, BescheidStatus[]> = {
+  neu: ['in_pruefung'],
+  in_pruefung: ['geprueft', 'einspruch'],
+  geprueft: ['einspruch', 'erledigt'],
+  einspruch: ['erledigt'],
+  erledigt: [],
+}
 
 export default function BescheidDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { bescheide, loading } = useBescheidContext()
+  const { toast } = useToast()
+  const { bescheide, loading, updateBescheidStatus, deleteBescheid } = useBescheidContext()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   if (loading) return <DetailSkeleton />
 
@@ -226,6 +249,50 @@ export default function BescheidDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2">
+                <StatusBadge status={bescheid.status} />
+                {STATUS_TRANSITIONS[bescheid.status].length > 0 && (
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1 h-7 px-2"
+                      onClick={() => setStatusMenuOpen(!statusMenuOpen)}
+                    >
+                      Aendern <ChevronDown className="h-3 w-3" />
+                    </Button>
+                    {statusMenuOpen && (
+                      <div className="absolute right-0 mt-1 w-48 rounded-md border bg-background shadow-lg z-10">
+                        {STATUS_TRANSITIONS[bescheid.status].map(nextStatus => (
+                          <button
+                            key={nextStatus}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors first:rounded-t-md last:rounded-b-md"
+                            onClick={async () => {
+                              await updateBescheidStatus(bescheid.id, nextStatus)
+                              setStatusMenuOpen(false)
+                              toast({
+                                title: 'Status geaendert',
+                                description: `Status auf "${BESCHEID_STATUS_LABELS[nextStatus]}" gesetzt.`,
+                              })
+                            }}
+                          >
+                            {BESCHEID_STATUS_LABELS[nextStatus]}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Actions */}
           <Card>
             <CardHeader>
@@ -244,6 +311,15 @@ export default function BescheidDetailPage() {
                   Einspruch erstellen
                 </Button>
               </Link>
+              <Separator className="my-2" />
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Bescheid loeschen
+              </Button>
             </CardContent>
           </Card>
 
@@ -277,6 +353,48 @@ export default function BescheidDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Bescheid loeschen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Moechten Sie &quot;{bescheid.titel}&quot; wirklich loeschen?
+            Alle zugehoerigen Fristen und Einsprueche werden ebenfalls entfernt.
+            Diese Aktion kann nicht rueckgaengig gemacht werden.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+            Abbrechen
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={deleting}
+            onClick={async () => {
+              setDeleting(true)
+              const success = await deleteBescheid(bescheid.id)
+              setDeleting(false)
+              if (success) {
+                toast({
+                  title: 'Bescheid geloescht',
+                  description: `"${bescheid.titel}" wurde entfernt.`,
+                })
+                navigate('/bescheide')
+              } else {
+                toast({
+                  title: 'Fehler',
+                  description: 'Der Bescheid konnte nicht geloescht werden.',
+                  variant: 'destructive',
+                })
+                setDeleteDialogOpen(false)
+              }
+            }}
+          >
+            {deleting ? 'Loescht...' : 'Endgueltig loeschen'}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialog>
     </div>
   )
 }
