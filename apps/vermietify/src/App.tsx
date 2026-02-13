@@ -14,6 +14,9 @@ import {
   Calculators,
   Settings,
   URLManagement,
+  Domains,
+  DomainDetail,
+  LinkChecker,
   Auth,
 } from '@/pages'
 
@@ -126,6 +129,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <URLManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/domains"
+        element={
+          <ProtectedRoute>
+            <Domains />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/domains/:id"
+        element={
+          <ProtectedRoute>
+            <DomainDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/link-checker"
+        element={
+          <ProtectedRoute>
+            <LinkChecker />
           </ProtectedRoute>
         }
       />

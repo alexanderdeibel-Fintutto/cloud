@@ -16,6 +16,7 @@ import {
   Calculator,
   FolderOpen,
   Globe,
+  Link2,
 } from 'lucide-react'
 
 const navigation = [
@@ -29,6 +30,8 @@ const navigation = [
   { name: 'Kommunikation', href: '/communication', icon: Mail },
   { name: 'Rechner', href: '/calculators', icon: Calculator },
   { name: 'URL Management', href: '/url-management', icon: Globe },
+  { name: 'Domain-Verwaltung', href: '/domains', icon: Globe },
+  { name: 'Link Checker', href: '/link-checker', icon: Link2 },
 ]
 
 export function Sidebar() {
@@ -48,7 +51,7 @@ export function Sidebar() {
 
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
-          const isActive = location.pathname === item.href
+          const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/')
           return (
             <Link
               key={item.name}
