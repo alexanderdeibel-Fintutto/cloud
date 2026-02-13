@@ -17,14 +17,18 @@ import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Separator } from '../../components/ui/separator'
 import { formatCurrency, formatDate, daysUntil } from '../../lib/utils'
-import { useBescheide } from '../../hooks/use-bescheide'
+import { useBescheidContext } from '../../contexts/BescheidContext'
+import { DetailSkeleton } from '../../components/LoadingSkeleton'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
 
 export default function BescheidDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { bescheide } = useBescheide()
+  const { bescheide, loading } = useBescheidContext()
+
+  if (loading) return <DetailSkeleton />
+
   const bescheid = bescheide.find(b => b.id === id)
 
   if (!bescheid) {

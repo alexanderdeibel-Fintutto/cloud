@@ -25,7 +25,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { formatCurrency, formatDate, daysUntil } from '../lib/utils'
-import { useBescheide } from '../hooks/use-bescheide'
+import { useBescheidContext } from '../contexts/BescheidContext'
+import { DashboardSkeleton } from '../components/LoadingSkeleton'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../types/bescheid'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -37,7 +38,9 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function DashboardPage() {
-  const { bescheide, fristen, stats } = useBescheide()
+  const { bescheide, fristen, stats, loading } = useBescheidContext()
+
+  if (loading) return <DashboardSkeleton />
 
   const recentBescheide = bescheide.slice(0, 3)
   const urgentFristen = fristen

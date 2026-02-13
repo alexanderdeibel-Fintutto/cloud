@@ -12,11 +12,13 @@ import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { formatDate, daysUntil } from '../../lib/utils'
-import { useBescheide } from '../../hooks/use-bescheide'
+import { useBescheidContext } from '../../contexts/BescheidContext'
+import { useToast } from '../../hooks/use-toast'
 import type { Frist } from '../../types/bescheid'
 
 export default function FristenPage() {
-  const { fristen, toggleFrist } = useBescheide()
+  const { fristen, toggleFrist } = useBescheidContext()
+  const { toast } = useToast()
   const [filterTyp, setFilterTyp] = useState<string>('alle')
   const [showErledigt, setShowErledigt] = useState(false)
 
@@ -115,7 +117,13 @@ export default function FristenPage() {
       ) : (
         <div className="space-y-3">
           {filteredFristen.map((frist) => (
-            <FristCard key={frist.id} frist={frist} onToggle={() => toggleFrist(frist.id)} />
+            <FristCard key={frist.id} frist={frist} onToggle={() => {
+              toggleFrist(frist.id)
+              toast({
+                title: frist.erledigt ? 'Frist wieder geoeffnet' : 'Frist als erledigt markiert',
+                description: frist.bescheidTitel,
+              })
+            }} />
           ))}
         </div>
       )}

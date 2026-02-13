@@ -17,7 +17,7 @@ import { Progress } from '../components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useToast } from '../hooks/use-toast'
 import { useFileUpload } from '../hooks/use-file-upload'
-import { useBescheide } from '../hooks/use-bescheide'
+import { useBescheidContext } from '../contexts/BescheidContext'
 import type { Bescheid } from '../types/bescheid'
 
 type UploadStep = 'upload' | 'processing' | 'details' | 'complete'
@@ -41,7 +41,7 @@ export default function UploadPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { uploadFile, error: uploadError } = useFileUpload()
-  const { createBescheid } = useBescheide()
+  const { createBescheid } = useBescheidContext()
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()

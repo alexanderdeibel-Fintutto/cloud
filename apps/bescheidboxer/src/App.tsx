@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from './components/ui/toaster'
 import { AuthProvider } from './contexts/AuthContext'
+import { BescheidProvider } from './contexts/BescheidContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/auth/LoginPage'
@@ -35,7 +36,9 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Layout />
+                <BescheidProvider>
+                  <Layout />
+                </BescheidProvider>
               </ProtectedRoute>
             }
           >

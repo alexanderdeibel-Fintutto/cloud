@@ -13,16 +13,19 @@ import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { formatCurrency, formatDate } from '../../lib/utils'
-import { useBescheide } from '../../hooks/use-bescheide'
+import { useBescheidContext } from '../../contexts/BescheidContext'
+import { ListSkeleton } from '../../components/LoadingSkeleton'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
 
 export default function BescheidePage() {
-  const { bescheide } = useBescheide()
+  const { bescheide, loading } = useBescheidContext()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterTyp, setFilterTyp] = useState<string>('alle')
   const [filterStatus, setFilterStatus] = useState<string>('alle')
   const [sortBy, setSortBy] = useState<'datum' | 'betrag'>('datum')
+
+  if (loading) return <ListSkeleton />
 
   const filteredBescheide = bescheide
     .filter(b => {

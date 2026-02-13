@@ -14,12 +14,12 @@ import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { formatCurrency } from '../../lib/utils'
-import { useMockData } from '../../hooks/use-mock-data'
+import { useBescheidContext } from '../../contexts/BescheidContext'
 import type { Abweichung } from '../../types/bescheid'
 
 export default function AnalysePage() {
   const { id } = useParams()
-  const { bescheide } = useMockData()
+  const { bescheide } = useBescheidContext()
   const [selectedBescheid, setSelectedBescheid] = useState(
     id ? bescheide.find(b => b.id === id) : bescheide.find(b => b.pruefungsergebnis && b.pruefungsergebnis.abweichungen.length > 0)
   )

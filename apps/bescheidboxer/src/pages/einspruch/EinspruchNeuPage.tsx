@@ -18,7 +18,7 @@ import { Badge } from '../../components/ui/badge'
 import { Separator } from '../../components/ui/separator'
 import { formatCurrency, formatDate } from '../../lib/utils'
 import { useToast } from '../../hooks/use-toast'
-import { useBescheide } from '../../hooks/use-bescheide'
+import { useBescheidContext } from '../../contexts/BescheidContext'
 
 type EinspruchStep = 'generate' | 'review' | 'complete'
 
@@ -26,7 +26,7 @@ export default function EinspruchNeuPage() {
   const { bescheidId } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { bescheide, createEinspruch } = useBescheide()
+  const { bescheide, createEinspruch } = useBescheidContext()
 
   const bescheid = bescheide.find(b => b.id === bescheidId)
   const [step, setStep] = useState<EinspruchStep>('generate')
