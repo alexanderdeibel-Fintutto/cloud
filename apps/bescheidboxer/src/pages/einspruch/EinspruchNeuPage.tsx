@@ -19,6 +19,7 @@ import { Separator } from '../../components/ui/separator'
 import { formatCurrency, formatDate } from '../../lib/utils'
 import { useToast } from '../../hooks/use-toast'
 import { useBescheidContext } from '../../contexts/BescheidContext'
+import { exportEinspruchAsPdf } from '../../lib/pdf-export'
 
 type EinspruchStep = 'generate' | 'review' | 'complete'
 
@@ -280,7 +281,24 @@ Mit freundlichen Gruessen`
                 <Copy className="h-4 w-4" />
                 Kopieren
               </Button>
-              <Button variant="outline" className="gap-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  if (!bescheid) return
+                  exportEinspruchAsPdf({
+                    absenderName: absenderName || 'Ihr Name',
+                    absenderAdresse: absenderAdresse || 'Ihre Adresse',
+                    absenderSteuerNr: absenderSteuerNr,
+                    finanzamt: bescheid.finanzamt,
+                    aktenzeichen: bescheid.aktenzeichen,
+                    bescheidTitel: bescheid.titel,
+                    bescheidDatum: bescheid.eingangsdatum,
+                    begruendung,
+                    abweichung: bescheid.abweichung ?? 0,
+                  })
+                }}
+              >
                 <Download className="h-4 w-4" />
                 Als PDF
               </Button>

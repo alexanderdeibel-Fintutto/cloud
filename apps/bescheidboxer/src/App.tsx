@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from './components/ui/toaster'
 import { AuthProvider } from './contexts/AuthContext'
 import { BescheidProvider } from './contexts/BescheidContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/auth/LoginPage'
@@ -23,6 +24,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 function App() {
   return (
     <ErrorBoundary>
+    <ThemeProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -59,6 +61,7 @@ function App() {
         <Toaster />
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
     </ErrorBoundary>
   )
 }

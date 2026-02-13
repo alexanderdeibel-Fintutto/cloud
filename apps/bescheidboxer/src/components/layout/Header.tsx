@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User } from 'lucide-react'
+import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User, Sun, Moon } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { cn } from '../../lib/utils'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'https://portal.fintutto.cloud'
 
@@ -26,6 +27,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const { profile, signOut } = useAuth()
+  const { resolvedTheme, setTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -86,6 +88,15 @@ export default function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            aria-label={resolvedTheme === 'dark' ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}
+          >
+            {resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+
           <Button variant="ghost" size="icon" className="relative" aria-label="Benachrichtigungen">
             <Bell className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]" variant="destructive">

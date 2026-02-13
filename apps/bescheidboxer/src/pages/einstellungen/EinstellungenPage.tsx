@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Shield, Bell, CreditCard, LogOut, Loader2, Copy, Check, AlertTriangle } from 'lucide-react'
+import { User, Shield, Bell, CreditCard, LogOut, Loader2, Copy, Check, AlertTriangle, Sun, Moon, Monitor, Type } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -9,6 +9,7 @@ import { Separator } from '../../components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Badge } from '../../components/ui/badge'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import { supabase } from '../../integrations/supabase/client'
 import { useToast } from '../../hooks/use-toast'
 
@@ -29,6 +30,7 @@ const TIER_LIMITS: Record<string, { checks: number; einsprueche: number }> = {
 export default function EinstellungenPage() {
   const { profile, user, signOut } = useAuth()
   const { toast } = useToast()
+  const { theme, setTheme, fontSize, setFontSize } = useTheme()
   const navigate = useNavigate()
   const [name, setName] = useState(profile?.name || '')
   const [saving, setSaving] = useState(false)
@@ -174,6 +176,10 @@ export default function EinstellungenPage() {
           <TabsTrigger value="benachrichtigungen">
             <Bell className="h-4 w-4 mr-2" />
             Benachrichtigungen
+          </TabsTrigger>
+          <TabsTrigger value="darstellung">
+            <Sun className="h-4 w-4 mr-2" />
+            Darstellung
           </TabsTrigger>
           <TabsTrigger value="sicherheit">
             <Shield className="h-4 w-4 mr-2" />
@@ -405,6 +411,100 @@ export default function EinstellungenPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Darstellung Tab */}
+        <TabsContent value="darstellung">
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Farbschema</CardTitle>
+                <CardDescription>
+                  Waehlen Sie zwischen hellem und dunklem Erscheinungsbild
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setTheme('light')}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                      theme === 'light' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'
+                    }`}
+                    aria-label="Helles Design"
+                  >
+                    <Sun className="h-6 w-6" />
+                    <span className="text-sm font-medium">Hell</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('dark')}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                      theme === 'dark' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'
+                    }`}
+                    aria-label="Dunkles Design"
+                  >
+                    <Moon className="h-6 w-6" />
+                    <span className="text-sm font-medium">Dunkel</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('system')}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                      theme === 'system' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'
+                    }`}
+                    aria-label="Systemeinstellung verwenden"
+                  >
+                    <Monitor className="h-6 w-6" />
+                    <span className="text-sm font-medium">System</span>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Schriftgroesse</CardTitle>
+                <CardDescription>
+                  Passen Sie die Schriftgroesse fuer bessere Lesbarkeit an
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setFontSize('normal')}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                      fontSize === 'normal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'
+                    }`}
+                    aria-label="Normale Schriftgroesse"
+                  >
+                    <Type className="h-5 w-5" />
+                    <span className="text-sm font-medium">Normal</span>
+                  </button>
+                  <button
+                    onClick={() => setFontSize('large')}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                      fontSize === 'large' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'
+                    }`}
+                    aria-label="Grosse Schrift"
+                  >
+                    <Type className="h-6 w-6" />
+                    <span className="text-sm font-medium">Gross</span>
+                  </button>
+                  <button
+                    onClick={() => setFontSize('xlarge')}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                      fontSize === 'xlarge' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'
+                    }`}
+                    aria-label="Sehr grosse Schrift"
+                  >
+                    <Type className="h-7 w-7" />
+                    <span className="text-sm font-medium">Sehr gross</span>
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Die Schriftgroesse wird sofort angewendet und gespeichert.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Sicherheit Tab */}
