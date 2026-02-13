@@ -28,6 +28,7 @@ import { formatCurrency, formatDate, daysUntil } from '../lib/utils'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { DashboardSkeleton } from '../components/LoadingSkeleton'
 import DeadlineBanner from '../components/DeadlineBanner'
+import SteuerTipps from '../components/SteuerTipps'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../types/bescheid'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -74,6 +75,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <DeadlineBanner />
+      <SteuerTipps />
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -14,6 +14,7 @@ import {
   Sun,
   Type,
   Download,
+  BarChart3,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -61,6 +62,7 @@ export default function CommandPalette() {
     { id: 'nav-einspruch', label: 'Einspruch', description: 'Einsprueche verwalten', icon: ShieldAlert, category: 'navigation', keywords: ['widerspruch', 'beschwerde'], action: () => runAndClose(() => navigate('/einspruch')) },
     { id: 'nav-referral', label: 'Freunde werben', description: 'Referral-Programm', icon: Users, category: 'navigation', keywords: ['empfehlung', 'werben', 'bonus'], action: () => runAndClose(() => navigate('/referral')) },
     { id: 'nav-hilfe', label: 'Hilfe & Glossar', description: 'Steuer-Begriffe erklaert', icon: HelpCircle, category: 'navigation', keywords: ['faq', 'glossar', 'hilfe', 'erklaerung'], action: () => runAndClose(() => navigate('/hilfe')) },
+    { id: 'nav-jahresbericht', label: 'Jahresbericht', description: 'Jaehrliche Zusammenfassung', icon: BarChart3, category: 'navigation', keywords: ['bericht', 'zusammenfassung', 'statistik', 'report'], action: () => runAndClose(() => navigate('/jahresbericht')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['profil', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

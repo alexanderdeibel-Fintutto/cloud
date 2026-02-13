@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
 import Onboarding from '../Onboarding'
 import CommandPalette from '../CommandPalette'
+import KeyboardShortcuts from '../KeyboardShortcuts'
 
 export default function Layout() {
   return (
@@ -25,6 +26,7 @@ export default function Layout() {
       <MobileNav />
       <Onboarding />
       <CommandPalette />
+      <KeyboardShortcuts />
     </div>
   )
 }

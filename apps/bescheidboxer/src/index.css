@@ -143,3 +143,26 @@
     @apply outline-2 outline-offset-2 outline-ring;
   }
 }
+
+/* Print styles */
+@media print {
+  header, aside, nav, .mobile-nav, .no-print {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .stat-card, .card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}
