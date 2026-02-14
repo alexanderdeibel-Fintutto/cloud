@@ -27,10 +27,20 @@ fi
 create_product() {
   local name="$1"
   local description="$2"
-  curl -s https://api.stripe.com/v1/products \
+  local response
+  response=$(curl -s https://api.stripe.com/v1/products \
     -u "$STRIPE_SECRET_KEY:" \
     -d "name=$name" \
-    -d "description=$description" | grep -o '"id": "prod_[^"]*"' | head -1 | cut -d'"' -f4
+    -d "description=$description")
+  local prod_id
+  prod_id=$(echo "$response" | grep -o '"id": "prod_[^"]*"' | head -1 | cut -d'"' -f4)
+  if [ -z "$prod_id" ]; then
+    echo "ERROR: Failed to create product '$name'" >&2
+    echo "API Response: $response" >&2
+    echo "FAILED"
+    return 1
+  fi
+  echo "$prod_id"
 }
 
 create_price() {
@@ -38,25 +48,45 @@ create_price() {
   local amount="$2"
   local interval="$3"
   local nickname="$4"
-  curl -s https://api.stripe.com/v1/prices \
+  local response
+  response=$(curl -s https://api.stripe.com/v1/prices \
     -u "$STRIPE_SECRET_KEY:" \
     -d "product=$product_id" \
     -d "unit_amount=$amount" \
     -d "currency=eur" \
     -d "recurring[interval]=$interval" \
-    -d "nickname=$nickname" | grep -o '"id": "price_[^"]*"' | head -1 | cut -d'"' -f4
+    -d "nickname=$nickname")
+  local price_id
+  price_id=$(echo "$response" | grep -o '"id": "price_[^"]*"' | head -1 | cut -d'"' -f4)
+  if [ -z "$price_id" ]; then
+    echo "ERROR: Failed to create price '$nickname' for product $product_id" >&2
+    echo "API Response: $response" >&2
+    echo "FAILED"
+    return 1
+  fi
+  echo "$price_id"
 }
 
 create_onetime_price() {
   local product_id="$1"
   local amount="$2"
   local nickname="$3"
-  curl -s https://api.stripe.com/v1/prices \
+  local response
+  response=$(curl -s https://api.stripe.com/v1/prices \
     -u "$STRIPE_SECRET_KEY:" \
     -d "product=$product_id" \
     -d "unit_amount=$amount" \
     -d "currency=eur" \
-    -d "nickname=$nickname" | grep -o '"id": "price_[^"]*"' | head -1 | cut -d'"' -f4
+    -d "nickname=$nickname")
+  local price_id
+  price_id=$(echo "$response" | grep -o '"id": "price_[^"]*"' | head -1 | cut -d'"' -f4)
+  if [ -z "$price_id" ]; then
+    echo "ERROR: Failed to create price '$nickname' for product $product_id" >&2
+    echo "API Response: $response" >&2
+    echo "FAILED"
+    return 1
+  fi
+  echo "$price_id"
 }
 
 echo "=============================================="
