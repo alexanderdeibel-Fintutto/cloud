@@ -33,6 +33,16 @@ app.use(cors())
 // API Routes unter /api
 app.use('/api', createApiRouter(config, executor))
 
+// Root – Hinweis auf Frontend
+app.get('/', (_req, res) => {
+  res.json({
+    service: 'widerspruchjobcenter.de Board-Bot',
+    dashboard: 'http://localhost:5175',
+    api: '/api',
+    health: '/health',
+  })
+})
+
 // Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })

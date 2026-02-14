@@ -16,6 +16,29 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
   const router = Router()
   router.use(json())
 
+  // ── API Index ──
+
+  router.get('/', (_req, res) => {
+    res.json({
+      service: 'Board-Bot API',
+      endpoints: {
+        'GET /api/status': 'Bot-Status',
+        'GET /api/personas': 'Alle Personas (paginiert)',
+        'GET /api/personas/:id': 'Einzelne Persona',
+        'GET /api/schedule': 'Vollständiger Schedule',
+        'GET /api/schedule/today': 'Heutiger Plan',
+        'GET /api/activity': 'Aktivitäts-Log',
+        'GET /api/config': 'Bot-Konfiguration',
+        'GET /api/wp/test': 'WordPress-Verbindung testen',
+        'POST /api/personas/generate': 'Personas generieren',
+        'POST /api/bot/start': 'Bot starten',
+        'POST /api/bot/stop': 'Bot stoppen',
+        'POST /api/bot/generate-schedule': 'Tagesplan erstellen',
+        'POST /api/bot/setup-wp-users': 'WP-User anlegen',
+      },
+    })
+  })
+
   // ── Bot Status ──
 
   router.get('/status', (_req, res) => {
