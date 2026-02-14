@@ -129,6 +129,36 @@ export class BotExecutor {
     try {
       let wpId: number | undefined
 
+      // Für comment/reply: post_id/topic_id dynamisch aus WP holen falls nicht gesetzt
+      if (
+        (action.action_type === 'blog_comment' || action.action_type === 'blog_comment_reply') &&
+        !action.target.post_id
+      ) {
+        try {
+          const posts = await this.wp.getRecentPosts(50)
+          if (posts.length > 0) {
+            // Zufällig einen Post wählen (gewichtet auf neuere)
+            const idx = Math.floor(Math.random() * Math.min(posts.length, 20))
+            action.target.post_id = posts[idx].id
+            updateScheduledAction(action.id, { target: action.target })
+          }
+        } catch { /* Kein Post verfügbar – wird unten abgefangen */ }
+      }
+
+      if (action.action_type === 'forum_reply' && !action.target.topic_id) {
+        try {
+          const forumWpId = action.target.forum_id
+            ? this.config.forum_ids[action.target.forum_id as keyof typeof this.config.forum_ids]
+            : 0
+          const topics = await this.wp.getForumTopics(forumWpId || undefined, 20)
+          if (topics.length > 0) {
+            const idx = Math.floor(Math.random() * topics.length)
+            action.target.topic_id = topics[idx].id
+            updateScheduledAction(action.id, { target: action.target })
+          }
+        } catch { /* Kein Topic verfügbar */ }
+      }
+
       switch (action.action_type) {
         case 'blog_post': {
           if (!action.content) break

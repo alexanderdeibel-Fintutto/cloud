@@ -197,6 +197,30 @@ export class WordPressClient {
     }
   }
 
+  // ── Categories (lesen) ──
+
+  async getCategories(params?: { per_page?: number }): Promise<Array<{ id: number; name: string; slug: string; count: number }>> {
+    const query = params?.per_page ? `?per_page=${params.per_page}` : '?per_page=100'
+    return this.request('GET', `/wp/v2/categories${query}`)
+  }
+
+  // ── Posts (lesen – für comment-targets) ──
+
+  async getRecentPosts(count = 20): Promise<Array<{ id: number; title: { rendered: string }; author: number }>> {
+    return this.request('GET', `/wp/v2/posts?per_page=${count}&orderby=date&order=desc&status=publish`)
+  }
+
+  // ── Forum Topics (lesen – für reply-targets) ──
+
+  async getForumTopics(forumId?: number, count = 20): Promise<Array<{ id: number; title: { rendered: string }; author: number }>> {
+    try {
+      const forumParam = forumId ? `&bbp_forum_id=${forumId}` : ''
+      return await this.request('GET', `/wp/v2/topics?per_page=${count}&orderby=date&order=desc${forumParam}`)
+    } catch {
+      return []
+    }
+  }
+
   // ── Tags ──
 
   async createTag(data: {

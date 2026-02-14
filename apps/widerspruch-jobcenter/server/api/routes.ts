@@ -103,7 +103,7 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
   router.post('/personas/generate', (req, res) => {
     const count = parseInt(req.body?.count) || 500
     const seed = parseInt(req.body?.seed) || 42
-    const personas = generatePersonas(count, seed)
+    const personas = generatePersonas({ count, seed })
     savePersonas(personas)
     res.json({
       message: `${personas.length} Personas generiert`,

@@ -8,7 +8,6 @@ import type {
   TimeProfile, PostingFrequency, EngagementStyle, BotConfig,
 } from '../personas/types'
 import { loadPersonas } from '../db'
-import { v4 as uuid } from 'crypto'
 
 // ── 4 Uhrzeitprofile (Stunden mit Gewichtung) ──
 
@@ -207,6 +206,20 @@ export function generateDailySchedule(
         ? persona.activity.active_forums[Math.floor(rng() * persona.activity.active_forums.length)]
         : 'allgemeines'
 
+      // Kategorie-ID für blog_post basierend auf Forum-Mapping
+      const forumToCategoryKey: Record<string, string> = {
+        'hilfe-bescheid': 'aktuelles',
+        'widerspruch': 'widerspruch',
+        'sanktionen': 'sanktionen',
+        'kdu-miete': 'kdu_miete',
+        'zuverdienst': 'einkommen',
+        'erfolge': 'erfahrungen',
+        'auskotzen': 'erfahrungen',
+        'allgemeines': 'aktuelles',
+      }
+      const categoryKey = forumToCategoryKey[forumId] || 'aktuelles'
+      const categoryId = config.category_ids[categoryKey] || 0
+
       const action: ScheduledAction = {
         id: generateId(),
         persona_id: persona.id,
@@ -216,8 +229,8 @@ export function generateDailySchedule(
         status: 'pending',
         target: {
           forum_id: forumId,
+          ...(actionType === 'blog_post' && categoryId > 0 ? { category_id: categoryId } : {}),
         },
-        // content wird später durch den Content-Generator gefüllt
       }
 
       schedule.push(action)

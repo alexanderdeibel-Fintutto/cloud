@@ -14,6 +14,8 @@
     "bot:setup-wp": "tsx server/cli.ts setup-wp-users",
     "bot:start": "tsx server/cli.ts start-bot",
     "bot:status": "tsx server/cli.ts status",
+    "bot:test-wp": "tsx server/cli.ts test-wp",
+    "bot:discover-wp": "tsx server/cli.ts discover-wp",
     "server": "tsx server/index.ts"
   },
   "dependencies": {

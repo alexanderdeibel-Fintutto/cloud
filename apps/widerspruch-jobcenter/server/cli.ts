@@ -258,6 +258,117 @@ async function main() {
       break
     }
 
+    case 'discover-wp': {
+      console.log('\nWordPress-Konfiguration abrufen...\n')
+      try {
+        const { WordPressClient } = await import('./wordpress/client')
+        const wp = new WordPressClient(config)
+
+        // Verbindung testen
+        const user = await wp.testConnection()
+        console.log(`✓ Verbunden als: ${user.name} (ID: ${user.id})\n`)
+
+        // Kategorien abrufen
+        console.log('── Kategorien ──')
+        try {
+          const categories = await wp.getCategories({ per_page: 100 })
+          if (categories.length === 0) {
+            console.log('  Keine Kategorien gefunden.')
+          } else {
+            for (const cat of categories) {
+              console.log(`  ID: ${String(cat.id).padStart(3)}  ${cat.name.padEnd(30)} (slug: ${cat.slug}, ${cat.count} Beiträge)`)
+            }
+            console.log(`\n  → .env Vorschlag:`)
+            const catMapping: Record<string, string[]> = {
+              CAT_AKTUELLES: ['aktuelles', 'news', 'neuigkeiten', 'allgemein'],
+              CAT_WIDERSPRUCH: ['widerspruch', 'einspruch'],
+              CAT_MEHRBEDARF: ['mehrbedarf'],
+              CAT_SANKTIONEN: ['sanktionen', 'sanktion'],
+              CAT_KDU_MIETE: ['kdu', 'miete', 'wohnung', 'unterkunft'],
+              CAT_EINKOMMEN: ['einkommen', 'zuverdienst', 'minijob'],
+              CAT_RECHTE_TIPPS: ['rechte', 'tipps', 'recht'],
+              CAT_ERFAHRUNGEN: ['erfahrungen', 'erfahrung', 'berichte'],
+            }
+            for (const [envKey, slugs] of Object.entries(catMapping)) {
+              const match = categories.find(c => slugs.some(s => c.slug.includes(s) || c.name.toLowerCase().includes(s)))
+              console.log(`  ${envKey}=${match ? match.id : 0}${match ? `  # ${match.name}` : '  # nicht gefunden'}`)
+            }
+          }
+        } catch (err) {
+          console.log(`  ✗ Fehler beim Abrufen: ${err instanceof Error ? err.message : err}`)
+        }
+
+        // Forums abrufen (bbPress)
+        console.log('\n── bbPress Forums ──')
+        try {
+          const forums = await wp.getForums()
+          if (Array.isArray(forums) && forums.length > 0) {
+            for (const forum of forums) {
+              const title = typeof forum.title === 'object' ? (forum.title as any).rendered : forum.title
+              console.log(`  ID: ${String(forum.id).padStart(3)}  ${title.padEnd(30)} (slug: ${forum.slug})`)
+            }
+            console.log(`\n  → .env Vorschlag:`)
+            const forumMapping: Record<string, string[]> = {
+              FORUM_ID_HILFE_BESCHEID: ['hilfe-bescheid', 'bescheid', 'hilfe'],
+              FORUM_ID_WIDERSPRUCH: ['widerspruch'],
+              FORUM_ID_SANKTIONEN: ['sanktionen', 'sanktion'],
+              FORUM_ID_KDU_MIETE: ['kdu', 'miete', 'wohnung'],
+              FORUM_ID_ZUVERDIENST: ['zuverdienst', 'einkommen'],
+              FORUM_ID_ERFOLGE: ['erfolge', 'erfolg'],
+              FORUM_ID_AUSKOTZEN: ['auskotzen', 'frust', 'dampf'],
+              FORUM_ID_ALLGEMEINES: ['allgemein', 'allgemeines', 'general'],
+            }
+            for (const [envKey, slugs] of Object.entries(forumMapping)) {
+              const match = forums.find((f: any) => {
+                const title = typeof f.title === 'object' ? (f.title as any).rendered : f.title
+                return slugs.some(s => (f.slug || '').includes(s) || title.toLowerCase().includes(s))
+              })
+              console.log(`  ${envKey}=${match ? match.id : 0}${match ? '' : '  # nicht gefunden'}`)
+            }
+          } else {
+            console.log('  Keine bbPress-Forums gefunden. bbPress evtl. nicht installiert.')
+          }
+        } catch (err) {
+          console.log(`  bbPress nicht verfügbar: ${err instanceof Error ? err.message : err}`)
+        }
+
+        // Vorhandene Posts zählen
+        console.log('\n── Vorhandene Inhalte ──')
+        try {
+          const posts = await wp.getRecentPosts(5)
+          console.log(`  Blog-Posts: ${posts.length}+ vorhanden`)
+          if (posts.length > 0) {
+            for (const p of posts.slice(0, 5)) {
+              const title = typeof p.title === 'object' ? p.title.rendered : p.title
+              console.log(`    → #${p.id}: ${title}`)
+            }
+          }
+        } catch {
+          console.log('  Blog-Posts: Abruf fehlgeschlagen')
+        }
+
+        try {
+          const topics = await wp.getForumTopics()
+          console.log(`  Forum-Topics: ${topics.length}+ vorhanden`)
+        } catch {
+          console.log('  Forum-Topics: Abruf fehlgeschlagen oder bbPress nicht aktiv')
+        }
+
+        // Vorhandene User zählen
+        try {
+          const users = await wp.getUsers({ per_page: 1 })
+          console.log(`  WP-User: Abruf OK`)
+        } catch {
+          console.log('  WP-User: Abruf fehlgeschlagen')
+        }
+
+        console.log('')
+      } catch (err) {
+        console.error(`✗ Verbindung fehlgeschlagen: ${err instanceof Error ? err.message : err}`)
+      }
+      break
+    }
+
     default:
       console.log(`
 Board-Bot CLI – widerspruchjobcenter.de
@@ -269,6 +380,7 @@ Befehle:
   start-bot                         Bot starten (läuft im Vordergrund)
   status                            Aktuellen Status anzeigen
   test-wp                           WordPress-Verbindung testen
+  discover-wp                       WordPress-Kategorien/Forums abrufen
 
 generate-personas Optionen:
   --count <n>              Anzahl (Standard: 500)
