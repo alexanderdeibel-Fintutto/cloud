@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, TrendingUp, TrendingDown, Minus, Zap, Flame, Droplets, Thermometer, AlertTriangle, Sun, Cloud, FileSpreadsheet, ArrowRightLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Download, TrendingUp, TrendingDown, Minus, Zap, Flame, Droplets, Thermometer, AlertTriangle, Sun, Cloud, FileSpreadsheet, ArrowRightLeft, ChevronRight, Grid3X3, Calculator, Lightbulb, MessageSquare, FileText } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -567,6 +567,11 @@ export default function ConsumptionAnalysis() {
           <div className="divide-y divide-border">
             {[
               { href: '/solar', icon: Sun, label: 'Solar/PV Dashboard', desc: 'Produktion, Eigenverbrauch, Autarkie', color: 'text-yellow-500' },
+              { href: '/heatmap', icon: Grid3X3, label: 'Verbrauchs-Heatmap', desc: 'Monat x Wochentag Verteilung', color: 'text-orange-500' },
+              { href: '/simulator', icon: Lightbulb, label: 'Spar-Simulator', desc: 'Was-wäre-wenn Szenarien', color: 'text-amber-500' },
+              { href: '/energy-chat', icon: MessageSquare, label: 'Energieberater', desc: 'KI-basierte Empfehlungen', color: 'text-indigo-500' },
+              { href: '/costs', icon: Calculator, label: 'Nebenkosten-Rechner', desc: 'Kostenaufstellung pro Gebäude', color: 'text-teal-500' },
+              { href: '/reports', icon: FileText, label: 'Report-Builder', desc: 'Berichte erstellen & exportieren', color: 'text-slate-500' },
               { href: '/weather', icon: Cloud, label: 'Wetterdaten', desc: 'Heizgradtage, Temperatur-Korrelation', color: 'text-blue-400' },
               { href: '/comparison', icon: ArrowRightLeft, label: 'Anbietervergleich', desc: 'Check24, Verivox, Wechselpilot', color: 'text-green-500' },
               { href: '/bk-integration', icon: FileSpreadsheet, label: 'BK-Abrechnung', desc: 'Verbrauchsanteile & CSV-Export', color: 'text-purple-500' },
