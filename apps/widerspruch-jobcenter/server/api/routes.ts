@@ -64,15 +64,20 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
   })
 
   router.post('/bot/setup-wp-users', async (_req, res) => {
-    try {
-      const result = await executor.setupPersonasInWordPress()
-      res.json({
-        message: `${result.created} Users erstellt, ${result.skipped} übersprungen`,
-        errors: result.errors.length > 0 ? result.errors : undefined,
-      })
-    } catch (err) {
-      res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
+    if (executor.wpSetupProgress.running) {
+      return res.json({ message: 'WP-User-Setup läuft bereits', progress: executor.wpSetupProgress })
     }
+    // Fire-and-forget: starte Setup im Hintergrund, antworte sofort
+    executor.setupPersonasInWordPress().catch(err => {
+      console.error('[BOT] WP-Setup-Fehler:', err)
+    })
+    // Kurz warten damit progress.running = true gesetzt ist
+    await new Promise(r => setTimeout(r, 100))
+    res.json({ message: 'WP-User-Setup gestartet', progress: executor.wpSetupProgress })
+  })
+
+  router.get('/bot/setup-wp-users/progress', (_req, res) => {
+    res.json(executor.wpSetupProgress)
   })
 
   // ── WordPress API Test ──

@@ -52,6 +52,7 @@ export const api = {
   startBot: () => apiFetch<any>('/bot/start', { method: 'POST' }),
   stopBot: () => apiFetch<any>('/bot/stop', { method: 'POST' }),
   setupWpUsers: () => apiFetch<any>('/bot/setup-wp-users', { method: 'POST' }),
+  getWpSetupProgress: () => apiFetch<any>('/bot/setup-wp-users/progress'),
 
   // Activity
   getActivity: (limit = 100) => apiFetch<any>(`/activity?limit=${limit}`),

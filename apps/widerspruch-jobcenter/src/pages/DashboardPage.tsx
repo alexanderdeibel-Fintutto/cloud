@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Play, Square, RefreshCw, Users, Calendar, Activity,
@@ -6,11 +6,23 @@ import {
 } from 'lucide-react'
 import { api } from '@/lib/api'
 
+interface WpSetupProgress {
+  running: boolean
+  total: number
+  current: number
+  created: number
+  skipped: number
+  errors: number
+  currentPersona: string
+}
+
 export default function DashboardPage() {
   const [status, setStatus] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [wpProgress, setWpProgress] = useState<WpSetupProgress | null>(null)
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchStatus = async () => {
     try {
@@ -24,21 +36,60 @@ export default function DashboardPage() {
     }
   }
 
+  const startProgressPolling = () => {
+    if (progressInterval.current) return
+    progressInterval.current = setInterval(async () => {
+      try {
+        const progress = await api.getWpSetupProgress()
+        setWpProgress(progress)
+        if (!progress.running) {
+          stopProgressPolling()
+          setActionLoading(null)
+          await fetchStatus()
+        }
+      } catch { /* ignore */ }
+    }, 1000)
+  }
+
+  const stopProgressPolling = () => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current)
+      progressInterval.current = null
+    }
+  }
+
   useEffect(() => {
     fetchStatus()
+    // Beim Laden prüfen ob WP-Setup gerade läuft
+    api.getWpSetupProgress().then(p => {
+      if (p.running) {
+        setWpProgress(p)
+        setActionLoading('wp')
+        startProgressPolling()
+      }
+    }).catch(() => {})
     const interval = setInterval(fetchStatus, 5000)
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      stopProgressPolling()
+    }
   }, [])
 
   const handleAction = async (action: string, fn: () => Promise<any>) => {
     setActionLoading(action)
     try {
-      await fn()
+      const result = await fn()
+      // WP-Setup: Start polling statt auf Response warten
+      if (action === 'wp' && result?.progress?.running) {
+        setWpProgress(result.progress)
+        startProgressPolling()
+        return // Nicht actionLoading clearen – polling macht das
+      }
       await fetchStatus()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Fehler')
     } finally {
-      setActionLoading(null)
+      if (action !== 'wp') setActionLoading(null)
     }
   }
 
@@ -50,6 +101,10 @@ export default function DashboardPage() {
       </div>
     )
   }
+
+  const wpPercent = wpProgress && wpProgress.total > 0
+    ? Math.round((wpProgress.current / wpProgress.total) * 100)
+    : 0
 
   return (
     <div className="forum-container">
@@ -78,6 +133,36 @@ export default function DashboardPage() {
           <p className="text-sm text-destructive">{error}</p>
           <p className="text-xs text-destructive/70 mt-1">
             Stelle sicher, dass der Bot-Server läuft: <code className="bg-destructive/10 px-1 rounded">pnpm dev:server</code>
+          </p>
+        </div>
+      )}
+
+      {/* WP-Setup Progress Bar */}
+      {wpProgress?.running && (
+        <div className="bg-card border border-primary/30 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-primary" />
+              WP-User werden angelegt...
+            </h3>
+            <span className="text-xs font-mono text-primary">{wpProgress.current}/{wpProgress.total} ({wpPercent}%)</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2.5 mb-2">
+            <div
+              className="bg-primary h-2.5 rounded-full transition-all duration-300"
+              style={{ width: `${wpPercent}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span>Aktuell: {wpProgress.currentPersona}</span>
+            <span className="flex items-center gap-3">
+              <span className="text-green-600">{wpProgress.created} erstellt</span>
+              <span>{wpProgress.skipped} übersprungen</span>
+              {wpProgress.errors > 0 && <span className="text-destructive">{wpProgress.errors} Fehler</span>}
+            </span>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            ~{Math.ceil((wpProgress.total - wpProgress.current) / 60)} Min. verbleibend (1 User/Sekunde)
           </p>
         </div>
       )}
@@ -163,7 +248,11 @@ export default function DashboardPage() {
             disabled={!!actionLoading}
             className="btn-forum text-xs border border-border hover:bg-muted disabled:opacity-50"
           >
-            <Settings className="w-3.5 h-3.5" />
+            {actionLoading === 'wp' ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Settings className="w-3.5 h-3.5" />
+            )}
             WP-User anlegen
           </button>
 

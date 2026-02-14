@@ -20,6 +20,17 @@ export class BotExecutor {
   private running = false
   private timer: ReturnType<typeof setTimeout> | null = null
 
+  // Progress-Tracking für WP-User-Setup
+  wpSetupProgress: {
+    running: boolean
+    total: number
+    current: number
+    created: number
+    skipped: number
+    errors: number
+    currentPersona: string
+  } = { running: false, total: 0, current: 0, created: 0, skipped: 0, errors: 0, currentPersona: '' }
+
   constructor(private config: BotConfig) {
     this.wp = new WordPressClient(config)
   }
@@ -32,9 +43,23 @@ export class BotExecutor {
     let skipped = 0
     const errors: string[] = []
 
+    this.wpSetupProgress = {
+      running: true,
+      total: personas.length,
+      current: 0,
+      created: 0,
+      skipped: 0,
+      errors: 0,
+      currentPersona: '',
+    }
+
     for (const persona of personas) {
+      this.wpSetupProgress.current++
+      this.wpSetupProgress.currentPersona = `${persona.id} (${persona.display_name})`
+
       if (persona.wp_user_id) {
         skipped++
+        this.wpSetupProgress.skipped = skipped
         continue
       }
 
@@ -57,6 +82,7 @@ export class BotExecutor {
 
         updatePersona(persona.id, { wp_user_id: wpUser.id })
         created++
+        this.wpSetupProgress.created = created
 
         // Rate limiting: 1 Request/Sekunde
         await sleep(1000)
@@ -70,6 +96,7 @@ export class BotExecutor {
             if (existing) {
               updatePersona(persona.id, { wp_user_id: existing.id })
               skipped++
+              this.wpSetupProgress.skipped = skipped
               await sleep(500)
               continue
             }
@@ -77,9 +104,11 @@ export class BotExecutor {
         }
 
         errors.push(`${persona.id} (${persona.username}): ${msg}`)
+        this.wpSetupProgress.errors = errors.length
       }
     }
 
+    this.wpSetupProgress.running = false
     return { created, skipped, errors }
   }
 
