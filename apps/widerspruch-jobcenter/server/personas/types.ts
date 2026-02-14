@@ -122,6 +122,7 @@ export interface Persona {
   password: string
   bio: string
   avatar_color: string
+  wave?: string                         // Generierungswelle, z.B. "gruender", "welle2"
 
   profile: PersonaProfile
   activity: PersonaActivity

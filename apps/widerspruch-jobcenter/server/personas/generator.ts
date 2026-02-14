@@ -291,20 +291,115 @@ function generateExampleSentences(
   return pickN(pool[ton] || pool['emotional_aber_sachlich'], 3, rng)
 }
 
+// ── Generation Options ──
+
+export interface GenerateOptions {
+  count?: number
+  seed?: number
+  /** Append to existing personas instead of overwriting */
+  append?: boolean
+  /** Start ID offset (for append mode – auto-detected if not given) */
+  startId?: number
+  /** Label for this generation wave, e.g. "gruender", "welle2", "spaeteinsteiger" */
+  wave?: string
+  /** Force specific time profile(s) — one or comma-separated */
+  timeProfile?: TimeProfile | TimeProfile[]
+  /** Force specific posting frequency(ies) */
+  frequency?: PostingFrequency | PostingFrequency[]
+  /** Force specific engagement style(s) */
+  engagement?: EngagementStyle | EngagementStyle[]
+  /** Force specific situation(s) */
+  situation?: Situation | Situation[]
+  /** BescheidBoxer affinity range: "low"=0-0.1, "medium"=0.1-0.3, "high"=0.3-0.7, "none"=0, or "0.2-0.5" */
+  bbAffinity?: string
+  /** Earliest simulated join date (YYYY-MM) */
+  joinFrom?: string
+  /** Latest simulated join date (YYYY-MM) */
+  joinTo?: string
+}
+
+function parseRange(spec: string): [number, number] {
+  if (spec === 'none') return [0, 0]
+  if (spec === 'low') return [0.01, 0.10]
+  if (spec === 'medium') return [0.10, 0.30]
+  if (spec === 'high') return [0.30, 0.70]
+  if (spec.includes('-')) {
+    const [a, b] = spec.split('-').map(Number)
+    return [a, b]
+  }
+  const v = Number(spec)
+  return [v, v]
+}
+
+function toArray<T>(v: T | T[] | undefined): T[] | undefined {
+  if (v === undefined) return undefined
+  return Array.isArray(v) ? v : [v]
+}
+
+function randomJoinDate(
+  rng: () => number,
+  from?: string,
+  to?: string,
+): string {
+  const parseYM = (s: string) => {
+    const [y, m] = s.split('-').map(Number)
+    return y * 12 + (m - 1)
+  }
+  const fromMonths = from ? parseYM(from) : parseYM('2024-01')
+  const toMonths = to ? parseYM(to) : parseYM('2026-02')
+  const m = fromMonths + Math.floor(rng() * (toMonths - fromMonths + 1))
+  const year = Math.floor(m / 12)
+  const month = (m % 12) + 1
+  return `${year}-${String(month).padStart(2, '0')}`
+}
+
 // ── Main Generator ──
 
-export function generatePersonas(count: number = 500, seed: number = 42): Persona[] {
+export function generatePersonas(opts: GenerateOptions = {}): Persona[] {
+  const {
+    count = 500,
+    seed = 42,
+    startId = 1,
+    wave,
+    joinFrom,
+    joinTo,
+  } = opts
+
   const rng = seededRng(seed)
   const personas: Persona[] = []
   const usedUsernames = new Set<string>()
 
+  // Resolve filter arrays
+  const filterTimeProfile = toArray(opts.timeProfile)
+  const filterFrequency = toArray(opts.frequency)
+  const filterEngagement = toArray(opts.engagement)
+  const filterSituation = toArray(opts.situation)
+
+  // Resolve BB affinity range
+  const bbRange: [number, number] | undefined =
+    opts.bbAffinity !== undefined ? parseRange(opts.bbAffinity) : undefined
+
+  // Build situation weights filtered by opts
+  const effectiveSituationWeights: [Situation, number][] = filterSituation
+    ? SITUATION_WEIGHTS.filter(([s]) => filterSituation.includes(s))
+    : [...SITUATION_WEIGHTS]
+
+  // Fallback if filter matched nothing
+  if (effectiveSituationWeights.length === 0) {
+    effectiveSituationWeights.push(...SITUATION_WEIGHTS)
+  }
+
   for (let i = 0; i < count; i++) {
-    const id = `p_${String(i + 1).padStart(3, '0')}`
+    const idx = startId + i
+    const id = `p_${String(idx).padStart(3, '0')}`
     const geschlecht: Gender = rng() < 0.55 ? 'w' : rng() < 0.97 ? 'm' : 'd'
     const vornamen = geschlecht === 'w' ? VORNAMEN_W : VORNAMEN_M
     const vorname = pick(vornamen, rng)
     const nachname = pick(NACHNAMEN_INITIAL, rng)
-    const situation = weightedPick(SITUATION_WEIGHTS as [string, number][], rng) as Situation
+    const situation = weightedPick(
+      effectiveSituationWeights as [string, number][],
+      rng,
+    ) as Situation
     const stadt = pick(STAEDTE, rng)
 
     // Generate unique username
@@ -314,7 +409,7 @@ export function generatePersonas(count: number = 500, seed: number = 42): Person
       username = generateUsername(vorname, nachname, i, situation, rng)
       attempts++
     } while (usedUsernames.has(username) && attempts < 20)
-    if (usedUsernames.has(username)) username = `${username}_${i}`
+    if (usedUsernames.has(username)) username = `${username}_${idx}`
     usedUsernames.add(username)
 
     const alter = situation === 'senior'
@@ -340,28 +435,38 @@ export function generatePersonas(count: number = 500, seed: number = 42): Person
       rng,
     )
 
-    // Engagement style distribution
-    const engagementRoll = rng()
-    const engagement_style: EngagementStyle =
-      engagementRoll < 0.15 ? 'schreiber' :
-      engagementRoll < 0.35 ? 'kommentierer' :
-      engagementRoll < 0.50 ? 'mixed' :
-      engagementRoll < 0.70 ? 'liker' : 'lurker_gelegentlich'
-
-    // Posting frequency - correlate with engagement
-    const freqMap: Record<EngagementStyle, PostingFrequency[]> = {
-      schreiber: ['taeglich','3_4_pro_woche'],
-      kommentierer: ['3_4_pro_woche','2_3_pro_woche'],
-      mixed: ['2_3_pro_woche','1_2_pro_woche'],
-      liker: ['1_2_pro_woche','gelegentlich'],
-      lurker_gelegentlich: ['gelegentlich','selten'],
+    // Engagement style – use filter or random distribution
+    let engagement_style: EngagementStyle
+    if (filterEngagement) {
+      engagement_style = pick(filterEngagement, rng)
+    } else {
+      const engagementRoll = rng()
+      engagement_style =
+        engagementRoll < 0.15 ? 'schreiber' :
+        engagementRoll < 0.35 ? 'kommentierer' :
+        engagementRoll < 0.50 ? 'mixed' :
+        engagementRoll < 0.70 ? 'liker' : 'lurker_gelegentlich'
     }
-    const posting_frequency = pick(freqMap[engagement_style], rng)
 
-    // Time profile
-    const time_profile = pick([
-      'fruehaufsteher','berufstaetig','nachtaktiv','ganztags',
-    ] as TimeProfile[], rng)
+    // Posting frequency – use filter or correlate with engagement
+    let posting_frequency: PostingFrequency
+    if (filterFrequency) {
+      posting_frequency = pick(filterFrequency, rng)
+    } else {
+      const freqMap: Record<EngagementStyle, PostingFrequency[]> = {
+        schreiber: ['taeglich','3_4_pro_woche'],
+        kommentierer: ['3_4_pro_woche','2_3_pro_woche'],
+        mixed: ['2_3_pro_woche','1_2_pro_woche'],
+        liker: ['1_2_pro_woche','gelegentlich'],
+        lurker_gelegentlich: ['gelegentlich','selten'],
+      }
+      posting_frequency = pick(freqMap[engagement_style], rng)
+    }
+
+    // Time profile – use filter or random
+    const time_profile: TimeProfile = filterTimeProfile
+      ? pick(filterTimeProfile, rng)
+      : pick(['fruehaufsteher','berufstaetig','nachtaktiv','ganztags'] as TimeProfile[], rng)
 
     // Active forums based on situation
     const availableForums = FORUM_MAP[situation] || ['hilfe-bescheid','allgemeines']
@@ -372,21 +477,32 @@ export function generatePersonas(count: number = 500, seed: number = 42): Person
     const baseTags = TAG_MAP[situation] || ['bescheid','buergergeld']
     const themen = pickN(baseTags, Math.min(baseTags.length, randInt(2, 5, rng)), rng) as ContentTag[]
 
-    // Bescheidboxer affinity (some love it, some never mention it)
-    const bb_roll = rng()
-    const bescheidboxer_affinity =
-      bb_roll < 0.30 ? 0 :                                     // 30% nie erwähnen
-      bb_roll < 0.55 ? Math.round(rng() * 10) / 100 :         // 25% selten (0-0.10)
-      bb_roll < 0.80 ? Math.round((0.10 + rng() * 0.20) * 100) / 100 : // 25% mittel (0.10-0.30)
-      Math.round((0.30 + rng() * 0.40) * 100) / 100            // 20% häufig (0.30-0.70)
+    // Bescheidboxer affinity – use range or default distribution
+    let bescheidboxer_affinity: number
+    if (bbRange) {
+      const [lo, hi] = bbRange
+      bescheidboxer_affinity = lo === hi ? lo : Math.round((lo + rng() * (hi - lo)) * 100) / 100
+    } else {
+      const bb_roll = rng()
+      bescheidboxer_affinity =
+        bb_roll < 0.30 ? 0 :
+        bb_roll < 0.55 ? Math.round(rng() * 10) / 100 :
+        bb_roll < 0.80 ? Math.round((0.10 + rng() * 0.20) * 100) / 100 :
+        Math.round((0.30 + rng() * 0.40) * 100) / 100
+    }
 
     const display_name = rng() < 0.3
       ? vorname
       : `${vorname} ${nachname}`
 
-    const joinYear = 2024 + (rng() < 0.15 ? 0 : rng() < 0.4 ? 1 : 2)
-    const joinMonth = randInt(1, 12, rng)
-    const seit = `${joinYear}-${String(joinMonth).padStart(2, '0')}`
+    // Join date – use range or default distribution
+    const seit = (joinFrom || joinTo)
+      ? randomJoinDate(rng, joinFrom, joinTo)
+      : (() => {
+          const joinYear = 2024 + (rng() < 0.15 ? 0 : rng() < 0.4 ? 1 : 2)
+          const joinMonth = randInt(1, 12, rng)
+          return `${joinYear}-${String(joinMonth).padStart(2, '0')}`
+        })()
 
     const profile: PersonaProfile = {
       alter,
@@ -442,6 +558,7 @@ export function generatePersonas(count: number = 500, seed: number = 42): Person
         total_forum_topics: 0,
         total_forum_replies: 0,
       },
+      ...(wave ? { wave } : {}),
     }
 
     personas.push(persona)

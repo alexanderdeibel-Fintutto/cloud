@@ -18,6 +18,8 @@ if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true })
 
 import { loadConfig } from './config'
 import { generatePersonas } from './personas/generator'
+import type { GenerateOptions } from './personas/generator'
+import type { TimeProfile, PostingFrequency, EngagementStyle, Situation, Persona } from './personas/types'
 import { savePersonas, loadPersonas } from './db'
 import { BotExecutor } from './bot/executor'
 import { summarizeSchedule } from './bot/scheduler'
@@ -25,49 +27,134 @@ import { summarizeSchedule } from './bot/scheduler'
 const command = process.argv[2]
 const config = loadConfig()
 
+// ── Arg Parser ──
+function getArg(name: string): string | undefined {
+  const idx = process.argv.indexOf(`--${name}`)
+  if (idx === -1) return undefined
+  return process.argv[idx + 1]
+}
+function hasFlag(name: string): boolean {
+  return process.argv.includes(`--${name}`)
+}
+
+function printPersonaStats(personas: Persona[], label: string) {
+  const bySituation: Record<string, number> = {}
+  const byEngagement: Record<string, number> = {}
+  const byTimeProfile: Record<string, number> = {}
+  const byFrequency: Record<string, number> = {}
+  const byWave: Record<string, number> = {}
+  let bbSum = 0
+
+  for (const p of personas) {
+    bySituation[p.profile.situation] = (bySituation[p.profile.situation] || 0) + 1
+    byEngagement[p.activity.engagement_style] = (byEngagement[p.activity.engagement_style] || 0) + 1
+    byTimeProfile[p.activity.time_profile] = (byTimeProfile[p.activity.time_profile] || 0) + 1
+    byFrequency[p.activity.posting_frequency] = (byFrequency[p.activity.posting_frequency] || 0) + 1
+    bbSum += p.activity.bescheidboxer_affinity
+    const w = p.wave || '(ohne)'
+    byWave[w] = (byWave[w] || 0) + 1
+  }
+
+  console.log(`\n✓ ${label}\n`)
+  console.log('Verteilung nach Situation:')
+  for (const [k, v] of Object.entries(bySituation).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+  }
+  console.log('\nEngagement-Stile:')
+  for (const [k, v] of Object.entries(byEngagement).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+  }
+  console.log('\nZeitprofile:')
+  for (const [k, v] of Object.entries(byTimeProfile).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+  }
+  console.log('\nPosting-Häufigkeit:')
+  for (const [k, v] of Object.entries(byFrequency).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+  }
+  if (Object.keys(byWave).length > 1 || !byWave['(ohne)']) {
+    console.log('\nWellen:')
+    for (const [k, v] of Object.entries(byWave).sort((a, b) => b[1] - a[1])) {
+      console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+    }
+  }
+  console.log(`\nDurchschnittliche BescheidBoxer-Affinität: ${(bbSum / personas.length).toFixed(3)}`)
+}
+
 async function main() {
   switch (command) {
     case 'generate-personas': {
-      const count = parseInt(process.argv[3] || '500', 10)
-      const seed = parseInt(process.argv[4] || '42', 10)
+      // Positional args (legacy support): count seed
+      const positionalCount = process.argv[3] && !process.argv[3].startsWith('--')
+        ? parseInt(process.argv[3], 10) : undefined
+      const positionalSeed = process.argv[4] && !process.argv[4].startsWith('--')
+        ? parseInt(process.argv[4], 10) : undefined
 
-      console.log(`\nGeneriere ${count} Personas (Seed: ${seed})...\n`)
-      const personas = generatePersonas(count, seed)
-      savePersonas(personas)
+      const count = positionalCount ?? parseInt(getArg('count') || '500', 10)
+      const seed = positionalSeed ?? parseInt(getArg('seed') || '42', 10)
+      const append = hasFlag('append')
+      const wave = getArg('wave')
+      const timeProfile = getArg('time-profile')?.split(',') as TimeProfile[] | undefined
+      const frequency = getArg('frequency')?.split(',') as PostingFrequency[] | undefined
+      const engagement = getArg('engagement')?.split(',') as EngagementStyle[] | undefined
+      const situation = getArg('situation')?.split(',') as Situation[] | undefined
+      const bbAffinity = getArg('bb-affinity')
+      const joinFrom = getArg('join-from')
+      const joinTo = getArg('join-to')
 
-      // Statistiken
-      const bySituation: Record<string, number> = {}
-      const byEngagement: Record<string, number> = {}
-      const byTimeProfile: Record<string, number> = {}
-      const byFrequency: Record<string, number> = {}
-      let bbSum = 0
-
-      for (const p of personas) {
-        bySituation[p.profile.situation] = (bySituation[p.profile.situation] || 0) + 1
-        byEngagement[p.activity.engagement_style] = (byEngagement[p.activity.engagement_style] || 0) + 1
-        byTimeProfile[p.activity.time_profile] = (byTimeProfile[p.activity.time_profile] || 0) + 1
-        byFrequency[p.activity.posting_frequency] = (byFrequency[p.activity.posting_frequency] || 0) + 1
-        bbSum += p.activity.bescheidboxer_affinity
+      // Determine start ID for append mode
+      let startId = 1
+      let existing: Persona[] = []
+      if (append) {
+        existing = loadPersonas()
+        if (existing.length > 0) {
+          const maxId = Math.max(...existing.map(p => parseInt(p.id.replace('p_', ''), 10)))
+          startId = maxId + 1
+        }
       }
 
-      console.log(`✓ ${personas.length} Personas gespeichert in data/personas.json\n`)
-      console.log('Verteilung nach Situation:')
-      for (const [k, v] of Object.entries(bySituation).sort((a, b) => b[1] - a[1])) {
-        console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+      const opts: GenerateOptions = {
+        count,
+        seed,
+        startId,
+        wave,
+        timeProfile,
+        frequency,
+        engagement,
+        situation,
+        bbAffinity,
+        joinFrom,
+        joinTo,
       }
-      console.log('\nEngagement-Stile:')
-      for (const [k, v] of Object.entries(byEngagement).sort((a, b) => b[1] - a[1])) {
-        console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+
+      // Show what we're doing
+      const filters: string[] = []
+      if (wave) filters.push(`Welle: "${wave}"`)
+      if (timeProfile) filters.push(`Zeitprofil: ${timeProfile.join(', ')}`)
+      if (frequency) filters.push(`Frequenz: ${frequency.join(', ')}`)
+      if (engagement) filters.push(`Engagement: ${engagement.join(', ')}`)
+      if (situation) filters.push(`Situation: ${situation.join(', ')}`)
+      if (bbAffinity) filters.push(`BB-Affinität: ${bbAffinity}`)
+      if (joinFrom || joinTo) filters.push(`Beitrittszeitraum: ${joinFrom || '...'} bis ${joinTo || '...'}`)
+
+      console.log(`\nGeneriere ${count} Personas (Seed: ${seed})${append ? ' [APPEND-Modus]' : ''}...`)
+      if (filters.length > 0) {
+        console.log('Filter:')
+        for (const f of filters) console.log(`  → ${f}`)
       }
-      console.log('\nZeitprofile:')
-      for (const [k, v] of Object.entries(byTimeProfile).sort((a, b) => b[1] - a[1])) {
-        console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
+      console.log()
+
+      const newPersonas = generatePersonas(opts)
+
+      if (append && existing.length > 0) {
+        const combined = [...existing, ...newPersonas]
+        savePersonas(combined)
+        console.log(`✓ ${newPersonas.length} neue Personas hinzugefügt (gesamt: ${combined.length})`)
+        printPersonaStats(combined, `${combined.length} Personas gespeichert in data/personas.json`)
+      } else {
+        savePersonas(newPersonas)
+        printPersonaStats(newPersonas, `${newPersonas.length} Personas gespeichert in data/personas.json`)
       }
-      console.log('\nPosting-Häufigkeit:')
-      for (const [k, v] of Object.entries(byFrequency).sort((a, b) => b[1] - a[1])) {
-        console.log(`  ${k.padEnd(25)} ${v} (${Math.round(v / personas.length * 100)}%)`)
-      }
-      console.log(`\nDurchschnittliche BescheidBoxer-Affinität: ${(bbSum / personas.length).toFixed(3)}`)
       break
     }
 
@@ -183,10 +270,43 @@ Befehle:
   status                            Aktuellen Status anzeigen
   test-wp                           WordPress-Verbindung testen
 
-Beispiele:
-  tsx server/cli.ts generate-personas 500 42
-  tsx server/cli.ts generate-schedule
-  tsx server/cli.ts start-bot
+generate-personas Optionen:
+  --count <n>              Anzahl (Standard: 500)
+  --seed <n>               Zufallsseed (Standard: 42)
+  --append                 An bestehende Personas anhängen statt überschreiben
+  --wave <name>            Wellen-Label (z.B. "gruender", "welle2", "spaet")
+  --time-profile <tp>      Zeitprofil: fruehaufsteher,berufstaetig,nachtaktiv,ganztags
+  --frequency <f>          Häufigkeit: taeglich,3_4_pro_woche,...,selten
+  --engagement <e>         Engagement: schreiber,kommentierer,liker,lurker_gelegentlich,mixed
+  --situation <s>          Situation: alleinerziehend,single,langzeitbezieher,...
+  --bb-affinity <range>    BescheidBoxer-Affinität: none,low,medium,high oder "0.2-0.5"
+  --join-from <YYYY-MM>    Beitritt frühestens (z.B. 2024-03)
+  --join-to <YYYY-MM>      Beitritt spätestens (z.B. 2025-06)
+
+Beispiele – organisches Wachstum:
+
+  # Gründer-Kern (aktive Power-User, frühe Beitrittsdate)
+  pnpm bot:generate-personas -- --count 30 --seed 1 --wave gruender \\
+    --engagement schreiber,mixed --frequency taeglich,3_4_pro_woche \\
+    --bb-affinity high --join-from 2024-01 --join-to 2024-06
+
+  # Welle 2: Erste Community (gemischt, mittlere Aktivität)
+  pnpm bot:generate-personas -- --count 80 --seed 2 --wave welle2 --append \\
+    --join-from 2024-06 --join-to 2025-01
+
+  # Welle 3: Wachstum (mehr Lurker, weniger aktiv)
+  pnpm bot:generate-personas -- --count 200 --seed 3 --wave welle3 --append \\
+    --engagement liker,lurker_gelegentlich,kommentierer \\
+    --frequency gelegentlich,1_2_pro_woche \\
+    --join-from 2025-01 --join-to 2025-12
+
+  # Welle 4: Neuzugänge (Neubezieher-lastig, unsicher)
+  pnpm bot:generate-personas -- --count 100 --seed 4 --wave neuzugang --append \\
+    --situation neubezieher,single,trennung --bb-affinity low \\
+    --join-from 2025-10 --join-to 2026-02
+
+  # Alle neu generieren (überschreibt)
+  pnpm bot:generate-personas -- --count 500 --seed 42
 `)
   }
 }
