@@ -29,6 +29,7 @@ import { useBescheidContext } from '../contexts/BescheidContext'
 import { DashboardSkeleton } from '../components/LoadingSkeleton'
 import DeadlineBanner from '../components/DeadlineBanner'
 import SteuerTipps from '../components/SteuerTipps'
+import { useAnimatedCounter } from '../hooks/use-animated-counter'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../types/bescheid'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -43,6 +44,12 @@ export default function DashboardPage() {
   const { bescheide, fristen, stats, loading } = useBescheidContext()
 
   if (loading) return <DashboardSkeleton />
+
+  const animBescheide = useAnimatedCounter(stats.bescheideGesamt)
+  const animOffen = useAnimatedCounter(stats.offenePruefungen)
+  const animEinsprueche = useAnimatedCounter(stats.einsprueche)
+  const animFristen = useAnimatedCounter(stats.ablaufendeFristen)
+  const animAbweichungen = useAnimatedCounter(stats.abweichungenGesamt)
 
   const recentBescheide = bescheide.slice(0, 3)
   const urgentFristen = fristen
@@ -101,7 +108,7 @@ export default function DashboardPage() {
               <FileText className="h-5 w-5 text-fintutto-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{stats.bescheideGesamt}</p>
+              <p className="text-2xl font-bold">{animBescheide}</p>
               <p className="text-xs text-muted-foreground">Bescheide</p>
             </div>
           </div>
@@ -113,7 +120,7 @@ export default function DashboardPage() {
               <Search className="h-5 w-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{stats.offenePruefungen}</p>
+              <p className="text-2xl font-bold">{animOffen}</p>
               <p className="text-xs text-muted-foreground">Offen</p>
             </div>
           </div>
@@ -125,7 +132,7 @@ export default function DashboardPage() {
               <ShieldAlert className="h-5 w-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{stats.einsprueche}</p>
+              <p className="text-2xl font-bold">{animEinsprueche}</p>
               <p className="text-xs text-muted-foreground">Einsprueche</p>
             </div>
           </div>
@@ -149,7 +156,7 @@ export default function DashboardPage() {
               <Clock className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{stats.ablaufendeFristen}</p>
+              <p className="text-2xl font-bold">{animFristen}</p>
               <p className="text-xs text-muted-foreground">Offene Fristen</p>
             </div>
           </div>
@@ -161,7 +168,7 @@ export default function DashboardPage() {
               <AlertTriangle className="h-5 w-5 text-fintutto-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{stats.abweichungenGesamt}</p>
+              <p className="text-2xl font-bold">{animAbweichungen}</p>
               <p className="text-xs text-muted-foreground">Abweichungen</p>
             </div>
           </div>

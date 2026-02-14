@@ -13,6 +13,8 @@ import {
   ExternalLink,
   Trash2,
   ChevronDown,
+  Pencil,
+  Save,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -45,10 +47,13 @@ export default function BescheidDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { bescheide, loading, updateBescheidStatus, deleteBescheid } = useBescheidContext()
+  const { bescheide, loading, updateBescheid, updateBescheidStatus, deleteBescheid } = useBescheidContext()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [editingNotes, setEditingNotes] = useState(false)
+  const [notesText, setNotesText] = useState('')
+  const [savingNotes, setSavingNotes] = useState(false)
 
   if (loading) return <DetailSkeleton />
 
@@ -336,16 +341,71 @@ export default function BescheidDetailPage() {
           )}
 
           {/* Notizen */}
-          {bescheid.notizen && (
-            <Card>
-              <CardHeader>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Notizen</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{bescheid.notizen}</p>
-              </CardContent>
-            </Card>
-          )}
+                {!editingNotes ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => {
+                      setNotesText(bescheid.notizen || '')
+                      setEditingNotes(true)
+                    }}
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Bearbeiten
+                  </Button>
+                ) : (
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingNotes(false)}
+                      disabled={savingNotes}
+                    >
+                      Abbrechen
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="gap-1"
+                      disabled={savingNotes}
+                      onClick={async () => {
+                        setSavingNotes(true)
+                        await updateBescheid(bescheid.id, { notizen: notesText || undefined })
+                        setSavingNotes(false)
+                        setEditingNotes(false)
+                        toast({
+                          title: 'Gespeichert',
+                          description: 'Notizen wurden aktualisiert.',
+                        })
+                      }}
+                    >
+                      <Save className="h-3 w-3" />
+                      Speichern
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {editingNotes ? (
+                <textarea
+                  value={notesText}
+                  onChange={e => setNotesText(e.target.value)}
+                  placeholder="Notizen zum Bescheid hinzufuegen..."
+                  className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  autoFocus
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {bescheid.notizen || 'Keine Notizen vorhanden. Klicken Sie auf "Bearbeiten" um Notizen hinzuzufuegen.'}
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 

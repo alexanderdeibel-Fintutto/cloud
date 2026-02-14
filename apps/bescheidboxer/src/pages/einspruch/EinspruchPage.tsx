@@ -13,6 +13,7 @@ import { formatCurrency, formatDate } from '../../lib/utils'
 import { useBescheidContext } from '../../contexts/BescheidContext'
 import { EINSPRUCH_STATUS_LABELS } from '../../types/bescheid'
 import type { EinspruchStatus } from '../../types/bescheid'
+import EinspruchTimeline from '../../components/EinspruchTimeline'
 
 export default function EinspruchPage() {
   const { einsprueche, bescheide } = useBescheidContext()
@@ -115,7 +116,16 @@ export default function EinspruchPage() {
                     </div>
 
                     <div className="rounded-lg bg-muted/50 p-3 mb-3">
-                      <p className="text-sm">{einspruch.begruendung}</p>
+                      <p className="text-sm line-clamp-3">{einspruch.begruendung}</p>
+                    </div>
+
+                    <div className="mb-3 pl-1">
+                      <EinspruchTimeline
+                        status={einspruch.status}
+                        createdAt={einspruch.createdAt}
+                        eingereichtAm={einspruch.eingereichtAm}
+                        antwortErhalten={einspruch.antwortErhalten}
+                      />
                     </div>
 
                     <div className="flex items-center justify-between">
