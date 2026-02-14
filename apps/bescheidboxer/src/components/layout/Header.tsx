@@ -136,6 +136,15 @@ export default function Header() {
                 </div>
                 <div className="p-1">
                   <Link
+                    to="/profil"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
+                    role="menuitem"
+                  >
+                    <User className="h-4 w-4" />
+                    Mein Profil
+                  </Link>
+                  <Link
                     to="/einstellungen"
                     onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
@@ -143,15 +152,6 @@ export default function Header() {
                   >
                     <Settings className="h-4 w-4" />
                     Einstellungen
-                  </Link>
-                  <Link
-                    to="/referral"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition-colors"
-                    role="menuitem"
-                  >
-                    <User className="h-4 w-4" />
-                    Freunde werben
                   </Link>
                   <button
                     onClick={() => {

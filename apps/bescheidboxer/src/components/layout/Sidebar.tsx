@@ -12,6 +12,8 @@ import {
   BarChart3,
   ArrowLeftRight,
   CalendarDays,
+  Calculator,
+  User,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -24,7 +26,9 @@ const navigation = [
   { name: 'Kalender', href: '/kalender', icon: CalendarDays },
   { name: 'Einspruch', href: '/einspruch', icon: ShieldAlert },
   { name: 'Vergleich', href: '/vergleich', icon: ArrowLeftRight },
+  { name: 'Steuer-Rechner', href: '/steuerrechner', icon: Calculator },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
+  { name: 'Mein Profil', href: '/profil', icon: User },
   { name: 'Freunde werben', href: '/referral', icon: Users },
   { name: 'Hilfe & Glossar', href: '/hilfe', icon: HelpCircle },
   { name: 'Einstellungen', href: '/einstellungen', icon: Settings },

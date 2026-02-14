@@ -22,6 +22,9 @@ import HilfePage from './pages/HilfePage'
 import JahresberichtPage from './pages/JahresberichtPage'
 import VergleichPage from './pages/VergleichPage'
 import KalenderPage from './pages/KalenderPage'
+import SteuerRechnerPage from './pages/SteuerRechnerPage'
+import SuchePage from './pages/SuchePage'
+import ProfilPage from './pages/ProfilPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -63,6 +66,9 @@ function App() {
             <Route path="jahresbericht" element={<JahresberichtPage />} />
             <Route path="vergleich" element={<VergleichPage />} />
             <Route path="kalender" element={<KalenderPage />} />
+            <Route path="steuerrechner" element={<SteuerRechnerPage />} />
+            <Route path="suche" element={<SuchePage />} />
+            <Route path="profil" element={<ProfilPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

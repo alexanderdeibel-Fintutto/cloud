@@ -34,6 +34,7 @@ import {
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../../types/bescheid'
 import type { BescheidStatus } from '../../types/bescheid'
 import Breadcrumbs from '../../components/Breadcrumbs'
+import DokumentVorschau from '../../components/DokumentVorschau'
 
 const STATUS_TRANSITIONS: Record<BescheidStatus, BescheidStatus[]> = {
   neu: ['in_pruefung'],
@@ -320,6 +321,16 @@ export default function BescheidDetailPage() {
                 <Trash2 className="h-4 w-4" />
                 Bescheid loeschen
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Dokument */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Dokument</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DokumentVorschau url={bescheid.dokumentUrl} titel={bescheid.titel} />
             </CardContent>
           </Card>
 

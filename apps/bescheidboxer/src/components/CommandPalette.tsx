@@ -17,6 +17,8 @@ import {
   BarChart3,
   ArrowLeftRight,
   CalendarDays,
+  Calculator,
+  User,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -67,7 +69,10 @@ export default function CommandPalette() {
     { id: 'nav-hilfe', label: 'Hilfe & Glossar', description: 'Steuer-Begriffe erklaert', icon: HelpCircle, category: 'navigation', keywords: ['faq', 'glossar', 'hilfe', 'erklaerung'], action: () => runAndClose(() => navigate('/hilfe')) },
     { id: 'nav-jahresbericht', label: 'Jahresbericht', description: 'Jaehrliche Zusammenfassung', icon: BarChart3, category: 'navigation', keywords: ['bericht', 'zusammenfassung', 'statistik', 'report'], action: () => runAndClose(() => navigate('/jahresbericht')) },
     { id: 'nav-vergleich', label: 'Bescheid-Vergleich', description: 'Zwei Bescheide vergleichen', icon: ArrowLeftRight, category: 'navigation', keywords: ['vergleich', 'vergleichen', 'gegenueber', 'diff'], action: () => runAndClose(() => navigate('/vergleich')) },
-    { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['profil', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
+    { id: 'nav-rechner', label: 'Steuer-Rechner', description: 'Einkommensteuer berechnen', icon: Calculator, category: 'navigation', keywords: ['rechner', 'calculator', 'berechnen', 'steuer', 'einkommen'], action: () => runAndClose(() => navigate('/steuerrechner')) },
+    { id: 'nav-suche', label: 'Suche', description: 'Alles durchsuchen', icon: Search, category: 'navigation', keywords: ['suche', 'suchen', 'finden', 'search'], action: () => runAndClose(() => navigate('/suche')) },
+    { id: 'nav-profil', label: 'Mein Profil', description: 'Profil & Statistiken', icon: User, category: 'navigation', keywords: ['profil', 'konto', 'account', 'benutzer'], action: () => runAndClose(() => navigate('/profil')) },
+    { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
     { id: 'act-export', label: 'Bescheide exportieren', description: 'Als CSV herunterladen', icon: Download, category: 'aktion', keywords: ['csv', 'download', 'export', 'excel'], action: () => runAndClose(() => exportBescheideAsCsv(bescheide)) },
