@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useDomains, useDomainStats, useCreateDomain, useDeleteDomain, type Domain } from "@/hooks/useDomains";
+import { useCheckAllDomains } from "@/hooks/useDomainActions";
 import {
   Globe,
   Plus,
@@ -73,6 +74,7 @@ export function Domains() {
   const { data: stats } = useDomainStats();
   const createDomain = useCreateDomain();
   const deleteDomain = useDeleteDomain();
+  const checkAll = useCheckAllDomains();
 
   const [search, setSearch] = useState("");
   const [filterHealth, setFilterHealth] = useState<string>("all");
@@ -129,9 +131,19 @@ export function Domains() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Alle prüfen
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={checkAll.isPending}
+            onClick={() => {
+              checkAll.mutate(undefined, {
+                onSuccess: (data) => toast.success(`${data?.checked ?? 0} Domains geprüft`),
+                onError: (e) => toast.error("Fehler beim Prüfen", { description: e.message }),
+              });
+            }}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${checkAll.isPending ? "animate-spin" : ""}`} />
+            {checkAll.isPending ? "Prüfe..." : "Alle prüfen"}
           </Button>
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>

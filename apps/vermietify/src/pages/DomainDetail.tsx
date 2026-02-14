@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useDomain, useUpdateDomain } from "@/hooks/useDomains";
 import { usePages, useUpdatePage, useBulkUpdatePages, type Page } from "@/hooks/usePages";
 import { usePageLinks, useUpdateLink, useBulkUpdateLinks, type PageLink } from "@/hooks/usePageLinks";
+import { useCheckDomain, useCrawlDomain } from "@/hooks/useDomainActions";
 import {
   ArrowLeft,
   Globe,
@@ -96,6 +97,8 @@ export function DomainDetail() {
   const bulkUpdatePages = useBulkUpdatePages();
   const updateLink = useUpdateLink();
   const bulkUpdateLinks = useBulkUpdateLinks();
+  const checkDomain = useCheckDomain();
+  const crawlDomain = useCrawlDomain();
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -249,9 +252,33 @@ export function DomainDetail() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Domain prüfen
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={checkDomain.isPending}
+              onClick={() => {
+                checkDomain.mutate(domain.id, {
+                  onSuccess: () => toast.success("Domain geprüft"),
+                  onError: (e) => toast.error("Fehler", { description: e.message }),
+                });
+              }}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${checkDomain.isPending ? "animate-spin" : ""}`} />
+              {checkDomain.isPending ? "Prüfe..." : "Domain prüfen"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={crawlDomain.isPending}
+              onClick={() => {
+                crawlDomain.mutate({ domainId: domain.id }, {
+                  onSuccess: (data) => toast.success(`Crawl fertig: ${data?.pagesFound ?? 0} Seiten, ${data?.linksFound ?? 0} Links`),
+                  onError: (e) => toast.error("Crawl-Fehler", { description: e.message }),
+                });
+              }}
+            >
+              <Globe className={`h-4 w-4 mr-2 ${crawlDomain.isPending ? "animate-spin" : ""}`} />
+              {crawlDomain.isPending ? "Crawle..." : "Seiten crawlen"}
             </Button>
             <Button variant="outline" size="sm" onClick={() => window.open(domain.url, "_blank")}>
               <ExternalLink className="h-4 w-4 mr-2" />
