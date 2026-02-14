@@ -208,10 +208,10 @@ export default function DashboardPage() {
                       )}
                       {result.form_redirect_url && (
                         <Button variant="outline" size="sm" asChild>
-                          <a href={result.form_redirect_url} target="_blank" rel="noopener noreferrer">
+                          <Link to={result.form_redirect_url}>
                             Zum Formular
                             <ArrowRight className="w-4 h-4 ml-1" />
-                          </a>
+                          </Link>
                         </Button>
                       )}
                     </div>

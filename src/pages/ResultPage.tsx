@@ -42,9 +42,7 @@ export default function ResultPage() {
   }
 
   const handleGoToForm = () => {
-    if (result?.form_redirect_url) {
-      window.open(result.form_redirect_url, '_blank')
-    }
+    navigate(result?.form_redirect_url ?? '/formulare')
   }
 
   const handleStartNew = () => {
