@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Users, ChevronLeft, ChevronRight, Plus, Pencil } from 'lucide-react'
 import { api } from '@/lib/api'
+import PersonaForm from '@/components/PersonaForm'
 
 export default function PersonasPage() {
   const [data, setData] = useState<any>(null)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<any>(null)
+  const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed')
+  const [editPersona, setEditPersona] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
 
   const fetchPersonas = async (p: number) => {
     setLoading(true)
@@ -33,6 +37,76 @@ export default function PersonasPage() {
     lurker_gelegentlich: 'bg-gray-100 text-gray-800',
   }
 
+  const handleCreate = () => {
+    setSelected(null)
+    setEditPersona(null)
+    setFormMode('create')
+  }
+
+  const handleEdit = async (personaId: string) => {
+    try {
+      const full = await api.getPersona(personaId)
+      setEditPersona(full)
+      setSelected(null)
+      setFormMode('edit')
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleSave = async (formData: any) => {
+    setSaving(true)
+    try {
+      if (formMode === 'create') {
+        await api.createPersona(formData)
+      } else if (formMode === 'edit' && editPersona) {
+        await api.updatePersona(editPersona.id, formData)
+      }
+      setFormMode('closed')
+      setEditPersona(null)
+      await fetchPersonas(page)
+    } catch (err) {
+      console.error(err)
+      alert(err instanceof Error ? err.message : 'Fehler beim Speichern')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!editPersona) return
+    if (!confirm(`Persona "${editPersona.display_name}" (${editPersona.id}) wirklich löschen?`)) return
+    try {
+      await api.deletePersona(editPersona.id)
+      setFormMode('closed')
+      setEditPersona(null)
+      await fetchPersonas(page)
+    } catch (err) {
+      console.error(err)
+      alert(err instanceof Error ? err.message : 'Fehler beim Löschen')
+    }
+  }
+
+  // Show form in full-screen overlay
+  if (formMode !== 'closed') {
+    return (
+      <div className="forum-container">
+        <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-4">
+          <ArrowLeft className="w-3 h-3" /> Dashboard
+        </Link>
+        <div className="bg-card border border-border rounded-lg p-6">
+          <PersonaForm
+            persona={formMode === 'edit' ? editPersona : undefined}
+            onSave={handleSave}
+            onDelete={formMode === 'edit' ? handleDelete : undefined}
+            onCancel={() => { setFormMode('closed'); setEditPersona(null) }}
+            saving={saving}
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="forum-container">
       <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-4">
@@ -47,21 +121,37 @@ export default function PersonasPage() {
           </h1>
           <p className="text-xs text-muted-foreground mt-1">Alle generierten Personas und ihre Profile</p>
         </div>
+        <button
+          onClick={handleCreate}
+          className="btn-forum-primary text-xs"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Neue Persona
+        </button>
       </div>
 
       {/* Persona Detail Modal */}
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelected(null)}>
           <div className="bg-card border border-border rounded-lg p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                style={{ backgroundColor: selected.avatar_color || '#3498db' }}>
-                {selected.display_name?.slice(0, 2).toUpperCase()}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                  style={{ backgroundColor: selected.avatar_color || '#3498db' }}>
+                  {selected.display_name?.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-bold">{selected.display_name}</h3>
+                  <p className="text-xs text-muted-foreground">@{selected.username}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold">{selected.display_name}</h3>
-                <p className="text-xs text-muted-foreground">@{selected.username}</p>
-              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleEdit(selected.id) }}
+                className="btn-forum-primary text-xs"
+              >
+                <Pencil className="w-3 h-3" />
+                Bearbeiten
+              </button>
             </div>
             <pre className="text-[10px] bg-muted rounded p-3 overflow-x-auto whitespace-pre-wrap">
               {JSON.stringify(selected, null, 2)}
@@ -89,6 +179,7 @@ export default function PersonasPage() {
                     <th className="text-left p-2 font-medium">Foren</th>
                     <th className="text-left p-2 font-medium">BB-Aff.</th>
                     <th className="text-left p-2 font-medium">WP-ID</th>
+                    <th className="text-left p-2 font-medium"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -119,6 +210,15 @@ export default function PersonasPage() {
                       <td className="p-2">{p.active_forums?.slice(0, 2).join(', ')}</td>
                       <td className="p-2">{(p.bescheidboxer_affinity * 100).toFixed(0)}%</td>
                       <td className="p-2">{p.wp_user_id || '–'}</td>
+                      <td className="p-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleEdit(p.id) }}
+                          className="p-1 text-muted-foreground hover:text-primary rounded hover:bg-muted"
+                          title="Bearbeiten"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -154,7 +254,7 @@ export default function PersonasPage() {
           <Users className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">Noch keine Personas generiert.</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Klicke im Dashboard auf "500 Personas generieren".
+            Klicke auf "Neue Persona" oder im Dashboard auf "500 Personas generieren".
           </p>
         </div>
       )}

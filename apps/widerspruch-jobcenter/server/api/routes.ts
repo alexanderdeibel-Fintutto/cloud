@@ -9,8 +9,9 @@ import {
   loadPersonas, savePersonas, loadSchedule,
   loadActivityLog, getTodaysActions,
 } from '../db'
-import { generatePersonas } from '../personas/generator'
+import { generatePersonas, sanitizeForEmail } from '../personas/generator'
 import { summarizeSchedule } from '../bot/scheduler'
+import type { Persona } from '../personas/types'
 
 export function createApiRouter(config: BotConfig, executor: BotExecutor): Router {
   const router = Router()
@@ -123,6 +124,117 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     res.json(persona)
   })
 
+  // ── Create single persona ──
+
+  router.post('/personas', (req, res) => {
+    const personas = loadPersonas()
+    const maxId = personas.reduce((max, p) => {
+      const num = parseInt(p.id.replace('p_', ''))
+      return num > max ? num : max
+    }, 0)
+    const newId = `p_${String(maxId + 1).padStart(3, '0')}`
+
+    const body = req.body
+    const username = body.username || newId
+    const persona: Persona = {
+      id: newId,
+      wp_user_id: null,
+      username,
+      email: body.email || `${sanitizeForEmail(username)}@buergergeld-blog.de`,
+      display_name: body.display_name || username,
+      password: body.password || generateRandomPassword(),
+      bio: body.bio || '',
+      avatar_color: body.avatar_color || '#3498db',
+      wave: body.wave || 'manuell',
+      profile: {
+        alter: body.profile?.alter ?? 30,
+        geschlecht: body.profile?.geschlecht ?? 'w',
+        situation: body.profile?.situation ?? 'single',
+        kinder: body.profile?.kinder,
+        kinder_alter: body.profile?.kinder_alter,
+        stadt_typ: body.profile?.stadt_typ ?? 'grossstadt_nrw',
+        bundesland: body.profile?.bundesland ?? 'NRW',
+        seit_buergergeld: body.profile?.seit_buergergeld ?? new Date().toISOString().slice(0, 7),
+        probleme: body.profile?.probleme ?? [],
+        erfahrung_widerspruch: body.profile?.erfahrung_widerspruch ?? false,
+        ton: body.profile?.ton ?? 'pragmatisch',
+        schreibstil: body.profile?.schreibstil ?? 'umgangssprache_leicht',
+        emoji_nutzung: body.profile?.emoji_nutzung ?? 'selten',
+        tippfehler_rate: body.profile?.tippfehler_rate ?? 0,
+        gross_klein_fehler: body.profile?.gross_klein_fehler ?? false,
+        beispiel_saetze: body.profile?.beispiel_saetze ?? [],
+      },
+      activity: {
+        posting_frequency: body.activity?.posting_frequency ?? 'gelegentlich',
+        time_profile: body.activity?.time_profile ?? 'ganztags',
+        engagement_style: body.activity?.engagement_style ?? 'mixed',
+        active_forums: body.activity?.active_forums ?? ['hilfe-bescheid'],
+        themen_schwerpunkte: body.activity?.themen_schwerpunkte ?? [],
+        kommentar_laenge: body.activity?.kommentar_laenge ?? 'mittel',
+        bescheidboxer_affinity: body.activity?.bescheidboxer_affinity ?? 0,
+      },
+      stats: {
+        created_at: new Date().toISOString(),
+        last_action: null,
+        total_posts: 0,
+        total_comments: 0,
+        total_likes: 0,
+        total_forum_topics: 0,
+        total_forum_replies: 0,
+      },
+    }
+
+    personas.push(persona)
+    savePersonas(personas)
+    res.status(201).json(persona)
+  })
+
+  // ── Update single persona ──
+
+  router.put('/personas/:id', (req, res) => {
+    const personas = loadPersonas()
+    const idx = personas.findIndex(p => p.id === req.params.id)
+    if (idx === -1) return res.status(404).json({ error: 'Persona nicht gefunden' })
+
+    const body = req.body
+    const existing = personas[idx]
+
+    // Deep merge profile and activity
+    personas[idx] = {
+      ...existing,
+      username: body.username ?? existing.username,
+      email: body.email ?? existing.email,
+      display_name: body.display_name ?? existing.display_name,
+      password: body.password ?? existing.password,
+      bio: body.bio ?? existing.bio,
+      avatar_color: body.avatar_color ?? existing.avatar_color,
+      wave: body.wave ?? existing.wave,
+      profile: {
+        ...existing.profile,
+        ...(body.profile || {}),
+      },
+      activity: {
+        ...existing.activity,
+        ...(body.activity || {}),
+      },
+      stats: existing.stats, // stats bleiben unverändert
+    }
+
+    savePersonas(personas)
+    res.json(personas[idx])
+  })
+
+  // ── Delete persona ──
+
+  router.delete('/personas/:id', (req, res) => {
+    const personas = loadPersonas()
+    const idx = personas.findIndex(p => p.id === req.params.id)
+    if (idx === -1) return res.status(404).json({ error: 'Persona nicht gefunden' })
+    const removed = personas.splice(idx, 1)[0]
+    savePersonas(personas)
+    res.json({ message: `Persona ${removed.id} (${removed.display_name}) gelöscht` })
+  })
+
   router.post('/personas/generate', (req, res) => {
     const count = parseInt(req.body?.count) || 500
     const seed = parseInt(req.body?.seed) || 42
@@ -191,4 +303,9 @@ function countBy<T>(arr: T[], fn: (item: T) => string): Record<string, number> {
 function average(arr: number[]): number {
   if (arr.length === 0) return 0
   return Math.round((arr.reduce((s, n) => s + n, 0) / arr.length) * 100) / 100
+}
+
+function generateRandomPassword(): string {
+  const chars = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%'
+  return Array.from({ length: 20 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
 }

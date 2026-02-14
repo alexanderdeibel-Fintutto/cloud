@@ -24,6 +24,18 @@ export const api = {
   getPersonas: (page = 1, perPage = 50) =>
     apiFetch<any>(`/personas?page=${page}&per_page=${perPage}`),
   getPersona: (id: string) => apiFetch<any>(`/personas/${id}`),
+  createPersona: (data: any) =>
+    apiFetch<any>('/personas', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updatePersona: (id: string, data: any) =>
+    apiFetch<any>(`/personas/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  deletePersona: (id: string) =>
+    apiFetch<any>(`/personas/${id}`, { method: 'DELETE' }),
   generatePersonas: (count = 500, seed = 42) =>
     apiFetch<any>('/personas/generate', {
       method: 'POST',
