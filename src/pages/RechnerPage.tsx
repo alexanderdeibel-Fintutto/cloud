@@ -6,6 +6,7 @@ import {
   Home,
   PiggyBank,
   Receipt,
+  Landmark,
   ArrowRight
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -64,6 +65,15 @@ const rechner = [
     color: 'text-teal-600',
     bgColor: 'bg-teal-50',
     features: ['Umlageschlüssel', 'Vorauszahlungen', 'Abrechnungszeitraum'],
+  },
+  {
+    title: 'Grundsteuer-Rechner',
+    description: 'Berechne die Grundsteuer nach dem Bundesmodell mit Steuermesszahl und Hebesatz.',
+    icon: Landmark,
+    href: '/rechner/grundsteuer',
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-50',
+    features: ['Bundesmodell', 'Steuermesszahl', 'Hebesatz nach Kommune'],
   },
 ]
 

@@ -152,9 +152,7 @@ export default function MieterhoehungChecker() {
   }
 
   const handleGoToForm = () => {
-    if (result?.formRedirectUrl) {
-      window.open(result.formRedirectUrl, '_blank')
-    }
+    navigate(result?.formRedirectUrl ?? '/formulare')
   }
 
   const handleStartNew = () => {
