@@ -9,7 +9,5 @@ export { Communication } from './Communication'
 export { Calculators } from './Calculators'
 export { Settings } from './Settings'
 export { URLManagement } from './URLManagement'
-export { Domains } from './Domains'
-export { DomainDetail } from './DomainDetail'
-export { LinkChecker } from './LinkChecker'
 export { Auth } from './Auth'
+// Domains, DomainDetail, LinkChecker are lazy-loaded in App.tsx

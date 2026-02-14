@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider, useAuth } from '@/hooks/useAuth'
@@ -14,11 +15,13 @@ import {
   Calculators,
   Settings,
   URLManagement,
-  Domains,
-  DomainDetail,
-  LinkChecker,
   Auth,
 } from '@/pages'
+
+// Lazy-loaded domain management pages (code-splitting)
+const Domains = lazy(() => import('@/pages/Domains').then(m => ({ default: m.Domains })))
+const DomainDetail = lazy(() => import('@/pages/DomainDetail').then(m => ({ default: m.DomainDetail })))
+const LinkChecker = lazy(() => import('@/pages/LinkChecker').then(m => ({ default: m.LinkChecker })))
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -136,7 +139,9 @@ function AppRoutes() {
         path="/domains"
         element={
           <ProtectedRoute>
-            <Domains />
+            <Suspense fallback={<div className="flex items-center justify-center p-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
+              <Domains />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -144,7 +149,9 @@ function AppRoutes() {
         path="/domains/:id"
         element={
           <ProtectedRoute>
-            <DomainDetail />
+            <Suspense fallback={<div className="flex items-center justify-center p-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
+              <DomainDetail />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -152,7 +159,9 @@ function AppRoutes() {
         path="/link-checker"
         element={
           <ProtectedRoute>
-            <LinkChecker />
+            <Suspense fallback={<div className="flex items-center justify-center p-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
+              <LinkChecker />
+            </Suspense>
           </ProtectedRoute>
         }
       />
