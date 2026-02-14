@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useDomains, type Domain } from "@/hooks/useDomains";
 import { useBrokenLinks, useBulkUpdateLinks } from "@/hooks/usePageLinks";
+import { useCheckLinks } from "@/hooks/useDomainActions";
 import {
   Search,
   Link2,
@@ -53,6 +54,7 @@ export default function LinkChecker() {
   const [selectedDomainId, setSelectedDomainId] = useState<string>("");
   const { data: brokenLinks, isLoading } = useBrokenLinks(selectedDomainId || undefined);
   const bulkUpdateLinks = useBulkUpdateLinks();
+  const checkLinks = useCheckLinks();
 
   const [search, setSearch] = useState("");
   const [selectedLinks, setSelectedLinks] = useState<Set<string>>(new Set());
@@ -216,9 +218,23 @@ export default function LinkChecker() {
                 <span className="text-sm text-muted-foreground">
                   {bulkUrls.split("\n").filter((u) => u.trim()).length} URLs
                 </span>
-                <Button size="sm">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Alle prüfen
+                <Button
+                  size="sm"
+                  disabled={checkLinks.isPending}
+                  onClick={() => {
+                    const urls = bulkUrls.split("\n").map((u) => u.trim()).filter(Boolean);
+                    if (urls.length === 0) return;
+                    checkLinks.mutate(
+                      { urls },
+                      {
+                        onSuccess: (data) => toast({ title: `${data?.checked ?? urls.length} URLs geprüft` }),
+                        onError: (e) => toast({ title: "Fehler", description: e.message, variant: "destructive" }),
+                      }
+                    );
+                  }}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${checkLinks.isPending ? "animate-spin" : ""}`} />
+                  {checkLinks.isPending ? "Prüfe..." : "Alle prüfen"}
                 </Button>
               </div>
             </CardContent>

@@ -5,9 +5,9 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth'
 import { Layout } from '@/components/layout/Layout'
 import { Dashboard, Settings, Auth } from '@/pages'
 
-const Domains = lazy(() => import('@/pages/Domains').then(m => ({ default: m.Domains })))
-const DomainDetail = lazy(() => import('@/pages/DomainDetail').then(m => ({ default: m.DomainDetail })))
-const LinkChecker = lazy(() => import('@/pages/LinkChecker').then(m => ({ default: m.LinkChecker })))
+const Domains = lazy(() => import('@/pages/Domains'))
+const DomainDetail = lazy(() => import('@/pages/DomainDetail'))
+const LinkChecker = lazy(() => import('@/pages/LinkChecker'))
 
 const LazyFallback = () => (
   <div className="flex items-center justify-center p-12">

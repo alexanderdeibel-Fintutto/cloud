@@ -25,16 +25,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useDomain, useUpdateDomain } from "@/hooks/useDomains";
 import { usePages, useUpdatePage, useBulkUpdatePages, type Page } from "@/hooks/usePages";
 import { usePageLinks, useUpdateLink, useBulkUpdateLinks, type PageLink } from "@/hooks/usePageLinks";
+import { useCheckDomain, useCrawlDomain } from "@/hooks/useDomainActions";
 import {
   ArrowLeft,
   Globe,
@@ -112,6 +108,8 @@ export default function DomainDetail() {
   const bulkUpdatePages = useBulkUpdatePages();
   const updateLink = useUpdateLink();
   const bulkUpdateLinks = useBulkUpdateLinks();
+  const checkDomain = useCheckDomain();
+  const crawlDomain = useCrawlDomain();
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -272,9 +270,36 @@ export default function DomainDetail() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Domain prüfen
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={crawlDomain.isPending}
+                onClick={() => {
+                  crawlDomain.mutate(
+                    { domainId: domain.id, maxDepth: 3 },
+                    {
+                      onSuccess: () => toast({ title: "Crawl gestartet" }),
+                      onError: (e) => toast({ title: "Fehler", description: e.message, variant: "destructive" }),
+                    }
+                  );
+                }}
+              >
+                <Globe className="h-4 w-4 mr-2" />
+                {crawlDomain.isPending ? "Crawlt..." : "Crawl starten"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={checkDomain.isPending}
+                onClick={() => {
+                  checkDomain.mutate(domain.id, {
+                    onSuccess: () => toast({ title: "Domain geprüft" }),
+                    onError: (e) => toast({ title: "Fehler", description: e.message, variant: "destructive" }),
+                  });
+                }}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${checkDomain.isPending ? "animate-spin" : ""}`} />
+                {checkDomain.isPending ? "Prüfe..." : "Domain prüfen"}
               </Button>
               <Button variant="outline" size="sm" onClick={() => window.open(domain.url, "_blank")}>
                 <ExternalLink className="h-4 w-4 mr-2" />
