@@ -122,6 +122,48 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     })
   })
 
+  // IMPORTANT: these must come BEFORE /personas/:id to avoid "search"/"bb-stats" matching as :id
+  router.get('/personas/search', (req, res) => {
+    const q = (req.query.q as string || '').toLowerCase()
+    const personas = loadPersonas()
+    const results = personas
+      .filter(p =>
+        p.id.includes(q) ||
+        p.username.toLowerCase().includes(q) ||
+        p.display_name.toLowerCase().includes(q) ||
+        p.profile.situation.includes(q)
+      )
+      .slice(0, 20)
+      .map(p => ({
+        id: p.id,
+        username: p.username,
+        display_name: p.display_name,
+        wp_user_id: p.wp_user_id,
+        situation: p.profile.situation,
+        ton: p.profile.ton,
+        avatar_color: p.avatar_color,
+        bescheidboxer_affinity: p.activity.bescheidboxer_affinity,
+      }))
+    res.json(results)
+  })
+
+  router.get('/personas/bb-stats', (_req, res) => {
+    const personas = loadPersonas()
+    const affinities = personas.map(p => p.activity.bescheidboxer_affinity)
+    const distribution = {
+      null_pct: affinities.filter(a => a === 0).length,
+      low: affinities.filter(a => a > 0 && a <= 0.1).length,
+      medium: affinities.filter(a => a > 0.1 && a <= 0.3).length,
+      high: affinities.filter(a => a > 0.3).length,
+    }
+    res.json({
+      total: personas.length,
+      avg: average(affinities),
+      distribution,
+      globalMentionRate: config.bescheidboxer_mention_rate,
+    })
+  })
+
   router.get('/personas/:id', (req, res) => {
     const personas = loadPersonas()
     const persona = personas.find(p => p.id === req.params.id)
@@ -400,25 +442,6 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     res.json({ message: `${updated} Personas aktualisiert`, updated })
   })
 
-  // ── BB-Affinität Statistik ──
-
-  router.get('/personas/bb-stats', (_req, res) => {
-    const personas = loadPersonas()
-    const affinities = personas.map(p => p.activity.bescheidboxer_affinity)
-    const distribution = {
-      null_pct: affinities.filter(a => a === 0).length,
-      low: affinities.filter(a => a > 0 && a <= 0.1).length,
-      medium: affinities.filter(a => a > 0.1 && a <= 0.3).length,
-      high: affinities.filter(a => a > 0.3).length,
-    }
-    res.json({
-      total: personas.length,
-      avg: average(affinities),
-      distribution,
-      globalMentionRate: config.bescheidboxer_mention_rate,
-    })
-  })
-
   // ── WP Posts/Topics auslesen (für Kommentare/Replies) ──
 
   router.get('/wp/posts', async (_req, res) => {
@@ -444,32 +467,6 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
     }
-  })
-
-  // ── Persona Suche (für Compose-Tool) ──
-
-  router.get('/personas/search', (req, res) => {
-    const q = (req.query.q as string || '').toLowerCase()
-    const personas = loadPersonas()
-    const results = personas
-      .filter(p =>
-        p.id.includes(q) ||
-        p.username.toLowerCase().includes(q) ||
-        p.display_name.toLowerCase().includes(q) ||
-        p.profile.situation.includes(q)
-      )
-      .slice(0, 20)
-      .map(p => ({
-        id: p.id,
-        username: p.username,
-        display_name: p.display_name,
-        wp_user_id: p.wp_user_id,
-        situation: p.profile.situation,
-        ton: p.profile.ton,
-        avatar_color: p.avatar_color,
-        bescheidboxer_affinity: p.activity.bescheidboxer_affinity,
-      }))
-    res.json(results)
   })
 
   return router
