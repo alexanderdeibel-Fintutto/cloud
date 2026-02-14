@@ -44,7 +44,7 @@ export class BotExecutor {
         const lastName = nameParts.slice(1).join(' ') || ''
 
         const wpUser = await this.wp.createUser({
-          username: persona.username,
+          username: sanitizeForEmail(persona.username),
           email: sanitizeForEmail(persona.email),
           password: persona.password,
           first_name: firstName,

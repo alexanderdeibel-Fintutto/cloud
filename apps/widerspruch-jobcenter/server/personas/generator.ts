@@ -420,7 +420,7 @@ export function generatePersonas(opts: GenerateOptions = {}): Persona[] {
     let username: string
     let attempts = 0
     do {
-      username = generateUsername(vorname, nachname, i, situation, rng)
+      username = sanitizeForEmail(generateUsername(vorname, nachname, i, situation, rng))
       attempts++
     } while (usedUsernames.has(username) && attempts < 20)
     if (usedUsernames.has(username)) username = `${username}_${idx}`
