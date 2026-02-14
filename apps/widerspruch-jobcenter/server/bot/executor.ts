@@ -13,6 +13,7 @@ import {
 } from '../db'
 import { generateContent } from '../content/generator'
 import { generateDailySchedule, summarizeSchedule } from './scheduler'
+import { sanitizeForEmail } from '../personas/generator'
 
 export class BotExecutor {
   private wp: WordPressClient
@@ -44,7 +45,7 @@ export class BotExecutor {
 
         const wpUser = await this.wp.createUser({
           username: persona.username,
-          email: persona.email,
+          email: sanitizeForEmail(persona.email),
           password: persona.password,
           first_name: firstName,
           last_name: lastName,

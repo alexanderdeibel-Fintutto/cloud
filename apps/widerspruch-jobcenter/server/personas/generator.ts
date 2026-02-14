@@ -162,7 +162,7 @@ function weightedPick(weights: [string, number][], rng: () => number): string {
   return weights[0][0]
 }
 
-function sanitizeForEmail(s: string): string {
+export function sanitizeForEmail(s: string): string {
   const map: Record<string, string> = {
     'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss',
     'Ä': 'Ae', 'Ö': 'Oe', 'Ü': 'Ue',
