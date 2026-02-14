@@ -85,6 +85,14 @@ export class WordPressClient {
     return this.request<WPUser[]>('GET', `/wp/v2/users${qs ? '?' + qs : ''}`)
   }
 
+  async getUserByUsername(username: string): Promise<WPUser | null> {
+    const users = await this.request<WPUser[]>(
+      'GET',
+      `/wp/v2/users?search=${encodeURIComponent(username)}&per_page=10`
+    )
+    return users.find(u => u.slug === username.toLowerCase()) ?? null
+  }
+
   // ── Blog Posts ──
 
   async createPost(data: {

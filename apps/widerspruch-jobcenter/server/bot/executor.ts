@@ -61,6 +61,20 @@ export class BotExecutor {
         await sleep(1000)
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
+
+        // User existiert bereits in WP → ID nachsynchronisieren
+        if (msg.includes('existing_user_login') || msg.includes('existing_user_email')) {
+          try {
+            const existing = await this.wp.getUserByUsername(persona.username)
+            if (existing) {
+              updatePersona(persona.id, { wp_user_id: existing.id })
+              skipped++
+              await sleep(500)
+              continue
+            }
+          } catch { /* lookup fehlgeschlagen → als Fehler melden */ }
+        }
+
         errors.push(`${persona.id} (${persona.username}): ${msg}`)
       }
     }
