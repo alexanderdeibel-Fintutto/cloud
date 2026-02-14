@@ -32,8 +32,8 @@ export const PLANS: Record<PlanType, Plan> = {
     monthlyCredits: 10,
     canSave: true,
     aiMessages: 0,
-    stripePriceIdMonthly: 'price_vermieter_starter_monthly',
-    stripePriceIdYearly: 'price_vermieter_starter_yearly',
+    stripePriceIdMonthly: 'price_1T0nas52lqSgjCzexI8LixAK',
+    stripePriceIdYearly: 'price_1T0nas52lqSgjCzeHgR61lIm',
   },
   pro: {
     id: 'pro',
@@ -43,8 +43,8 @@ export const PLANS: Record<PlanType, Plan> = {
     monthlyCredits: 30,
     canSave: true,
     aiMessages: 50,
-    stripePriceIdMonthly: 'price_vermieter_pro_monthly',
-    stripePriceIdYearly: 'price_vermieter_pro_yearly',
+    stripePriceIdMonthly: 'price_1T0nat52lqSgjCzeAgmYPn2r',
+    stripePriceIdYearly: 'price_1T0nat52lqSgjCzeb2W8OvFu',
   },
   unlimited: {
     id: 'unlimited',
@@ -54,8 +54,8 @@ export const PLANS: Record<PlanType, Plan> = {
     monthlyCredits: -1, // unlimited
     canSave: true,
     aiMessages: -1, // unlimited
-    stripePriceIdMonthly: 'price_vermieter_unlimited_monthly',
-    stripePriceIdYearly: 'price_vermieter_unlimited_yearly',
+    stripePriceIdMonthly: 'price_1T0nau52lqSgjCzeX6l8caP5',
+    stripePriceIdYearly: 'price_1T0nau52lqSgjCzeGwN7tWuo',
   },
 }
 

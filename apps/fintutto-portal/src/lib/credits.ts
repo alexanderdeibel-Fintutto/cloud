@@ -43,9 +43,8 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 10,
-    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
-    stripePriceIdMonthly: 'price_portal_mieter_monthly',
-    stripePriceIdYearly: 'price_portal_mieter_yearly',
+    stripePriceIdMonthly: 'price_1T0nam52lqSgjCzeLc4nwtU9',
+    stripePriceIdYearly: 'price_1T0nan52lqSgjCzeKAqlJZPj',
   },
   vermieter_basic: {
     id: 'vermieter_basic',
@@ -58,9 +57,8 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 20,
-    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
-    stripePriceIdMonthly: 'price_portal_vermieter_monthly',
-    stripePriceIdYearly: 'price_portal_vermieter_yearly',
+    stripePriceIdMonthly: 'price_1T0nao52lqSgjCzetPewfsjU',
+    stripePriceIdYearly: 'price_1T0nao52lqSgjCzeoV4eJgnf',
   },
   kombi_pro: {
     id: 'kombi_pro',
@@ -73,9 +71,8 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 50,
-    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
-    stripePriceIdMonthly: 'price_portal_kombi_monthly',
-    stripePriceIdYearly: 'price_portal_kombi_yearly',
+    stripePriceIdMonthly: 'price_1T0nap52lqSgjCzeCHEbHAQY',
+    stripePriceIdYearly: 'price_1T0nap52lqSgjCzeWpSag5oS',
   },
   unlimited: {
     id: 'unlimited',
@@ -88,9 +85,8 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: -1,
-    // TODO: Replace with real Stripe Price IDs after running scripts/create-all-stripe-products.sh
-    stripePriceIdMonthly: 'price_portal_unlimited_monthly',
-    stripePriceIdYearly: 'price_portal_unlimited_yearly',
+    stripePriceIdMonthly: 'price_1T0naq52lqSgjCzeQssqWiUG',
+    stripePriceIdYearly: 'price_1T0nar52lqSgjCzeby3QG2EB',
   },
 }
 
