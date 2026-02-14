@@ -187,7 +187,24 @@ export class WordPressClient {
     }
   }
 
-  // ── Forums (lesen) ──
+  // ── Forums ──
+
+  async createForum(data: {
+    title: string
+    content: string
+    slug: string
+    status?: string
+  }): Promise<{ id: number; title: string; slug: string }> {
+    try {
+      return await this.request('POST', '/wp/v2/forums', {
+        ...data,
+        status: data.status ?? 'publish',
+      })
+    } catch {
+      // Fallback: bbPress custom endpoint
+      return this.request('POST', '/bgblog/v1/forum', data)
+    }
+  }
 
   async getForums(): Promise<Array<{ id: number; title: string; slug: string }>> {
     try {
@@ -197,7 +214,16 @@ export class WordPressClient {
     }
   }
 
-  // ── Categories (lesen) ──
+  // ── Categories ──
+
+  async createCategory(data: {
+    name: string
+    slug: string
+    description?: string
+    parent?: number
+  }): Promise<{ id: number; name: string; slug: string }> {
+    return this.request('POST', '/wp/v2/categories', data)
+  }
 
   async getCategories(params?: { per_page?: number }): Promise<Array<{ id: number; name: string; slug: string; count: number }>> {
     const query = params?.per_page ? `?per_page=${params.per_page}` : '?per_page=100'

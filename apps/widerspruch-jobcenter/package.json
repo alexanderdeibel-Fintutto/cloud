@@ -16,6 +16,8 @@
     "bot:status": "tsx server/cli.ts status",
     "bot:test-wp": "tsx server/cli.ts test-wp",
     "bot:discover-wp": "tsx server/cli.ts discover-wp",
+    "bot:setup-categories": "tsx server/cli.ts setup-wp-categories",
+    "bot:setup-forums": "tsx server/cli.ts setup-wp-forums",
     "server": "tsx server/index.ts"
   },
   "dependencies": {

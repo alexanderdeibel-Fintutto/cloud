@@ -258,6 +258,156 @@ async function main() {
       break
     }
 
+    case 'setup-wp-categories': {
+      console.log('\nErstelle Blog-Kategorien auf WordPress...\n')
+      try {
+        const { WordPressClient } = await import('./wordpress/client')
+        const wp = new WordPressClient(config)
+
+        await wp.testConnection()
+        console.log('✓ Verbunden\n')
+
+        const categoriesToCreate = [
+          { name: 'Aktuelles & News', slug: 'aktuelles', description: 'Aktuelle Nachrichten und Neuigkeiten rund um Bürgergeld und Jobcenter', envKey: 'CAT_AKTUELLES' },
+          { name: 'Widerspruch & Einspruch', slug: 'widerspruch', description: 'Tipps und Erfahrungen zum Widerspruch gegen Jobcenter-Bescheide', envKey: 'CAT_WIDERSPRUCH' },
+          { name: 'Mehrbedarf', slug: 'mehrbedarf', description: 'Informationen zu Mehrbedarfen und wie man sie beantragt', envKey: 'CAT_MEHRBEDARF' },
+          { name: 'Sanktionen', slug: 'sanktionen', description: 'Alles zum Thema Sanktionen, Kürzungen und Widerspruch dagegen', envKey: 'CAT_SANKTIONEN' },
+          { name: 'KdU & Miete', slug: 'kdu-miete', description: 'Kosten der Unterkunft, Mietobergrenzen und Heizkosten', envKey: 'CAT_KDU_MIETE' },
+          { name: 'Einkommen & Zuverdienst', slug: 'einkommen-zuverdienst', description: 'Freibeträge, Anrechnung und Zuverdienst neben Bürgergeld', envKey: 'CAT_EINKOMMEN' },
+          { name: 'Rechte & Tipps', slug: 'rechte-tipps', description: 'Deine Rechte gegenüber dem Jobcenter und praktische Tipps', envKey: 'CAT_RECHTE_TIPPS' },
+          { name: 'Erfahrungsberichte', slug: 'erfahrungen', description: 'Persönliche Erfahrungen und Berichte aus der Community', envKey: 'CAT_ERFAHRUNGEN' },
+        ]
+
+        // Vorhandene Kategorien prüfen
+        const existing = await wp.getCategories({ per_page: 100 })
+        const existingSlugs = new Set(existing.map(c => c.slug))
+
+        const envLines: string[] = []
+        let created = 0
+        let skipped = 0
+
+        for (const cat of categoriesToCreate) {
+          if (existingSlugs.has(cat.slug)) {
+            const match = existing.find(c => c.slug === cat.slug)!
+            console.log(`  ○ ${cat.name.padEnd(28)} existiert bereits (ID: ${match.id})`)
+            envLines.push(`${cat.envKey}=${match.id}`)
+            skipped++
+          } else {
+            try {
+              const result = await wp.createCategory({ name: cat.name, slug: cat.slug, description: cat.description })
+              console.log(`  ✓ ${cat.name.padEnd(28)} erstellt (ID: ${result.id})`)
+              envLines.push(`${cat.envKey}=${result.id}`)
+              created++
+            } catch (err) {
+              console.log(`  ✗ ${cat.name.padEnd(28)} Fehler: ${err instanceof Error ? err.message : err}`)
+              envLines.push(`${cat.envKey}=0  # FEHLER`)
+            }
+            // Rate limiting
+            await new Promise(r => setTimeout(r, 500))
+          }
+        }
+
+        console.log(`\n✓ ${created} erstellt, ${skipped} übersprungen\n`)
+        console.log('── Für .env eintragen: ──')
+        for (const line of envLines) {
+          console.log(`${line}`)
+        }
+        console.log('')
+      } catch (err) {
+        console.error(`✗ Fehler: ${err instanceof Error ? err.message : err}`)
+      }
+      break
+    }
+
+    case 'setup-wp-forums': {
+      console.log('\nErstelle bbPress-Forums auf WordPress...\n')
+      try {
+        const { WordPressClient } = await import('./wordpress/client')
+        const wp = new WordPressClient(config)
+
+        await wp.testConnection()
+        console.log('✓ Verbunden\n')
+
+        // Prüfe ob bbPress verfügbar ist
+        let bbpressAvailable = false
+        try {
+          await wp.getForums()
+          bbpressAvailable = true
+        } catch {
+          // Versuche auch den WP REST endpoint
+          try {
+            await wp.getForums()
+          } catch {
+            bbpressAvailable = false
+          }
+        }
+
+        if (!bbpressAvailable) {
+          console.log('  ✗ bbPress ist nicht installiert oder aktiviert!')
+          console.log('')
+          console.log('  So installierst du bbPress:')
+          console.log('  1. Gehe zu: ' + config.wp_base_url + '/wp-admin/plugin-install.php?s=bbpress&tab=search&type=term')
+          console.log('  2. Klicke "Installieren" bei bbPress')
+          console.log('  3. Klicke "Aktivieren"')
+          console.log('  4. Führe dann diesen Befehl erneut aus')
+          console.log('')
+          break
+        }
+
+        const forumsToCreate = [
+          { title: 'Hilfe zum Bescheid', slug: 'hilfe-bescheid', content: 'Du hast einen Bescheid bekommen und verstehst ihn nicht? Hier helfen wir dir, ihn zu verstehen.', envKey: 'FORUM_ID_HILFE_BESCHEID' },
+          { title: 'Widerspruch', slug: 'widerspruch', content: 'Alles rund um Widersprüche gegen Jobcenter-Bescheide. Tipps, Vorlagen und Erfahrungen.', envKey: 'FORUM_ID_WIDERSPRUCH' },
+          { title: 'Sanktionen', slug: 'sanktionen', content: 'Sanktioniert worden? Hier tauschen wir uns über Sanktionen und Gegenmaßnahmen aus.', envKey: 'FORUM_ID_SANKTIONEN' },
+          { title: 'KdU & Miete', slug: 'kdu-miete', content: 'Kosten der Unterkunft, Mietobergrenzen, Umzug – alles zum Thema Wohnen mit Bürgergeld.', envKey: 'FORUM_ID_KDU_MIETE' },
+          { title: 'Zuverdienst & Einkommen', slug: 'zuverdienst-einkommen', content: 'Minijob, Nebenverdienst, Freibeträge – was wird angerechnet, was darf man behalten?', envKey: 'FORUM_ID_ZUVERDIENST' },
+          { title: 'Erfolge', slug: 'erfolge', content: 'Widerspruch gewonnen? Nachzahlung bekommen? Teile deine Erfolge mit der Community!', envKey: 'FORUM_ID_ERFOLGE' },
+          { title: 'Dampf ablassen', slug: 'auskotzen', content: 'Manchmal muss man einfach mal Frust loswerden. Hier ist Platz dafür.', envKey: 'FORUM_ID_AUSKOTZEN' },
+          { title: 'Allgemeines', slug: 'allgemeines', content: 'Allgemeine Diskussionen rund um Bürgergeld, Jobcenter und alles was sonst noch wichtig ist.', envKey: 'FORUM_ID_ALLGEMEINES' },
+        ]
+
+        // Vorhandene Forums prüfen
+        let existingForums: Array<{ id: number; title: string; slug: string }> = []
+        try {
+          existingForums = await wp.getForums()
+        } catch { /* leer */ }
+        const existingSlugs = new Set(existingForums.map(f => f.slug))
+
+        const envLines: string[] = []
+        let created = 0
+        let skipped = 0
+
+        for (const forum of forumsToCreate) {
+          if (existingSlugs.has(forum.slug)) {
+            const match = existingForums.find(f => f.slug === forum.slug)!
+            console.log(`  ○ ${forum.title.padEnd(28)} existiert bereits (ID: ${match.id})`)
+            envLines.push(`${forum.envKey}=${match.id}`)
+            skipped++
+          } else {
+            try {
+              const result = await wp.createForum({ title: forum.title, slug: forum.slug, content: forum.content })
+              console.log(`  ✓ ${forum.title.padEnd(28)} erstellt (ID: ${result.id})`)
+              envLines.push(`${forum.envKey}=${result.id}`)
+              created++
+            } catch (err) {
+              console.log(`  ✗ ${forum.title.padEnd(28)} Fehler: ${err instanceof Error ? err.message : err}`)
+              envLines.push(`${forum.envKey}=0  # FEHLER`)
+            }
+            await new Promise(r => setTimeout(r, 500))
+          }
+        }
+
+        console.log(`\n✓ ${created} erstellt, ${skipped} übersprungen\n`)
+        console.log('── Für .env eintragen: ──')
+        for (const line of envLines) {
+          console.log(`${line}`)
+        }
+        console.log('')
+      } catch (err) {
+        console.error(`✗ Fehler: ${err instanceof Error ? err.message : err}`)
+      }
+      break
+    }
+
     case 'discover-wp': {
       console.log('\nWordPress-Konfiguration abrufen...\n')
       try {
@@ -377,6 +527,8 @@ Befehle:
   generate-personas [count] [seed]  Personas generieren (Standard: 500, Seed: 42)
   generate-schedule                 Tagesplan für heute erstellen
   setup-wp-users                    Personas als WordPress-User anlegen
+  setup-wp-categories               Blog-Kategorien auf WP anlegen
+  setup-wp-forums                   bbPress-Forums auf WP anlegen
   start-bot                         Bot starten (läuft im Vordergrund)
   status                            Aktuellen Status anzeigen
   test-wp                           WordPress-Verbindung testen
