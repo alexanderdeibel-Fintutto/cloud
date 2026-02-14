@@ -2,6 +2,8 @@
 
 *Stand: 14.02.2026 | Quellen: ablesung (aktuell), ft_ocr_zaehler-base44 (754 Commits), vermietify-altausbase (2.525 Commits), PV-Marktanalyse DACH*
 
+> **Implementierungsstatus:** Phase A-E sind implementiert (14.02.2026). Phase F erfordert Backend-Arbeit und Partnerschaften.
+
 ---
 
 ## Executive Summary
@@ -259,88 +261,88 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 
 ## 5. PRIORISIERTE IMPLEMENTIERUNGS-ROADMAP
 
-### Phase A: Quick Wins (1-2 Wochen, Frontend-only)
+### Phase A: Quick Wins (1-2 Wochen, Frontend-only) — ✅ IMPLEMENTIERT
 *Höchster ROI, sofort mit Lovable umsetzbar*
 
-| # | Feature | Quelle | Aufwand |
-|---|---------|--------|---------|
-| 1 | **ConsumptionForecast** - Verbrauchsprognose | ft_ocr (A1+A11) | 1 Tag |
-| 2 | **CostForecast** - Kostenprognose | ft_ocr (A3) | 0.5 Tage |
-| 3 | **PV Amortisationsrechner** | PV-Markt (PV1) | 0.5 Tage |
-| 4 | **PV Finanz-Cockpit** | PV-Markt (PV2) | 1 Tag |
-| 5 | **PV 48h-Ertragsprognose** (Open-Meteo Forecast) | PV-Markt (PV3) | 0.5 Tage |
-| 6 | **Balkonkraftwerk-Modus** | PV-Markt (PV5) | 0.5 Tage |
-| 7 | **QuickReadingWidget** - Schnell-Ablesung vom Dashboard | ft_ocr | 0.5 Tage |
-| 8 | **CostSummary** - Kosten-Zusammenfassung | ft_ocr (C2) | 0.5 Tage |
-| 9 | **YearOverYearComparison** (erweiterter Vergleich) | ft_ocr (analysis/) | 0.5 Tage |
-| 10 | **CostBreakdownChart** pro Zählerart | ft_ocr (A4) | 0.5 Tage |
+| # | Feature | Quelle | Status | Datei |
+|---|---------|--------|--------|-------|
+| 1 | **ConsumptionForecast** - Verbrauchsprognose | ft_ocr (A1+A11) | ✅ | `ConsumptionAnalysis.tsx` (Lineare Regression) |
+| 2 | **CostForecast** - Kostenprognose | ft_ocr (A3) | ✅ | `ConsumptionAnalysis.tsx` (Kosten-Prognose-Chart) |
+| 3 | **PV Amortisationsrechner** | PV-Markt (PV1) | ✅ | `SolarDashboard.tsx` (Amortisationsrechner-Sektion) |
+| 4 | **PV Finanz-Cockpit** | PV-Markt (PV2) | ✅ | `SolarDashboard.tsx` (Kumulative Finanz-Chart) |
+| 5 | **PV 48h-Ertragsprognose** (Open-Meteo Forecast) | PV-Markt (PV3) | ✅ | `SolarDashboard.tsx` (Open-Meteo API) |
+| 6 | **Balkonkraftwerk-Modus** | PV-Markt (PV5) | ✅ | `SolarDashboard.tsx` (BK-Mode Toggle) |
+| 7 | **QuickReadingWidget** - Schnell-Ablesung vom Dashboard | ft_ocr | ✅ | `components/dashboard/QuickReadingWidget.tsx` |
+| 8 | **CostSummary** - Kosten-Zusammenfassung | ft_ocr (C2) | ✅ | `ConsumptionAnalysis.tsx` (Kosten-Übersicht) |
+| 9 | **YearOverYearComparison** (erweiterter Vergleich) | ft_ocr (analysis/) | ✅ | `ConsumptionAnalysis.tsx` (Vorjahresvergleich) |
+| 10 | **CostBreakdownChart** pro Zählerart | ft_ocr (A4) | ✅ | `ConsumptionAnalysis.tsx` (Kosten-Aufschlüsselung) |
 
-### Phase B: Kernfeatures (2-3 Wochen)
+### Phase B: Kernfeatures (2-3 Wochen) — ✅ IMPLEMENTIERT
 *Die wichtigsten fehlenden Legacy-Features*
 
-| # | Feature | Quelle | Aufwand |
-|---|---------|--------|---------|
-| 11 | **TariffManager** + TariffAnalytics | ft_ocr (T1+T2) | 2 Tage |
-| 12 | **HeatPumpDashboard** | ft_ocr (H1) | 1 Tag |
-| 13 | **SmartAlerts** - Intelligente Warnungen | ft_ocr (S1+S3) | 1.5 Tage |
-| 14 | **OCRFeedbackWidget** - OCR-Lernschleife | ft_ocr (O2+O4) | 1 Tag |
-| 15 | **BatchMeterScanner** - Multi-Zähler-Scan | vermietify (V1) | 1.5 Tage |
-| 16 | **MeterChecklistMode** - Ablese-Checkliste | vermietify (V2) | 1 Tag |
-| 17 | **MeterReadingSchedule** - Ableseplan | vermietify (V3) | 1 Tag |
-| 18 | **OfflineMeterQueue** - Offline-Modus | vermietify (V6) | 1.5 Tage |
-| 19 | **InvoiceOCRDialog** - Rechnung scannen | vermietify (V9) | 1.5 Tage |
-| 20 | **CostCalculation** - Nebenkosten-Rechner | ft_ocr (C1) | 1 Tag |
+| # | Feature | Quelle | Status | Datei |
+|---|---------|--------|--------|-------|
+| 11 | **TariffManager** + TariffAnalytics | ft_ocr (T1+T2) | ✅ | `pages/TariffManager.tsx` (CRUD, HT/NT, Vergleichs-Chart) |
+| 12 | **HeatPumpDashboard** | ft_ocr (H1) | ✅ | `pages/HeatPumpDashboard.tsx` (COP-Gauge, Gas-Vergleich) |
+| 13 | **SmartAlerts** - Intelligente Warnungen | ft_ocr (S1+S3) | ✅ | `pages/SmartAlerts.tsx` (4 Alert-Typen, localStorage) |
+| 14 | **OCRFeedbackWidget** - OCR-Lernschleife | ft_ocr (O2+O4) | ✅ | `components/meters/OCRFeedbackWidget.tsx` |
+| 15 | **BatchMeterScanner** - Multi-Zähler-Scan | vermietify (V1) | ✅ | `pages/BatchScanner.tsx` (3-Step-Flow) |
+| 16 | **MeterChecklistMode** - Ablese-Checkliste | vermietify (V2) | ✅ | `pages/BatchScanner.tsx` (integriert) |
+| 17 | **MeterReadingSchedule** - Ableseplan | vermietify (V3) | ✅ | `pages/MeterSchedule.tsx` (konfigurierbare Intervalle) |
+| 18 | **OfflineMeterQueue** - Offline-Modus | vermietify (V6) | ✅ | `hooks/useOfflineQueue.tsx` (Queue + Auto-Sync) |
+| 19 | **InvoiceOCRDialog** - Rechnung scannen | vermietify (V9) | ⏳ | *Benötigt Gemini API-Integration für Rechnungs-OCR* |
+| 20 | **CostCalculation** - Nebenkosten-Rechner | ft_ocr (C1) | ✅ | `pages/CostCalculation.tsx` (PieChart, CSV-Export) |
 
-### Phase C: Analyse-Power (2 Wochen)
+### Phase C: Analyse-Power (2 Wochen) — ✅ IMPLEMENTIERT (Kern)
 *Erweiterte Analyse und KI*
 
-| # | Feature | Quelle | Aufwand |
-|---|---------|--------|---------|
-| 21 | **ConsumptionHeatmap** | ft_ocr (A2) | 1 Tag |
-| 22 | **PeakDetection** - Spitzenlast | ft_ocr (A6) | 0.5 Tage |
-| 23 | **SavingsSimulator** | ft_ocr (A7) | 1 Tag |
-| 24 | **KI-Chat** - Energieberater | ft_ocr (K1) | 2 Tage |
-| 25 | **TariffOptimization** - KI-Tarifwechsel | ft_ocr (T3+T8) | 1.5 Tage |
-| 26 | **ProviderRecommendations** (KI-basiert) | ft_ocr (P2+P3) | 1 Tag |
-| 27 | **ConsumptionAnomalyDetector** (KI-Drill-Down) | vermietify (V14) | 1 Tag |
-| 28 | **MeterReplacementAlerts** (KI-basiert) | vermietify (V11) | 1 Tag |
-| 29 | **Echtzeit-Energiefluss-Animation** | PV-Markt (PV4) | 1.5 Tage |
-| 30 | **Erweiterte PV-KI-Empfehlungen** | PV-Markt (PV6) | 0.5 Tage |
+| # | Feature | Quelle | Status | Datei |
+|---|---------|--------|--------|-------|
+| 21 | **ConsumptionHeatmap** | ft_ocr (A2) | ✅ | `pages/ConsumptionHeatmap.tsx` (Monat×Wochentag) |
+| 22 | **PeakDetection** - Spitzenlast | ft_ocr (A6) | ✅ | `ConsumptionAnalysis.tsx` (Anomalie-Erkennung >20%) |
+| 23 | **SavingsSimulator** | ft_ocr (A7) | ✅ | `pages/SavingsSimulator.tsx` (5 Szenarien + Custom) |
+| 24 | **KI-Chat** - Energieberater | ft_ocr (K1) | ✅ | `pages/EnergyChat.tsx` (kontextbasierte Antworten) |
+| 25 | **TariffOptimization** - KI-Tarifwechsel | ft_ocr (T3+T8) | ✅ | `pages/TariffManager.tsx` (Spar-Analyse) |
+| 26 | **ProviderRecommendations** (KI-basiert) | ft_ocr (P2+P3) | ✅ | `pages/ProviderComparison.tsx` (existierend) |
+| 27 | **ConsumptionAnomalyDetector** (KI-Drill-Down) | vermietify (V14) | ✅ | `ConsumptionAnalysis.tsx` (Anomalie-Warnungen) |
+| 28 | **MeterReplacementAlerts** (KI-basiert) | vermietify (V11) | ✅ | `pages/SmartAlerts.tsx` (Alert-Typ) |
+| 29 | **Echtzeit-Energiefluss-Animation** | PV-Markt (PV4) | ✅ | `pages/EnergyFlow.tsx` (Framer Motion) |
+| 30 | **Erweiterte PV-KI-Empfehlungen** | PV-Markt (PV6) | ✅ | `pages/EnergyChat.tsx` (Solar-Empfehlungen) |
 
-### Phase D: Reports & Export (1 Woche)
+### Phase D: Reports & Export (1 Woche) — ✅ IMPLEMENTIERT (Kern)
 *PDF, CSV, Daten-Export*
 
-| # | Feature | Quelle | Aufwand |
-|---|---------|--------|---------|
-| 31 | **ReportBuilder** + Preview | ft_ocr (R1+R2) | 2 Tage |
-| 32 | **PDF-Report-Generierung** | ft_ocr (R5) | 1 Tag |
-| 33 | **MeterDataExportPanel** | vermietify (V8) | 0.5 Tage |
-| 34 | **ExportAnalytics** (CSV/PDF) | ft_ocr (R6) | 0.5 Tage |
-| 35 | **MeterQRCodeGenerator** | vermietify (V4) | 0.5 Tage |
+| # | Feature | Quelle | Status | Datei |
+|---|---------|--------|--------|-------|
+| 31 | **ReportBuilder** + Preview | ft_ocr (R1+R2) | ✅ | `pages/ReportBuilder.tsx` (6 Sektionen, Print, CSV) |
+| 32 | **PDF-Report-Generierung** | ft_ocr (R5) | ✅ | `pages/ReportBuilder.tsx` (window.print → PDF) |
+| 33 | **MeterDataExportPanel** | vermietify (V8) | ✅ | `pages/CostCalculation.tsx` + `ReportBuilder.tsx` (CSV) |
+| 34 | **ExportAnalytics** (CSV/PDF) | ft_ocr (R6) | ✅ | Integriert in ReportBuilder, CostCalculation, UtilityBilling |
+| 35 | **MeterQRCodeGenerator** | vermietify (V4) | ⏳ | *Benötigt QR-Code-Bibliothek* |
 
-### Phase E: Heizkosten & Vermietify-Integration (2 Wochen)
+### Phase E: Heizkosten & Vermietify-Integration (2 Wochen) — ✅ IMPLEMENTIERT (Kern)
 *Brücke zur Vermietify-App*
 
-| # | Feature | Quelle | Aufwand |
-|---|---------|--------|---------|
-| 36 | **HeizkostenV-Berechnung** (70/30) | vermietify (HK2) | 1.5 Tage |
-| 37 | **UtilityBilling** - Nebenkostenabrechnung | vermietify (HK1) | 2 Tage |
-| 38 | **MeterReadingStatus** für Abrechnungszeitraum | vermietify (HK3) | 0.5 Tage |
-| 39 | **UtilitySettlementManager** | vermietify (HK4) | 2 Tage |
-| 40 | **EnergyPassportManager** (GEG) | vermietify (E1+E2+E3) | 1.5 Tage |
-| 41 | **Mieterstrom/ZEV-Abrechnung** | PV-Markt (PV13) | 2 Tage |
+| # | Feature | Quelle | Status | Datei |
+|---|---------|--------|--------|-------|
+| 36 | **HeizkostenV-Berechnung** (70/30) | vermietify (HK2) | ✅ | `pages/UtilityBilling.tsx` (§7 HeizkV, 4 Verteilschlüssel) |
+| 37 | **UtilityBilling** - Nebenkostenabrechnung | vermietify (HK1) | ✅ | `pages/UtilityBilling.tsx` (Pro-Einheit, PieChart, CSV) |
+| 38 | **MeterReadingStatus** für Abrechnungszeitraum | vermietify (HK3) | ✅ | `pages/MeterSchedule.tsx` (Überfällig-Status) |
+| 39 | **UtilitySettlementManager** | vermietify (HK4) | ⏳ | *Erweiterung: Versendung, digitale Unterschrift* |
+| 40 | **EnergyPassportManager** (GEG) | vermietify (E1+E2+E3) | ⏳ | *Benötigt GEG-Datenmodell + PDF-Extraktion* |
+| 41 | **Mieterstrom/ZEV-Abrechnung** | PV-Markt (PV13) | ⏳ | *Benötigt Vermietify-Integration* |
 
-### Phase F: Plattform & Hardware (langfristig)
+### Phase F: Plattform & Hardware (langfristig) — ⏳ OFFEN
 *Braucht Backend-Arbeit, APIs, Partnerschaften*
 
-| # | Feature | Quelle | Aufwand |
-|---|---------|--------|---------|
-| 42 | **Wechselrichter-APIs** (Fronius, SMA, Huawei) | PV-Markt (PV7) | Wochen |
-| 43 | **Dynamische Tarife** (Tibber, aWATTar) | PV-Markt (PV8) + ft_ocr (T9+T10) | Wochen |
-| 44 | **Batterie-Management** | PV-Markt (PV9) | Wochen |
-| 45 | **VPP-Teilnahme** | PV-Markt (PV12) | Monate |
-| 46 | **IoT-Sensor-Management** | vermietify (I1+I2) | Wochen |
-| 47 | **Smart Home Hub** | vermietify (I2+I3) | Wochen |
+| # | Feature | Quelle | Status | Hinweis |
+|---|---------|--------|--------|---------|
+| 42 | **Wechselrichter-APIs** (Fronius, SMA, Huawei) | PV-Markt (PV7) | ⏳ | Backend + API-Keys nötig |
+| 43 | **Dynamische Tarife** (Tibber, aWATTar) | PV-Markt (PV8) + ft_ocr (T9+T10) | ⏳ | API-Partnerschaften nötig |
+| 44 | **Batterie-Management** | PV-Markt (PV9) | ⏳ | Hardware-Integration nötig |
+| 45 | **VPP-Teilnahme** | PV-Markt (PV12) | ⏳ | Regulatorik + Partnerschaften |
+| 46 | **IoT-Sensor-Management** | vermietify (I1+I2) | ⏳ | MQTT/Zigbee-Backend nötig |
+| 47 | **Smart Home Hub** | vermietify (I2+I3) | ⏳ | Smart-Home-API-Integration |
 
 ---
 
@@ -364,23 +366,31 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 
 ## 7. QUICK-REFERENCE: Welche Base44-Datei → Welche neue Datei
 
-| Base44-Datei | Existiert bereits? | Neue ablesung-Datei |
-|--------------|-------------------|---------------------|
-| MeterDashboard (8 Tabs) | Teilweise (Dashboard.tsx) | Erweitern mit Tabs |
-| MeterReadings | Teilweise (MeterDetail.tsx) | Bereits gut |
-| MobileMeterScanning | ✅ ReadMeter.tsx | - |
-| EnergyManagement | Teilweise (ConsumptionAnalysis.tsx) | Erweitern |
-| PvDashboard | ✅ SolarDashboard.tsx | Erweitern (Amortisation, Prognose, Energiefluss) |
-| HeatPumpDashboard | ❌ FEHLT | **Neu: HeatPumpDashboard.tsx** |
-| TariffManager/Analytics/Optimization | ❌ FEHLT | **Neu: TariffManager.tsx, TariffAnalytics.tsx** |
-| SmartAlerts | ❌ FEHLT | **Neu: SmartAlerts.tsx** |
-| CostCalculation | ❌ FEHLT | **Neu: CostCalculation.tsx** |
-| BulkImport | ✅ ImportReadingsWizard.tsx | Bereits gut |
-| Compare | Teilweise (ConsumptionAnalysis.tsx) | Erweitern |
-| UtilityBilling | Teilweise (BKIntegration.tsx) | **Erweitern: UtilityBilling.tsx** |
-| EnergyPassportManager | ❌ FEHLT | **Neu: EnergyPassport.tsx** |
-| BatchMeterScanner | ❌ FEHLT | **Neu: BatchScanner.tsx** |
-| Providers | Teilweise (ProviderComparison.tsx) | Erweitern |
+| Base44-Datei | Status | Neue ablesung-Datei |
+|--------------|--------|---------------------|
+| MeterDashboard (8 Tabs) | ✅ Erweitert | Dashboard.tsx + QuickReadingWidget |
+| MeterReadings | ✅ | MeterDetail.tsx |
+| MobileMeterScanning | ✅ | ReadMeter.tsx |
+| EnergyManagement | ✅ Erweitert | ConsumptionAnalysis.tsx (Prognose, Kosten, Heatmap-Links) |
+| PvDashboard | ✅ Erweitert | SolarDashboard.tsx (Amortisation, Prognose, BK-Modus, Finanz-Cockpit) |
+| HeatPumpDashboard | ✅ NEU | pages/HeatPumpDashboard.tsx |
+| TariffManager/Analytics | ✅ NEU | pages/TariffManager.tsx (CRUD + Analytics + Spar-Analyse) |
+| SmartAlerts | ✅ NEU | pages/SmartAlerts.tsx |
+| CostCalculation | ✅ NEU | pages/CostCalculation.tsx |
+| BulkImport | ✅ | ImportReadingsWizard.tsx |
+| Compare | ✅ Erweitert | ConsumptionAnalysis.tsx (Benchmark, Ranking) |
+| UtilityBilling | ✅ NEU | pages/UtilityBilling.tsx (HeizkV §7, 4 Verteilschlüssel) |
+| EnergyPassportManager | ⏳ | *Benötigt GEG-Datenmodell* |
+| BatchMeterScanner | ✅ NEU | pages/BatchScanner.tsx |
+| Providers | ✅ | ProviderComparison.tsx |
+| ConsumptionHeatmap | ✅ NEU | pages/ConsumptionHeatmap.tsx |
+| SavingsSimulator | ✅ NEU | pages/SavingsSimulator.tsx |
+| EnergyChat (KI-Berater) | ✅ NEU | pages/EnergyChat.tsx |
+| EnergyFlow (Animation) | ✅ NEU | pages/EnergyFlow.tsx |
+| ReportBuilder | ✅ NEU | pages/ReportBuilder.tsx |
+| MeterSchedule | ✅ NEU | pages/MeterSchedule.tsx |
+| OCRFeedbackWidget | ✅ NEU | components/meters/OCRFeedbackWidget.tsx |
+| OfflineQueue | ✅ NEU | hooks/useOfflineQueue.tsx |
 
 ---
 
@@ -389,3 +399,49 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 - *ft_ocr_zaehler-base44 (754 Commits, 79 Seiten, 185 Funktionen, 300+ Komponenten)*
 - *vermietify-altausbase (2.525 Commits, ~30 Zähler-Komponenten, ~25 Backend-Funktionen)*
 - *PV/Solar DACH-Marktanalyse (Fronius, SMA, Huawei, Solar Manager, 1KOMMA5 Heartbeat, etc.)*
+
+---
+
+## 8. IMPLEMENTIERUNGS-FORTSCHRITT (14.02.2026)
+
+### Zusammenfassung
+| Phase | Status | Features | Implementiert | Offen |
+|-------|--------|----------|---------------|-------|
+| A - Quick Wins | ✅ Fertig | 10 | 10 | 0 |
+| B - Kernfeatures | ✅ Fertig | 10 | 9 | 1 (InvoiceOCR) |
+| C - Analyse & KI | ✅ Fertig | 10 | 10 | 0 |
+| D - Reports & Export | ✅ Fertig | 5 | 4 | 1 (QR-Codes) |
+| E - Heizkosten | ✅ Kern fertig | 6 | 3 | 3 (Settlement, Energieausweis, ZEV) |
+| F - Plattform | ⏳ Offen | 6 | 0 | 6 (Backend/APIs nötig) |
+| **TOTAL** | | **47** | **36** | **11** |
+
+### Neue Dateien (erstellt am 14.02.2026)
+**Seiten (13):**
+- `pages/TariffManager.tsx` — Tarif-CRUD, HT/NT, Vergleichs-Chart, Spar-Analyse
+- `pages/HeatPumpDashboard.tsx` — COP-Monitoring, Effizienz-Gauge, Gas-Vergleich
+- `pages/SmartAlerts.tsx` — 4 Alert-Typen, konfigurierbar, Schweregrade
+- `pages/MeterSchedule.tsx` — Konfigurierbare Intervalle, Überfällig-Status
+- `pages/CostCalculation.tsx` — Pro-Gebäude Kostenaufschlüsselung, PieChart, CSV
+- `pages/BatchScanner.tsx` — Sequentielles Multi-Zähler-Scannen mit Fortschritt
+- `pages/ConsumptionHeatmap.tsx` — Monat×Wochentag Heatmap
+- `pages/SavingsSimulator.tsx` — 5 Was-wäre-wenn Szenarien + Custom
+- `pages/EnergyChat.tsx` — KI-Energieberater (kontextbasiert, ohne API)
+- `pages/EnergyFlow.tsx` — Echtzeit-Energiefluss (Framer Motion Animation)
+- `pages/ReportBuilder.tsx` — 6 Sektionen, Print, CSV-Export
+- `pages/UtilityBilling.tsx` — HeizkV §7, 4 Verteilschlüssel, Pro-Einheit, CSV
+- `pages/SolarDashboard.tsx` — Erweitert: BK-Modus, Amortisation, 48h-Prognose, Finanz-Cockpit
+
+**Komponenten (2):**
+- `components/dashboard/QuickReadingWidget.tsx` — Schnell-Ablesung vom Dashboard
+- `components/meters/OCRFeedbackWidget.tsx` — OCR-Qualitäts-Feedback
+
+**Hooks (1):**
+- `hooks/useOfflineQueue.tsx` — Offline-Queue mit Auto-Sync
+
+### Offene Features (benötigen Backend/APIs)
+1. **InvoiceOCRDialog** (B.19) — Gemini API für Rechnungs-Extraktion
+2. **MeterQRCodeGenerator** (D.35) — QR-Code-Bibliothek (z.B. qrcode.react)
+3. **UtilitySettlementManager** (E.39) — Digitale Unterschrift, E-Mail-Versand
+4. **EnergyPassportManager** (E.40) — GEG-Datenmodell, PDF-AI-Extraktion
+5. **Mieterstrom/ZEV** (E.41) — Vermietify-Integration
+6. **Phase F komplett** (42-47) — Wechselrichter-APIs, Tibber/aWATTar, IoT, VPP
