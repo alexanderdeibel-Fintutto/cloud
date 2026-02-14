@@ -1,189 +1,438 @@
-import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Plus, Users, Search, Loader2, Mail, Phone } from 'lucide-react'
-import { useTenants, useCreateTenant } from '@/hooks/useTenants'
-import { useProperties } from '@/hooks/useProperties'
-import { toast } from 'sonner'
-import { formatDate } from '@/lib/utils'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Users, Plus, Search, Mail, Phone, Home, Loader2, Upload, Smartphone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { tenantSchema } from "@/lib/validationSchemas";
+import { sanitizeErrorMessage } from "@/lib/errorHandler";
+import { BulkImportDialog } from "@/components/import/BulkImportDialog";
+import { TenantAppInviteDialog } from "@/components/tenants/TenantAppInviteDialog";
 
-export function Tenants() {
-  const [showForm, setShowForm] = useState(false)
-  const [search, setSearch] = useState('')
-  const [form, setForm] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    unit_id: '',
-    move_in_date: '',
-    deposit_amount: '',
-  })
+interface Tenant {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  postal_code: string | null;
+  created_at: string;
+}
 
-  const { data: tenants, isLoading } = useTenants()
-  const { data: properties } = useProperties()
-  const createTenant = useCreateTenant()
+export default function Tenants() {
+  const { profile } = useAuth();
+  const { toast } = useToast();
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inviteDialogTenant, setInviteDialogTenant] = useState<{ id: string; name: string; email: string | null } | null>(null);
 
-  const allUnits = (properties || []).flatMap((p) =>
-    ((p as any).units || []).map((u: any) => ({
-      ...u,
-      propertyName: p.name,
-    }))
-  )
+  const [newTenant, setNewTenant] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postal_code: "",
+  });
 
-  const filtered = (tenants || []).filter((t) =>
-    `${t.first_name} ${t.last_name} ${t.email || ''}`.toLowerCase().includes(search.toLowerCase())
-  )
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.first_name || !form.last_name || !form.move_in_date) {
-      toast.error('Bitte füllen Sie Name und Einzugsdatum aus.')
-      return
+  useEffect(() => {
+    if (profile?.organization_id) {
+      fetchTenants();
     }
+  }, [profile?.organization_id]);
+
+  const fetchTenants = async () => {
     try {
-      await createTenant.mutateAsync({
-        first_name: form.first_name,
-        last_name: form.last_name,
-        email: form.email || null,
-        phone: form.phone || null,
-        unit_id: form.unit_id || null,
-        move_in_date: form.move_in_date,
-        deposit_amount: form.deposit_amount ? Math.round(parseFloat(form.deposit_amount) * 100) : null,
-      })
-      toast.success('Mieter erfolgreich angelegt!')
-      setShowForm(false)
-      setForm({ first_name: '', last_name: '', email: '', phone: '', unit_id: '', move_in_date: '', deposit_amount: '' })
-    } catch (err: any) {
-      toast.error(err.message || 'Fehler beim Anlegen.')
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('*')
+        .order('last_name');
+
+      if (error) throw error;
+      setTenants(data || []);
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+      toast({
+        title: "Fehler",
+        description: "Mieter konnten nicht geladen werden.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleCreateTenant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Validate input data
+    const validationResult = tenantSchema.safeParse(newTenant);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast({
+        title: "Validierungsfehler",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const validatedData = validationResult.data;
+      const { error } = await supabase
+        .from('tenants')
+        .insert({
+          organization_id: profile?.organization_id,
+          first_name: validatedData.first_name,
+          last_name: validatedData.last_name,
+          email: validatedData.email || null,
+          phone: validatedData.phone || null,
+          address: validatedData.address || null,
+          city: validatedData.city || null,
+          postal_code: validatedData.postal_code || null,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Erfolg",
+        description: "Der Mieter wurde erfolgreich angelegt.",
+      });
+
+      // Offer to send app invite if email was provided
+      if (validatedData.email) {
+        // We need the new tenant's ID - fetch the latest
+        const { data: newTenants } = await supabase
+          .from("tenants")
+          .select("id")
+          .eq("organization_id", profile?.organization_id)
+          .eq("email", validatedData.email)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (newTenants?.[0]) {
+          setInviteDialogTenant({
+            id: newTenants[0].id,
+            name: `${validatedData.first_name} ${validatedData.last_name}`,
+            email: validatedData.email,
+          });
+        }
+      }
+
+      setIsDialogOpen(false);
+      setNewTenant({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        postal_code: "",
+      });
+      fetchTenants();
+    } catch (error: unknown) {
+      toast({
+        title: "Fehler",
+        description: sanitizeErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filteredTenants = tenants.filter(
+    (tenant) =>
+      `${tenant.first_name} ${tenant.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tenant.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase();
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Mieter</h1>
-          <p className="text-muted-foreground">
-            Verwalten Sie Ihre Mieter und Mietverhältnisse
-          </p>
-        </div>
-        <Button onClick={() => setShowForm(!showForm)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Neuer Mieter
-        </Button>
-      </div>
-
-      {showForm && (
-        <Card>
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Vorname *</Label>
-                <Input placeholder="Vorname" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Nachname *</Label>
-                <Input placeholder="Nachname" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>E-Mail</Label>
-                <Input type="email" placeholder="email@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Telefon</Label>
-                <Input placeholder="+49..." value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Wohnung zuordnen</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.unit_id} onChange={(e) => setForm({ ...form, unit_id: e.target.value })}>
-                  <option value="">-- Keine Zuordnung --</option>
-                  {allUnits.map((u: any) => (
-                    <option key={u.id} value={u.id}>
-                      {u.propertyName} - {u.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Einzugsdatum *</Label>
-                <Input type="date" value={form.move_in_date} onChange={(e) => setForm({ ...form, move_in_date: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Kaution (EUR)</Label>
-                <Input type="number" step="0.01" placeholder="z.B. 1500.00" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
-              </div>
-              <div className="flex items-end justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Abbrechen</Button>
-                <Button type="submit" disabled={createTenant.isPending}>
-                  {createTenant.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Speichern
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Mieter suchen..." className="pl-10" value={search} onChange={(e) => setSearch(e.target.value)} />
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium">Keine Mieter vorhanden</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Fügen Sie Ihren ersten Mieter hinzu.
+    <MainLayout title="Mieter">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Mieter</h1>
+            <p className="text-muted-foreground">
+              Verwalten Sie Ihre Mieterdatenbank
             </p>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Mieter hinzufügen
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              PDF/CSV Import
             </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Mieter hinzufügen
+                </Button>
+              </DialogTrigger>
+            <DialogContent className="sm:max-w-lg">
+              <form onSubmit={handleCreateTenant}>
+                <DialogHeader>
+                  <DialogTitle>Neuen Mieter anlegen</DialogTitle>
+                  <DialogDescription>
+                    Fügen Sie einen neuen Mieter zu Ihrer Datenbank hinzu
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="first_name">Vorname *</Label>
+                      <Input
+                        id="first_name"
+                        placeholder="Max"
+                        value={newTenant.first_name}
+                        onChange={(e) => setNewTenant({ ...newTenant, first_name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="last_name">Nachname *</Label>
+                      <Input
+                        id="last_name"
+                        placeholder="Mustermann"
+                        value={newTenant.last_name}
+                        onChange={(e) => setNewTenant({ ...newTenant, last_name: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-Mail</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="max@beispiel.de"
+                      value={newTenant.email}
+                      onChange={(e) => setNewTenant({ ...newTenant, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Telefon</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+49 123 456789"
+                      value={newTenant.phone}
+                      onChange={(e) => setNewTenant({ ...newTenant, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Adresse</Label>
+                    <Input
+                      id="address"
+                      placeholder="Musterstraße 123"
+                      value={newTenant.address}
+                      onChange={(e) => setNewTenant({ ...newTenant, address: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="postal_code">PLZ</Label>
+                      <Input
+                        id="postal_code"
+                        placeholder="12345"
+                        value={newTenant.postal_code}
+                        onChange={(e) => setNewTenant({ ...newTenant, postal_code: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="city">Stadt</Label>
+                      <Input
+                        id="city"
+                        placeholder="Berlin"
+                        value={newTenant.city}
+                        onChange={(e) => setNewTenant({ ...newTenant, city: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Abbrechen
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Anlegen
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Mieter suchen..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Tenants Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mieterliste</CardTitle>
+            <CardDescription>
+              {filteredTenants.length} Mieter gefunden
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-muted animate-pulse rounded" />
+                ))}
+              </div>
+            ) : filteredTenants.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Users className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {searchTerm ? "Keine Mieter gefunden" : "Noch keine Mieter"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchTerm
+                    ? "Versuchen Sie einen anderen Suchbegriff"
+                    : "Fügen Sie Ihren ersten Mieter hinzu"}
+                </p>
+                {!searchTerm && (
+                  <Button onClick={() => setIsDialogOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Mieter hinzufügen
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mieter</TableHead>
+                    <TableHead>Kontakt</TableHead>
+                    <TableHead>Adresse</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Aktionen</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTenants.map((tenant) => (
+                    <TableRow key={tenant.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarFallback className="bg-primary/10 text-primary">
+                              {getInitials(tenant.first_name, tenant.last_name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">
+                              {tenant.first_name} {tenant.last_name}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          {tenant.email && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Mail className="h-3 w-3" />
+                              {tenant.email}
+                            </div>
+                          )}
+                          {tenant.phone && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Phone className="h-3 w-3" />
+                              {tenant.phone}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {tenant.address ? (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Home className="h-3 w-3" />
+                            {tenant.address}, {tenant.postal_code} {tenant.city}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="default">Aktiv</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/mieter/${tenant.id}`}>Details</Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setInviteDialogTenant({
+                            id: tenant.id,
+                            name: `${tenant.first_name} ${tenant.last_name}`,
+                            email: tenant.email,
+                          })}
+                          disabled={!tenant.email}
+                          title={!tenant.email ? "Keine E-Mail hinterlegt" : "Mieter-App Einladung senden"}
+                        >
+                          <Smartphone className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((tenant) => (
-            <Card key={tenant.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-lg">{tenant.first_name} {tenant.last_name}</h3>
-                    {(tenant as any).unit?.property && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {(tenant as any).unit.property.name} - {(tenant as any).unit.name}
-                      </p>
-                    )}
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${tenant.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                    {tenant.is_active ? 'Aktiv' : 'Ausgezogen'}
-                  </span>
-                </div>
-                <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                  {tenant.email && (
-                    <div className="flex items-center gap-2"><Mail className="h-3 w-3" />{tenant.email}</div>
-                  )}
-                  {tenant.phone && (
-                    <div className="flex items-center gap-2"><Phone className="h-3 w-3" />{tenant.phone}</div>
-                  )}
-                  <div>Einzug: {formatDate(tenant.move_in_date)}</div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      </div>
+
+      <BulkImportDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        type="tenants"
+        organizationId={profile?.organization_id}
+        onSuccess={() => fetchTenants()}
+      />
+
+      {inviteDialogTenant && (
+        <TenantAppInviteDialog
+          open={!!inviteDialogTenant}
+          onOpenChange={(o) => !o && setInviteDialogTenant(null)}
+          tenantId={inviteDialogTenant.id}
+          tenantName={inviteDialogTenant.name}
+          tenantEmail={inviteDialogTenant.email}
+        />
       )}
-    </div>
-  )
+    </MainLayout>
+  );
 }
