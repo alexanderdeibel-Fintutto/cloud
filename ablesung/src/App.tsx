@@ -47,6 +47,12 @@ const SavingsSimulator = lazy(() => import("./pages/SavingsSimulator"));
 const EnergyChat = lazy(() => import("./pages/EnergyChat"));
 const EnergyFlow = lazy(() => import("./pages/EnergyFlow"));
 
+// Phase D: Reports & Export
+const ReportBuilder = lazy(() => import("./pages/ReportBuilder"));
+
+// Phase E: Utility Billing
+const UtilityBilling = lazy(() => import("./pages/UtilityBilling"));
+
 const queryClient = new QueryClient();
 
 function LoadingFallback() {
@@ -132,6 +138,12 @@ function AppRoutes() {
         <Route path="/simulator" element={<ProtectedRoute><SavingsSimulator /></ProtectedRoute>} />
         <Route path="/energy-chat" element={<ProtectedRoute><EnergyChat /></ProtectedRoute>} />
         <Route path="/energy-flow" element={<ProtectedRoute><EnergyFlow /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase D Reports */}
+        <Route path="/reports" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase E Utility Billing */}
+        <Route path="/utility-billing" element={<ProtectedRoute><UtilityBilling /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
