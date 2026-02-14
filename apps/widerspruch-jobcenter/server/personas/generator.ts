@@ -186,10 +186,10 @@ function generateUsername(
   const style = rng()
   const yr = randInt(22, 26, rng)
 
-  if (style < 0.25) {
+  if (style < 0.28) {
     // real-name based: lisa_m_2025
     return `${vorname.toLowerCase()}_${nachname.toLowerCase().replace('.','')}_20${yr}`
-  } else if (style < 0.45) {
+  } else if (style < 0.44) {
     // topic-based
     const topics = [
       'widerspruch_held','bescheid_checker','buergergeld_frage',
@@ -198,28 +198,87 @@ function generateUsername(
       'neustart','hoffnung','kaempferin','frust_im_system',
       'alleinerziehend_stark','raus_da','system_survivor','minijob_checker',
       'recht_muss_recht','papa_sucht_rat','mama_kaempft','betroffen',
+      // Situation & Identität
+      'hartz4_veteran','bg_neuling','umschulung_now',
+      'bewerbungsmarathon','massnahme_nein','weiterbildung_statt_jc',
+      'amt_vs_ich','eingliederung_nein','bg_chaos',
+      'aufstocker_alltag','teilzeit_mama','schichtarbeit_bg',
+      'ue50_sucht_job','langzeit_arbeitslos','solo_mama',
+      'papa_im_bg','bedarfsgemeinschaft_frage','unterhalt_null',
+      'quereinsteiger_bg','wg_oder_bg','trennung_neuanfang',
+      // Emotionen & Haltung
+      'genug_ist_genug','endlich_wehren','nicht_schweigen',
+      'kopf_hoch_bg','wird_schon','kein_bock_mehr',
+      'trotzdem_weiter','noch_nicht_aufgegeben','licht_am_ende',
+      'schritt_fuer_schritt','muede_aber_da','aufstehen_weiter',
+      // Bürokratie & Verfahren
+      'bescheid_versteher','formular_dschungel','antrag_marathon',
+      'sozialgericht_erfahren','egv_experte','kdu_drama',
+      'heizkosten_streit','freibetrag_check','sanktion_widerspruch',
+      'mietobergrenze_bg','erstausstattung_frage','umzugskosten_streit',
+      'nebenkostenabrechnung_bg','rueckforderung_nein','weiterbewilligung',
     ]
     return pick(topics, rng) + '_' + randInt(1, 99, rng)
-  } else if (style < 0.65) {
-    // anonym: Betroffener2024
+  } else if (style < 0.54) {
+    // anonym
     const prefixes = [
       'Betroffener','Betroffene','BG_','JC_User','Anonym',
       'HilfeGesucht','Verzweifelt','NeuHier','FrageAnAlle',
+      'Hilfesuchende','Ratloser','Ratlose','SoNichtJC',
+      'Ratsuchend','StillerLeser','MitlesendesMitglied',
+      'OhneNamen','EinfachNurIch','NurEineFrage','GanzNeuHier',
+      'BraucheHilfe','Ueberfordert','WerKenntSich','MalNachfragen',
+      'EineVonVielen','EinerVonVielen','ImSystemVerloren',
+      'AmAnfang','Orientierungslos','HoffnungHaben','MutterInNot',
     ]
-    return pick(prefixes, rng) + `_${20}${yr}_${randInt(1,99,rng)}`
-  } else if (style < 0.8) {
+    const fmt = rng()
+    if (fmt < 0.4) return pick(prefixes, rng) + `_20${yr}_${randInt(1,99,rng)}`
+    if (fmt < 0.7) return pick(prefixes, rng) + `_${randInt(1,999,rng)}`
+    return pick(prefixes, rng) + `${randInt(1,99,rng)}`
+  } else if (style < 0.76) {
     // vorname + stadt hint
-    const cities = ['HH','B','K','DO','L','DD','HB','M','F','E','N']
+    const cities = [
+      'HH','B','K','DO','L','DD','HB','M','F','E','N',
+      'GE','BO','W','BI','OB','KS','MD','HRO','C','EF',
+      'FL','BHV','SZ','WOB',
+    ]
     return `${vorname}${pick(cities, rng)}${randInt(1,99,rng)}`
-  } else {
+  } else if (style < 0.88) {
     // kreativ
     const kreativ = [
       'Paragraphenreiter','Amtsschimmel','BescheidPruefer','Klagewelle',
       'SanktionsFighter','RegelsatzRebel','ForumHelfer','MutMacher',
       'WiderstandJetzt','SozialesNetz','GemeinsamStark','KeineAngst',
       'RechtHaben','Durchkaempfer','StarkBleiben','NichtAufgeben',
+      // Bürokratie-Humor
+      'Aktenfresser','Wartenummer','Antragsgegner','BescheidSammler',
+      'Stempelkissen','Dienstweg','Sachbearbeitet','AktenzeichenXY',
+      'Warteschleife','GelberBrief','Massnahmenkritik','EGV_Rebell',
+      'SanktionsResistent','FormularHeld','Amtsgang',
+      // Community & Motivation
+      'Durchhalter','SolidarischJetzt','KeinEinzelfall',
+      'NichtAllein','InfoTeiler','TippGeber','ErfahrungsSchatz',
+      'WissenIstMacht','MutMacherin','WeiterKaempfen',
+      'DranBleiben','KopfUeberWasser','Netzwerker','Aufklaerer',
+      // Persönlichkeit
+      'Realistin','Pragmatiker','LeiseRebellion',
+      'Sturkopf','Dickschaedel','Querulant2punkt0',
+      'UnbequemeFragen','Klartext','HarterHund','Loewin',
     ]
     return pick(kreativ, rng) + '_' + randInt(1, 999, rng)
+  } else {
+    // alltagsnamen — generische Internet-Handles, nicht forenspezifisch
+    const alltag = [
+      'Sonnenschein','Schneeflocke','Sternenstaub','Blumenwiese',
+      'Regenbogen','Keksdose','Zimtstern','Wolkenfrei',
+      'Mondlicht','Sommerregen','Herbstwind','Morgentau',
+      'Pusteblume','Gluecksklee','Sternchen','Perle',
+      'Loewenzahn','Traumfaenger','Nachtfalter','Silbermond',
+      'Wirbelwind','Nordlicht','Freigeist','Zitronenfalter',
+      'Schattenlaeufer','Tagtraeumer','KaffeeMitMilch','Seelenvogel',
+      'Goldstueck','Donnerwetter','SpaetiStammgast','NachtEule',
+    ]
+    return pick(alltag, rng) + '_' + randInt(1, 999, rng)
   }
 }
 
