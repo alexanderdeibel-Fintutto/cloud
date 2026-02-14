@@ -52,3 +52,22 @@ export function useCrawlDomain() {
     },
   });
 }
+
+export function useCheckLinks() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ urls, linkIds }: { urls?: string[]; linkIds?: string[] }) => {
+      const { data, error } = await supabase.functions.invoke("check-links", {
+        body: { urls, linkIds },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["page-links"] });
+      qc.invalidateQueries({ queryKey: ["domain-links"] });
+      qc.invalidateQueries({ queryKey: ["broken-links"] });
+      qc.invalidateQueries({ queryKey: ["pages"] });
+    },
+  });
+}

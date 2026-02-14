@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { useDomains } from "@/hooks/useDomains";
 import { useBrokenLinks, useBulkUpdateLinks } from "@/hooks/usePageLinks";
+import { useCheckLinks } from "@/hooks/useDomainActions";
 import {
   Search,
   Link2,
@@ -43,6 +44,7 @@ export function LinkChecker() {
   const [selectedDomainId, setSelectedDomainId] = useState<string>("");
   const { data: brokenLinks, isLoading } = useBrokenLinks(selectedDomainId || undefined);
   const bulkUpdateLinks = useBulkUpdateLinks();
+  const checkLinks = useCheckLinks();
 
   const [search, setSearch] = useState("");
   const [selectedLinks, setSelectedLinks] = useState<Set<string>>(new Set());
@@ -203,9 +205,20 @@ export function LinkChecker() {
               <span className="text-sm text-muted-foreground">
                 {bulkUrls.split("\n").filter((u) => u.trim()).length} URLs
               </span>
-              <Button size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Alle prüfen
+              <Button
+                size="sm"
+                disabled={checkLinks.isPending}
+                onClick={() => {
+                  const urls = bulkUrls.split("\n").map((u) => u.trim()).filter(Boolean);
+                  if (urls.length === 0) return;
+                  checkLinks.mutate({ urls }, {
+                    onSuccess: (data) => toast.success(`${data?.checked ?? 0} URLs geprüft: ${data?.online ?? 0} online, ${data?.offline ?? 0} offline`),
+                    onError: (e) => toast.error("Fehler", { description: e.message }),
+                  });
+                }}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${checkLinks.isPending ? "animate-spin" : ""}`} />
+                {checkLinks.isPending ? "Prüfe..." : "Alle prüfen"}
               </Button>
             </div>
           </CardContent>
