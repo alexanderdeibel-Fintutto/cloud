@@ -470,16 +470,16 @@ Das Portal nutzt **Supabase direkt + TypeScript**. Daher:
 
 ## Zusammenfassung
 
-### Gesamtaufwand: ~8 Wochen
+### Gesamtaufwand: ~6.5 Wochen (Portal) + Zaehler-App extern
 
-| Phase | Dauer | Inhalt |
-|-------|-------|--------|
-| Phase 1 | 1 Woche | Shared Infrastructure (Wizard, Export, Dokumente, Dashboard) |
-| Phase 2 | 1 Woche | Renditerechner 3-Tier-Ausbau |
-| Phase 3 | 2 Wochen | BK-Abrechnung mit vollstaendiger Umlageerkennung |
-| Phase 4 | 1 Woche | Dokumentenverwaltung Portal-weit |
-| Phase 5 | 1.5 Wochen | Zaehler-Modul inkl. OCR |
-| Phase 6 | 1.5 Wochen | Formulare ausbauen + PDF |
+| Reihenfolge | Phase | Dauer | Inhalt |
+|-------------|-------|-------|--------|
+| **1. (Start)** | Phase 4 | 1 Woche | Dokumentenverwaltung Portal-weit |
+| **2.** | Phase 1 | 1 Woche | Shared Infrastructure (Wizard, Export, Dashboard) |
+| **3.** | Phase 6 | 1.5 Wochen | Formulare ausbauen + PDF |
+| **4.** | Phase 2 | 1 Woche | Renditerechner 3-Tier-Ausbau |
+| **5.** | Phase 3 | 2 Wochen | BK-Abrechnung mit vollstaendiger Umlageerkennung |
+| *extern* | Phase 5 | 1.5 Wochen | Zaehler-Modul inkl. OCR (eigener Agent/Repo) |
 
 ### Top-5 Mehrwert-Transfers
 
