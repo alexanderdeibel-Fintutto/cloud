@@ -195,22 +195,23 @@ export class WordPressClient {
     slug: string
     status?: string
   }): Promise<{ id: number; title: string; slug: string }> {
-    try {
-      return await this.request('POST', '/wp/v2/forums', {
-        ...data,
-        status: data.status ?? 'publish',
-      })
-    } catch {
-      // Fallback: bbPress custom endpoint
-      return this.request('POST', '/bgblog/v1/forum', data)
-    }
+    return this.request('POST', '/wp/v2/forums', {
+      ...data,
+      status: data.status ?? 'publish',
+    })
   }
 
   async getForums(): Promise<Array<{ id: number; title: string; slug: string }>> {
+    return this.request('GET', '/wp/v2/forums?per_page=100')
+  }
+
+  /** Prüft ob der bbPress REST API Endpoint erreichbar ist */
+  async checkBbpressRest(): Promise<{ available: boolean; error?: string }> {
     try {
-      return await this.request('GET', '/bgblog/v1/forums')
-    } catch {
-      return this.request('GET', '/wp/v2/forums')
+      await this.request('GET', '/wp/v2/forums?per_page=1')
+      return { available: true }
+    } catch (err) {
+      return { available: false, error: err instanceof Error ? err.message : String(err) }
     }
   }
 

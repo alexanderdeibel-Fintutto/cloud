@@ -328,31 +328,118 @@ async function main() {
         await wp.testConnection()
         console.log('✓ Verbunden\n')
 
-        // Prüfe ob bbPress verfügbar ist
-        let bbpressAvailable = false
-        try {
-          await wp.getForums()
-          bbpressAvailable = true
-        } catch {
-          // Versuche auch den WP REST endpoint
-          try {
-            await wp.getForums()
-          } catch {
-            bbpressAvailable = false
-          }
-        }
+        // Prüfe ob bbPress REST API verfügbar ist
+        console.log('  Prüfe bbPress REST API...')
+        const check = await wp.checkBbpressRest()
 
-        if (!bbpressAvailable) {
-          console.log('  ✗ bbPress ist nicht installiert oder aktiviert!')
+        if (!check.available) {
+          console.log(`  ✗ bbPress REST API nicht erreichbar: ${check.error}\n`)
+          console.log('  bbPress ist installiert, aber die REST API ist nicht aktiv.')
+          console.log('  Das ist bei vielen bbPress-Versionen Standard.\n')
+          console.log('  ── Lösung: mu-plugin installieren ──\n')
+          console.log('  1. Erstelle die Datei: wp-content/mu-plugins/bbpress-rest-forums.php')
+          console.log('  2. Inhalt (per FTP/SSH/Dateimanager hochladen):\n')
+          // Generiere mu-plugin PHP Code
+          const forumsPhp = [
+            { title: 'Hilfe zum Bescheid', slug: 'hilfe-bescheid', content: 'Du hast einen Bescheid bekommen und verstehst ihn nicht? Hier helfen wir dir, ihn zu verstehen.' },
+            { title: 'Widerspruch', slug: 'widerspruch', content: 'Alles rund um Widersprüche gegen Jobcenter-Bescheide. Tipps, Vorlagen und Erfahrungen.' },
+            { title: 'Sanktionen', slug: 'sanktionen', content: 'Sanktioniert worden? Hier tauschen wir uns über Sanktionen und Gegenmaßnahmen aus.' },
+            { title: 'KdU & Miete', slug: 'kdu-miete', content: 'Kosten der Unterkunft, Mietobergrenzen, Umzug – alles zum Thema Wohnen mit Bürgergeld.' },
+            { title: 'Zuverdienst & Einkommen', slug: 'zuverdienst-einkommen', content: 'Minijob, Nebenverdienst, Freibeträge – was wird angerechnet, was darf man behalten?' },
+            { title: 'Erfolge', slug: 'erfolge', content: 'Widerspruch gewonnen? Nachzahlung bekommen? Teile deine Erfolge mit der Community!' },
+            { title: 'Dampf ablassen', slug: 'auskotzen', content: 'Manchmal muss man einfach mal Frust loswerden. Hier ist Platz dafür.' },
+            { title: 'Allgemeines', slug: 'allgemeines', content: 'Allgemeine Diskussionen rund um Bürgergeld, Jobcenter und alles was sonst noch wichtig ist.' },
+          ]
+
+          const phpCode = `<?php
+/**
+ * Plugin Name: bbPress Forum Setup + REST API
+ * Description: Erstellt Forums und aktiviert bbPress REST API Endpoints
+ */
+
+// bbPress REST API für Forums, Topics, Replies aktivieren
+add_filter('bbp_register_forum_post_type', function($args) {
+    $args['show_in_rest'] = true;
+    $args['rest_base'] = 'forums';
+    return $args;
+});
+add_filter('bbp_register_topic_post_type', function($args) {
+    $args['show_in_rest'] = true;
+    $args['rest_base'] = 'topics';
+    return $args;
+});
+add_filter('bbp_register_reply_post_type', function($args) {
+    $args['show_in_rest'] = true;
+    $args['rest_base'] = 'replies';
+    return $args;
+});
+
+// Forums einmalig erstellen (nur beim ersten Laden)
+add_action('init', function() {
+    if (!function_exists('bbp_get_forum_post_type') || get_option('bbpress_forums_created')) return;
+
+    $forums = [
+${forumsPhp.map(f => `        ['title' => '${f.title}', 'slug' => '${f.slug}', 'content' => '${f.content}'],`).join('\n')}
+    ];
+
+    $ids = [];
+    foreach ($forums as $forum) {
+        $existing = get_page_by_path($forum['slug'], OBJECT, bbp_get_forum_post_type());
+        if ($existing) {
+            $ids[$forum['slug']] = $existing->ID;
+            continue;
+        }
+        $id = bbp_insert_forum([
+            'post_title'   => $forum['title'],
+            'post_name'    => $forum['slug'],
+            'post_content' => $forum['content'],
+            'post_status'  => 'publish',
+        ]);
+        if ($id && !is_wp_error($id)) {
+            $ids[$forum['slug']] = $id;
+        }
+    }
+
+    if (count($ids) > 0) {
+        update_option('bbpress_forums_created', $ids);
+    }
+}, 20);
+
+// Admin-Hinweis mit Forum-IDs anzeigen
+add_action('admin_notices', function() {
+    $ids = get_option('bbpress_forums_created');
+    if (!$ids || !is_array($ids)) return;
+    $lines = [];
+    $envMap = [
+        'hilfe-bescheid' => 'FORUM_ID_HILFE_BESCHEID',
+        'widerspruch' => 'FORUM_ID_WIDERSPRUCH',
+        'sanktionen' => 'FORUM_ID_SANKTIONEN',
+        'kdu-miete' => 'FORUM_ID_KDU_MIETE',
+        'zuverdienst-einkommen' => 'FORUM_ID_ZUVERDIENST',
+        'erfolge' => 'FORUM_ID_ERFOLGE',
+        'auskotzen' => 'FORUM_ID_AUSKOTZEN',
+        'allgemeines' => 'FORUM_ID_ALLGEMEINES',
+    ];
+    foreach ($ids as $slug => $id) {
+        $key = isset($envMap[$slug]) ? $envMap[$slug] : strtoupper($slug);
+        $lines[] = "$key=$id";
+    }
+    echo '<div class="notice notice-success"><p><strong>bbPress Forums erstellt!</strong><br><pre>' . implode("\\n", $lines) . '</pre></p></div>';
+});`
+
+          console.log('────────────────────────────────────────────')
+          console.log(phpCode)
+          console.log('────────────────────────────────────────────')
           console.log('')
-          console.log('  So installierst du bbPress:')
-          console.log('  1. Gehe zu: ' + config.wp_base_url + '/wp-admin/plugin-install.php?s=bbpress&tab=search&type=term')
-          console.log('  2. Klicke "Installieren" bei bbPress')
-          console.log('  3. Klicke "Aktivieren"')
-          console.log('  4. Führe dann diesen Befehl erneut aus')
+          console.log('  3. Besuche danach ' + config.wp_base_url + '/wp-admin/')
+          console.log('     → Die Forum-IDs werden als Admin-Hinweis angezeigt')
+          console.log('  4. Trage die IDs in .env ein')
+          console.log('  5. Führe dann nochmal aus: npx tsx server/cli.ts discover-wp')
           console.log('')
           break
         }
+
+        console.log('  ✓ bbPress REST API ist aktiv!\n')
 
         const forumsToCreate = [
           { title: 'Hilfe zum Bescheid', slug: 'hilfe-bescheid', content: 'Du hast einen Bescheid bekommen und verstehst ihn nicht? Hier helfen wir dir, ihn zu verstehen.', envKey: 'FORUM_ID_HILFE_BESCHEID' },
