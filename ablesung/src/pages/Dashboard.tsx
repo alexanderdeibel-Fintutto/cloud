@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Camera, Loader2, Building2, ChevronRight, Gauge, Trash2, BarChart3, FileText, Lightbulb, Sun, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plus, Camera, Loader2, Building2, ChevronRight, Gauge, Trash2, BarChart3, FileText, Lightbulb, Sun, AlertTriangle, CheckCircle2, Bell, Calculator, Calendar, ListChecks, Thermometer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -266,6 +266,10 @@ export default function Dashboard() {
             { href: '/contracts', icon: FileText, label: 'Verträge', color: 'text-purple-500' },
             { href: '/savings', icon: Lightbulb, label: 'Sparen', color: 'text-amber-500' },
             { href: '/solar', icon: Sun, label: 'Solar', color: 'text-yellow-500' },
+            { href: '/alerts', icon: Bell, label: 'Alerts', color: 'text-red-500' },
+            { href: '/tariffs', icon: Calculator, label: 'Tarife', color: 'text-indigo-500' },
+            { href: '/schedule', icon: Calendar, label: 'Ableseplan', color: 'text-teal-500' },
+            { href: '/batch-scan', icon: ListChecks, label: 'Batch', color: 'text-orange-500' },
           ].map(({ href, icon: Icon, label, color }) => (
             <motion.div key={href} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Card

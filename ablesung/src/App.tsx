@@ -33,6 +33,14 @@ const SolarDashboard = lazy(() => import("./pages/SolarDashboard"));
 const WeatherCorrelation = lazy(() => import("./pages/WeatherCorrelation"));
 const BKIntegration = lazy(() => import("./pages/BKIntegration"));
 
+// Phase B: Core feature pages
+const TariffManager = lazy(() => import("./pages/TariffManager"));
+const HeatPumpDashboard = lazy(() => import("./pages/HeatPumpDashboard"));
+const SmartAlerts = lazy(() => import("./pages/SmartAlerts"));
+const MeterSchedule = lazy(() => import("./pages/MeterSchedule"));
+const CostCalculation = lazy(() => import("./pages/CostCalculation"));
+const BatchScanner = lazy(() => import("./pages/BatchScanner"));
+
 const queryClient = new QueryClient();
 
 function LoadingFallback() {
@@ -104,6 +112,14 @@ function AppRoutes() {
         <Route path="/solar" element={<ProtectedRoute><SolarDashboard /></ProtectedRoute>} />
         <Route path="/weather" element={<ProtectedRoute><WeatherCorrelation /></ProtectedRoute>} />
         <Route path="/bk-integration" element={<ProtectedRoute><BKIntegration /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase B Feature Pages */}
+        <Route path="/tariffs" element={<ProtectedRoute><TariffManager /></ProtectedRoute>} />
+        <Route path="/heat-pump" element={<ProtectedRoute><HeatPumpDashboard /></ProtectedRoute>} />
+        <Route path="/alerts" element={<ProtectedRoute><SmartAlerts /></ProtectedRoute>} />
+        <Route path="/schedule" element={<ProtectedRoute><MeterSchedule /></ProtectedRoute>} />
+        <Route path="/costs" element={<ProtectedRoute><CostCalculation /></ProtectedRoute>} />
+        <Route path="/batch-scan" element={<ProtectedRoute><BatchScanner /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
