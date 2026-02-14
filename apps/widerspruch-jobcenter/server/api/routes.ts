@@ -95,30 +95,83 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
 
   // ── Personas ──
 
+  const AUTO_WAVES = new Set([undefined, '', 'gruender', 'welle2', 'spaeteinsteiger'])
+
+  function isManualPersona(p: Persona): boolean {
+    return !AUTO_WAVES.has(p.wave)
+  }
+
+  function personaSummary(p: Persona) {
+    return {
+      id: p.id,
+      username: p.username,
+      display_name: p.display_name,
+      wp_user_id: p.wp_user_id,
+      wave: p.wave || 'auto',
+      avatar_color: p.avatar_color,
+      situation: p.profile.situation,
+      ton: p.profile.ton,
+      engagement_style: p.activity.engagement_style,
+      posting_frequency: p.activity.posting_frequency,
+      time_profile: p.activity.time_profile,
+      active_forums: p.activity.active_forums,
+      bescheidboxer_affinity: p.activity.bescheidboxer_affinity,
+      stats: p.stats,
+    }
+  }
+
   router.get('/personas', (req, res) => {
-    const personas = loadPersonas()
+    let personas = loadPersonas()
+
+    // Text search
+    const q = (req.query.q as string || '').toLowerCase().trim()
+    if (q) {
+      personas = personas.filter(p =>
+        p.id.toLowerCase().includes(q) ||
+        p.username.toLowerCase().includes(q) ||
+        p.display_name.toLowerCase().includes(q) ||
+        p.profile.situation.includes(q) ||
+        (p.wave || '').toLowerCase().includes(q)
+      )
+    }
+
+    // Type filter: 'auto' | 'manuell' | 'all'
+    const type = req.query.type as string
+    if (type === 'manuell') {
+      personas = personas.filter(isManualPersona)
+    } else if (type === 'auto') {
+      personas = personas.filter(p => !isManualPersona(p))
+    }
+
+    // Sort
+    const sort = req.query.sort as string
+    if (sort === 'name') {
+      personas.sort((a, b) => a.display_name.localeCompare(b.display_name))
+    } else if (sort === 'bb_desc') {
+      personas.sort((a, b) => b.activity.bescheidboxer_affinity - a.activity.bescheidboxer_affinity)
+    } else if (sort === 'newest') {
+      personas.sort((a, b) => (b.stats.created_at || '').localeCompare(a.stats.created_at || ''))
+    } else if (sort === 'wave') {
+      personas.sort((a, b) => (a.wave || '').localeCompare(b.wave || ''))
+    }
+    // default: original order (by id)
+
+    // Count totals before pagination (for filter counts in UI)
+    const allPersonas = loadPersonas()
+    const countAuto = allPersonas.filter(p => !isManualPersona(p)).length
+    const countManuell = allPersonas.filter(isManualPersona).length
+
     const page = parseInt(req.query.page as string) || 1
     const perPage = parseInt(req.query.per_page as string) || 50
     const start = (page - 1) * perPage
 
     res.json({
       total: personas.length,
+      total_auto: countAuto,
+      total_manuell: countManuell,
       page,
       per_page: perPage,
-      data: personas.slice(start, start + perPage).map(p => ({
-        id: p.id,
-        username: p.username,
-        display_name: p.display_name,
-        wp_user_id: p.wp_user_id,
-        situation: p.profile.situation,
-        ton: p.profile.ton,
-        engagement_style: p.activity.engagement_style,
-        posting_frequency: p.activity.posting_frequency,
-        time_profile: p.activity.time_profile,
-        active_forums: p.activity.active_forums,
-        bescheidboxer_affinity: p.activity.bescheidboxer_affinity,
-        stats: p.stats,
-      })),
+      data: personas.slice(start, start + perPage).map(personaSummary),
     })
   })
 

@@ -21,8 +21,13 @@ export const api = {
   getConfig: () => apiFetch<any>('/config'),
 
   // Personas
-  getPersonas: (page = 1, perPage = 50) =>
-    apiFetch<any>(`/personas?page=${page}&per_page=${perPage}`),
+  getPersonas: (page = 1, perPage = 50, opts?: { q?: string; type?: string; sort?: string }) => {
+    const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })
+    if (opts?.q) params.set('q', opts.q)
+    if (opts?.type) params.set('type', opts.type)
+    if (opts?.sort) params.set('sort', opts.sort)
+    return apiFetch<any>(`/personas?${params}`)
+  },
   getPersona: (id: string) => apiFetch<any>(`/personas/${id}`),
   searchPersonas: (q: string) => apiFetch<any>(`/personas/search?q=${encodeURIComponent(q)}`),
   createPersona: (data: any) =>
