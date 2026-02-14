@@ -10,6 +10,7 @@ import {
   Settings,
   HelpCircle,
   BarChart3,
+  ArrowLeftRight,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -20,6 +21,7 @@ const navigation = [
   { name: 'Analyse', href: '/analyse', icon: Search },
   { name: 'Fristen', href: '/fristen', icon: Clock },
   { name: 'Einspruch', href: '/einspruch', icon: ShieldAlert },
+  { name: 'Vergleich', href: '/vergleich', icon: ArrowLeftRight },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
   { name: 'Freunde werben', href: '/referral', icon: Users },
   { name: 'Hilfe & Glossar', href: '/hilfe', icon: HelpCircle },

@@ -20,6 +20,7 @@ import ReferralPage from './pages/referral/ReferralPage'
 import EinstellungenPage from './pages/einstellungen/EinstellungenPage'
 import HilfePage from './pages/HilfePage'
 import JahresberichtPage from './pages/JahresberichtPage'
+import VergleichPage from './pages/VergleichPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -59,6 +60,7 @@ function App() {
             <Route path="einstellungen" element={<EinstellungenPage />} />
             <Route path="hilfe" element={<HilfePage />} />
             <Route path="jahresbericht" element={<JahresberichtPage />} />
+            <Route path="vergleich" element={<VergleichPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

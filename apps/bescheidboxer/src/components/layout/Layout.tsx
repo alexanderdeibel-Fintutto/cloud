@@ -5,6 +5,7 @@ import MobileNav from './MobileNav'
 import Onboarding from '../Onboarding'
 import CommandPalette from '../CommandPalette'
 import KeyboardShortcuts from '../KeyboardShortcuts'
+import PageTransition from '../PageTransition'
 
 export default function Layout() {
   return (
@@ -20,7 +21,9 @@ export default function Layout() {
       <div className="flex flex-1">
         <Sidebar />
         <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto pb-20 md:pb-8">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
       </div>
       <MobileNav />

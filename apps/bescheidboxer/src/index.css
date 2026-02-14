@@ -135,6 +135,31 @@
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  /* Page transition animation */
+  .page-enter {
+    animation: pageEnter 0.25s ease-out;
+  }
+
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Card hover lift effect */
+  .card-hover-lift {
+    @apply transition-all duration-200;
+  }
+
+  .card-hover-lift:hover {
+    @apply shadow-lg -translate-y-0.5;
+  }
 }
 
 /* Focus visible for keyboard accessibility */

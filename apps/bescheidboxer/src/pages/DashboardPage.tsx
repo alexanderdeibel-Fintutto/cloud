@@ -30,6 +30,8 @@ import { DashboardSkeleton } from '../components/LoadingSkeleton'
 import DeadlineBanner from '../components/DeadlineBanner'
 import SteuerTipps from '../components/SteuerTipps'
 import { useAnimatedCounter } from '../hooks/use-animated-counter'
+import AktivitaetsProtokoll from '../components/AktivitaetsProtokoll'
+import FortschrittsRing from '../components/FortschrittsRing'
 import { BESCHEID_STATUS_LABELS, BESCHEID_TYP_LABELS } from '../types/bescheid'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -339,6 +341,29 @@ export default function DashboardPage() {
                 )
               })}
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Activity Log & Progress */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Aktivitaeten</CardTitle>
+            <CardDescription>Letzte Ereignisse und Aenderungen</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AktivitaetsProtokoll maxItems={6} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Ihr Fortschritt</CardTitle>
+            <CardDescription>Wie weit sind Sie?</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FortschrittsRing size={120} strokeWidth={8} />
           </CardContent>
         </Card>
       </div>
