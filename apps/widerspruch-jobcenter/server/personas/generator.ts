@@ -162,6 +162,20 @@ function weightedPick(weights: [string, number][], rng: () => number): string {
   return weights[0][0]
 }
 
+function sanitizeForEmail(s: string): string {
+  const map: Record<string, string> = {
+    'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss',
+    'Ä': 'Ae', 'Ö': 'Oe', 'Ü': 'Ue',
+    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+    'á': 'a', 'à': 'a', 'â': 'a',
+    'ó': 'o', 'ò': 'o', 'ô': 'o',
+    'ú': 'u', 'ù': 'u', 'û': 'u',
+    'í': 'i', 'ì': 'i', 'î': 'i',
+    'ñ': 'n', 'ç': 'c',
+  }
+  return s.replace(/[^\x00-\x7F]/g, ch => map[ch] || '')
+}
+
 function generateUsername(
   vorname: string,
   nachname: string,
@@ -542,7 +556,7 @@ export function generatePersonas(opts: GenerateOptions = {}): Persona[] {
       id,
       wp_user_id: null,
       username,
-      email: `${username}@buergergeld-blog.de`,
+      email: `${sanitizeForEmail(username)}@buergergeld-blog.de`,
       display_name,
       password: generatePassword(rng),
       bio: generateBio(display_name, situation, stadt.name, alter, rng),
