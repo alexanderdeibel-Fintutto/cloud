@@ -10,4 +10,3 @@ export { Calculators } from './Calculators'
 export { Settings } from './Settings'
 export { URLManagement } from './URLManagement'
 export { Auth } from './Auth'
-// Domains, DomainDetail, LinkChecker are lazy-loaded in App.tsx
