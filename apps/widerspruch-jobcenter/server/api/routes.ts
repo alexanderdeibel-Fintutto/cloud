@@ -292,6 +292,186 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     })
   })
 
+  // ── Manual Posting: Als Persona direkt posten ──
+
+  router.post('/bot/post-as-persona', async (req, res) => {
+    const { persona_id, action_type, content, target } = req.body
+    if (!persona_id || !action_type || !content?.body) {
+      return res.status(400).json({ error: 'persona_id, action_type und content.body sind erforderlich' })
+    }
+
+    const personas = loadPersonas()
+    const persona = personas.find(p => p.id === persona_id)
+    if (!persona) return res.status(404).json({ error: 'Persona nicht gefunden' })
+    if (!persona.wp_user_id) return res.status(400).json({ error: 'Persona hat keine WP-ID. Erst WP-User anlegen.' })
+
+    try {
+      const { WordPressClient } = await import('../wordpress/client')
+      const wp = new WordPressClient(config)
+      let wpId: number | undefined
+
+      const htmlContent = `<p>${content.body.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
+
+      switch (action_type) {
+        case 'blog_post': {
+          const post = await wp.createPost({
+            title: content.title || 'Untitled',
+            content: htmlContent,
+            author: persona.wp_user_id,
+            categories: target?.category_id ? [target.category_id] : undefined,
+          })
+          wpId = post.id
+          break
+        }
+        case 'forum_topic': {
+          const forumWpId = target?.forum_id
+            ? config.forum_ids[target.forum_id as keyof typeof config.forum_ids]
+            : 0
+          if (!forumWpId) return res.status(400).json({ error: `Forum "${target?.forum_id}" nicht konfiguriert` })
+          const topic = await wp.createForumTopic({
+            forum_id: forumWpId,
+            title: content.title || 'Untitled',
+            content: htmlContent,
+            author: persona.wp_user_id,
+          })
+          wpId = topic.id
+          break
+        }
+        case 'blog_comment': {
+          if (!target?.post_id) return res.status(400).json({ error: 'post_id erforderlich für Kommentar' })
+          const comment = await wp.createComment({
+            post: target.post_id,
+            author: persona.wp_user_id,
+            author_name: persona.display_name,
+            author_email: persona.email,
+            content: content.body,
+            parent: target.comment_id || undefined,
+          })
+          wpId = comment.id
+          break
+        }
+        case 'forum_reply': {
+          if (!target?.topic_id) return res.status(400).json({ error: 'topic_id erforderlich für Forum-Reply' })
+          const forumWpId = target?.forum_id
+            ? config.forum_ids[target.forum_id as keyof typeof config.forum_ids]
+            : 0
+          const reply = await wp.createForumReply({
+            topic_id: target.topic_id,
+            forum_id: forumWpId || 0,
+            content: content.body,
+            author: persona.wp_user_id,
+          })
+          wpId = reply.id
+          break
+        }
+        default:
+          return res.status(400).json({ error: `Unbekannter action_type: ${action_type}` })
+      }
+
+      res.json({
+        message: `${action_type} als ${persona.display_name} gepostet`,
+        wp_id: wpId,
+        persona_id,
+      })
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
+    }
+  })
+
+  // ── Bulk Update: BB-Affinität für alle Personas ändern ──
+
+  router.put('/personas/bulk-update', (req, res) => {
+    const { bescheidboxer_affinity, filter } = req.body
+    const personas = loadPersonas()
+    let updated = 0
+
+    for (const p of personas) {
+      // Optional filtern nach wave, situation, etc.
+      if (filter?.wave && p.wave !== filter.wave) continue
+      if (filter?.situation && p.profile.situation !== filter.situation) continue
+
+      if (bescheidboxer_affinity !== undefined) {
+        p.activity.bescheidboxer_affinity = bescheidboxer_affinity
+      }
+      updated++
+    }
+
+    savePersonas(personas)
+    res.json({ message: `${updated} Personas aktualisiert`, updated })
+  })
+
+  // ── BB-Affinität Statistik ──
+
+  router.get('/personas/bb-stats', (_req, res) => {
+    const personas = loadPersonas()
+    const affinities = personas.map(p => p.activity.bescheidboxer_affinity)
+    const distribution = {
+      null_pct: affinities.filter(a => a === 0).length,
+      low: affinities.filter(a => a > 0 && a <= 0.1).length,
+      medium: affinities.filter(a => a > 0.1 && a <= 0.3).length,
+      high: affinities.filter(a => a > 0.3).length,
+    }
+    res.json({
+      total: personas.length,
+      avg: average(affinities),
+      distribution,
+      globalMentionRate: config.bescheidboxer_mention_rate,
+    })
+  })
+
+  // ── WP Posts/Topics auslesen (für Kommentare/Replies) ──
+
+  router.get('/wp/posts', async (_req, res) => {
+    try {
+      const { WordPressClient } = await import('../wordpress/client')
+      const wp = new WordPressClient(config)
+      const posts = await wp.getRecentPosts(50)
+      res.json(posts)
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
+    }
+  })
+
+  router.get('/wp/topics', async (req, res) => {
+    try {
+      const { WordPressClient } = await import('../wordpress/client')
+      const wp = new WordPressClient(config)
+      const forumId = req.query.forum_id
+        ? config.forum_ids[req.query.forum_id as keyof typeof config.forum_ids]
+        : undefined
+      const topics = await wp.getForumTopics(forumId, 50)
+      res.json(topics)
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
+    }
+  })
+
+  // ── Persona Suche (für Compose-Tool) ──
+
+  router.get('/personas/search', (req, res) => {
+    const q = (req.query.q as string || '').toLowerCase()
+    const personas = loadPersonas()
+    const results = personas
+      .filter(p =>
+        p.id.includes(q) ||
+        p.username.toLowerCase().includes(q) ||
+        p.display_name.toLowerCase().includes(q) ||
+        p.profile.situation.includes(q)
+      )
+      .slice(0, 20)
+      .map(p => ({
+        id: p.id,
+        username: p.username,
+        display_name: p.display_name,
+        wp_user_id: p.wp_user_id,
+        situation: p.profile.situation,
+        ton: p.profile.ton,
+        avatar_color: p.avatar_color,
+        bescheidboxer_affinity: p.activity.bescheidboxer_affinity,
+      }))
+    res.json(results)
+  })
+
   return router
 }
 

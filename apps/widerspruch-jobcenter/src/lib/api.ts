@@ -24,6 +24,7 @@ export const api = {
   getPersonas: (page = 1, perPage = 50) =>
     apiFetch<any>(`/personas?page=${page}&per_page=${perPage}`),
   getPersona: (id: string) => apiFetch<any>(`/personas/${id}`),
+  searchPersonas: (q: string) => apiFetch<any>(`/personas/search?q=${encodeURIComponent(q)}`),
   createPersona: (data: any) =>
     apiFetch<any>('/personas', {
       method: 'POST',
@@ -41,6 +42,12 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ count, seed }),
     }),
+  bulkUpdatePersonas: (data: any) =>
+    apiFetch<any>('/personas/bulk-update', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  getBbStats: () => apiFetch<any>('/personas/bb-stats'),
 
   // Schedule
   getSchedule: () => apiFetch<any>('/schedule'),
@@ -53,6 +60,22 @@ export const api = {
   stopBot: () => apiFetch<any>('/bot/stop', { method: 'POST' }),
   setupWpUsers: () => apiFetch<any>('/bot/setup-wp-users', { method: 'POST' }),
   getWpSetupProgress: () => apiFetch<any>('/bot/setup-wp-users/progress'),
+
+  // Manual Posting
+  postAsPersona: (data: {
+    persona_id: string
+    action_type: string
+    content: { title?: string; body: string }
+    target?: { forum_id?: string; post_id?: number; topic_id?: number; comment_id?: number; category_id?: number }
+  }) => apiFetch<any>('/bot/post-as-persona', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  // WordPress Content
+  getWpPosts: () => apiFetch<any>('/wp/posts'),
+  getWpTopics: (forumId?: string) =>
+    apiFetch<any>(`/wp/topics${forumId ? `?forum_id=${forumId}` : ''}`),
 
   // Activity
   getActivity: (limit = 100) => apiFetch<any>(`/activity?limit=${limit}`),
