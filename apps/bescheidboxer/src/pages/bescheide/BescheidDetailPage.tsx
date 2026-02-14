@@ -168,7 +168,7 @@ export default function BescheidDetailPage() {
                   <div className="flex items-center justify-between py-2">
                     <span className="text-muted-foreground">Abweichung</span>
                     <div className="text-right">
-                      <span className={`text-xl font-bold ${bescheid.abweichung > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                      <span className={`text-xl font-bold ${bescheid.abweichung > 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}>
                         {bescheid.abweichung > 0 ? '+' : ''}{formatCurrency(bescheid.abweichung)}
                       </span>
                       {bescheid.abweichungProzent !== null && (
@@ -192,9 +192,9 @@ export default function BescheidDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className={`rounded-lg p-4 ${
-                  pruefung.empfehlung === 'einspruch' ? 'bg-red-50 border border-red-200' :
-                  pruefung.empfehlung === 'pruefen' ? 'bg-amber-50 border border-amber-200' :
-                  'bg-green-50 border border-green-200'
+                  pruefung.empfehlung === 'einspruch' ? 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800' :
+                  pruefung.empfehlung === 'pruefen' ? 'bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800' :
+                  'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
                 }`}>
                   <div className="flex items-center gap-2 mb-2">
                     {pruefung.empfehlung === 'einspruch' ? (
@@ -325,14 +325,14 @@ export default function BescheidDetailPage() {
 
           {/* Einsparpotenzial */}
           {pruefung && pruefung.einsparpotenzial > 0 && (
-            <Card className="border-green-200 bg-green-50/50">
+            <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/50">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-sm text-green-700 mb-1">Einsparpotenzial</p>
-                  <p className="text-3xl font-bold text-green-700">
+                  <p className="text-sm text-green-700 dark:text-green-300 mb-1">Einsparpotenzial</p>
+                  <p className="text-3xl font-bold text-green-700 dark:text-green-300">
                     {formatCurrency(pruefung.einsparpotenzial)}
                   </p>
-                  <p className="text-xs text-green-600 mt-2">
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-2">
                     Durch Einspruch moeglicherweise zurueckholbar
                   </p>
                 </div>

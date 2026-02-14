@@ -21,6 +21,7 @@ import EinstellungenPage from './pages/einstellungen/EinstellungenPage'
 import HilfePage from './pages/HilfePage'
 import JahresberichtPage from './pages/JahresberichtPage'
 import VergleichPage from './pages/VergleichPage'
+import KalenderPage from './pages/KalenderPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -61,6 +62,7 @@ function App() {
             <Route path="hilfe" element={<HilfePage />} />
             <Route path="jahresbericht" element={<JahresberichtPage />} />
             <Route path="vergleich" element={<VergleichPage />} />
+            <Route path="kalender" element={<KalenderPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

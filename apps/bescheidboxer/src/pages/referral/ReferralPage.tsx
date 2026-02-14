@@ -28,8 +28,8 @@ export default function ReferralPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="stat-card stat-card-blue">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-fintutto-blue-100 p-2">
-              <Users className="h-5 w-5 text-fintutto-blue-600" />
+            <div className="rounded-lg bg-fintutto-blue-100 dark:bg-fintutto-blue-900/40 p-2">
+              <Users className="h-5 w-5 text-fintutto-blue-600 dark:text-fintutto-blue-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.totalInvites}</p>
@@ -40,8 +40,8 @@ export default function ReferralPage() {
 
         <div className="stat-card stat-card-green">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-green-100 p-2">
-              <UserPlus className="h-5 w-5 text-green-600" />
+            <div className="rounded-lg bg-green-100 dark:bg-green-900/40 p-2">
+              <UserPlus className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.registered}</p>
@@ -52,8 +52,8 @@ export default function ReferralPage() {
 
         <div className="stat-card stat-card-orange">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-amber-100 p-2">
-              <Star className="h-5 w-5 text-amber-600" />
+            <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2">
+              <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.converted}</p>
@@ -64,8 +64,8 @@ export default function ReferralPage() {
 
         <div className="stat-card stat-card-green">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-emerald-100 p-2">
-              <Gift className="h-5 w-5 text-emerald-600" />
+            <div className="rounded-lg bg-emerald-100 dark:bg-emerald-900/40 p-2">
+              <Gift className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.creditsEarned}</p>
@@ -134,7 +134,7 @@ export default function ReferralPage() {
       {/* Rewards Info */}
       <Card>
         <CardContent className="pt-6">
-          <div className="rounded-lg bg-gradient-to-r from-fintutto-blue-100/50 to-emerald-100/50 border border-fintutto-blue-200/50 p-4">
+          <div className="rounded-lg bg-gradient-to-r from-fintutto-blue-100/50 to-emerald-100/50 dark:from-fintutto-blue-900/30 dark:to-emerald-900/30 border border-fintutto-blue-200/50 dark:border-fintutto-blue-800/50 p-4">
             <h4 className="font-semibold mb-2">Belohnungen</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">

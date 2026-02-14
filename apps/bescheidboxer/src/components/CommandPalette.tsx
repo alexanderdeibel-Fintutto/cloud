@@ -16,6 +16,7 @@ import {
   Download,
   BarChart3,
   ArrowLeftRight,
+  CalendarDays,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -60,6 +61,7 @@ export default function CommandPalette() {
     { id: 'nav-upload', label: 'Bescheid hochladen', description: 'Neuen Bescheid hochladen', icon: Upload, category: 'navigation', keywords: ['neu', 'pdf', 'foto', 'dokument'], action: () => runAndClose(() => navigate('/upload')) },
     { id: 'nav-analyse', label: 'Analyse', description: 'Bescheid pruefen lassen', icon: Search, category: 'navigation', keywords: ['ki', 'pruefen', 'check'], action: () => runAndClose(() => navigate('/analyse')) },
     { id: 'nav-fristen', label: 'Fristen', description: 'Fristen & Termine', icon: Clock, category: 'navigation', keywords: ['termin', 'deadline', 'ablauf'], action: () => runAndClose(() => navigate('/fristen')) },
+    { id: 'nav-kalender', label: 'Steuer-Kalender', description: 'Kalenderansicht fuer Fristen', icon: CalendarDays, category: 'navigation', keywords: ['kalender', 'monat', 'termin', 'calendar'], action: () => runAndClose(() => navigate('/kalender')) },
     { id: 'nav-einspruch', label: 'Einspruch', description: 'Einsprueche verwalten', icon: ShieldAlert, category: 'navigation', keywords: ['widerspruch', 'beschwerde'], action: () => runAndClose(() => navigate('/einspruch')) },
     { id: 'nav-referral', label: 'Freunde werben', description: 'Referral-Programm', icon: Users, category: 'navigation', keywords: ['empfehlung', 'werben', 'bonus'], action: () => runAndClose(() => navigate('/referral')) },
     { id: 'nav-hilfe', label: 'Hilfe & Glossar', description: 'Steuer-Begriffe erklaert', icon: HelpCircle, category: 'navigation', keywords: ['faq', 'glossar', 'hilfe', 'erklaerung'], action: () => runAndClose(() => navigate('/hilfe')) },

@@ -106,8 +106,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div className="stat-card stat-card-blue">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-fintutto-blue-100 p-2">
-              <FileText className="h-5 w-5 text-fintutto-blue-600" />
+            <div className="rounded-lg bg-fintutto-blue-100 dark:bg-fintutto-blue-900/40 p-2">
+              <FileText className="h-5 w-5 text-fintutto-blue-600 dark:text-fintutto-blue-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{animBescheide}</p>
@@ -118,8 +118,8 @@ export default function DashboardPage() {
 
         <div className="stat-card stat-card-orange">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-orange-100 p-2">
-              <Search className="h-5 w-5 text-orange-600" />
+            <div className="rounded-lg bg-orange-100 dark:bg-orange-900/40 p-2">
+              <Search className="h-5 w-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{animOffen}</p>
@@ -130,8 +130,8 @@ export default function DashboardPage() {
 
         <div className="stat-card stat-card-red">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-red-100 p-2">
-              <ShieldAlert className="h-5 w-5 text-red-600" />
+            <div className="rounded-lg bg-red-100 dark:bg-red-900/40 p-2">
+              <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{animEinsprueche}</p>
@@ -142,8 +142,8 @@ export default function DashboardPage() {
 
         <div className="stat-card stat-card-green">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-green-100 p-2">
-              <TrendingDown className="h-5 w-5 text-green-600" />
+            <div className="rounded-lg bg-green-100 dark:bg-green-900/40 p-2">
+              <TrendingDown className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{formatCurrency(stats.einsparpotenzial)}</p>
@@ -154,8 +154,8 @@ export default function DashboardPage() {
 
         <div className="stat-card stat-card-orange">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-amber-100 p-2">
-              <Clock className="h-5 w-5 text-amber-600" />
+            <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2">
+              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{animFristen}</p>
@@ -166,8 +166,8 @@ export default function DashboardPage() {
 
         <div className="stat-card stat-card-blue">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-fintutto-blue-100 p-2">
-              <AlertTriangle className="h-5 w-5 text-fintutto-blue-600" />
+            <div className="rounded-lg bg-fintutto-blue-100 dark:bg-fintutto-blue-900/40 p-2">
+              <AlertTriangle className="h-5 w-5 text-fintutto-blue-600 dark:text-fintutto-blue-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{animAbweichungen}</p>
@@ -319,8 +319,8 @@ export default function DashboardPage() {
                     key={frist.id}
                     className="flex items-start gap-3 rounded-lg border border-border p-3"
                   >
-                    <div className={`mt-0.5 rounded-full p-1.5 ${isOverdue ? 'bg-red-100' : isUrgent ? 'bg-amber-100' : 'bg-muted'}`}>
-                      <Clock className={`h-3 w-3 ${isOverdue ? 'text-red-600' : isUrgent ? 'text-amber-600' : 'text-muted-foreground'}`} />
+                    <div className={`mt-0.5 rounded-full p-1.5 ${isOverdue ? 'bg-red-100 dark:bg-red-900/40' : isUrgent ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-muted'}`}>
+                      <Clock className={`h-3 w-3 ${isOverdue ? 'text-red-600 dark:text-red-400' : isUrgent ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{frist.bescheidTitel}</p>
@@ -377,8 +377,8 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link to="/upload">
               <div className="flex items-center gap-3 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                <div className="rounded-lg bg-fintutto-blue-100 p-2">
-                  <Upload className="h-5 w-5 text-fintutto-blue-600" />
+                <div className="rounded-lg bg-fintutto-blue-100 dark:bg-fintutto-blue-900/40 p-2">
+                  <Upload className="h-5 w-5 text-fintutto-blue-600 dark:text-fintutto-blue-400" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">Bescheid hochladen</p>
@@ -388,8 +388,8 @@ export default function DashboardPage() {
             </Link>
             <Link to="/analyse">
               <div className="flex items-center gap-3 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                <div className="rounded-lg bg-purple-100 p-2">
-                  <Search className="h-5 w-5 text-purple-600" />
+                <div className="rounded-lg bg-purple-100 dark:bg-purple-900/40 p-2">
+                  <Search className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">Bescheid pruefen</p>
@@ -399,8 +399,8 @@ export default function DashboardPage() {
             </Link>
             <Link to="/einspruch">
               <div className="flex items-center gap-3 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                <div className="rounded-lg bg-red-100 p-2">
-                  <ShieldAlert className="h-5 w-5 text-red-600" />
+                <div className="rounded-lg bg-red-100 dark:bg-red-900/40 p-2">
+                  <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">Einspruch erstellen</p>
@@ -410,8 +410,8 @@ export default function DashboardPage() {
             </Link>
             <Link to="/fristen">
               <div className="flex items-center gap-3 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                <div className="rounded-lg bg-amber-100 p-2">
-                  <Clock className="h-5 w-5 text-amber-600" />
+                <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2">
+                  <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">Fristen verwalten</p>

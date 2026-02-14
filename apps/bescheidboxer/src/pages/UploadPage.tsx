@@ -399,9 +399,9 @@ export default function UploadPage() {
               </div>
             </div>
 
-            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-              <p className="text-sm text-amber-800">
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-3 flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
                 Die erkannten Daten wurden automatisch eingetragen. Bitte ueberpruefen Sie die Angaben
                 und korrigieren Sie diese bei Bedarf.
               </p>
@@ -424,8 +424,8 @@ export default function UploadPage() {
       {step === 'complete' && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="rounded-full bg-green-100 p-4 mb-4">
-              <CheckCircle2 className="h-12 w-12 text-green-600" />
+            <div className="rounded-full bg-green-100 dark:bg-green-900/40 p-4 mb-4">
+              <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Erfolgreich hochgeladen!</h2>
             <p className="text-muted-foreground text-center mb-6 max-w-md">

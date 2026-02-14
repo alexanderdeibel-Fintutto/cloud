@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   Search,
@@ -8,7 +8,17 @@ import {
   TrendingDown,
   ArrowLeft,
   FileText,
+  BarChart3,
 } from 'lucide-react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -16,6 +26,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { formatCurrency } from '../../lib/utils'
 import { useBescheidContext } from '../../contexts/BescheidContext'
 import type { Abweichung } from '../../types/bescheid'
+
+const KATEGORIE_LABELS: Record<string, string> = {
+  werbungskosten: 'Werbungskosten',
+  sonderausgaben: 'Sonderausgaben',
+  aussergewoehnliche_belastungen: 'Aussergew. Belastungen',
+  vorsorgeaufwendungen: 'Vorsorgeaufwendungen',
+  einkuenfte: 'Einkuenfte',
+  freibetraege: 'Freibetraege',
+  sonstige: 'Sonstige',
+}
+
+const KATEGORIE_COLORS: Record<string, string> = {
+  werbungskosten: '#3b82f6',
+  sonderausgaben: '#8b5cf6',
+  aussergewoehnliche_belastungen: '#ec4899',
+  vorsorgeaufwendungen: '#06b6d4',
+  einkuenfte: '#f59e0b',
+  freibetraege: '#22c55e',
+  sonstige: '#6b7280',
+}
 
 export default function AnalysePage() {
   const { id } = useParams()
@@ -133,8 +163,8 @@ export default function AnalysePage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-red-100 p-2">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div className="rounded-lg bg-red-100 dark:bg-red-900/40 p-2">
+                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Abweichung</p>
@@ -149,12 +179,12 @@ export default function AnalysePage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-green-100 p-2">
-                <TrendingDown className="h-5 w-5 text-green-600" />
+              <div className="rounded-lg bg-green-100 dark:bg-green-900/40 p-2">
+                <TrendingDown className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Einsparpotenzial</p>
-                <p className="text-xl font-bold text-green-600">
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">
                   {pruefung ? formatCurrency(pruefung.einsparpotenzial) : '-'}
                 </p>
               </div>
@@ -171,6 +201,7 @@ export default function AnalysePage() {
               Abweichungen ({pruefung.abweichungen.length})
             </TabsTrigger>
             <TabsTrigger value="vergleich">Vergleich</TabsTrigger>
+            <TabsTrigger value="kategorien">Kategorien</TabsTrigger>
           </TabsList>
 
           <TabsContent value="zusammenfassung" className="space-y-4">
@@ -178,9 +209,9 @@ export default function AnalysePage() {
             <Card>
               <CardContent className="pt-6">
                 <div className={`rounded-lg p-4 ${
-                  pruefung.empfehlung === 'einspruch' ? 'bg-red-50 border border-red-200' :
-                  pruefung.empfehlung === 'pruefen' ? 'bg-amber-50 border border-amber-200' :
-                  'bg-green-50 border border-green-200'
+                  pruefung.empfehlung === 'einspruch' ? 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800' :
+                  pruefung.empfehlung === 'pruefen' ? 'bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800' :
+                  'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
                 }`}>
                   <div className="flex items-center gap-2 mb-2">
                     {pruefung.empfehlung === 'einspruch' ? (
@@ -191,9 +222,9 @@ export default function AnalysePage() {
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     )}
                     <h3 className={`font-semibold ${
-                      pruefung.empfehlung === 'einspruch' ? 'text-red-800' :
-                      pruefung.empfehlung === 'pruefen' ? 'text-amber-800' :
-                      'text-green-800'
+                      pruefung.empfehlung === 'einspruch' ? 'text-red-800 dark:text-red-200' :
+                      pruefung.empfehlung === 'pruefen' ? 'text-amber-800 dark:text-amber-200' :
+                      'text-green-800 dark:text-green-200'
                     }`}>
                       Empfehlung: {
                         pruefung.empfehlung === 'einspruch' ? 'Einspruch einlegen' :
@@ -203,9 +234,9 @@ export default function AnalysePage() {
                     </h3>
                   </div>
                   <p className={`text-sm ${
-                    pruefung.empfehlung === 'einspruch' ? 'text-red-700' :
-                    pruefung.empfehlung === 'pruefen' ? 'text-amber-700' :
-                    'text-green-700'
+                    pruefung.empfehlung === 'einspruch' ? 'text-red-700 dark:text-red-300' :
+                    pruefung.empfehlung === 'pruefen' ? 'text-amber-700 dark:text-amber-300' :
+                    'text-green-700 dark:text-green-300'
                   }`}>
                     {pruefung.zusammenfassung}
                   </p>
@@ -283,6 +314,10 @@ export default function AnalysePage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="kategorien" className="space-y-4">
+            <KategorienAnalyse abweichungen={pruefung.abweichungen} />
+          </TabsContent>
         </Tabs>
       ) : (
         <Card>
@@ -351,4 +386,165 @@ function SchwereGradIcon({ schweregrad }: { schweregrad: string }) {
   if (schweregrad === 'kritisch') return <AlertTriangle className="h-4 w-4 text-red-500" />
   if (schweregrad === 'warnung') return <AlertTriangle className="h-4 w-4 text-amber-500" />
   return <Info className="h-4 w-4 text-blue-500" />
+}
+
+function KategorienAnalyse({ abweichungen }: { abweichungen: Abweichung[] }) {
+  const categoryData = useMemo(() => {
+    const map: Record<string, { kategorie: string; label: string; differenz: number; count: number; color: string }> = {}
+
+    for (const abw of abweichungen) {
+      if (!map[abw.kategorie]) {
+        map[abw.kategorie] = {
+          kategorie: abw.kategorie,
+          label: KATEGORIE_LABELS[abw.kategorie] || abw.kategorie,
+          differenz: 0,
+          count: 0,
+          color: KATEGORIE_COLORS[abw.kategorie] || '#6b7280',
+        }
+      }
+      map[abw.kategorie].differenz += Math.abs(abw.differenz)
+      map[abw.kategorie].count++
+    }
+
+    return Object.values(map).sort((a, b) => b.differenz - a.differenz)
+  }, [abweichungen])
+
+  const severityData = useMemo(() => {
+    const counts = { kritisch: 0, warnung: 0, info: 0 }
+    for (const abw of abweichungen) {
+      counts[abw.schweregrad]++
+    }
+    return [
+      { label: 'Kritisch', count: counts.kritisch, color: '#ef4444', pct: abweichungen.length > 0 ? (counts.kritisch / abweichungen.length) * 100 : 0 },
+      { label: 'Warnung', count: counts.warnung, color: '#f59e0b', pct: abweichungen.length > 0 ? (counts.warnung / abweichungen.length) * 100 : 0 },
+      { label: 'Info', count: counts.info, color: '#3b82f6', pct: abweichungen.length > 0 ? (counts.info / abweichungen.length) * 100 : 0 },
+    ]
+  }, [abweichungen])
+
+  if (abweichungen.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
+          <h3 className="text-lg font-semibold mb-1">Keine Abweichungen</h3>
+          <p className="text-muted-foreground">Keine Kategorien-Analyse moeglich.</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const maxDiff = Math.max(...categoryData.map(d => d.differenz), 1)
+
+  return (
+    <>
+      {/* Category breakdown with chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Abweichungen nach Kategorie
+            </CardTitle>
+            <CardDescription>Aufschluesselung nach Steuer-Positionen</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={categoryData} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+                  <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} className="text-xs" />
+                  <YAxis type="category" dataKey="label" width={120} className="text-xs" tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(value: number) => [formatCurrency(value), 'Differenz']}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                  />
+                  <Bar dataKey="differenz" radius={[0, 4, 4, 0]}>
+                    {categoryData.map((entry) => (
+                      <Cell key={entry.kategorie} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Schweregrad-Verteilung</CardTitle>
+            <CardDescription>Wie kritisch sind die Abweichungen?</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {severityData.map(item => (
+              <div key={item.label} className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                  <span className="text-muted-foreground">{item.count} ({item.pct.toFixed(0)}%)</span>
+                </div>
+                <div className="h-3 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${item.pct}%`, backgroundColor: item.color }}
+                  />
+                </div>
+              </div>
+            ))}
+
+            <div className="pt-4 border-t space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Gesamt-Abweichungen</span>
+                <span className="font-bold">{abweichungen.length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Betroffene Kategorien</span>
+                <span className="font-bold">{categoryData.length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Groesste Abweichung</span>
+                <span className="font-bold text-destructive">
+                  {formatCurrency(Math.max(...abweichungen.map(a => Math.abs(a.differenz))))}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Category detail cards */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Kategorien im Detail</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {categoryData.map(cat => (
+              <div key={cat.kategorie} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                    <span className="text-sm font-medium">{cat.label}</span>
+                    <Badge variant="secondary" className="text-[10px]">
+                      {cat.count} Abweichung{cat.count > 1 ? 'en' : ''}
+                    </Badge>
+                  </div>
+                  <span className="text-sm font-bold text-destructive">{formatCurrency(cat.differenz)}</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${(cat.differenz / maxDiff) * 100}%`,
+                      backgroundColor: cat.color,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  )
 }

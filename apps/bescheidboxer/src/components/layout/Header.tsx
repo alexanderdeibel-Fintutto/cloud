@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { FileSearch, Menu, X, Bell, ExternalLink, Settings, LogOut, User, Sun, Moon, Search } from 'lucide-react'
+import { FileSearch, Menu, X, ExternalLink, Settings, LogOut, User, Sun, Moon, Search } from 'lucide-react'
 import { Button } from '../ui/button'
-import { Badge } from '../ui/badge'
 import { cn } from '../../lib/utils'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
+import NotificationCenter from '../NotificationCenter'
 
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'https://portal.fintutto.cloud'
 
@@ -108,12 +108,7 @@ export default function Header() {
             {resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
-          <Button variant="ghost" size="icon" className="relative" aria-label="Benachrichtigungen">
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]" variant="destructive">
-              3
-            </Badge>
-          </Button>
+          <NotificationCenter />
 
           {/* User menu (desktop) */}
           <div className="relative hidden md:block">

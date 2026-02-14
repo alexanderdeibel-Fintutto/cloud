@@ -46,7 +46,7 @@ function ComparisonBar({ labelA, labelB, valueA, valueB }: { labelA: string; lab
       </div>
       <div className="flex items-center justify-between text-sm font-medium">
         <span>{formatCurrency(valueA)}</span>
-        <span className={diff > 0 ? 'text-destructive' : diff < 0 ? 'text-green-600' : 'text-muted-foreground'}>
+        <span className={diff > 0 ? 'text-destructive' : diff < 0 ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>
           {diff > 0 ? '+' : ''}{formatCurrency(diff)}
         </span>
         <span>{formatCurrency(valueB)}</span>
@@ -363,7 +363,7 @@ function ComparisonRow({ label, valueA, valueB }: { label: string; valueA: numbe
       <td className="py-3 px-4 text-right font-medium">{formatCurrency(valueB)}</td>
       <td className="py-3 pl-4 text-center">
         <span className={`inline-flex items-center gap-1 text-sm font-medium ${
-          diff > 0 ? 'text-destructive' : diff < 0 ? 'text-green-600' : 'text-muted-foreground'
+          diff > 0 ? 'text-destructive' : diff < 0 ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
         }`}>
           {diff > 0 ? <TrendingUp className="h-3 w-3" /> : diff < 0 ? <TrendingDown className="h-3 w-3" /> : <Equal className="h-3 w-3" />}
           {diff !== 0 ? `${diff > 0 ? '+' : ''}${formatCurrency(diff)}` : '-'}
@@ -385,7 +385,7 @@ function ComparisonVerdict({ bescheidA, bescheidB }: { bescheidA: Bescheid; besc
   if (!hasSignificantDiff) {
     return (
       <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-4">
-        <CheckCircle2 className="h-6 w-6 text-green-600 shrink-0" />
+        <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 shrink-0" />
         <div>
           <h4 className="font-semibold">Bescheide nahezu identisch</h4>
           <p className="text-sm text-muted-foreground">
@@ -414,7 +414,7 @@ function ComparisonVerdict({ bescheidA, bescheidB }: { bescheidA: Bescheid; besc
       </div>
       {(savingsA > 0 || savingsB > 0) && (
         <div className="flex items-center gap-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4">
-          <TrendingDown className="h-6 w-6 text-green-600 shrink-0" />
+          <TrendingDown className="h-6 w-6 text-green-600 dark:text-green-400 shrink-0" />
           <div>
             <h4 className="font-semibold text-green-800 dark:text-green-200">Einsparpotenzial</h4>
             <p className="text-sm text-green-700 dark:text-green-300">

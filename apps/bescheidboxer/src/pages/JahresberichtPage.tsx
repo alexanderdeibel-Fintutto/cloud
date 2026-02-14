@@ -161,7 +161,7 @@ export default function JahresberichtPage() {
               </div>
               <div className={`text-center p-4 rounded-lg ${totalAbweichung > 0 ? 'bg-red-50 dark:bg-red-950' : 'bg-green-50 dark:bg-green-950'}`}>
                 <p className="text-sm text-muted-foreground mb-1">Abweichung</p>
-                <p className={`text-2xl font-bold ${totalAbweichung > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                <p className={`text-2xl font-bold ${totalAbweichung > 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}>
                   {totalAbweichung > 0 ? '+' : ''}{formatCurrency(totalAbweichung)}
                 </p>
               </div>

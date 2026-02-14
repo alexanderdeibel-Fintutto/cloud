@@ -45,8 +45,8 @@ export default function FristenPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="stat-card stat-card-red">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-red-100 p-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+            <div className="rounded-lg bg-red-100 dark:bg-red-900/40 p-2">
+              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{ueberfaellig}</p>
@@ -57,8 +57,8 @@ export default function FristenPage() {
 
         <div className="stat-card stat-card-orange">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-amber-100 p-2">
-              <Clock className="h-5 w-5 text-amber-600" />
+            <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2">
+              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{dringend}</p>
@@ -69,8 +69,8 @@ export default function FristenPage() {
 
         <div className="stat-card stat-card-blue">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-fintutto-blue-100 p-2">
-              <Calendar className="h-5 w-5 text-fintutto-blue-600" />
+            <div className="rounded-lg bg-fintutto-blue-100 dark:bg-fintutto-blue-900/40 p-2">
+              <Calendar className="h-5 w-5 text-fintutto-blue-600 dark:text-fintutto-blue-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{offen}</p>
@@ -143,19 +143,19 @@ function FristCard({ frist, onToggle }: { frist: Frist; onToggle: () => void }) 
   }[frist.typ]
 
   return (
-    <Card className={`transition-colors ${isOverdue ? 'border-red-200 bg-red-50/30' : isUrgent ? 'border-amber-200 bg-amber-50/30' : ''}`}>
+    <Card className={`transition-colors ${isOverdue ? 'border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/30' : isUrgent ? 'border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/30' : ''}`}>
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className={`rounded-lg p-2.5 ${
-              isOverdue ? 'bg-red-100' : isUrgent ? 'bg-amber-100' : frist.erledigt ? 'bg-green-100' : 'bg-muted'
+              isOverdue ? 'bg-red-100 dark:bg-red-900/40' : isUrgent ? 'bg-amber-100 dark:bg-amber-900/40' : frist.erledigt ? 'bg-green-100 dark:bg-green-900/40' : 'bg-muted'
             }`}>
               {frist.erledigt ? (
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
               ) : isOverdue ? (
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               ) : (
-                <Clock className={`h-5 w-5 ${isUrgent ? 'text-amber-600' : 'text-muted-foreground'}`} />
+                <Clock className={`h-5 w-5 ${isUrgent ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`} />
               )}
             </div>
             <div>

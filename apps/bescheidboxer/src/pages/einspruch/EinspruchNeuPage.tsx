@@ -300,7 +300,7 @@ Mit freundlichen Gruessen`
               </Button>
             </div>
 
-            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
               <strong>Hinweis:</strong> Dieser Einspruch wurde KI-gestuetzt generiert. Bitte pruefen Sie
               den Text sorgfaeltig und passen Sie ihn bei Bedarf an. Der Einspruch muss
               fristgerecht beim Finanzamt eingehen.
@@ -313,16 +313,16 @@ Mit freundlichen Gruessen`
       {step === 'complete' && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="rounded-full bg-green-100 p-4 mb-4">
-              <CheckCircle2 className="h-12 w-12 text-green-600" />
+            <div className="rounded-full bg-green-100 dark:bg-green-900/40 p-4 mb-4">
+              <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Einspruch gespeichert!</h2>
             <p className="text-muted-foreground text-center mb-6 max-w-md">
               Ihr Einspruch wurde als Entwurf gespeichert. Vergessen Sie nicht, ihn
               fristgerecht an das Finanzamt zu senden.
             </p>
-            <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 mb-6 max-w-md">
-              <p className="text-sm text-amber-800 text-center">
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-4 mb-6 max-w-md">
+              <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
                 <strong>Einspruchsfrist:</strong> {formatDate(bescheid.einspruchsfrist)}
               </p>
             </div>

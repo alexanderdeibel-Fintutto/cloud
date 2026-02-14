@@ -295,11 +295,11 @@ export default function EinstellungenPage() {
                 </div>
 
                 {profile?.referralCredits != null && profile.referralCredits > 0 && (
-                  <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                    <p className="text-sm font-medium text-green-800">
+                  <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 p-4">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
                       Referral-Credits: {profile.referralCredits}
                     </p>
-                    <p className="text-xs text-green-600 mt-1">
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
                       Zusaetzliche Pruefungen durch Empfehlungen verdient
                     </p>
                   </div>
