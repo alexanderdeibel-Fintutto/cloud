@@ -1,186 +1,167 @@
 ================================================================================
-INTEGRATIONSPLAN: ZAEHLER-APP (ABLESUNG) -- UMBAU & ERWEITERUNG
+BRIEFING: ABLESUNG-APP -- AKTUELLER STAND & ERWEITERUNGSPLAN
 ================================================================================
 
 Stand: 14.02.2026
 Repo:  alexanderdeibel-Fintutto/ablesung
 URL:   ablesung.vercel.app
-Typ:   UMBAU einer bestehenden Lovable-App (KEIN Neubau)
+Typ:   Bestehende Lovable-App -- KEIN Neubau, nur Erweiterung
+
+WICHTIG: Dies ist die EINZIGE Zaehler-App im Fintutto-Oekosystem.
+         Das Repo "ft_ocr_zaehler-base44" ist LEER (nur .gitattributes).
+         Alle geplanten Zaehler-Features muessen in DIESE App.
 
 ================================================================================
-1. AUSGANGSLAGE -- WAS BEREITS EXISTIERT
+1. VOLLSTAENDIGER IST-ZUSTAND DER APP
 ================================================================================
 
-Die App "ablesung" (ehem. leserally-all) ist eine funktionierende Lovable-App,
-optisch finalisiert und auf Vercel deployed. Folgende Features wurden bereits
-ueber Lovable-Prompts (Nr. 18-23) umgesetzt:
+Die Ablesung-App ist eine produktionsreife Lovable-App mit umfangreicher
+Funktionalitaet. Sie ist DEUTLICH weiter als urspruenglich angenommen.
 
-  BEREITS VORHANDEN:
-  +---------------------------------------------------------------------------+
-  | Feature                  | Seite/Komponente              | Status         |
-  +--------------------------+-------------------------------+----------------+
-  | Zaehler-Dashboard        | src/pages/zaehler/index.tsx   | Implementiert  |
-  |   - KPI-Cards (Gesamt, Ablesungen/Monat, Ausstehend, Verbrauch)          |
-  |   - Filter: Typ, Gebaeude, Status                                        |
-  |   - DataTable gruppiert nach Gebaeude                                     |
-  |   - Status-Badges: Aktuell/Faellig/Ueberfaellig                          |
-  |   - Quick-Action "Ablesen"                                                |
-  +--------------------------+-------------------------------+----------------+
-  | Zaehler hinzufuegen      | MeterFormDialog.tsx            | Implementiert  |
-  |   - Gebaeude/Einheit Dropdowns                                            |
-  |   - Zaehlernummer, Typ, Einbaudatum, Eichgueltigkeit                     |
-  |   - Anfangsstand mit auto. erster Ablesung                               |
-  +--------------------------+-------------------------------+----------------+
-  | Zaehler-Detail           | src/pages/zaehler/[id].tsx    | Implementiert  |
-  |   - Zaehler-Info Card + 3 StatCards                                       |
-  |   - Verbrauchschart (AreaChart, 24 Monate)                               |
-  |   - Ablesehistorie mit Verbrauchsberechnung                              |
-  |   - Verbrauchsanalyse (Vorjahresvergleich, Auffaelligkeiten)             |
-  +--------------------------+-------------------------------+----------------+
-  | Schnell-Ablesung         | QuickReadingDialog.tsx         | Implementiert  |
-  |   - Zaehlerinfo-Anzeige                                                   |
-  |   - Stand + Datum Eingabe                                                 |
-  |   - Validierung (>= letzter Stand, Ueberlauf-Option)                     |
-  |   - Foto optional (Kamera + Upload)                                       |
-  |   - Live-Verbrauchsberechnung                                             |
-  +--------------------------+-------------------------------+----------------+
-  | CSV-Import               | CSVImportDialog.tsx            | Implementiert  |
-  |   - Drag & Drop Upload                                                    |
-  |   - Spalten-Mapping                                                        |
-  |   - Validierung + Fehleranzeige                                           |
-  |   - Import mit Progress                                                    |
-  +--------------------------+-------------------------------+----------------+
-  | Verbrauchsauswertung     | src/pages/zaehler/auswertung  | Implementiert  |
-  |   - Filter: Zeitraum, Typ, Gebaeude, Einheit                             |
-  |   - Gesamtverbrauch pro Typ (4 Cards)                                     |
-  |   - LineChart monatlich                                                    |
-  |   - Gebaeude-Vergleich (BarChart, normalisiert/m2)                        |
-  |   - Auffaelligkeiten-Erkennung                                            |
-  +---------------------------------------------------------------------------+
+1.1 ALLE ROUTEN / SEITEN (16 Stueck)
+--------------------------------------
 
-  BESTEHENDE ZAEHLERTYPEN:
-  - Strom  (Icon: Zap,          Einheit: kWh)
-  - Gas    (Icon: Flame,        Einheit: m3)
-  - Wasser (Icon: Droplet,      Einheit: m3)
-  - Heizung(Icon: Thermometer,  Einheit: kWh/MWh)
+  OEFFENTLICH (ohne Login):
+  +---------------------+----------------------+-----------------------------+
+  | Route               | Datei                | Funktion                    |
+  +---------------------+----------------------+-----------------------------+
+  | /landing            | Landing.tsx          | Hero-Seite, Features, CTA   |
+  | /login              | Login.tsx            | Email/Passwort Login        |
+  | /register           | Register.tsx         | Registrierung               |
+  | /forgot-password    | ForgotPassword.tsx   | Passwort zuruecksetzen      |
+  | /                   | Index.tsx            | Willkommensseite            |
+  +---------------------+----------------------+-----------------------------+
 
-  BESTEHENDE ROUTEN:
-  - /zaehler              Dashboard
-  - /zaehler/:id          Detail-Ansicht
-  - /zaehler/ablesen      Schnell-Ablesung
-  - /zaehler/auswertung   Verbrauchsauswertung
+  GESCHUETZT (mit Login):
+  +---------------------+----------------------+-----------------------------+
+  | Route               | Datei                | Funktion                    |
+  +---------------------+----------------------+-----------------------------+
+  | /dashboard          | Dashboard.tsx        | Hauptseite, Gebaeudeliste   |
+  | /buildings/:id      | BuildingDetail.tsx   | Gebaeude-Detail + Zaehler   |
+  | /buildings/new      | BuildingNew.tsx      | Gebaeude anlegen            |
+  | /units              | Units.tsx            | Alle Einheiten (paginiert)  |
+  | /units/:id          | UnitDetail.tsx       | Einheit-Detail + Zaehler    |
+  | /meters/:id         | MeterDetail.tsx      | Zaehler-Detail + Ablesungen |
+  | /read-meter         | ReadMeter.tsx        | Kamera-Ablesung (OCR!)      |
+  | /pricing            | Pricing.tsx          | Abo-Verwaltung (Stripe)     |
+  | /referrals          | Referrals.tsx        | Empfehlungsprogramm         |
+  | /success            | Success.tsx          | Abo-Upgrade Bestaetigung    |
+  | /* (404)            | NotFound.tsx         | Fehlerseite                 |
+  +---------------------+----------------------+-----------------------------+
 
 
-================================================================================
-2. WAS UMGEBAUT / ERWEITERT WERDEN MUSS
-================================================================================
+1.2 ALLE CUSTOM HOOKS (12 Stueck)
+----------------------------------
 
-Die bestehende Lovable-App nutzt vermutlich die Lovable-eigene Datenbank.
-Fuer die Integration ins Fintutto-Oekosystem muss die App auf den gemeinsamen
-Supabase-Tenant umgestellt werden und um fehlende Features erweitert werden.
+  AUTH & USER:
+  - useAuth.tsx          -- Supabase Auth (signIn, signUp, signOut, resetPw)
+  - useProfile.tsx       -- Profil + Rollen (admin, vermieter, mieter, hausmeister)
+  - useOrganization.tsx  -- Organisation CRUD
 
-  UMBAU-AUFGABEN:
-  +-----+----------------------------------------------+----------+-----------+
-  | #   | Aufgabe                                      | Typ      | Prio      |
-  +-----+----------------------------------------------+----------+-----------+
-  | U1  | Supabase-Anbindung (shared Tenant)           | Umbau    | P0        |
-  |     | Lovable-DB ersetzen durch Portal-Supabase    |          |           |
-  |     | Auth: gleicher Supabase-Tenant wie Portal     |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | U2  | Datenbank-Schema anlegen (siehe Abschnitt 3) | Umbau    | P0        |
-  |     | meters + meter_readings Tabellen              |          |           |
-  |     | RLS Policies fuer Multi-User                  |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | U3  | Hooks/Queries auf Supabase umstellen          | Umbau    | P0        |
-  |     | useMeters, useMeterReadings auf Supabase      |          |           |
-  |     | React Query (@tanstack/react-query)           |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | E1  | OCR/Kamera-Ablesung                          | NEU      | P1        |
-  |     | Tesseract.js (Browser) + Cloud Vision         |          |           |
-  |     | (siehe Abschnitt 5)                           |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | E2  | BK-Abrechnung Integration                    | NEU      | P0        |
-  |     | API fuer Heizkostenabrechnung bereitstellen   |          |           |
-  |     | (siehe Abschnitt 6)                           |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | E3  | Verbrauchs-Anomalie-Erkennung                | NEU      | P2        |
-  |     | Warnung bei > 3x Durchschnittsverbrauch       |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | E4  | Wasser aufteilen: Kalt- und Warmwasser       | Umbau    | P1        |
-  |     | type: water_cold + water_hot statt nur water  |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | E5  | PDF/CSV-Export                                | NEU      | P1        |
-  |     | Zaehleruebersicht + Verbrauchstabelle als PDF |          |           |
-  |     | Ablesungen als CSV exportieren                |          |           |
-  +-----+----------------------------------------------+----------+-----------+
-  | E6  | Pricing-Gates implementieren                  | NEU      | P2        |
-  |     | Free vs Pro (2,99/Monat) Feature-Limits       |          |           |
-  +-----+----------------------------------------------+----------+-----------+
+  DATEN:
+  - useBuildings.tsx     -- CRUD fuer Gebaeude, Einheiten, Zaehler, Ablesungen
+                            + Verbrauchsberechnung zwischen Ablesungen
+  - useProducts.tsx      -- Stripe-Produkte (aktive Abos)
+  - useSubscription.tsx  -- Abo-Status (isPro, isBusiness, isActive)
+                            Auto-Refresh alle 60 Sekunden
+
+  FEATURES:
+  - useReferrals.tsx     -- Empfehlungsprogramm (Code, Rewards, Stats)
+  - useCrossMarketing.tsx -- Cross-App Werbebanner (rotiert alle 15 Sek.)
+  - useGoogleMapsApi.tsx -- Google Places API (Adress-Autocomplete DACH)
+  - useSignedUrl.tsx     -- Supabase Storage signierte URLs
+
+  UI:
+  - use-mobile.tsx       -- Responsive Detection (< 768px)
+  - use-toast.ts         -- Toast Benachrichtigungen
 
 
-================================================================================
-3. DATENBANK-SCHEMA (Supabase -- Shared Tenant)
-================================================================================
+1.3 ALLE KOMPONENTEN
+---------------------
 
-Diese Tabellen muessen im gemeinsamen Supabase-Projekt angelegt werden.
-Sie werden von der Ablesung-App UND vom Portal (BK-Abrechnung) genutzt.
+  LAYOUT:
+  - AppLayout.tsx        -- App-Shell mit Bottom-Navigation und Header
+  - AuthLayout.tsx       -- Auth-Seiten mit animiertem Hintergrund
+  - NavLink.tsx          -- Navigations-Link
 
-  -- Zaehler
-  CREATE TABLE meters (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES auth.users(id) NOT NULL,
-    property_id UUID,              -- Zuordnung zu Gebaeude (optional)
-    unit_id UUID,                  -- Zuordnung zu Einheit (optional)
-    meter_number TEXT NOT NULL,     -- Zaehlernummer (z.B. "DE-12345678")
-    name TEXT,                      -- Bezeichnung (z.B. "Strom Kueche EG")
-    type TEXT NOT NULL CHECK (type IN (
-      'electricity', 'gas', 'water_cold', 'water_hot', 'heating'
-    )),
-    unit_of_measurement TEXT NOT NULL DEFAULT 'kWh',
-    installation_date DATE,
-    calibration_valid_until DATE,   -- Eichgueltigkeit
-    is_active BOOLEAN DEFAULT TRUE,
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-  );
+  DASHBOARD:
+  - UnitCard.tsx         -- Einheit mit Zaehler-Daten und Ablesungen
+  - CrossMarketingBanner.tsx -- Werbebanner fuer andere Fintutto-Apps
+  - FintuttoSuiteSection.tsx -- Showcase: Vermietify, Hausmeister,
+                                Mieter, Nebenkosten, Bescheidboxer
 
-  -- Zaehlerstaende / Ablesungen
-  CREATE TABLE meter_readings (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    meter_id UUID REFERENCES meters(id) ON DELETE CASCADE NOT NULL,
-    reading_date DATE NOT NULL,
-    value DECIMAL NOT NULL,         -- Zaehlerstand (kumulativ)
-    image_url TEXT,                  -- Foto vom Zaehler (Supabase Storage)
-    source TEXT DEFAULT 'manual' CHECK (source IN (
-      'manual', 'ocr', 'csv_import'
-    )),
-    ocr_confidence DECIMAL,         -- 0-100, nur bei OCR
-    notes TEXT,
-    created_by UUID REFERENCES auth.users(id),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-  );
+  ZAEHLER (src/components/meters/):
+  - AddMeterDialog.tsx          -- Zaehler anlegen MIT OCR-Import +
+                                   Zaehlerwechsel-Erkennung
+  - AddReadingDialog.tsx        -- Einzelne Ablesung erfassen
+  - ImportReadingsWizard.tsx    -- 4-Schritt Import-Wizard:
+                                   Upload -> Spalten-Mapping ->
+                                   Vorschau -> Import
+                                   (CSV, Excel UND PDF!)
+  - MeterIcon.tsx               -- Icons nach Zaehlertyp
+  - MeterNumberScanner.tsx      -- OCR Zaehlernummer aus Fotos/PDFs
 
-  -- Indizes
-  CREATE INDEX idx_meters_user ON meters(user_id);
-  CREATE INDEX idx_meters_property ON meters(property_id);
-  CREATE INDEX idx_meters_unit ON meters(unit_id);
-  CREATE INDEX idx_readings_meter ON meter_readings(meter_id);
-  CREATE INDEX idx_readings_date ON meter_readings(reading_date DESC);
+  ADRESSE:
+  - AddressAutocomplete.tsx     -- Google Places Adresssuche (DACH)
 
-  -- Row Level Security
-  ALTER TABLE meters ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE meter_readings ENABLE ROW LEVEL SECURITY;
+  ABOS:
+  - PricingCard.tsx             -- Preis-Tier Anzeige
+  - PricingToggle.tsx           -- Monatlich/Jaehrlich Toggle
+  - UpgradePrompt.tsx           -- Feature-Sperre mit Upgrade-CTA
 
-  CREATE POLICY "Users can CRUD own meters"
-    ON meters FOR ALL USING (auth.uid() = user_id);
-
-  CREATE POLICY "Users can CRUD readings of own meters"
-    ON meter_readings FOR ALL
-    USING (meter_id IN (SELECT id FROM meters WHERE user_id = auth.uid()));
+  UI-BIBLIOTHEK:
+  - 50+ shadcn/ui Komponenten (Button, Card, Dialog, Table, Chart, etc.)
 
 
-  ZAEHLERTYPEN UND EINHEITEN:
+1.4 SUPABASE EDGE FUNCTIONS (9 Stueck -- BEREITS VORHANDEN!)
+--------------------------------------------------------------
+
+  +---------------------------+---------------------------------------------+
+  | Function                  | Zweck                                       |
+  +---------------------------+---------------------------------------------+
+  | ocr-meter-number          | Zaehlernummer aus Bild extrahieren          |
+  | ocr-meter                 | Zaehlerstand aus Bild extrahieren           |
+  | parse-meter-import        | CSV/Excel/PDF Daten parsen                  |
+  | check-subscription        | Abo-Status pruefen                          |
+  | create-checkout           | Stripe Checkout starten                     |
+  | customer-portal           | Stripe Kundenverwaltung                     |
+  | get-maps-key              | Google Maps API Key abrufen                 |
+  | process-referral          | Empfehlungen verarbeiten + Belohnungen      |
+  | sync-stripe-products      | Stripe-Produkte synchronisieren             |
+  +---------------------------+---------------------------------------------+
+
+  ACHTUNG: OCR ist BEREITS implementiert (3 Edge Functions)!
+           Das war geplant als "NEU", ist aber schon gebaut.
+
+
+1.5 DATENBANK (21 Migrationen, 17 Tabellen)
+---------------------------------------------
+
+  Bereits vorhandene Tabellen (Auswahl):
+
+  USER & ORGANISATION:
+  - profiles, user_roles, organizations
+
+  IMMOBILIEN:
+  - buildings (Gebaeude mit Standort, Kapazitaet)
+  - units (Einheiten/Wohnungen, Status-Tracking)
+  - leases (Mietvertraege, Miete, Laufzeit)
+
+  ZAEHLER:
+  - meters (Strom, Gas, Kaltwasser, Warmwasser, Heizung)
+  - meter_readings (manual, OCR, API sources mit Verifikation)
+  - operating_costs (Umlagenschluessel)
+
+  BETRIEB:
+  - tasks (Reparaturen, Wartung, Inspektionen)
+  - documents, messages
+
+  MONETARISIERUNG:
+  - referrals, referral_rewards
+  - user_subscriptions, products
+  - ai_cross_sell_triggers
+
+  ZAEHLERTYPEN (bereits im Schema):
   +---------------+--------------+---------+------------------+
   | type          | Label DE     | Einheit | Icon (Lucide)    |
   +---------------+--------------+---------+------------------+
@@ -191,9 +172,154 @@ Sie werden von der Ablesung-App UND vom Portal (BK-Abrechnung) genutzt.
   | heating       | Heizung      | kWh/MWh | ThermometerSun  |
   +---------------+--------------+---------+------------------+
 
+  --> Kalt-/Warmwasser-Trennung ist BEREITS im Schema!
+
+
+1.6 STRIPE-INTEGRATION (BEREITS VORHANDEN)
+--------------------------------------------
+
+  - 3 Pricing-Tiers (Basic, Pro, Business)
+  - Monatlich/Jaehrlich (17% Rabatt bei jaehrlich)
+  - Stripe Checkout + Kundenportal
+  - Auto-Refresh Abo-Status alle 60 Sekunden
+  - Feature-Gating nach Plan
+
+
+1.7 EMPFEHLUNGSPROGRAMM (BEREITS VORHANDEN)
+---------------------------------------------
+
+  - Einzigartiger Referral-Code pro Nutzer
+  - Cross-App Tracking (5 Apps: Vermietify, Hausmeister, etc.)
+  - Status-Tracking: Pending -> Clicked -> Registered -> Subscribed
+  - Belohnungsberechnung
+
+
+1.8 TECH STACK
+---------------
+
+  Runtime:        React 18.3.1 + TypeScript + Vite
+  Styling:        Tailwind CSS + shadcn/ui (Radix UI)
+  Formulare:      react-hook-form + Zod
+  Data Fetching:  @tanstack/react-query
+  Charts:         Recharts
+  Backend:        Supabase (Auth, DB, Storage, Edge Functions)
+  Zahlungen:      Stripe
+  Icons:          Lucide React
+  Animationen:    Framer Motion
+  Datumsformat:   date-fns (deutsch)
+  Karten:         Google Maps/Places API
+
 
 ================================================================================
-4. GESCHAEFTSLOGIK
+2. WAS TATSAECHLICH NOCH FEHLT
+================================================================================
+
+Weil die App viel weiter ist als gedacht, reduziert sich die TODO-Liste
+erheblich. Hier ist was WIRKLICH noch fehlt:
+
+  +-----+----------------------------------------------+----------+-----------+
+  | #   | Aufgabe                                      | Typ      | Prio      |
+  +-----+----------------------------------------------+----------+-----------+
+  | E1  | BK-Abrechnung Integration                    | NEU      | P0        |
+  |     | API fuer Portal: getMeterReadingsForPeriod()  |          |           |
+  |     | Heizkosten: 30% Grundkosten / 70% Verbrauch  |          |           |
+  |     | (siehe Abschnitt 3)                           |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+  | E2  | Verbrauchsauswertung (Detail-Seite)          | PRUEFEN  | P1        |
+  |     | /zaehler/auswertung -- existiert evtl. schon  |          |           |
+  |     | als Teil von MeterDetail.tsx mit Charts       |          |           |
+  |     | Pruefen ob separate Auswertungsseite noetig   |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+  | E3  | Verbrauchs-Anomalie-Warnungen                | PRUEFEN  | P1        |
+  |     | Evtl. schon in useBuildings Consumption-Calc  |          |           |
+  |     | Sonst: Warnung bei > 3x Durchschnitt          |          |           |
+  |     |        Warnung bei 0 Verbrauch > 60 Tage      |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+  | E4  | PDF-Export                                    | NEU      | P2        |
+  |     | Zaehleruebersicht + Verbrauchstabelle als PDF |          |           |
+  |     | (CSV-Export evtl. schon in ImportWizard)       |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+  | E5  | Uebergabeprotokoll-Anbindung                 | NEU      | P2        |
+  |     | Portal-Formular mit Zaehlerstaenden fuellen   |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+  | P1  | Pruefen: Supabase shared Tenant?              | PRUEFEN  | P0        |
+  |     | Hat die App schon eigenen Supabase-Tenant?     |          |           |
+  |     | Wenn ja: ist es derselbe wie Portal?           |          |           |
+  |     | Supabase Migrations (21) deuten auf eigenen   |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+  | P2  | Pruefen: Pricing-Tiers korrekt?               | PRUEFEN  | P1        |
+  |     | Free-Tier-Limits (3 Zaehler etc.)              |          |           |
+  |     | Stimmen die Gates mit dem Plan ueberein?       |          |           |
+  +-----+----------------------------------------------+----------+-----------+
+
+  WAS NICHT MEHR GEBAUT WERDEN MUSS (war im alten Plan):
+  ========================================================
+  [x] OCR/Kamera-Ablesung        --> EXISTIERT (3 Edge Functions + ReadMeter.tsx)
+  [x] Zaehlerwechsel-Erkennung   --> EXISTIERT (in AddMeterDialog.tsx)
+  [x] CSV/Excel/PDF-Import       --> EXISTIERT (ImportReadingsWizard.tsx, 4 Schritte)
+  [x] Kalt-/Warmwasser Trennung  --> EXISTIERT (water_cold, water_hot im Schema)
+  [x] Stripe Pricing             --> EXISTIERT (3 Tiers, Checkout, Portal)
+  [x] Empfehlungsprogramm        --> EXISTIERT (Referrals mit Tracking)
+  [x] Cross-App Marketing        --> EXISTIERT (rotierende Banner)
+  [x] Google Maps Adress-Suche   --> EXISTIERT (DACH-Region)
+  [x] Rollen-System              --> EXISTIERT (admin, vermieter, mieter, hausmeister)
+  [x] Gebaeude/Einheiten CRUD    --> EXISTIERT
+  [x] Supabase Auth              --> EXISTIERT
+  [x] Supabase Storage (Fotos)   --> EXISTIERT
+  [x] Responsive Design          --> EXISTIERT (Mobile-First, Bottom-Nav)
+
+
+================================================================================
+3. BK-ABRECHNUNG INTEGRATION (EINZIGES GROSSES FEHLENDES FEATURE)
+================================================================================
+
+Das Portal (Vermietify/BK-Helfer) braucht Zugriff auf die Zaehlerstaende
+fuer die Nebenkostenabrechnung (Heizkosten nach HeizkostenV).
+
+3.1 DATENFLUSS
+---------------
+
+  Ablesung-App                        Portal (BK-Modul)
+      |                                   |
+      +-- meters Tabelle ------------>    Step2: Kostenarten "nach Verbrauch"
+      +-- meter_readings ------------>    Step5: Heizkosten
+      |   (Periode: start - end)          |
+      |                                   +-- Grundkosten (30% nach m2)
+      |                                   +-- Verbrauchskosten (70% nach Stand)
+
+3.2 BENOETIGTE API
+-------------------
+
+  // Zaehlerstaende fuer einen Abrechnungszeitraum
+  async function getMeterReadingsForPeriod(
+    unitId: string,
+    meterType: 'heating' | 'water_hot',
+    periodStart: Date,
+    periodEnd: Date
+  ): Promise<{
+    startReading: number;    // Stand am Perioden-Anfang
+    endReading: number;      // Stand am Perioden-Ende
+    consumption: number;     // Differenz
+  }>
+
+3.3 UMSETZUNG
+--------------
+
+  Option A: Direkter DB-Zugriff (gleicher Supabase-Tenant)
+    - Portal liest direkt aus meters + meter_readings
+    - Einfachste Loesung wenn gleicher Tenant
+
+  Option B: Supabase Edge Function
+    - Eigener Endpunkt: /functions/v1/get-readings-for-period
+    - Falls verschiedene Tenants noetig
+
+  Option C: REST API / RPC
+    - Supabase RPC Function im Schema
+    - Aufrufbar von beiden Apps
+
+
+================================================================================
+4. GESCHAEFTSLOGIK (REFERENZ)
 ================================================================================
 
 4.1 VERBRAUCHSBERECHNUNG
@@ -201,21 +327,18 @@ Sie werden von der Ablesung-App UND vom Portal (BK-Abrechnung) genutzt.
 
   Verbrauch = Aktueller Stand - Vorheriger Stand
 
-  function calculateConsumption(current: number, previous: number): number {
-    if (current < previous) {
-      // Zaehlerwechsel: neuer Zaehler bei 0 gestartet
-      return current; // oder Warnung anzeigen
-    }
-    return current - previous;
-  }
+  Bei Stand < Vorheriger Stand:
+    -> Zaehlerwechsel: neuer Zaehler bei 0 gestartet
+    -> Warnung anzeigen, Nutzer bestaetigt
 
-  Tagesverbrauch   = Verbrauch / Tage zwischen Ablesungen
+  Tagesverbrauch    = Verbrauch / Tage zwischen Ablesungen
   Jahreshochrechnung = Tagesverbrauch * 365
-  Kosten           = Verbrauch * Einheitspreis
+  Kosten            = Verbrauch * Einheitspreis
 
 
-4.2 STANDARD-EINHEITSPREISE (vom Nutzer aenderbar)
----------------------------------------------------
+4.2 STANDARD-EINHEITSPREISE
+-----------------------------
+
   +---------------+----------------+-----------+
   | Typ           | Einheitspreis  | Einheit   |
   +---------------+----------------+-----------+
@@ -230,283 +353,151 @@ Sie werden von der Ablesung-App UND vom Portal (BK-Abrechnung) genutzt.
 4.3 PLAUSIBILITAETSPRUEFUNG
 ----------------------------
 
-  Bei jeder neuen Ablesung pruefen:
-
   1. Stand >= letzter Stand?
-     NEIN -> Warnung: "Zaehlerstand kleiner als letzte Ablesung. Zaehlerwechsel?"
-             Nutzer kann bestaetigen (Zaehlerwechsel) oder korrigieren
+     NEIN -> Warnung: "Zaehlerwechsel?"
 
   2. Verbrauch plausibel?
-     Verbrauch > 3x Durchschnitt -> Warnung: "Ungewoehnlich hoher Verbrauch"
-     Verbrauch = 0 ueber > 60 Tage -> Warnung: "Kein Verbrauch seit 60 Tagen"
+     > 3x Durchschnitt -> Warnung: "Ungewoehnlich hoch"
+     = 0 ueber > 60 Tage -> Warnung: "Kein Verbrauch"
 
   3. Datum plausibel?
-     Ablesedatum > heute -> Fehler
-     Ablesedatum < letzte Ablesung -> Warnung
-
-
-4.4 CSV-IMPORT FORMAT
----------------------
-
-  Trennzeichen:         Semikolon (;) oder Komma (,) -- auto-detect
-  Datumsformate:        YYYY-MM-DD oder DD.MM.YYYY -- auto-detect
-  Dezimaltrennzeichen:  Punkt oder Komma -- auto-detect
-  Header:               Automatisch erkannt
-
-  Beispiel:
-    zaehlernummer;datum;zaehlerstand;bemerkung
-    DE-12345678;2025-01-15;45230;Jahresablesung
-    DE-12345678;2025-07-01;46890;Halbjahresablesung
-    DE-87654321;2025-01-15;1234.5;
-
-  Validierung:
-  - Zaehlernummer muss existierendem Zaehler zuordenbar sein
-  - Oder: Option "Zaehler automatisch anlegen wenn nicht gefunden"
-  - Duplikate (gleiche Nummer + gleiches Datum) -> Warnung
+     Zukunft -> Fehler
+     Vor letzter Ablesung -> Warnung
 
 
 ================================================================================
-5. OCR / KAMERA-ABLESUNG (NEU)
-================================================================================
-
-5.1 HYBRID-STRATEGIE
----------------------
-
-  PRIMAER: Tesseract.js (kostenlos, laeuft im Browser)
-
-    import Tesseract from 'tesseract.js';
-
-    async function recognizeMeterReading(imageFile: File): Promise<OCRResult> {
-      const { data } = await Tesseract.recognize(imageFile, 'deu', {
-        logger: m => console.log(m.status, m.progress)
-      });
-
-      // Zahlenwerte extrahieren
-      const numbers = data.text.match(/[\d]+[.,]?\d*/g);
-
-      return {
-        detectedValues: numbers || [],
-        confidence: data.confidence,
-        rawText: data.text,
-        needsManualReview: data.confidence < 80
-      };
-    }
-
-  FALLBACK: Google Cloud Vision API (als Supabase Edge Function)
-    - Nur wenn Tesseract-Confidence < 80%
-    - Premium-Feature (Pro-Plan)
-
-  IMMER: Manuelle Korrektur
-    - OCR-Ergebnis wird vorausgefuellt
-    - Nutzer bestaetigt oder korrigiert
-    - Originalbild wird in Supabase Storage gespeichert
-    - source = 'ocr', ocr_confidence wird gespeichert
-
-
-5.2 KAMERA-ZUGRIFF (MeterScanner.tsx)
---------------------------------------
-
-  Primaer:  navigator.mediaDevices.getUserMedia (Live-Kamera)
-  Fallback: <input type="file" accept="image/*" capture="environment">
-
-  Nur auf HTTPS verfuegbar. Mobilgeraete: Rueckkamera bevorzugt.
-
-
-================================================================================
-6. INTEGRATIONSPUNKTE MIT DEM PORTAL
-================================================================================
-
-6.1 BK-ABRECHNUNG (Nebenkostenabrechnung)
-------------------------------------------
-
-  Die BK-Abrechnung (Schritt 5: Heizkosten) benoetigt Zaehlerstaende
-  fuer verbrauchsbasierte Umlagen.
-
-  Datenfluss:
-    Zaehler-App                        Portal (BK-Modul)
-        |                                   |
-        +-- meter_readings ------------>    Step5HeatingCosts
-        |   (Periode: start - end)          |
-        |                                   +-- Grundkosten (30% nach m2)
-        |                                   +-- Verbrauchskosten (70% nach Stand)
-
-  API die bereitgestellt werden muss:
-
-    // Zaehlerstaende fuer einen Abrechnungszeitraum
-    async function getMeterReadingsForPeriod(
-      unitId: string,
-      meterType: 'heating' | 'water_hot',
-      periodStart: Date,
-      periodEnd: Date
-    ): Promise<{
-      startReading: number;
-      endReading: number;
-      consumption: number;
-    }>
-
-  Das kann ueber eine Supabase Edge Function oder direkt als
-  DB-Query aus dem Portal erfolgen (shared tables).
-
-
-6.2 UEBERGABEPROTOKOLL
------------------------
-
-  Das Portal hat ein Uebergabeprotokoll-Formular mit MeterReading-Interface:
-    interface MeterReading { type: string; number: string; value: string }
-
-  Bei Integration:
-  - Zaehler aus der Ablesung-App automatisch vorausfuellen
-  - Ablesung bei Uebergabe als meter_reading speichern
-  - Bestehende Zaehlerstaende anzeigen
-
-
-6.3 VERMIETIFY (Immobilienverwaltung)
---------------------------------------
-
-  - Zaehler sind Gebaeuden/Einheiten zugeordnet (property_id, unit_id)
-  - Die IDs stammen aus der gleichen Supabase-DB
-  - Bei Mieterwechsel: automatische Aufforderung zur Ablesung
-
-
-6.4 SHARED AUTHENTICATION
---------------------------
-
-  Gleicher Supabase-Tenant = gleiche Auth.
-  Ein Nutzer loggt sich einmal ein und kann:
-  - Im Portal: BK-Abrechnung, Formulare, Rechner nutzen
-  - In der Ablesung-App: Zaehler verwalten, Ablesungen erfassen
-
-  Supabase-Konfiguration:
-  - VITE_SUPABASE_URL     = gleich wie Portal
-  - VITE_SUPABASE_ANON_KEY = gleich wie Portal
-
-
-================================================================================
-7. KOMPONENTEN-STRUKTUR (bestehend + neu)
+5. DATEISTRUKTUR DER APP (TATSAECHLICH)
 ================================================================================
 
   src/
   +-- pages/
-  |   +-- zaehler/
-  |       +-- index.tsx           [BESTEHT] Dashboard
-  |       +-- [id].tsx            [BESTEHT] Detail
-  |       +-- ablesen.tsx         [BESTEHT] Schnell-Ablesung
-  |       +-- auswertung.tsx      [BESTEHT] Verbrauchsauswertung
+  |   +-- Landing.tsx
+  |   +-- Login.tsx, Register.tsx, ForgotPassword.tsx
+  |   +-- Dashboard.tsx
+  |   +-- BuildingDetail.tsx, BuildingNew.tsx
+  |   +-- Units.tsx, UnitDetail.tsx
+  |   +-- MeterDetail.tsx               <-- Zaehler-Detail + Charts
+  |   +-- ReadMeter.tsx                  <-- Kamera/OCR Ablesung
+  |   +-- Pricing.tsx, Referrals.tsx, Success.tsx
+  |   +-- NotFound.tsx, Index.tsx
   |
   +-- components/
-  |   +-- zaehler/
-  |       +-- MeterFormDialog.tsx  [BESTEHT] Zaehler anlegen/bearbeiten
-  |       +-- QuickReadingDialog.tsx [BESTEHT] Ablesung erfassen
-  |       +-- CSVImportDialog.tsx  [BESTEHT] CSV-Upload
-  |       +-- MeterCard.tsx        [BESTEHT] Einzelner Zaehler (Karte)
-  |       +-- ReadingHistory.tsx   [BESTEHT] Tabelle aller Ablesungen
-  |       +-- ReadingChart.tsx     [BESTEHT] Verbrauchschart
-  |       +-- MeterScanner.tsx     [NEU] Kamera + OCR
-  |       +-- MeterExport.tsx      [NEU] PDF/CSV-Export
-  |       +-- ConsumptionSummary.tsx [NEU] KPI-Cards mit Kosten
-  |       +-- AnomalyAlert.tsx     [NEU] Verbrauchs-Warnung
+  |   +-- meters/
+  |   |   +-- AddMeterDialog.tsx         <-- mit OCR + Zaehlerwechsel
+  |   |   +-- AddReadingDialog.tsx       <-- Einzel-Ablesung
+  |   |   +-- ImportReadingsWizard.tsx   <-- 4-Schritt CSV/Excel/PDF
+  |   |   +-- MeterIcon.tsx
+  |   |   +-- MeterNumberScanner.tsx     <-- OCR Nummern-Erkennung
+  |   +-- dashboard/
+  |   |   +-- UnitCard.tsx
+  |   |   +-- CrossMarketingBanner.tsx
+  |   |   +-- FintuttoSuiteSection.tsx
+  |   +-- address/
+  |   |   +-- AddressAutocomplete.tsx    <-- Google Maps DACH
+  |   +-- subscription/
+  |   |   +-- PricingCard.tsx
+  |   |   +-- PricingToggle.tsx
+  |   |   +-- UpgradePrompt.tsx
+  |   +-- layout/
+  |   |   +-- AppLayout.tsx
+  |   +-- auth/
+  |   |   +-- AuthLayout.tsx
+  |   +-- ui/ (50+ shadcn Komponenten)
   |
   +-- hooks/
-  |   +-- useMeters.ts             [UMBAU] -> Supabase statt Lovable-DB
-  |   +-- useMeterReadings.ts      [UMBAU] -> Supabase statt Lovable-DB
-  |   +-- useConsumption.ts        [BESTEHT/PRUEFEN] Verbrauchsberechnung
-  |   +-- useOCR.ts                [NEU] Tesseract.js Wrapper
+  |   +-- useAuth.tsx
+  |   +-- useProfile.tsx
+  |   +-- useOrganization.tsx
+  |   +-- useBuildings.tsx               <-- Zentral: Gebaeude+Einheiten+Zaehler
+  |   +-- useProducts.tsx
+  |   +-- useSubscription.tsx
+  |   +-- useReferrals.tsx
+  |   +-- useCrossMarketing.tsx
+  |   +-- useGoogleMapsApi.tsx
+  |   +-- useSignedUrl.tsx
+  |   +-- use-mobile.tsx
+  |   +-- use-toast.ts
+  |
+  +-- integrations/supabase/
+  |   +-- client.ts                      <-- Supabase Client Config
+  |   +-- types.ts                       <-- TypeScript Schema
   |
   +-- lib/
-      +-- meter-types.ts           [NEU] Typen, Einheiten, Icons zentral
-      +-- consumption-calc.ts      [NEU] Berechnungslogik extrahiert
-      +-- csv-parser.ts            [PRUEFEN] ggf. erweitern
-      +-- supabase.ts              [UMBAU] -> Shared Tenant Config
+  |   +-- utils.ts                       <-- cn() Tailwind Merge
+  |   +-- stripe.ts                      <-- Pricing Logik
+  |
+  +-- types/
+      +-- database.ts                    <-- Vollstaendiges DB-Schema
+
+  supabase/
+  +-- functions/                         <-- 9 Edge Functions
+  |   +-- ocr-meter-number/
+  |   +-- ocr-meter/
+  |   +-- parse-meter-import/
+  |   +-- check-subscription/
+  |   +-- create-checkout/
+  |   +-- customer-portal/
+  |   +-- get-maps-key/
+  |   +-- process-referral/
+  |   +-- sync-stripe-products/
+  +-- migrations/                        <-- 21 DB-Migrationen
 
 
 ================================================================================
-8. PRICING (Free vs Pro)
+6. PRICING-TIERS (BEREITS IN STRIPE)
 ================================================================================
 
-  +-----------------------------+-----------+--------------------+
-  | Feature                     | Free      | Pro (2,99/Monat)   |
-  +-----------------------------+-----------+--------------------+
-  | Zaehler anlegen             | Bis 3     | Unbegrenzt         |
-  | Manuelle Ablesung           | Ja        | Ja                 |
-  | Verbrauchschart             | 3 Monate  | Unbegrenzt         |
-  | CSV-Import                  | Nein      | Ja                 |
-  | OCR-Ablesung                | Nein      | Ja                 |
-  | PDF-Export                  | Nein      | Ja                 |
-  | Anomalie-Warnung            | Nein      | Ja                 |
-  | BK-Integration              | Nein      | Ja                 |
-  | Verbrauchsauswertung Detail | Nein      | Ja                 |
-  +-----------------------------+-----------+--------------------+
+  +-----------------------------+-----------+----------+--------------------+
+  | Feature                     | Basic     | Pro      | Business           |
+  +-----------------------------+-----------+----------+--------------------+
+  | Zaehler anlegen             | Bis 3     | Unbegr.  | Unbegrenzt         |
+  | Manuelle Ablesung           | Ja        | Ja       | Ja                 |
+  | OCR-Ablesung                | ?         | Ja       | Ja                 |
+  | CSV/Excel/PDF-Import        | ?         | Ja       | Ja                 |
+  | Verbrauchschart             | ?         | Unbegr.  | Unbegrenzt         |
+  | PDF-Export                  | Nein      | Ja       | Ja                 |
+  | Anomalie-Warnung            | Nein      | Ja       | Ja                 |
+  | BK-Integration              | Nein      | Nein     | Ja                 |
+  | Multi-Gebaeude              | 1         | 5        | Unbegrenzt         |
+  | Rollen/Team                 | Nein      | Nein     | Ja                 |
+  +-----------------------------+-----------+----------+--------------------+
 
-
-================================================================================
-9. IMPLEMENTIERUNGSREIHENFOLGE
-================================================================================
-
-  +-------+------------------------------------------------+--------+---------+
-  | #     | Aufgabe                                        | Typ    | Aufwand |
-  +-------+------------------------------------------------+--------+---------+
-  | 1     | Supabase-Client umstellen (shared Tenant)      | Umbau  | 0.5 Tag |
-  | 2     | DB-Schema: meters + meter_readings anlegen      | Umbau  | 0.5 Tag |
-  | 3     | useMeters Hook auf Supabase umschreiben         | Umbau  | 1 Tag   |
-  | 4     | useMeterReadings Hook auf Supabase umschreiben  | Umbau  | 1 Tag   |
-  | 5     | Zaehlertyp erweitern (water_cold/water_hot)     | Umbau  | 0.5 Tag |
-  | 6     | Bestehende UI testen + Fehler beheben           | Umbau  | 1 Tag   |
-  | 7     | OCR: MeterScanner + Tesseract.js                | NEU    | 2 Tage  |
-  | 8     | OCR: Cloud Vision Edge Function (Fallback)      | NEU    | 1 Tag   |
-  | 9     | PDF/CSV-Export (MeterExport)                    | NEU    | 1 Tag   |
-  | 10    | Anomalie-Erkennung (AnomalyAlert)               | NEU    | 0.5 Tag |
-  | 11    | BK-Integration (API/Shared Query)               | NEU    | 1 Tag   |
-  | 12    | Pricing-Gates (Free/Pro Feature-Limits)          | NEU    | 1 Tag   |
-  | 13    | End-to-End Test aller Flows                      | Test   | 1 Tag   |
-  +-------+------------------------------------------------+--------+---------+
-  | TOTAL |                                                |        | ~12 Tage|
-  +-------+------------------------------------------------+--------+---------+
-
-  Reihenfolge-Logik:
-  - Schritt 1-6: ZUERST -- Supabase-Umbau, damit alles auf shared DB laeuft
-  - Schritt 7-8: OCR als groesstes neues Feature
-  - Schritt 9-12: Weitere Erweiterungen
-  - Schritt 13: Abschluss-Test
+  Hinweis: ? = muss im Code geprueft werden welche Limits aktuell gelten
 
 
 ================================================================================
-10. TECH STACK (muss kompatibel zum Portal bleiben)
+7. HINWEISE FUER DEN AGENTEN
 ================================================================================
 
-  Runtime:        React 18 + TypeScript 5.2 + Vite 5.1
-  Styling:        Tailwind CSS 3.4 + shadcn/ui (Radix UI)
-  Formulare:      react-hook-form 7.51 + Zod 3.22
-  Data Fetching:  @tanstack/react-query 5.28
-  Charts:         Recharts
-  Backend:        Supabase (Auth, Database, Storage, Edge Functions)
-  Icons:          Lucide React
-  OCR:            tesseract.js (Browser) + Google Cloud Vision (Edge Fn)
-  PDF:            jsPDF oder @react-pdf/renderer
+  1. DIE APP IST FAST FERTIG.
+     16 Seiten, 12 Hooks, 9 Edge Functions, 21 Migrationen, Stripe, OCR.
+     Nicht nochmal bauen. Nur ergaenzen wo Luecken sind.
 
+  2. ft_ocr_zaehler-base44 IST LEER.
+     Kein Code drin. Es gibt nichts zu "migrieren" aus diesem Repo.
+     Alle Zaehler-Features sind bereits in der Ablesung-App.
 
-================================================================================
-11. WICHTIGE HINWEISE FUER DEN AGENTEN
-================================================================================
+  3. OCR IST BEREITS IMPLEMENTIERT.
+     3 Edge Functions (ocr-meter-number, ocr-meter, parse-meter-import)
+     + MeterNumberScanner.tsx + ReadMeter.tsx Seite.
+     NICHT nochmal bauen.
 
-  1. NICHT NEU BAUEN. Die App existiert und funktioniert.
-     Bestehende Komponenten und Seiten BEIBEHALTEN und nur anpassen.
+  4. IMPORT IST BEREITS 4-SCHRITT-WIZARD.
+     ImportReadingsWizard.tsx: Upload -> Mapping -> Preview -> Import
+     Unterstuetzt CSV, Excel UND PDF. NICHT nochmal bauen.
 
-  2. Das Repo ist: alexanderdeibel-Fintutto/ablesung
-     Es ist eine Lovable-App. Der Code liegt in GitHub, deployed auf Vercel.
+  5. SUPABASE-TENANT PRUEFEN.
+     Die App hat 21 eigene Migrationen = eigener Supabase-Tenant.
+     Fuer BK-Integration muss geklaert werden:
+     a) Gleicher Tenant wie Portal? -> Dann direkt Tabellen teilen
+     b) Verschiedene Tenants? -> Dann Edge Function als API
 
-  3. SUPABASE-CREDENTIALS muessen die gleichen sein wie im Portal
-     (fintutto-ecosystem). Gleicher Tenant = gleiche Auth = geteilte Daten.
+  6. DAS EINZIGE GROSSE FEHLENDE FEATURE ist die BK-Integration
+     (Nebenkostenabrechnung). Alles andere ist gebaut oder minor.
 
-  4. Die Tabellen meters und meter_readings werden auch vom Portal gelesen
-     (BK-Abrechnung, Uebergabeprotokoll). Schema-Aenderungen muessen
-     abgestimmt werden.
-
-  5. Das leere Repo ft_ocr_zaehler-base44 ist NICHT die Ablesung-App.
-     Das war ein Placeholder fuer OCR-Experimente und kann ignoriert werden.
-
-  6. Lovable-Prompts 18-23 wurden bereits ausgefuehrt. Der aktuelle
-     Code-Stand der App reflektiert diese Prompts.
+  7. VOR JEDER AENDERUNG: Code lesen und verstehen was schon da ist.
+     Die App ist umfangreicher als erwartet.
 
 ================================================================================
-ENDE DES INTEGRATIONSPLANS
+ENDE DES BRIEFINGS
 ================================================================================
