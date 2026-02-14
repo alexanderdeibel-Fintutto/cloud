@@ -41,6 +41,12 @@ const MeterSchedule = lazy(() => import("./pages/MeterSchedule"));
 const CostCalculation = lazy(() => import("./pages/CostCalculation"));
 const BatchScanner = lazy(() => import("./pages/BatchScanner"));
 
+// Phase C: Analysis & AI pages
+const ConsumptionHeatmap = lazy(() => import("./pages/ConsumptionHeatmap"));
+const SavingsSimulator = lazy(() => import("./pages/SavingsSimulator"));
+const EnergyChat = lazy(() => import("./pages/EnergyChat"));
+const EnergyFlow = lazy(() => import("./pages/EnergyFlow"));
+
 const queryClient = new QueryClient();
 
 function LoadingFallback() {
@@ -120,6 +126,12 @@ function AppRoutes() {
         <Route path="/schedule" element={<ProtectedRoute><MeterSchedule /></ProtectedRoute>} />
         <Route path="/costs" element={<ProtectedRoute><CostCalculation /></ProtectedRoute>} />
         <Route path="/batch-scan" element={<ProtectedRoute><BatchScanner /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase C Analysis & AI */}
+        <Route path="/heatmap" element={<ProtectedRoute><ConsumptionHeatmap /></ProtectedRoute>} />
+        <Route path="/simulator" element={<ProtectedRoute><SavingsSimulator /></ProtectedRoute>} />
+        <Route path="/energy-chat" element={<ProtectedRoute><EnergyChat /></ProtectedRoute>} />
+        <Route path="/energy-flow" element={<ProtectedRoute><EnergyFlow /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
