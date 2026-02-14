@@ -12,7 +12,8 @@ import {
   calculateAnnualConsumption, calculateCost, getEfficiencyGrade, formatNumber, formatEuro,
 } from '@/types/database';
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { format, subMonths, isAfter, isBefore, startOfMonth, endOfMonth } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -181,6 +182,59 @@ export default function ConsumptionAnalysis() {
 
   const totalCost = Object.values(consumptionByType).reduce((sum, d) => sum + d.cost, 0);
 
+  // A.1+A.2: Consumption & Cost Forecast (linear regression on monthly data)
+  const forecast = useMemo(() => {
+    if (monthlyData.length < 3) return null;
+    // Sum all numeric values per month for trend line
+    const values = monthlyData.map(d => {
+      let sum = 0;
+      Object.entries(d).forEach(([k, v]) => { if (k !== 'month' && typeof v === 'number') sum += v; });
+      return sum;
+    });
+    // Simple linear regression
+    const n = values.length;
+    const xMean = (n - 1) / 2;
+    const yMean = values.reduce((s, v) => s + v, 0) / n;
+    let num = 0, den = 0;
+    values.forEach((y, x) => { num += (x - xMean) * (y - yMean); den += (x - xMean) ** 2; });
+    const slope = den !== 0 ? num / den : 0;
+    const intercept = yMean - slope * xMean;
+
+    // Forecast next 6 months
+    const forecastMonths: { month: string; actual?: number; forecast: number }[] = [];
+    // Last 6 actual
+    values.slice(-6).forEach((v, i) => {
+      const monthIdx = n - 6 + i;
+      forecastMonths.push({ month: monthlyData[monthIdx]?.month as string || '', actual: v, forecast: intercept + slope * monthIdx });
+    });
+    // Next 6 projected
+    for (let i = 0; i < 6; i++) {
+      const futureDate = subMonths(new Date(), -(i + 1));
+      forecastMonths.push({
+        month: format(futureDate, 'MMM yy', { locale: de }),
+        forecast: Math.max(0, intercept + slope * (n + i)),
+      });
+    }
+
+    const annualForecast = Math.max(0, (intercept + slope * (n + 5)) * 12);
+    const annualCostForecast = viewMode === 'cost' ? annualForecast : annualForecast * (totalCost > 0 && Object.values(consumptionByType).reduce((s, d) => s + d.consumption, 0) > 0 ? totalCost / Object.values(consumptionByType).reduce((s, d) => s + d.consumption, 0) : 0.30);
+    const trend = slope > 0.5 ? 'steigend' : slope < -0.5 ? 'sinkend' : 'stabil';
+
+    return { data: forecastMonths, annualForecast: Math.round(annualForecast), annualCostForecast: Math.round(annualCostForecast), trend, slope };
+  }, [monthlyData, viewMode, totalCost, consumptionByType]);
+
+  // A.10: Cost breakdown by type for pie chart
+  const costBreakdown = useMemo(() => {
+    const COLORS = ['#6366f1', '#f59e0b', '#3b82f6', '#ef4444', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6'];
+    return Object.entries(consumptionByType)
+      .filter(([_, d]) => d.cost > 0)
+      .map(([type, data], i) => ({
+        name: METER_TYPE_LABELS[type as MeterType],
+        value: Math.round(data.cost),
+        color: COLORS[i % COLORS.length],
+      }));
+  }, [consumptionByType]);
+
   const typeIconMap: Partial<Record<string, typeof Zap>> = {
     electricity: Zap, gas: Flame, water_cold: Droplets, water_hot: Droplets, heating: Thermometer,
   };
@@ -312,42 +366,139 @@ export default function ConsumptionAnalysis() {
         </Card>
       )}
 
-      {/* Year over Year Comparison */}
-      {Object.keys(consumptionByType).some(t => consumptionByType[t].prevYearConsumption > 0) && (
+      {/* A.1+A.2: Consumption & Cost Forecast */}
+      {forecast && (
         <Card className="mb-4">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Vorjahresvergleich</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              Prognose (6 Monate)
+              <span className={`text-xs font-normal px-2 py-0.5 rounded-full ${
+                forecast.trend === 'steigend' ? 'bg-red-500/10 text-red-500' :
+                forecast.trend === 'sinkend' ? 'bg-green-500/10 text-green-500' :
+                'bg-gray-500/10 text-muted-foreground'
+              }`}>
+                {forecast.trend === 'steigend' ? '↗' : forecast.trend === 'sinkend' ? '↘' : '→'} {forecast.trend}
+              </span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(consumptionByType)
-                .filter(([_, d]) => d.prevYearConsumption > 0)
-                .map(([type, data]) => {
-                  const change = ((data.consumption - data.prevYearConsumption) / data.prevYearConsumption) * 100;
-                  const isIncrease = change > 5;
-                  const isDecrease = change < -5;
-                  return (
-                    <div key={type} className="flex items-center justify-between">
-                      <span className="text-sm">{METER_TYPE_LABELS[type as MeterType]}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {formatNumber(data.prevYearConsumption)} → {formatNumber(data.consumption)}
-                        </span>
-                        <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${
-                          isIncrease ? 'bg-red-500/10 text-red-500' :
-                          isDecrease ? 'bg-green-500/10 text-green-500' :
-                          'bg-gray-500/10 text-gray-500'
-                        }`}>
-                          {change > 0 ? '+' : ''}{formatNumber(change, 1)}%
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="rounded-lg bg-accent/50 p-2.5 text-center">
+                <p className="text-xs text-muted-foreground">Jahresprognose</p>
+                <p className="text-lg font-bold">
+                  {viewMode === 'cost' ? formatEuro(forecast.annualCostForecast) : `${formatNumber(forecast.annualForecast)} kWh`}
+                </p>
+              </div>
+              <div className="rounded-lg bg-accent/50 p-2.5 text-center">
+                <p className="text-xs text-muted-foreground">Kostenprognose/Jahr</p>
+                <p className="text-lg font-bold text-primary">{formatEuro(forecast.annualCostForecast)}</p>
+              </div>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={forecast.data}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" tick={{ fontSize: 9 }} className="text-muted-foreground" />
+                  <YAxis tick={{ fontSize: 9 }} className="text-muted-foreground" />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} />
+                  <Area type="monotone" dataKey="actual" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} name="Ist" />
+                  <Area type="monotone" dataKey="forecast" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} strokeDasharray="5 5" name="Prognose" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* A.8+A.10: Cost Summary & Breakdown */}
+      {costBreakdown.length > 1 && (
+        <Card className="mb-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Kostenverteilung</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="w-32 h-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={costBreakdown} dataKey="value" cx="50%" cy="50%" innerRadius={28} outerRadius={52} paddingAngle={2}>
+                      {costBreakdown.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(v: number) => formatEuro(v)} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-1.5">
+                {costBreakdown.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="text-xs truncate">{item.name}</span>
+                    </div>
+                    <span className="text-xs font-medium">{formatEuro(item.value)}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between pt-1 border-t border-border">
+                  <span className="text-xs font-medium">Gesamt</span>
+                  <span className="text-sm font-bold text-primary">{formatEuro(totalCost)}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* A.9: Enhanced Year over Year Comparison with BarChart */}
+      {Object.keys(consumptionByType).some(t => consumptionByType[t].prevYearConsumption > 0) && (() => {
+        const yoyData = Object.entries(consumptionByType)
+          .filter(([_, d]) => d.prevYearConsumption > 0)
+          .map(([type, data]) => ({
+            name: METER_TYPE_LABELS[type as MeterType].split(' ')[0],
+            vorjahr: Math.round(data.prevYearConsumption),
+            aktuell: Math.round(data.consumption),
+            change: Math.round(((data.consumption - data.prevYearConsumption) / data.prevYearConsumption) * 100),
+          }));
+        return (
+          <Card className="mb-4">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Vorjahresvergleich</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {yoyData.length > 0 && (
+                <div className="h-44 mb-3">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={yoyData} barCategoryGap="20%">
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} className="text-muted-foreground" />
+                      <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" />
+                      <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} />
+                      <Bar dataKey="vorjahr" fill="#94a3b8" name="Vorjahr" radius={[3, 3, 0, 0]} />
+                      <Bar dataKey="aktuell" fill="hsl(var(--primary))" name="Aktuell" radius={[3, 3, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="space-y-2">
+                {yoyData.map((d) => (
+                  <div key={d.name} className="flex items-center justify-between">
+                    <span className="text-sm">{d.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{formatNumber(d.vorjahr)} → {formatNumber(d.aktuell)}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        d.change > 5 ? 'bg-red-500/10 text-red-500' :
+                        d.change < -5 ? 'bg-green-500/10 text-green-500' :
+                        'bg-gray-500/10 text-gray-500'
+                      }`}>{d.change > 0 ? '+' : ''}{d.change}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Building Ranking */}
       {buildingRanking.length > 1 && (

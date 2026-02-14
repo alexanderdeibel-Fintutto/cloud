@@ -14,6 +14,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
 import { BuildingWithUnits, getReadingStatus } from '@/types/database';
 import { useEnergyContracts } from '@/hooks/useEnergyContracts';
+import { QuickReadingWidget } from '@/components/dashboard/QuickReadingWidget';
 
 // Animation variants
 const containerVariants = {
@@ -223,6 +224,9 @@ export default function Dashboard() {
           </Card>
         </motion.div>
       )}
+
+      {/* A.7: Quick Reading Widget for due/overdue meters */}
+      {kpis.totalMeters > 0 && <QuickReadingWidget />}
 
       {/* Contract Deadline Alert */}
       {upcomingDeadlines.length > 0 && (
