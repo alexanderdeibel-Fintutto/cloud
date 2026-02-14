@@ -1,94 +1,134 @@
 import { Link } from 'react-router-dom'
+import { Sparkles } from 'lucide-react'
+
+const footerLinks = {
+  rechner: [
+    { name: 'Kautions-Rechner', href: '/rechner/kaution' },
+    { name: 'Mieterhöhungs-Rechner', href: '/rechner/mieterhoehung' },
+    { name: 'Kaufnebenkosten-Rechner', href: '/rechner/kaufnebenkosten' },
+    { name: 'Rendite-Rechner', href: '/rechner/rendite' },
+    { name: 'Grundsteuer-Rechner', href: '/rechner/grundsteuer' },
+  ],
+  checker: [
+    { name: 'Mietpreisbremse', href: '/checker/mietpreisbremse' },
+    { name: 'Mieterhöhung', href: '/checker/mieterhoehung' },
+    { name: 'Nebenkosten', href: '/checker/nebenkosten' },
+    { name: 'Kündigung', href: '/checker/kuendigung' },
+    { name: 'Kaution', href: '/checker/kaution' },
+  ],
+  formulare: [
+    { name: 'Mietvertrag', href: '/formulare/mietvertrag' },
+    { name: 'Übergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
+    { name: 'Betriebskosten', href: '/formulare/betriebskosten' },
+    { name: 'Selbstauskunft', href: '/formulare/selbstauskunft' },
+    { name: 'Mieterhöhung', href: '/formulare/mieterhoehung' },
+  ],
+  oekosystem: [
+    { name: 'Alle Apps', href: '/apps' },
+    { name: 'Referral-Programm', href: '/referral' },
+    { name: 'Preise', href: '/preise' },
+  ],
+  rechtliches: [
+    { name: 'Impressum', href: '/impressum' },
+    { name: 'Datenschutz', href: '/datenschutz' },
+    { name: 'AGB', href: '/agb' },
+    { name: 'Über uns', href: '/ueber-uns' },
+  ],
+}
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
-
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-fintutto-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">F</span>
+    <footer className="border-t border-border bg-muted/30">
+      <div className="container py-12">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+          <div className="col-span-2 md:col-span-1">
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-portal">
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
-              <span className="font-bold text-xl text-white">Fintutto Checker</span>
-            </div>
-            <p className="text-gray-400 max-w-md">
-              Kostenlose Mietrechts-Checks mit KI-Unterstuetzung. Pruefen Sie Ihre Rechte als
-              Mieter und erhalten Sie sofort Handlungsempfehlungen.
+              <div>
+                <span className="font-bold gradient-text-portal">Fintutto</span>
+                <span className="text-xs block text-muted-foreground -mt-1">Portal</span>
+              </div>
+            </Link>
+            <p className="text-sm text-muted-foreground">
+              Professionelle Tools für Mieter & Vermieter. Rechtssicher, einfach, digital.
             </p>
           </div>
 
-          {/* Checker Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Beliebte Checker</h3>
+            <h3 className="font-semibold mb-3">Rechner</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/checker/mietpreisbremse" className="hover:text-fintutto-accent">
-                  Mietpreisbremse
-                </Link>
-              </li>
-              <li>
-                <Link to="/checker/nebenkosten" className="hover:text-fintutto-accent">
-                  Nebenkosten
-                </Link>
-              </li>
-              <li>
-                <Link to="/checker/mieterhoehung" className="hover:text-fintutto-accent">
-                  Mieterhoehung
-                </Link>
-              </li>
-              <li>
-                <Link to="/checker/kuendigung" className="hover:text-fintutto-accent">
-                  Kuendigung
-                </Link>
-              </li>
+              {footerLinks.rechner.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Rechtliches</h3>
+            <h3 className="font-semibold mb-3">Checker</h3>
             <ul className="space-y-2">
-              <li>
-                <a href="https://fintutto.de/impressum" className="hover:text-fintutto-accent">
-                  Impressum
-                </a>
-              </li>
-              <li>
-                <a href="https://fintutto.de/datenschutz" className="hover:text-fintutto-accent">
-                  Datenschutz
-                </a>
-              </li>
-              <li>
-                <a href="https://fintutto.de/agb" className="hover:text-fintutto-accent">
-                  AGB
-                </a>
-              </li>
+              {footerLinks.checker.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-3">Formulare</h3>
+            <ul className="space-y-2">
+              {footerLinks.formulare.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-3">Ökosystem</h3>
+            <ul className="space-y-2">
+              {footerLinks.oekosystem.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-3">Rechtliches</h3>
+            <ul className="space-y-2">
+              {footerLinks.rechtliches.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">
-            {currentYear} Fintutto. Alle Rechte vorbehalten.
+        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
           </p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a
-              href="https://formulare.fintutto.cloud"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Formulare-App
-            </a>
-            <a
-              href="https://rendite.fintutto.cloud"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Rendite-Rechner
-            </a>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Basierend auf deutschem Mietrecht. Keine Rechtsberatung.
+          </p>
         </div>
       </div>
     </footer>
