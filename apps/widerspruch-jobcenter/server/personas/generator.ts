@@ -409,6 +409,31 @@ function toArray<T>(v: T | T[] | undefined): T[] | undefined {
   return Array.isArray(v) ? v : [v]
 }
 
+/**
+ * Simuliert gestaffelte Beitrittszeitpunkte:
+ * - Erste 40% (Gründer): 60-120 Tage alt → volle Aktivität
+ * - Nächste 30% (Welle 2): 14-60 Tage alt → fast volle Aktivität
+ * - Letzte 30% (Späteinsteiger): 0-14 Tage → Warm-Up-Phase
+ */
+function simulatedJoinTimestamp(index: number, total: number, rng: () => number): string {
+  const now = Date.now()
+  const pct = index / total
+
+  let daysAgo: number
+  if (pct < 0.4) {
+    // Gründer-Welle: 60-120 Tage alt
+    daysAgo = 60 + Math.floor(rng() * 60)
+  } else if (pct < 0.7) {
+    // Welle 2: 14-60 Tage alt
+    daysAgo = 14 + Math.floor(rng() * 46)
+  } else {
+    // Späteinsteiger: 3-14 Tage alt (fast alle schon im Warm-Up)
+    daysAgo = 3 + Math.floor(rng() * 11)
+  }
+
+  return new Date(now - daysAgo * 86400000).toISOString()
+}
+
 function randomJoinDate(
   rng: () => number,
   from?: string,
@@ -623,7 +648,7 @@ export function generatePersonas(opts: GenerateOptions = {}): Persona[] {
       profile,
       activity,
       stats: {
-        created_at: new Date().toISOString(),
+        created_at: simulatedJoinTimestamp(i, count, rng),
         last_action: null,
         total_posts: 0,
         total_comments: 0,
