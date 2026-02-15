@@ -1,8 +1,8 @@
 # Masterplan: Zähler-App NEXT - Vollständige Feature-Konsolidierung
 
-*Stand: 14.02.2026 | Quellen: ablesung (aktuell), ft_ocr_zaehler-base44 (754 Commits), vermietify-altausbase (2.525 Commits), PV-Marktanalyse DACH*
+*Stand: 15.02.2026 | Quellen: ablesung (aktuell), ft_ocr_zaehler-base44 (754 Commits), vermietify-altausbase (2.525 Commits), PV-Marktanalyse DACH*
 
-> **Implementierungsstatus:** Phase A-E sind implementiert (14.02.2026). Phase F erfordert Backend-Arbeit und Partnerschaften.
+> **Implementierungsstatus:** Phase A-E vollständig implementiert (15.02.2026). 41/47 Features fertig (87%). Phase F erfordert Backend-Arbeit und Partnerschaften.
 
 ---
 
@@ -290,7 +290,7 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 | 16 | **MeterChecklistMode** - Ablese-Checkliste | vermietify (V2) | ✅ | `pages/BatchScanner.tsx` (integriert) |
 | 17 | **MeterReadingSchedule** - Ableseplan | vermietify (V3) | ✅ | `pages/MeterSchedule.tsx` (konfigurierbare Intervalle) |
 | 18 | **OfflineMeterQueue** - Offline-Modus | vermietify (V6) | ✅ | `hooks/useOfflineQueue.tsx` (Queue + Auto-Sync) |
-| 19 | **InvoiceOCRDialog** - Rechnung scannen | vermietify (V9) | ⏳ | *Benötigt Gemini API-Integration für Rechnungs-OCR* |
+| 19 | **InvoiceOCRDialog** - Rechnung scannen | vermietify (V9) | ✅ | `pages/InvoiceOCRDialog.tsx` (Upload, OCR, Review, Import) |
 | 20 | **CostCalculation** - Nebenkosten-Rechner | ft_ocr (C1) | ✅ | `pages/CostCalculation.tsx` (PieChart, CSV-Export) |
 
 ### Phase C: Analyse-Power (2 Wochen) — ✅ IMPLEMENTIERT (Kern)
@@ -318,7 +318,7 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 | 32 | **PDF-Report-Generierung** | ft_ocr (R5) | ✅ | `pages/ReportBuilder.tsx` (window.print → PDF) |
 | 33 | **MeterDataExportPanel** | vermietify (V8) | ✅ | `pages/CostCalculation.tsx` + `ReportBuilder.tsx` (CSV) |
 | 34 | **ExportAnalytics** (CSV/PDF) | ft_ocr (R6) | ✅ | Integriert in ReportBuilder, CostCalculation, UtilityBilling |
-| 35 | **MeterQRCodeGenerator** | vermietify (V4) | ⏳ | *Benötigt QR-Code-Bibliothek* |
+| 35 | **MeterQRCodeGenerator** | vermietify (V4) | ✅ | `pages/MeterQRCodeGenerator.tsx` (qrcode.react, Filter, Druck) |
 
 ### Phase E: Heizkosten & Vermietify-Integration (2 Wochen) — ✅ IMPLEMENTIERT (Kern)
 *Brücke zur Vermietify-App*
@@ -328,9 +328,9 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 | 36 | **HeizkostenV-Berechnung** (70/30) | vermietify (HK2) | ✅ | `pages/UtilityBilling.tsx` (§7 HeizkV, 4 Verteilschlüssel) |
 | 37 | **UtilityBilling** - Nebenkostenabrechnung | vermietify (HK1) | ✅ | `pages/UtilityBilling.tsx` (Pro-Einheit, PieChart, CSV) |
 | 38 | **MeterReadingStatus** für Abrechnungszeitraum | vermietify (HK3) | ✅ | `pages/MeterSchedule.tsx` (Überfällig-Status) |
-| 39 | **UtilitySettlementManager** | vermietify (HK4) | ⏳ | *Erweiterung: Versendung, digitale Unterschrift* |
-| 40 | **EnergyPassportManager** (GEG) | vermietify (E1+E2+E3) | ⏳ | *Benötigt GEG-Datenmodell + PDF-Extraktion* |
-| 41 | **Mieterstrom/ZEV-Abrechnung** | PV-Markt (PV13) | ⏳ | *Benötigt Vermietify-Integration* |
+| 39 | **UtilitySettlementManager** | vermietify (HK4) | ✅ | `pages/UtilitySettlementManager.tsx` (Workflow, Signatur, Versand) |
+| 40 | **EnergyPassportManager** (GEG) | vermietify (E1+E2+E3) | ✅ | `pages/EnergyPassportManager.tsx` (GEG-Skala, CO₂, Primärenergie) |
+| 41 | **Mieterstrom/ZEV-Abrechnung** | PV-Markt (PV13) | ✅ | `pages/MieterStromDashboard.tsx` (Pro-Einheit, PV-Verteilung, CSV) |
 
 ### Phase F: Plattform & Hardware (langfristig) — ⏳ OFFEN
 *Braucht Backend-Arbeit, APIs, Partnerschaften*
@@ -380,7 +380,7 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 | BulkImport | ✅ | ImportReadingsWizard.tsx |
 | Compare | ✅ Erweitert | ConsumptionAnalysis.tsx (Benchmark, Ranking) |
 | UtilityBilling | ✅ NEU | pages/UtilityBilling.tsx (HeizkV §7, 4 Verteilschlüssel) |
-| EnergyPassportManager | ⏳ | *Benötigt GEG-Datenmodell* |
+| EnergyPassportManager | ✅ NEU | pages/EnergyPassportManager.tsx (GEG A+-H, CO₂, Primärenergie) |
 | BatchMeterScanner | ✅ NEU | pages/BatchScanner.tsx |
 | Providers | ✅ | ProviderComparison.tsx |
 | ConsumptionHeatmap | ✅ NEU | pages/ConsumptionHeatmap.tsx |
@@ -391,10 +391,14 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 | MeterSchedule | ✅ NEU | pages/MeterSchedule.tsx |
 | OCRFeedbackWidget | ✅ NEU | components/meters/OCRFeedbackWidget.tsx |
 | OfflineQueue | ✅ NEU | hooks/useOfflineQueue.tsx |
+| InvoiceOCRDialog | ✅ NEU | pages/InvoiceOCRDialog.tsx (Upload, OCR, Review, Import) |
+| MeterQRCodeGenerator | ✅ NEU | pages/MeterQRCodeGenerator.tsx (qrcode.react, Filter, Print) |
+| UtilitySettlementManager | ✅ NEU | pages/UtilitySettlementManager.tsx (Workflow, Signatur, Versand) |
+| MieterStromDashboard | ✅ NEU | pages/MieterStromDashboard.tsx (PV-Verteilung, ZEV, CSV) |
 
 ---
 
-*Erstellt am 14.02.2026 aus der Analyse von:*
+*Erstellt am 14.02.2026, aktualisiert am 15.02.2026 aus der Analyse von:*
 - *ablesung/ (aktuell, 25 Features)*
 - *ft_ocr_zaehler-base44 (754 Commits, 79 Seiten, 185 Funktionen, 300+ Komponenten)*
 - *vermietify-altausbase (2.525 Commits, ~30 Zähler-Komponenten, ~25 Backend-Funktionen)*
@@ -402,18 +406,18 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 
 ---
 
-## 8. IMPLEMENTIERUNGS-FORTSCHRITT (14.02.2026)
+## 8. IMPLEMENTIERUNGS-FORTSCHRITT (15.02.2026)
 
 ### Zusammenfassung
 | Phase | Status | Features | Implementiert | Offen |
 |-------|--------|----------|---------------|-------|
 | A - Quick Wins | ✅ Fertig | 10 | 10 | 0 |
-| B - Kernfeatures | ✅ Fertig | 10 | 9 | 1 (InvoiceOCR) |
+| B - Kernfeatures | ✅ Fertig | 10 | 10 | 0 |
 | C - Analyse & KI | ✅ Fertig | 10 | 10 | 0 |
-| D - Reports & Export | ✅ Fertig | 5 | 4 | 1 (QR-Codes) |
-| E - Heizkosten | ✅ Kern fertig | 6 | 3 | 3 (Settlement, Energieausweis, ZEV) |
+| D - Reports & Export | ✅ Fertig | 5 | 5 | 0 |
+| E - Heizkosten & Vermietify | ✅ Fertig | 6 | 6 | 0 |
 | F - Plattform | ⏳ Offen | 6 | 0 | 6 (Backend/APIs nötig) |
-| **TOTAL** | | **47** | **36** | **11** |
+| **TOTAL** | | **47** | **41** | **6** |
 
 ### Neue Dateien (erstellt am 14.02.2026)
 **Seiten (13):**
@@ -438,10 +442,13 @@ Die aktuelle **ablesung**-App deckt ~95% der ursprünglich geplanten 18 Feature-
 **Hooks (1):**
 - `hooks/useOfflineQueue.tsx` — Offline-Queue mit Auto-Sync
 
+### Neue Dateien (erstellt am 15.02.2026)
+**Seiten (5):**
+- `pages/InvoiceOCRDialog.tsx` — Rechnungserkennung (Upload, OCR, Review, Multi-Zähler-Import)
+- `pages/MeterQRCodeGenerator.tsx` — QR-Code-Labels (qrcode.react, Filter, Print-Layout)
+- `pages/UtilitySettlementManager.tsx` — Abrechnungs-Workflow (Entwurf→Prüfung→Signatur→Versand)
+- `pages/EnergyPassportManager.tsx` — GEG-Energieausweis (A+-H Skala, Primärenergie, CO₂)
+- `pages/MieterStromDashboard.tsx` — Mieterstrom/ZEV (Pro-Einheit PV-Verteilung, §42a/42b EnWG)
+
 ### Offene Features (benötigen Backend/APIs)
-1. **InvoiceOCRDialog** (B.19) — Gemini API für Rechnungs-Extraktion
-2. **MeterQRCodeGenerator** (D.35) — QR-Code-Bibliothek (z.B. qrcode.react)
-3. **UtilitySettlementManager** (E.39) — Digitale Unterschrift, E-Mail-Versand
-4. **EnergyPassportManager** (E.40) — GEG-Datenmodell, PDF-AI-Extraktion
-5. **Mieterstrom/ZEV** (E.41) — Vermietify-Integration
-6. **Phase F komplett** (42-47) — Wechselrichter-APIs, Tibber/aWATTar, IoT, VPP
+1. **Phase F komplett** (42-47) — Wechselrichter-APIs (Fronius, SMA, Huawei), Dynamische Tarife (Tibber, aWATTar), Batterie-Management, VPP, IoT, Smart-Home-Hub

@@ -49,9 +49,16 @@ const EnergyFlow = lazy(() => import("./pages/EnergyFlow"));
 
 // Phase D: Reports & Export
 const ReportBuilder = lazy(() => import("./pages/ReportBuilder"));
+const MeterQRCodeGenerator = lazy(() => import("./pages/MeterQRCodeGenerator"));
 
-// Phase E: Utility Billing
+// Phase E: Utility Billing & Settlement
 const UtilityBilling = lazy(() => import("./pages/UtilityBilling"));
+const UtilitySettlementManager = lazy(() => import("./pages/UtilitySettlementManager"));
+const EnergyPassportManager = lazy(() => import("./pages/EnergyPassportManager"));
+const MieterStromDashboard = lazy(() => import("./pages/MieterStromDashboard"));
+
+// Phase B: Invoice OCR
+const InvoiceOCRDialog = lazy(() => import("./pages/InvoiceOCRDialog"));
 
 const queryClient = new QueryClient();
 
@@ -139,11 +146,18 @@ function AppRoutes() {
         <Route path="/energy-chat" element={<ProtectedRoute><EnergyChat /></ProtectedRoute>} />
         <Route path="/energy-flow" element={<ProtectedRoute><EnergyFlow /></ProtectedRoute>} />
 
+        {/* Protected routes - Phase B Invoice OCR */}
+        <Route path="/invoice-ocr" element={<ProtectedRoute><InvoiceOCRDialog /></ProtectedRoute>} />
+
         {/* Protected routes - Phase D Reports */}
         <Route path="/reports" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
+        <Route path="/qr-codes" element={<ProtectedRoute><MeterQRCodeGenerator /></ProtectedRoute>} />
 
-        {/* Protected routes - Phase E Utility Billing */}
+        {/* Protected routes - Phase E Utility Billing & Settlement */}
         <Route path="/utility-billing" element={<ProtectedRoute><UtilityBilling /></ProtectedRoute>} />
+        <Route path="/settlements" element={<ProtectedRoute><UtilitySettlementManager /></ProtectedRoute>} />
+        <Route path="/energy-passport" element={<ProtectedRoute><EnergyPassportManager /></ProtectedRoute>} />
+        <Route path="/mieterstrom" element={<ProtectedRoute><MieterStromDashboard /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

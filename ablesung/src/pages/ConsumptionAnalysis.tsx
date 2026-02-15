@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, TrendingUp, TrendingDown, Minus, Zap, Flame, Droplets, Thermometer, AlertTriangle, Sun, Cloud, FileSpreadsheet, ArrowRightLeft, ChevronRight, Grid3X3, Calculator, Lightbulb, MessageSquare, FileText } from 'lucide-react';
+import { ArrowLeft, Download, TrendingUp, TrendingDown, Minus, Zap, Flame, Droplets, Thermometer, AlertTriangle, Sun, Cloud, FileSpreadsheet, ArrowRightLeft, ChevronRight, Grid3X3, Calculator, Lightbulb, MessageSquare, FileText, QrCode, Camera, PenLine, Building2, Users } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -575,6 +575,11 @@ export default function ConsumptionAnalysis() {
               { href: '/weather', icon: Cloud, label: 'Wetterdaten', desc: 'Heizgradtage, Temperatur-Korrelation', color: 'text-blue-400' },
               { href: '/comparison', icon: ArrowRightLeft, label: 'Anbietervergleich', desc: 'Check24, Verivox, Wechselpilot', color: 'text-green-500' },
               { href: '/bk-integration', icon: FileSpreadsheet, label: 'BK-Abrechnung', desc: 'Verbrauchsanteile & CSV-Export', color: 'text-purple-500' },
+              { href: '/invoice-ocr', icon: Camera, label: 'Rechnungserkennung', desc: 'Rechnungen scannen & importieren', color: 'text-pink-500' },
+              { href: '/qr-codes', icon: QrCode, label: 'Zähler-QR-Codes', desc: 'QR-Labels drucken', color: 'text-gray-500' },
+              { href: '/settlements', icon: PenLine, label: 'Abrechnungsmanager', desc: 'Abrechnungen erstellen & versenden', color: 'text-cyan-500' },
+              { href: '/energy-passport', icon: Building2, label: 'Energieausweis', desc: 'GEG-konformer Verbrauchsausweis', color: 'text-emerald-500' },
+              { href: '/mieterstrom', icon: Users, label: 'Mieterstrom / ZEV', desc: 'PV-Strom an Mieter abrechnen', color: 'text-rose-500' },
             ].map(({ href, icon: Icon, label, desc, color }) => (
               <div
                 key={href}
