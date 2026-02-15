@@ -38,30 +38,28 @@ export class BotExecutor {
   // ── Einmaliges Setup: Personas als WP-User anlegen ──
 
   async setupPersonasInWordPress(): Promise<{ created: number; skipped: number; errors: string[] }> {
+    // Personas frisch laden – so werden bereits gesetzte wp_user_ids respektiert (Resume!)
     const personas = loadPersonas()
+    const remaining = personas.filter(p => !p.wp_user_id)
     let created = 0
-    let skipped = 0
+    let skipped = personas.length - remaining.length
     const errors: string[] = []
 
     this.wpSetupProgress = {
       running: true,
       total: personas.length,
-      current: 0,
+      current: skipped,
       created: 0,
-      skipped: 0,
+      skipped,
       errors: 0,
       currentPersona: '',
     }
 
-    for (const persona of personas) {
+    console.log(`[WP-SETUP] ${remaining.length} Personas ohne WP-User (${skipped} bereits vorhanden)`)
+
+    for (const persona of remaining) {
       this.wpSetupProgress.current++
       this.wpSetupProgress.currentPersona = `${persona.id} (${persona.display_name})`
-
-      if (persona.wp_user_id) {
-        skipped++
-        this.wpSetupProgress.skipped = skipped
-        continue
-      }
 
       try {
         const nameParts = persona.display_name.split(' ')
@@ -105,10 +103,17 @@ export class BotExecutor {
 
         errors.push(`${persona.id} (${persona.username}): ${msg}`)
         this.wpSetupProgress.errors = errors.length
+
+        // Bei Netzwerk-Fehlern: kurze Pause, dann weiter
+        if (msg.includes('ECONNREFUSED') || msg.includes('ETIMEDOUT') || msg.includes('fetch failed')) {
+          console.warn(`[WP-SETUP] Netzwerk-Fehler bei ${persona.id}, warte 10s...`)
+          await sleep(10000)
+        }
       }
     }
 
     this.wpSetupProgress.running = false
+    console.log(`[WP-SETUP] Fertig: ${created} erstellt, ${skipped} übersprungen, ${errors.length} Fehler`)
     return { created, skipped, errors }
   }
 

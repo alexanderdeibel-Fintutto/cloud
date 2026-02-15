@@ -60,15 +60,21 @@ app.listen(port, () => {
   console.log(`  WP-Ziel:  ${config.wp_base_url}`)
   console.log('══════════════════════════════════════════════════')
   console.log('')
-  console.log('Befehle:')
-  console.log('  POST /api/personas/generate     → 500 Personas generieren')
-  console.log('  POST /api/bot/setup-wp-users     → Personas in WP anlegen')
-  console.log('  POST /api/bot/generate-schedule  → Tagesplan erstellen')
-  console.log('  POST /api/bot/start              → Bot starten')
-  console.log('  POST /api/bot/stop               → Bot stoppen')
-  console.log('  GET  /api/status                 → Bot-Status')
-  console.log('  GET  /api/personas               → Alle Personas')
-  console.log('  GET  /api/schedule/today          → Heutiger Plan')
-  console.log('  GET  /api/activity               → Aktivitäts-Log')
-  console.log('')
+
+  // Auto-Start: Bot automatisch starten wenn BOT_AUTOSTART=true
+  if (process.env.BOT_AUTOSTART === 'true') {
+    console.log('[AUTOSTART] Bot wird automatisch gestartet...')
+    executor.start().catch(err => {
+      console.error('[AUTOSTART] Bot-Start fehlgeschlagen:', err)
+    })
+  }
 })
+
+// Graceful Shutdown: Timer aufräumen bei SIGTERM/SIGINT
+function gracefulShutdown(signal: string) {
+  console.log(`\n[SERVER] ${signal} empfangen, fahre herunter...`)
+  executor.stop()
+  process.exit(0)
+}
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))

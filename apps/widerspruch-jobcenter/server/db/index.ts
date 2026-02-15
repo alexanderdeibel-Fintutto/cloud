@@ -1,8 +1,9 @@
 // ══════════════════════════════════════════════════════════════
 // Lokale JSON-Datenbank für Personas, Schedule & Activity Log
+// Atomic Writes: schreibt erst in .tmp, dann atomares rename
 // ══════════════════════════════════════════════════════════════
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, renameSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import type { Persona, ScheduledAction, ActivityLogEntry } from '../personas/types'
@@ -16,14 +17,35 @@ function readJson<T>(filename: string, fallback: T): T {
   if (!existsSync(path)) return fallback
   try {
     return JSON.parse(readFileSync(path, 'utf-8'))
-  } catch {
+  } catch (err) {
+    // Korrupte Datei? Backup versuchen
+    const backupPath = path + '.backup'
+    if (existsSync(backupPath)) {
+      console.warn(`[DB] ${filename} korrupt, lade Backup...`)
+      try {
+        return JSON.parse(readFileSync(backupPath, 'utf-8'))
+      } catch { /* Backup auch kaputt */ }
+    }
+    console.error(`[DB] ${filename} konnte nicht gelesen werden:`, err)
     return fallback
   }
 }
 
 function writeJson(filename: string, data: unknown): void {
   const path = join(DATA_DIR, filename)
-  writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8')
+  const tmpPath = path + '.tmp'
+  const backupPath = path + '.backup'
+
+  // 1. In temp-Datei schreiben
+  writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf-8')
+
+  // 2. Bestehende Datei als Backup behalten
+  if (existsSync(path)) {
+    try { renameSync(path, backupPath) } catch { /* ok, überschreiben */ }
+  }
+
+  // 3. Temp → finale Datei (atomar auf gleichem Filesystem)
+  renameSync(tmpPath, path)
 }
 
 // ── Personas ──
