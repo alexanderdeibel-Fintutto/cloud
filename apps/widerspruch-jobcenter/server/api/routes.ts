@@ -6,12 +6,13 @@ import { Router, json } from 'express'
 import type { BotConfig } from '../personas/types'
 import { BotExecutor } from '../bot/executor'
 import {
-  loadPersonas, savePersonas, loadSchedule,
+  loadPersonas, savePersonas, loadSchedule, saveSchedule,
   loadActivityLog, getTodaysActions,
 } from '../db'
 import { generatePersonas, sanitizeForEmail } from '../personas/generator'
 import { summarizeSchedule } from '../bot/scheduler'
-import type { Persona } from '../personas/types'
+import type { Persona, ScheduledAction } from '../personas/types'
+import { STARTER_THREADS } from '../content/starter-threads'
 
 export function createApiRouter(config: BotConfig, executor: BotExecutor): Router {
   const router = Router()
@@ -517,6 +518,51 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
         : undefined
       const topics = await wp.getForumTopics(forumId, 50)
       res.json(topics)
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
+    }
+  })
+
+  // ── Starter-Threads: Vorgefertigte Forum-Eröffnungen ──
+
+  router.get('/starter-threads', (_req, res) => {
+    res.json(STARTER_THREADS)
+  })
+
+  router.post('/starter-threads/post', async (req, res) => {
+    const { thread_index, persona_id, title_override, body_override } = req.body
+    const thread = STARTER_THREADS[thread_index]
+    if (!thread) return res.status(400).json({ error: 'Ungültiger thread_index' })
+
+    const personas = loadPersonas()
+    const persona = personas.find(p => p.id === persona_id)
+    if (!persona) return res.status(404).json({ error: 'Persona nicht gefunden' })
+    if (!persona.wp_user_id) return res.status(400).json({ error: 'Persona hat keine WP-ID. Erst WP-User anlegen.' })
+
+    const title = title_override || thread.title
+    const body = body_override || thread.body
+
+    try {
+      const { WordPressClient } = await import('../wordpress/client')
+      const wp = new WordPressClient(config)
+
+      const forumWpId = config.forum_ids[thread.forum_id as keyof typeof config.forum_ids]
+      if (!forumWpId) return res.status(400).json({ error: `Forum "${thread.forum_id}" nicht konfiguriert (ID=0)` })
+
+      const htmlContent = `<p>${body.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
+      const topic = await wp.createForumTopic({
+        forum_id: forumWpId,
+        title,
+        content: htmlContent,
+        author: persona.wp_user_id,
+      })
+
+      res.json({
+        message: `Thread "${title}" im Forum ${thread.forum_label} gepostet`,
+        wp_id: topic.id,
+        persona: persona.display_name,
+        forum: thread.forum_label,
+      })
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
     }

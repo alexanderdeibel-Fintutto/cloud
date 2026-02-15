@@ -88,6 +88,14 @@ export const api = {
   // WordPress Test
   testWp: () => apiFetch<any>('/wp/test'),
 
+  // Starter Threads
+  getStarterThreads: () => apiFetch<any[]>('/starter-threads'),
+  postStarterThread: (data: { thread_index: number; persona_id: string; title_override?: string; body_override?: string }) =>
+    apiFetch<any>('/starter-threads/post', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
   // Organik-Check
   getOrganikCheck: () => apiFetch<any>('/bot/organik-check'),
 

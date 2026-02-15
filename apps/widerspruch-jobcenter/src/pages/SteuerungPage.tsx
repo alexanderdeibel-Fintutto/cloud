@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   ArrowLeft, Send, Search, RefreshCw, Sliders,
   UserPlus, MessageSquare, FileText, Users,
-  ChevronDown, ChevronRight, CheckCircle, AlertCircle,
+  ChevronDown, ChevronRight, CheckCircle, AlertCircle, Megaphone,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -608,7 +608,273 @@ function PersonaTemplates() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// 4. Geplante Actions ansehen + bearbeiten
+// 4. Starter-Threads: Forum-Eröffnungen posten
+// ══════════════════════════════════════════════════════════════
+
+interface StarterThread {
+  forum_id: string
+  forum_label: string
+  title: string
+  body: string
+  persona_hint: string
+  situation: string
+  posted?: boolean
+}
+
+const FORUM_COLORS: Record<string, string> = {
+  'hilfe-bescheid': '#3498db',
+  'widerspruch': '#e74c3c',
+  'sanktionen': '#e67e22',
+  'kdu-miete': '#27ae60',
+  'zuverdienst': '#9b59b6',
+  'erfolge': '#2ecc71',
+  'auskotzen': '#95a5a6',
+  'allgemeines': '#34495e',
+}
+
+function StarterThreads() {
+  const [threads, setThreads] = useState<StarterThread[]>([])
+  const [loading, setLoading] = useState(true)
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const [edits, setEdits] = useState<Record<number, { title: string; body: string }>>({})
+  const [personaSearch, setPersonaSearch] = useState<Record<number, string>>({})
+  const [searchResults, setSearchResults] = useState<Record<number, any[]>>({})
+  const [selectedPersonas, setSelectedPersonas] = useState<Record<number, any>>({})
+  const [posting, setPosting] = useState<number | null>(null)
+  const [results, setResults] = useState<Record<number, { success: boolean; message: string }>>({})
+  const [postedIndices, setPostedIndices] = useState<Set<number>>(new Set())
+
+  useEffect(() => {
+    api.getStarterThreads().then(data => {
+      setThreads(data)
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [])
+
+  const searchPersona = async (idx: number, q: string) => {
+    setPersonaSearch(prev => ({ ...prev, [idx]: q }))
+    if (q.length < 1) { setSearchResults(prev => ({ ...prev, [idx]: [] })); return }
+    try {
+      const data = await api.searchPersonas(q)
+      setSearchResults(prev => ({ ...prev, [idx]: data }))
+    } catch { /* ignore */ }
+  }
+
+  const selectPersona = (idx: number, persona: any) => {
+    setSelectedPersonas(prev => ({ ...prev, [idx]: persona }))
+    setSearchResults(prev => ({ ...prev, [idx]: [] }))
+    setPersonaSearch(prev => ({ ...prev, [idx]: '' }))
+  }
+
+  const handlePost = async (idx: number) => {
+    const persona = selectedPersonas[idx]
+    if (!persona) return
+    setPosting(idx)
+    setResults(prev => ({ ...prev, [idx]: undefined! }))
+    try {
+      const edit = edits[idx]
+      const data: any = { thread_index: idx, persona_id: persona.id }
+      if (edit?.title) data.title_override = edit.title
+      if (edit?.body) data.body_override = edit.body
+
+      const res = await api.postStarterThread(data)
+      setResults(prev => ({ ...prev, [idx]: { success: true, message: `Gepostet als ${res.persona} im Forum ${res.forum} (WP-ID: ${res.wp_id})` } }))
+      setPostedIndices(prev => new Set([...prev, idx]))
+    } catch (err) {
+      setResults(prev => ({ ...prev, [idx]: { success: false, message: err instanceof Error ? err.message : 'Fehler' } }))
+    } finally {
+      setPosting(null)
+    }
+  }
+
+  if (loading) return <div className="text-center py-4"><RefreshCw className="w-4 h-4 animate-spin mx-auto text-primary" /></div>
+  if (!threads.length) return <p className="text-xs text-muted-foreground">Keine Starter-Threads verfügbar.</p>
+
+  // Group by forum
+  const grouped: Record<string, { thread: StarterThread; idx: number }[]> = {}
+  threads.forEach((thread, idx) => {
+    if (!grouped[thread.forum_id]) grouped[thread.forum_id] = []
+    grouped[thread.forum_id].push({ thread, idx })
+  })
+
+  const postedCount = postedIndices.size
+  const totalCount = threads.length
+
+  return (
+    <div className="space-y-3">
+      {/* Progress bar */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary rounded-full transition-all"
+            style={{ width: `${(postedCount / totalCount) * 100}%` }}
+          />
+        </div>
+        <span className="text-[10px] text-muted-foreground font-mono">{postedCount}/{totalCount} gepostet</span>
+      </div>
+
+      {Object.entries(grouped).map(([forumId, items]) => (
+        <div key={forumId} className="border border-border rounded-lg overflow-hidden">
+          {/* Forum header */}
+          <div
+            className="flex items-center gap-2 px-3 py-2"
+            style={{ backgroundColor: `${FORUM_COLORS[forumId]}10`, borderLeft: `3px solid ${FORUM_COLORS[forumId]}` }}
+          >
+            <div
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: FORUM_COLORS[forumId] }}
+            />
+            <span className="text-xs font-semibold">{items[0].thread.forum_label}</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">
+              {items.filter(i => postedIndices.has(i.idx)).length}/{items.length}
+            </span>
+          </div>
+
+          {/* Threads */}
+          <div className="divide-y divide-border">
+            {items.map(({ thread, idx }) => {
+              const isExpanded = expanded === idx
+              const isPosted = postedIndices.has(idx)
+              const persona = selectedPersonas[idx]
+              const edit = edits[idx]
+              const result = results[idx]
+
+              return (
+                <div key={idx} className={`${isPosted ? 'bg-green-50/50' : ''}`}>
+                  {/* Thread row */}
+                  <button
+                    onClick={() => setExpanded(isExpanded ? null : idx)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-muted/50 transition-colors"
+                  >
+                    {isPosted
+                      ? <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                      : <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                    }
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium truncate">{edit?.title || thread.title}</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {thread.persona_hint} · {thread.situation}
+                      </div>
+                    </div>
+                    {persona && (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded text-[10px] text-primary flex-shrink-0">
+                        <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-white text-[7px] font-bold"
+                          style={{ backgroundColor: persona.avatar_color || '#3498db' }}>
+                          {persona.display_name?.slice(0, 2).toUpperCase()}
+                        </div>
+                        {persona.display_name}
+                      </div>
+                    )}
+                    {isExpanded ? <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />}
+                  </button>
+
+                  {/* Expanded detail */}
+                  {isExpanded && (
+                    <div className="px-3 pb-3 pt-1 space-y-2 border-t border-border bg-muted/20">
+                      {/* Persona selection */}
+                      <div>
+                        <label className="block text-[10px] font-medium mb-1">Persona auswählen</label>
+                        {persona ? (
+                          <div className="flex items-center gap-2 p-1.5 bg-primary/5 border border-primary/20 rounded text-xs">
+                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold"
+                              style={{ backgroundColor: persona.avatar_color || '#3498db' }}>
+                              {persona.display_name?.slice(0, 2).toUpperCase()}
+                            </div>
+                            <span className="font-medium">{persona.display_name}</span>
+                            <span className="text-[10px] text-muted-foreground">@{persona.username}</span>
+                            {!persona.wp_user_id && <span className="text-destructive text-[10px]">kein WP!</span>}
+                            <button
+                              onClick={() => setSelectedPersonas(prev => { const n = { ...prev }; delete n[idx]; return n })}
+                              className="text-[10px] text-muted-foreground hover:text-foreground ml-auto"
+                            >Ändern</button>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1.5 w-3 h-3 text-muted-foreground" />
+                            <input
+                              value={personaSearch[idx] || ''}
+                              onChange={e => searchPersona(idx, e.target.value)}
+                              placeholder={`Persona suchen (Tipp: ${thread.persona_hint})...`}
+                              className="w-full pl-6 pr-2 py-1 text-[11px] bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
+                            />
+                            {(searchResults[idx] || []).length > 0 && (
+                              <div className="absolute z-10 w-full mt-0.5 bg-card border border-border rounded shadow-lg max-h-36 overflow-y-auto">
+                                {searchResults[idx].map((p: any) => (
+                                  <button
+                                    key={p.id}
+                                    onClick={() => selectPersona(idx, p)}
+                                    className="w-full flex items-center gap-1.5 px-2 py-1.5 text-left hover:bg-muted text-[11px] border-b border-border last:border-0"
+                                  >
+                                    <div className="w-4 h-4 rounded-full flex items-center justify-center text-white text-[7px] font-bold"
+                                      style={{ backgroundColor: p.avatar_color || '#3498db' }}>
+                                      {p.display_name?.slice(0, 2).toUpperCase()}
+                                    </div>
+                                    <span className="font-medium">{p.display_name}</span>
+                                    <span className="text-muted-foreground">{p.situation}</span>
+                                    {!p.wp_user_id && <span className="text-destructive text-[10px]">kein WP</span>}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Editable title */}
+                      <div>
+                        <label className="block text-[10px] font-medium mb-0.5">Titel</label>
+                        <input
+                          value={edit?.title ?? thread.title}
+                          onChange={e => setEdits(prev => ({ ...prev, [idx]: { ...prev[idx], title: e.target.value, body: prev[idx]?.body ?? thread.body } }))}
+                          className="w-full px-2 py-1 text-[11px] bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
+                        />
+                      </div>
+
+                      {/* Editable body */}
+                      <div>
+                        <label className="block text-[10px] font-medium mb-0.5">Inhalt</label>
+                        <textarea
+                          value={edit?.body ?? thread.body}
+                          onChange={e => setEdits(prev => ({ ...prev, [idx]: { title: prev[idx]?.title ?? thread.title, body: e.target.value } }))}
+                          rows={8}
+                          className="w-full px-2 py-1 text-[11px] bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring resize-y font-mono"
+                        />
+                        <p className="text-[10px] text-muted-foreground">{(edit?.body ?? thread.body).length} Zeichen</p>
+                      </div>
+
+                      {/* Result message */}
+                      {result && (
+                        <div className={`flex items-center gap-1.5 p-1.5 rounded text-[11px] ${
+                          result.success ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-destructive/10 text-destructive border border-destructive/20'
+                        }`}>
+                          {result.success ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                          {result.message}
+                        </div>
+                      )}
+
+                      {/* Post button */}
+                      <button
+                        onClick={() => handlePost(idx)}
+                        disabled={!persona || posting === idx || isPosted}
+                        className="btn-forum-primary text-[11px] disabled:opacity-50"
+                      >
+                        {posting === idx ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                        {isPosted ? 'Bereits gepostet' : posting === idx ? 'Wird gepostet...' : 'Thread posten'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════
+// 5. Geplante Actions ansehen + bearbeiten
 // ══════════════════════════════════════════════════════════════
 
 function SchedulePreview() {
@@ -688,7 +954,7 @@ export default function SteuerungPage() {
           Steuerung
         </h1>
         <p className="text-xs text-muted-foreground mt-1">
-          Manuell posten, BB-Affinität steuern, Personas aus Vorlagen erstellen
+          Manuell posten, Starter-Threads veröffentlichen, BB-Affinität steuern
         </p>
       </div>
 
@@ -703,6 +969,10 @@ export default function SteuerungPage() {
 
         <Section title="Persona aus Vorlage erstellen" icon={UserPlus} defaultOpen={false}>
           <PersonaTemplates />
+        </Section>
+
+        <Section title="Starter-Threads (Forum-Eröffnungen)" icon={Megaphone} defaultOpen={true}>
+          <StarterThreads />
         </Section>
 
         <Section title="Geplante BB-Erwähnungen (Heute)" icon={MessageSquare} defaultOpen={false}>
