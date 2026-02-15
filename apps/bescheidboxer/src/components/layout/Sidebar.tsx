@@ -24,6 +24,10 @@ import {
   PieChart,
   FolderOpen,
   Bell,
+  Activity,
+  Lightbulb,
+  LifeBuoy,
+  FolderDown,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -46,10 +50,14 @@ const navigation = [
   { name: 'Statistiken', href: '/statistiken', icon: PieChart },
   { name: 'Dokumente', href: '/dokumente', icon: FolderOpen },
   { name: 'Benachrichtigungen', href: '/benachrichtigungen', icon: Bell },
+  { name: 'Aktivitaeten', href: '/aktivitaeten', icon: Activity },
+  { name: 'Steuer-Tipps', href: '/steuer-tipps', icon: Lightbulb },
+  { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
   { name: 'Mein Profil', href: '/profil', icon: User },
   { name: 'Freunde werben', href: '/referral', icon: Users },
+  { name: 'Kontakt & Support', href: '/kontakt', icon: LifeBuoy },
   { name: 'Hilfe & Glossar', href: '/hilfe', icon: HelpCircle },
   { name: 'Einstellungen', href: '/einstellungen', icon: Settings },
 ]

@@ -31,6 +31,10 @@ import {
   FolderOpen,
   Bell,
   Sparkles,
+  Activity,
+  Lightbulb,
+  LifeBuoy,
+  FolderDown,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -96,6 +100,10 @@ export default function CommandPalette() {
     { id: 'nav-dokumente', label: 'Dokumente', description: 'Alle hochgeladenen Dateien', icon: FolderOpen, category: 'navigation', keywords: ['dokument', 'datei', 'file', 'pdf', 'bild', 'foto'], action: () => runAndClose(() => navigate('/dokumente')) },
     { id: 'nav-benachrichtigungen', label: 'Benachrichtigungen', description: 'Alle Nachrichten', icon: Bell, category: 'navigation', keywords: ['benachrichtigung', 'nachricht', 'notification', 'alarm', 'glocke'], action: () => runAndClose(() => navigate('/benachrichtigungen')) },
     { id: 'nav-onboarding', label: 'Einfuehrung', description: 'App-Tour starten', icon: Sparkles, category: 'navigation', keywords: ['onboarding', 'tour', 'einfuehrung', 'willkommen', 'hilfe', 'start'], action: () => runAndClose(() => navigate('/onboarding')) },
+    { id: 'nav-aktivitaeten', label: 'Aktivitaeten', description: 'Aktivitaets-Protokoll', icon: Activity, category: 'navigation', keywords: ['aktivitaet', 'protokoll', 'timeline', 'verlauf', 'log'], action: () => runAndClose(() => navigate('/aktivitaeten')) },
+    { id: 'nav-steuer-tipps', label: 'Steuer-Tipps', description: 'Tipps zur Steuerersparnis', icon: Lightbulb, category: 'navigation', keywords: ['tipp', 'steuer', 'sparen', 'ratgeber', 'hinweis'], action: () => runAndClose(() => navigate('/steuer-tipps')) },
+    { id: 'nav-kontakt', label: 'Kontakt & Support', description: 'Hilfe & FAQ', icon: LifeBuoy, category: 'navigation', keywords: ['kontakt', 'support', 'hilfe', 'faq', 'frage', 'telefon', 'email'], action: () => runAndClose(() => navigate('/kontakt')) },
+    { id: 'nav-daten-export', label: 'Daten-Export', description: 'Daten herunterladen', icon: FolderDown, category: 'navigation', keywords: ['export', 'daten', 'download', 'csv', 'json', 'pdf', 'herunterladen'], action: () => runAndClose(() => navigate('/daten-export')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

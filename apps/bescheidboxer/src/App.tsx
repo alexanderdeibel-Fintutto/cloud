@@ -37,6 +37,10 @@ import StatistikPage from './pages/StatistikPage'
 import DokumentenPage from './pages/DokumentenPage'
 import BenachrichtigungenPage from './pages/BenachrichtigungenPage'
 import OnboardingPage from './pages/OnboardingPage'
+import AktivitaetsProtokollPage from './pages/AktivitaetsProtokollPage'
+import SteuerTippsPage from './pages/SteuerTippsPage'
+import KontaktPage from './pages/KontaktPage'
+import DatenExportPage from './pages/DatenExportPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -93,6 +97,10 @@ function App() {
             <Route path="dokumente" element={<DokumentenPage />} />
             <Route path="benachrichtigungen" element={<BenachrichtigungenPage />} />
             <Route path="onboarding" element={<OnboardingPage />} />
+            <Route path="aktivitaeten" element={<AktivitaetsProtokollPage />} />
+            <Route path="steuer-tipps" element={<SteuerTippsPage />} />
+            <Route path="kontakt" element={<KontaktPage />} />
+            <Route path="daten-export" element={<DatenExportPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
