@@ -87,4 +87,18 @@ export const api = {
 
   // WordPress Test
   testWp: () => apiFetch<any>('/wp/test'),
+
+  // Organik-Check
+  getOrganikCheck: () => apiFetch<any>('/bot/organik-check'),
+
+  // Konversations-Planer
+  planConversation: (data: {
+    forum_id: string
+    topic_title: string
+    persona_ids: string[]
+    start_delay_minutes?: number
+  }) => apiFetch<any>('/bot/plan-conversation', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 }

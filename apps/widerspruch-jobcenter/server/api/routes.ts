@@ -522,6 +522,274 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     }
   })
 
+  // ── Organik-Check: Analyse der Bot-Patterns ──
+
+  router.get('/bot/organik-check', (_req, res) => {
+    const personas = loadPersonas()
+    const schedule = loadSchedule()
+    const activity = loadActivityLog()
+    const now = new Date()
+
+    const warnings: { level: 'critical' | 'warning' | 'info'; message: string; detail: string }[] = []
+    let score = 100 // Start bei 100, Abzüge für Probleme
+
+    // 1. Warm-Up-Verletzungen: Personas die zu früh posten
+    const warmupViolations: string[] = []
+    for (const p of personas) {
+      if (!p.stats.created_at || !p.stats.last_action) continue
+      const created = new Date(p.stats.created_at)
+      const firstAction = new Date(p.stats.last_action)
+      const daysToFirst = (firstAction.getTime() - created.getTime()) / 86400000
+      if (daysToFirst < 3) {
+        warmupViolations.push(`${p.display_name} (${p.id}): ${daysToFirst.toFixed(1)} Tage`)
+      }
+    }
+    if (warmupViolations.length > 0) {
+      score -= Math.min(30, warmupViolations.length * 3)
+      warnings.push({
+        level: 'critical',
+        message: `${warmupViolations.length} Personas ohne Warm-Up`,
+        detail: `Diese Personas haben innerhalb von 3 Tagen nach Erstellung gepostet: ${warmupViolations.slice(0, 5).join(', ')}${warmupViolations.length > 5 ? '...' : ''}`,
+      })
+    }
+
+    // 2. Reply-Quote: Verhältnis Topics vs Replies
+    const todayActions = schedule.filter(a => a.scheduled_at.startsWith(now.toISOString().slice(0, 10)))
+    const topics = todayActions.filter(a => a.action_type === 'forum_topic' || a.action_type === 'blog_post').length
+    const replies = todayActions.filter(a => a.action_type === 'forum_reply' || a.action_type === 'blog_comment').length
+    const replyRatio = (topics + replies) > 0 ? replies / (topics + replies) : 0
+    if (replyRatio < 0.5 && (topics + replies) > 5) {
+      score -= 15
+      warnings.push({
+        level: 'warning',
+        message: `Reply-Quote nur ${(replyRatio * 100).toFixed(0)}% (Ziel: >60%)`,
+        detail: `${topics} neue Topics vs ${replies} Replies heute. Echte Foren haben mehr Antworten als neue Threads.`,
+      })
+    } else if (replyRatio >= 0.6) {
+      warnings.push({
+        level: 'info',
+        message: `Reply-Quote bei ${(replyRatio * 100).toFixed(0)}% – gut!`,
+        detail: `${replies} Replies, ${topics} Topics`,
+      })
+    }
+
+    // 3. Posting-Zeitverteilung (Entropy)
+    const hourBuckets = new Array(24).fill(0)
+    for (const a of todayActions) {
+      const h = new Date(a.scheduled_at).getHours()
+      hourBuckets[h]++
+    }
+    const activeHours = hourBuckets.filter(n => n > 0).length
+    const nightPosts = hourBuckets.slice(23, 24).reduce((s, n) => s + n, 0)
+      + hourBuckets.slice(0, 7).reduce((s, n) => s + n, 0)
+    if (nightPosts === 0 && todayActions.length > 10) {
+      score -= 10
+      warnings.push({
+        level: 'warning',
+        message: 'Keine Nacht-Posts (23-7 Uhr)',
+        detail: 'Alle Posts fallen ins Tagfenster. Nachtaktive Personas sollten gelegentlich spät posten.',
+      })
+    }
+    if (activeHours < 8 && todayActions.length > 20) {
+      score -= 10
+      warnings.push({
+        level: 'warning',
+        message: `Nur ${activeHours} aktive Stunden`,
+        detail: 'Posts konzentrieren sich auf wenige Stunden. Breiter verteilen für natürlicheres Muster.',
+      })
+    }
+
+    // 4. BB-Erwähnungen zu gehäuft?
+    const bbActions = todayActions.filter(a => a.content?.body?.toLowerCase().includes('bescheidboxer'))
+    const bbRate = todayActions.length > 0 ? bbActions.length / todayActions.length : 0
+    if (bbRate > 0.15) {
+      score -= 15
+      warnings.push({
+        level: 'critical',
+        message: `BB-Erwähnungsrate ${(bbRate * 100).toFixed(0)}% – zu hoch!`,
+        detail: `${bbActions.length} von ${todayActions.length} Posts erwähnen BescheidBoxer. Empfohlen: <10%.`,
+      })
+    } else if (bbRate > 0.08) {
+      score -= 5
+      warnings.push({
+        level: 'warning',
+        message: `BB-Erwähnungsrate ${(bbRate * 100).toFixed(0)}%`,
+        detail: `${bbActions.length} von ${todayActions.length} Posts. Empfohlen: <8% für organisches Wirken.`,
+      })
+    }
+
+    // 5. Konversations-Tiefe: Gibt es Threads mit mehreren Antworten?
+    const topicIds = new Set(todayActions.filter(a => a.target?.topic_id).map(a => a.target.topic_id))
+    const deepThreads = [...topicIds].filter(tid =>
+      todayActions.filter(a => a.target?.topic_id === tid).length >= 2
+    ).length
+    if (deepThreads === 0 && todayActions.length > 10) {
+      score -= 10
+      warnings.push({
+        level: 'warning',
+        message: 'Keine Konversations-Threads',
+        detail: 'Keine Topics haben mehrere Bot-Antworten. Plane Konversationen zwischen Personas ein.',
+      })
+    }
+
+    // 6. Velocity: Zu viele Posts auf einmal?
+    const sortedTimes = todayActions
+      .map(a => new Date(a.scheduled_at).getTime())
+      .sort((a, b) => a - b)
+    let maxBurst = 0
+    for (let i = 0; i < sortedTimes.length - 2; i++) {
+      const span = (sortedTimes[i + 2] - sortedTimes[i]) / 60000
+      if (span < 5) maxBurst++
+    }
+    if (maxBurst > 3) {
+      score -= 10
+      warnings.push({
+        level: 'warning',
+        message: `${maxBurst}x Burst-Posting erkannt`,
+        detail: '3+ Posts innerhalb von 5 Minuten. Mindestabstand sollte 15+ Minuten sein.',
+      })
+    }
+
+    // 7. Personas mit WP-ID vs ohne
+    const withWp = personas.filter(p => p.wp_user_id).length
+    const withoutWp = personas.length - withWp
+    if (withoutWp > 0 && withWp > 0) {
+      warnings.push({
+        level: 'info',
+        message: `${withoutWp} Personas ohne WP-User`,
+        detail: 'Diese Personas können nicht posten. "WP-User anlegen" ausführen.',
+      })
+    }
+
+    // Posting pattern heatmap data (24h x 7 days)
+    const heatmap: number[][] = Array.from({ length: 7 }, () => new Array(24).fill(0))
+    for (const a of schedule) {
+      const d = new Date(a.scheduled_at)
+      const day = d.getDay()
+      const hour = d.getHours()
+      heatmap[day][hour]++
+    }
+
+    // Persona age distribution
+    const ageDistribution = { fresh: 0, warmup: 0, active: 0, mature: 0 }
+    for (const p of personas) {
+      if (!p.stats.created_at) { ageDistribution.mature++; continue }
+      const ageDays = (now.getTime() - new Date(p.stats.created_at).getTime()) / 86400000
+      if (ageDays < 3) ageDistribution.fresh++
+      else if (ageDays < 14) ageDistribution.warmup++
+      else if (ageDays < 30) ageDistribution.active++
+      else ageDistribution.mature++
+    }
+
+    score = Math.max(0, Math.min(100, score))
+
+    res.json({
+      score,
+      scoreLabel: score >= 80 ? 'Gut' : score >= 60 ? 'Ausbaufähig' : score >= 40 ? 'Riskant' : 'Kritisch',
+      warnings,
+      stats: {
+        totalPersonas: personas.length,
+        personasWithWp: withWp,
+        todayActions: todayActions.length,
+        replyRatio: Math.round(replyRatio * 100),
+        bbMentionRate: Math.round(bbRate * 100),
+        activeHours,
+        deepThreads,
+        ageDistribution,
+      },
+      heatmap,
+    })
+  })
+
+  // ── Konversations-Planer: Multi-Persona Thread ──
+
+  router.post('/bot/plan-conversation', (req, res) => {
+    const { forum_id, topic_title, persona_ids, start_delay_minutes } = req.body
+    if (!forum_id || !topic_title || !persona_ids || persona_ids.length < 2) {
+      return res.status(400).json({ error: 'forum_id, topic_title und mindestens 2 persona_ids erforderlich' })
+    }
+
+    const personas = loadPersonas()
+    const participants = persona_ids
+      .map((id: string) => personas.find(p => p.id === id))
+      .filter((p: Persona | undefined): p is Persona => !!p)
+
+    if (participants.length < 2) {
+      return res.status(400).json({ error: 'Mindestens 2 gültige Personas erforderlich' })
+    }
+
+    const now = new Date()
+    const baseDelay = (start_delay_minutes || 30) * 60000
+    const actions: ScheduledAction[] = []
+
+    // 1. Topic-Ersteller: Erste Persona erstellt den Thread
+    const topicCreator = participants[0]
+    const topicTime = new Date(now.getTime() + baseDelay)
+    actions.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+      persona_id: topicCreator.id,
+      action_type: 'forum_topic',
+      scheduled_at: topicTime.toISOString(),
+      executed_at: null,
+      status: 'pending',
+      target: { forum_id },
+      content: { title: topic_title, body: '' }, // Body wird manuell ausgefüllt oder vom Content-Generator
+    })
+
+    // 2. Antworten: Weitere Personas antworten mit realistischen Abständen
+    let lastTime = topicTime.getTime()
+    for (let i = 1; i < participants.length; i++) {
+      // Realistischer Abstand: 20min-4h, exponentiell wachsend
+      const minDelay = 20 * 60000  // 20 Minuten
+      const maxDelay = 240 * 60000 // 4 Stunden
+      const delay = minDelay + Math.random() * (maxDelay - minDelay) * (1 + i * 0.3)
+      const replyTime = new Date(lastTime + delay)
+
+      actions.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + i,
+        persona_id: participants[i].id,
+        action_type: 'forum_reply',
+        scheduled_at: replyTime.toISOString(),
+        executed_at: null,
+        status: 'pending',
+        target: { forum_id },
+        content: { body: '' }, // Muss manuell oder automatisch befüllt werden
+      })
+      lastTime = replyTime.getTime()
+    }
+
+    // Optional: Topic-Ersteller antwortet nochmal (Dankeschön/Follow-Up)
+    if (participants.length >= 3 && Math.random() > 0.3) {
+      const followUpDelay = 30 * 60000 + Math.random() * 120 * 60000
+      actions.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + 'f',
+        persona_id: topicCreator.id,
+        action_type: 'forum_reply',
+        scheduled_at: new Date(lastTime + followUpDelay).toISOString(),
+        executed_at: null,
+        status: 'pending',
+        target: { forum_id },
+        content: { body: '' },
+      })
+    }
+
+    // Schedule speichern
+    const existingSchedule = loadSchedule()
+    saveSchedule([...existingSchedule, ...actions])
+
+    res.json({
+      message: `Konversation geplant: "${topic_title}" mit ${participants.length} Personas`,
+      actions: actions.map(a => ({
+        id: a.id,
+        persona_id: a.persona_id,
+        persona_name: participants.find((p: Persona) => p.id === a.persona_id)?.display_name,
+        action_type: a.action_type,
+        scheduled_at: a.scheduled_at,
+        time: new Date(a.scheduled_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+      })),
+    })
+  })
+
   return router
 }
 

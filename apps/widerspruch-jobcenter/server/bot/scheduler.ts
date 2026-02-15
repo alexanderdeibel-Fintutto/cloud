@@ -114,11 +114,13 @@ function pickMinute(rng: () => number): number {
 
 /**
  * Prüft ob eine Persona heute aktiv sein sollte
+ * Berücksichtigt jetzt auch Warm-Up (Account-Alter)
  */
 function isActiveToday(
   persona: Persona,
   dayOfWeek: number, // 0=So, 6=Sa
   rng: () => number,
+  today?: Date,
 ): boolean {
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
   const freq = persona.activity.posting_frequency
@@ -137,6 +139,21 @@ function isActiveToday(
 
   // Wochenende: 60% der Werktags-Aktivität
   if (isWeekend) chance *= 0.6
+
+  // ── Warm-Up: Neue Personas starten langsam ──
+  if (persona.stats.created_at && today) {
+    const createdAt = new Date(persona.stats.created_at)
+    const ageDays = Math.floor((today.getTime() - createdAt.getTime()) / 86400000)
+
+    if (ageDays < 3) chance = 0            // Tage 0-2: Nur Profil angelegt, noch nicht aktiv
+    else if (ageDays < 7) chance *= 0.15   // Tage 3-6: Sehr selten (erste Kommentare)
+    else if (ageDays < 14) chance *= 0.4   // Tage 7-13: Langsam reinwachsen
+    else if (ageDays < 30) chance *= 0.7   // Tage 14-29: Fast normal
+    // Ab Tag 30: volle Aktivität
+  }
+
+  // ── Zufällige Pausen: ~5% Chance auf "freien Tag" ──
+  if (rng() < 0.05) return false
 
   return rng() < chance
 }
@@ -173,17 +190,33 @@ export function generateDailySchedule(
   let totalComments = 0
 
   for (const persona of personas) {
-    // Soll diese Persona heute aktiv sein?
-    if (!isActiveToday(persona, dayOfWeek, rng)) continue
+    // Soll diese Persona heute aktiv sein? (inkl. Warm-Up + Pausen)
+    if (!isActiveToday(persona, dayOfWeek, rng, date)) continue
 
     const actionCount = getActionCount(persona, rng)
 
+    // Warm-Up: Account-Alter berechnen für Action-Type-Steuerung
+    const personaAgeDays = persona.stats.created_at
+      ? Math.floor((date.getTime() - new Date(persona.stats.created_at).getTime()) / 86400000)
+      : 999
+
     for (let a = 0; a < actionCount; a++) {
       // Rate-Limits prüfen
-      const actionType = weightedPick(
-        ENGAGEMENT_ACTION_WEIGHTS[persona.activity.engagement_style],
-        rng,
-      )
+      let actionType: ActionType
+
+      // Warm-Up Phase: Neue Personas kommentieren nur, posten nicht
+      if (personaAgeDays < 14) {
+        // Erste 2 Wochen: Nur Kommentare, Replies, Likes (keine eigenen Posts/Topics)
+        const warmupWeights: [ActionType, number][] = [
+          ['blog_comment', 30], ['forum_reply', 40], ['like', 30],
+        ]
+        actionType = weightedPick(warmupWeights, rng)
+      } else {
+        actionType = weightedPick(
+          ENGAGEMENT_ACTION_WEIGHTS[persona.activity.engagement_style],
+          rng,
+        )
+      }
 
       const isPost = actionType === 'blog_post' || actionType === 'forum_topic'
       const isComment = actionType === 'blog_comment' || actionType === 'blog_comment_reply' || actionType === 'forum_reply'
