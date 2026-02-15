@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { User, Shield, Bell, CreditCard, LogOut, Loader2, Copy, Check, AlertTriangle, Sun, Moon, Monitor, Type } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -305,10 +305,12 @@ export default function EinstellungenPage() {
                   </div>
                 )}
 
-                {tier === 'free' && (
-                  <Button className="w-full sm:w-auto">
-                    Auf Premium upgraden
-                  </Button>
+                {tier !== 'professional' && (
+                  <Link to="/upgrade">
+                    <Button className="w-full sm:w-auto">
+                      Auf Premium upgraden
+                    </Button>
+                  </Link>
                 )}
               </CardContent>
             </Card>

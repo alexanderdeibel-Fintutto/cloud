@@ -25,6 +25,10 @@ import KalenderPage from './pages/KalenderPage'
 import SteuerRechnerPage from './pages/SteuerRechnerPage'
 import SuchePage from './pages/SuchePage'
 import ProfilPage from './pages/ProfilPage'
+import UpgradePage from './pages/UpgradePage'
+import EinspruchVorlagenPage from './pages/einspruch/EinspruchVorlagenPage'
+import FinanzamtVerzeichnisPage from './pages/FinanzamtVerzeichnisPage'
+import ChecklistePage from './pages/ChecklistePage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -69,6 +73,10 @@ function App() {
             <Route path="steuerrechner" element={<SteuerRechnerPage />} />
             <Route path="suche" element={<SuchePage />} />
             <Route path="profil" element={<ProfilPage />} />
+            <Route path="upgrade" element={<UpgradePage />} />
+            <Route path="einspruch/vorlagen" element={<EinspruchVorlagenPage />} />
+            <Route path="finanzaemter" element={<FinanzamtVerzeichnisPage />} />
+            <Route path="checkliste" element={<ChecklistePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

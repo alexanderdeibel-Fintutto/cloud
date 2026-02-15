@@ -14,6 +14,9 @@ import {
   CalendarDays,
   Calculator,
   User,
+  Building2,
+  ClipboardCheck,
+  FileStack,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -26,7 +29,10 @@ const navigation = [
   { name: 'Kalender', href: '/kalender', icon: CalendarDays },
   { name: 'Einspruch', href: '/einspruch', icon: ShieldAlert },
   { name: 'Vergleich', href: '/vergleich', icon: ArrowLeftRight },
+  { name: 'Einspruch-Vorlagen', href: '/einspruch/vorlagen', icon: FileStack },
   { name: 'Steuer-Rechner', href: '/steuerrechner', icon: Calculator },
+  { name: 'Checkliste', href: '/checkliste', icon: ClipboardCheck },
+  { name: 'Finanzaemter', href: '/finanzaemter', icon: Building2 },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
   { name: 'Mein Profil', href: '/profil', icon: User },
   { name: 'Freunde werben', href: '/referral', icon: Users },
@@ -68,9 +74,9 @@ export default function Sidebar() {
           <p className="text-xs opacity-80 mt-1">
             Unbegrenzte Analysen & automatische Einsprueche
           </p>
-          <button className="mt-3 w-full rounded-md bg-white/20 px-3 py-1.5 text-xs font-medium hover:bg-white/30 transition-colors">
+          <Link to="/upgrade" className="mt-3 w-full rounded-md bg-white/20 px-3 py-1.5 text-xs font-medium hover:bg-white/30 transition-colors block text-center">
             Upgrade
-          </button>
+          </Link>
         </div>
       </div>
     </aside>

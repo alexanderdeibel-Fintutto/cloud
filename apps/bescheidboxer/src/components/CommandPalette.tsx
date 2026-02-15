@@ -19,6 +19,10 @@ import {
   CalendarDays,
   Calculator,
   User,
+  Building2,
+  ClipboardCheck,
+  FileStack,
+  CreditCard,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -72,6 +76,10 @@ export default function CommandPalette() {
     { id: 'nav-rechner', label: 'Steuer-Rechner', description: 'Einkommensteuer berechnen', icon: Calculator, category: 'navigation', keywords: ['rechner', 'calculator', 'berechnen', 'steuer', 'einkommen'], action: () => runAndClose(() => navigate('/steuerrechner')) },
     { id: 'nav-suche', label: 'Suche', description: 'Alles durchsuchen', icon: Search, category: 'navigation', keywords: ['suche', 'suchen', 'finden', 'search'], action: () => runAndClose(() => navigate('/suche')) },
     { id: 'nav-profil', label: 'Mein Profil', description: 'Profil & Statistiken', icon: User, category: 'navigation', keywords: ['profil', 'konto', 'account', 'benutzer'], action: () => runAndClose(() => navigate('/profil')) },
+    { id: 'nav-vorlagen', label: 'Einspruch-Vorlagen', description: 'Professionelle Einspruch-Templates', icon: FileStack, category: 'navigation', keywords: ['vorlage', 'template', 'einspruch', 'muster'], action: () => runAndClose(() => navigate('/einspruch/vorlagen')) },
+    { id: 'nav-checkliste', label: 'Steuer-Checkliste', description: 'Schritt-fuer-Schritt Pruefung', icon: ClipboardCheck, category: 'navigation', keywords: ['checkliste', 'todo', 'schritte', 'pruefung'], action: () => runAndClose(() => navigate('/checkliste')) },
+    { id: 'nav-finanzaemter', label: 'Finanzamt-Verzeichnis', description: 'Finanzaemter finden', icon: Building2, category: 'navigation', keywords: ['finanzamt', 'verzeichnis', 'adresse', 'kontakt', 'telefon'], action: () => runAndClose(() => navigate('/finanzaemter')) },
+    { id: 'nav-upgrade', label: 'Upgrade', description: 'Tarife & Preise', icon: CreditCard, category: 'navigation', keywords: ['upgrade', 'premium', 'pro', 'tarif', 'preis', 'abo'], action: () => runAndClose(() => navigate('/upgrade')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
