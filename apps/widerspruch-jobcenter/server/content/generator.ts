@@ -11,6 +11,9 @@ import {
   COMMENT_TEMPLATES,
   BESCHEIDBOXER_MENTIONS,
   fillTemplate,
+  type ContentMood,
+  type TaggedTitle,
+  type TaggedBody,
 } from './templates'
 
 // ── Seeded RNG ──
@@ -96,8 +99,28 @@ function applySchreibstil(text: string, persona: Persona, rng: () => number): st
 
 // ── Hauptfunktionen ──
 
+// Mood-kompatible Opener-Zuordnung:
+// Jeder Body hat eine mood, und der Opener muss semantisch dazu passen
+const MOOD_TO_OPENER: Record<ContentMood, string[]> = {
+  frage:   ['frage'],
+  bericht: ['bericht'],
+  erfolg:  ['erfolg'],
+  frust:   ['frust', 'bericht'],
+  tipp:    ['tipp', 'bericht'],
+}
+
+// Mood-passende Abschlüsse
+const CLOSINGS_BY_MOOD: Record<ContentMood, string[]> = {
+  frage:   ['Was meint ihr?', 'Hat jemand ähnliche Erfahrungen?', 'Danke schonmal!', 'Bin für jeden Tipp dankbar.', 'Freue mich auf eure Antworten.', 'Danke im Voraus!', 'Wäre super wenn jemand helfen kann.'],
+  bericht: ['Was meint ihr?', 'Hat jemand ähnliche Erfahrungen?', 'LG', 'Gruß', ''],
+  erfolg:  ['Nie aufgeben!', 'Es lohnt sich zu kämpfen!', 'Wollte euch das einfach mal erzählen.', 'LG', ''],
+  frust:   ['Musste ich einfach mal loswerden.', 'Sorry, musste raus.', 'Geht es euch auch so?', ''],
+  tipp:    ['Hoffe das hilft jemandem!', 'LG', 'Viel Erfolg!', ''],
+}
+
 /**
- * Generiert einen vollständigen Post (Titel + Content) für eine Persona
+ * Generiert einen vollständigen Post (Titel + Content) für eine Persona.
+ * Titel, Body und Opener werden semantisch aufeinander abgestimmt (mood-matching).
  */
 export function generatePostContent(
   persona: Persona,
@@ -111,28 +134,30 @@ export function generatePostContent(
   const titles = TITLE_TEMPLATES[forumId] || TITLE_TEMPLATES['allgemeines']
   const bodies = CONTENT_BODIES[forumId] || CONTENT_BODIES['allgemeines']
 
-  // Titel generieren
-  const titleTemplate = pick(titles, rng)
-  let title = fillTemplate(titleTemplate, rng)
+  // 1. Body zuerst wählen – bestimmt die Stimmung des ganzen Posts
+  const taggedBody = pick(bodies, rng)
+  const mood = taggedBody.mood
 
-  // Content generieren
-  const openType = action.action_type === 'forum_topic'
-    ? (rng() < 0.5 ? 'frage' : rng() < 0.7 ? 'bericht' : 'frust')
-    : (rng() < 0.3 ? 'tipp' : rng() < 0.6 ? 'bericht' : 'erfolg')
+  // 2. Titel mit gleicher Stimmung wählen (Fallback: beliebiger Titel)
+  const matchingTitles = titles.filter(t => t.mood === mood)
+  const titleEntry = matchingTitles.length > 0 ? pick(matchingTitles, rng) : pick(titles, rng)
+  const title = fillTemplate(titleEntry.text, rng)
 
-  const openers = CONTENT_OPENERS[openType] || CONTENT_OPENERS['frage']
+  // 3. Opener passend zur Stimmung wählen
+  const openerTypes = MOOD_TO_OPENER[mood] || ['frage']
+  const openerType = pick(openerTypes, rng)
+  const openers = CONTENT_OPENERS[openerType] || CONTENT_OPENERS['frage']
   const opener = pick(openers, rng)
-  const bodyTemplate = pick(bodies, rng)
-  const body = fillTemplate(bodyTemplate, rng)
+  const body = fillTemplate(taggedBody.text, rng)
 
   let fullContent = `${opener}\n\n${body}`
 
-  // BescheidBoxer Mention?
+  // BescheidBoxer Mention – Typ passt zur Stimmung
   const shouldMention = rng() < (persona.activity.bescheidboxer_affinity * globalMentionRate * 5)
   if (shouldMention) {
-    const mentionType = rng() < 0.4 ? 'beilaeufig' :
-      rng() < 0.6 ? 'antwort_auf_frage' :
-      rng() < 0.8 ? 'erfolgsgeschichte' : 'skeptisch_dann_ueberzeugt'
+    const mentionType = mood === 'erfolg' ? 'erfolgsgeschichte' :
+      mood === 'frage' ? (rng() < 0.5 ? 'beilaeufig' : 'antwort_auf_frage') :
+      rng() < 0.5 ? 'beilaeufig' : 'skeptisch_dann_ueberzeugt'
 
     const mentions = BESCHEIDBOXER_MENTIONS[mentionType as keyof typeof BESCHEIDBOXER_MENTIONS]
     if (mentions) {
@@ -141,13 +166,8 @@ export function generatePostContent(
     }
   }
 
-  // Abschluss
-  const closings = [
-    'Was meint ihr?', 'Hat jemand ähnliche Erfahrungen?',
-    'Danke schonmal!', 'Bin für jeden Tipp dankbar.',
-    'Freue mich auf eure Antworten.', 'LG', 'Gruß', '',
-    'Danke im Voraus!', 'Wäre super wenn jemand helfen kann.',
-  ]
+  // Abschluss passend zur Stimmung
+  const closings = CLOSINGS_BY_MOOD[mood] || CLOSINGS_BY_MOOD['frage']
   const closing = pick(closings, rng)
   if (closing) fullContent += `\n\n${closing}`
 
