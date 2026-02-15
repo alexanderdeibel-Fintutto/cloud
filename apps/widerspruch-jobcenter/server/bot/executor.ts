@@ -9,7 +9,7 @@ import {
   loadPersonas, getPersonaById, updatePersona,
   getPendingActions, updateScheduledAction,
   logActivity, getTodaysActivityCount,
-  loadSchedule, saveSchedule,
+  loadSchedule, saveSchedule, savePersonas,
 } from '../db'
 import { generateContent } from '../content/generator'
 import { generateDailySchedule, summarizeSchedule } from './scheduler'
@@ -119,7 +119,48 @@ export class BotExecutor {
 
   // ── Tagesplan generieren ──
 
+  /**
+   * Prüft ob alle Personas zu neue created_at-Daten haben (Warm-Up-Bug)
+   * und datiert sie automatisch zurück, ohne WP-IDs zu verlieren.
+   */
+  private migrateCreatedAtIfNeeded(): void {
+    const personas = loadPersonas()
+    if (personas.length === 0) return
+
+    const now = Date.now()
+    const threeDaysMs = 3 * 86400000
+
+    // Prüfe ob ALLE Personas jünger als 3 Tage sind
+    const allTooNew = personas.every(p => {
+      if (!p.stats.created_at) return true
+      return (now - new Date(p.stats.created_at).getTime()) < threeDaysMs
+    })
+    if (!allTooNew) return
+
+    console.log('[BOT] Migration: Alle Personas < 3 Tage alt – datiere created_at zurück...')
+    const rng = (() => { let s = 42; return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff } })()
+
+    for (let i = 0; i < personas.length; i++) {
+      const pct = i / personas.length
+      let daysAgo: number
+      if (pct < 0.4) {
+        daysAgo = 60 + Math.floor(rng() * 60)  // Gründer: 60-120 Tage
+      } else if (pct < 0.7) {
+        daysAgo = 14 + Math.floor(rng() * 46)   // Welle 2: 14-60 Tage
+      } else {
+        daysAgo = 3 + Math.floor(rng() * 11)    // Späteinsteiger: 3-14 Tage
+      }
+      personas[i].stats.created_at = new Date(now - daysAgo * 86400000).toISOString()
+    }
+
+    savePersonas(personas)
+    console.log(`[BOT] Migration fertig: ${personas.length} Personas rückdatiert`)
+  }
+
   generateTodaysSchedule(): { actions: number; summary: ReturnType<typeof summarizeSchedule> } {
+    // Auto-Migration: bestehende Personas rückdatieren wenn nötig
+    this.migrateCreatedAtIfNeeded()
+
     const today = new Date()
     const schedule = generateDailySchedule(today, this.config)
 
