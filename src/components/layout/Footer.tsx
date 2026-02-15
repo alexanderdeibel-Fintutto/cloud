@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
+import { NewsletterSignup } from '@/components/monetization'
 
 const footerLinks = {
   rechner: [
@@ -119,6 +120,13 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+
+        {/* Newsletter Signup */}
+        <div className="mt-8 pt-8 border-t border-border">
+          <div className="max-w-md">
+            <NewsletterSignup variant="inline" source="footer" />
           </div>
         </div>
 

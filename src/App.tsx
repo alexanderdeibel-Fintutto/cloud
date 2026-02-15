@@ -3,6 +3,7 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
 import Layout from '@/components/layout/Layout'
+import { ExitIntentPopup } from '@/components/monetization'
 
 // Pages
 import HomePage from '@/pages/HomePage'
@@ -117,6 +118,7 @@ function App() {
           </Routes>
         </Layout>
         <Toaster position="top-right" richColors />
+        <ExitIntentPopup />
       </CheckerProvider>
     </AuthProvider>
   )
