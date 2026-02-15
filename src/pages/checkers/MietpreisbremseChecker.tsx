@@ -154,9 +154,7 @@ export default function MietpreisbremseChecker() {
   }
 
   const handleGoToForm = () => {
-    if (result?.formRedirectUrl) {
-      window.open(result.formRedirectUrl, '_blank')
-    }
+    navigate(result?.formRedirectUrl ?? '/formulare')
   }
 
   const handleStartNew = () => {

@@ -59,8 +59,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const tierId = session.metadata?.tierId
         const checksLimit = parseInt(session.metadata?.checksLimit || '3', 10)
         const customerEmail = session.customer_email
+        const referralCode = session.metadata?.referralCode
 
-        console.log('Checkout completed:', { userId, tierId, customerEmail })
+        console.log('Checkout completed:', { userId, tierId, customerEmail, referralCode })
+
+        let resolvedUserId = userId
 
         if (userId) {
           // Update existing user
@@ -86,6 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .single()
 
           if (existingUser) {
+            resolvedUserId = existingUser.id
             await supabase
               .from('users')
               .update({
@@ -97,6 +101,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .eq('id', existingUser.id)
           }
         }
+
+        // Process referral subscription reward
+        if (resolvedUserId && tierId && tierId !== 'free') {
+          await processReferralSubscription(resolvedUserId)
+        }
+
         break
       }
 
@@ -157,5 +167,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error('Webhook handler error:', error)
     return res.status(500).json({ error: 'Webhook handler failed' })
+  }
+}
+
+// Process referral rewards when a referred user subscribes
+async function processReferralSubscription(subscribedUserId: string) {
+  try {
+    // Find a referral where this user was the referred person and status is 'signed_up'
+    const { data: referral } = await supabase
+      .from('referrals')
+      .select('id, referrer_user_id, status')
+      .eq('referred_user_id', subscribedUserId)
+      .eq('status', 'signed_up')
+      .limit(1)
+      .single()
+
+    if (!referral) return
+
+    // Update referral status to subscribed
+    await supabase
+      .from('referrals')
+      .update({ status: 'subscribed', subscribed_at: new Date().toISOString() })
+      .eq('id', referral.id)
+
+    // Reward referrer: +15 credits + 1 free month
+    await supabase
+      .from('referral_rewards')
+      .insert({
+        user_id: referral.referrer_user_id,
+        referral_id: referral.id,
+        reward_type: 'credits',
+        reward_value: 15,
+        description: 'Referral-Bonus: Abo abgeschlossen (+15 Credits)',
+      })
+
+    // Reward referrer: free month
+    await supabase
+      .from('referral_rewards')
+      .insert({
+        user_id: referral.referrer_user_id,
+        referral_id: referral.id,
+        reward_type: 'free_month',
+        reward_value: 1,
+        description: 'Referral-Bonus: 1 Monat kostenlos',
+      })
+
+    // Reward referred user: 20% discount
+    await supabase
+      .from('referral_rewards')
+      .insert({
+        user_id: subscribedUserId,
+        referral_id: referral.id,
+        reward_type: 'discount',
+        reward_value: 20,
+        description: 'Willkommens-Rabatt: 20% auf den ersten Monat',
+      })
+
+    console.log('Referral subscription rewards processed:', {
+      referralId: referral.id,
+      referrer: referral.referrer_user_id,
+      subscriber: subscribedUserId,
+    })
+  } catch (err) {
+    console.error('Error processing referral subscription:', err)
   }
 }

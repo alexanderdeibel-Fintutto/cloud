@@ -126,7 +126,7 @@ export default function KuendigungChecker() {
     }
   }
 
-  const handleGoToForm = () => result?.formRedirectUrl && window.open(result.formRedirectUrl, '_blank')
+  const handleGoToForm = () => navigate(result?.formRedirectUrl ?? '/formulare')
 
   const handleStartNew = () => {
     clearSession()

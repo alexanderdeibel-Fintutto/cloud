@@ -1,66 +1,50 @@
-import { Link } from 'react-router-dom'
-import { Menu, X, User, LogOut } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 
+const navigation = [
+  { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Für Vermieter' },
+  { name: 'Checker', href: '/checker', icon: Shield, description: 'Für Mieter' },
+  { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Für alle' },
+  { name: 'Preise', href: '/preise', icon: null, description: '' },
+  { name: 'Apps', href: '/apps', icon: LayoutGrid, description: 'Alle Fintutto-Apps' },
+  { name: 'Referral', href: '/referral', icon: Gift, description: 'Empfehlen & profitieren' },
+]
+
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, profile, signOut } = useAuth()
 
-  const checkerLinks = [
-    { name: 'Mietpreisbremse', href: '/checker/mietpreisbremse' },
-    { name: 'Mieterhoehung', href: '/checker/mieterhoehung' },
-    { name: 'Nebenkosten', href: '/checker/nebenkosten' },
-    { name: 'Betriebskosten', href: '/checker/betriebskosten' },
-    { name: 'Kuendigung', href: '/checker/kuendigung' },
-    { name: 'Kaution', href: '/checker/kaution' },
-    { name: 'Mietminderung', href: '/checker/mietminderung' },
-  ]
-
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-fintutto-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">F</span>
-            </div>
-            <div>
-              <span className="font-bold text-xl text-gray-900">Fintutto</span>
-              <span className="text-fintutto-primary font-semibold ml-1">Checker</span>
-            </div>
-          </Link>
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <nav className="container flex items-center justify-between py-4">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-portal">
+            <Sparkles className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <span className="font-bold text-lg gradient-text-portal">Fintutto</span>
+            <span className="text-xs block text-muted-foreground -mt-1">Portal</span>
+          </div>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <div className="relative group">
-              <button className="text-gray-600 hover:text-fintutto-primary font-medium flex items-center">
-                Alle Checker
-                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div className="absolute left-0 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
-                {checkerLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-fintutto-light hover:text-fintutto-primary"
-                  >
-                    {link.name}-Checker
-                  </Link>
-                ))}
-              </div>
-            </div>
-
+        <div className="hidden md:flex items-center gap-6">
+          {navigation.map((item) => (
             <Link
-              to="/preise"
-              className="text-gray-600 hover:text-fintutto-primary font-medium"
+              key={item.name}
+              to={item.href}
+              className={`nav-link flex items-center gap-1.5 ${
+                location.pathname.startsWith(item.href) ? 'nav-link-active' : ''
+              }`}
             >
-              Preise
+              {item.icon && <item.icon className="h-4 w-4" />}
+              {item.name}
             </Link>
+          ))}
+        </div>
 
             <a
               href="https://formulare.fintutto.cloud"
@@ -119,27 +103,30 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100">
-            <nav className="space-y-2">
-              {checkerLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.name}-Checker
-                </Link>
-              ))}
-              <hr className="my-2" />
+        <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+      </nav>
+
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-border bg-background">
+          <div className="container py-4 space-y-2">
+            {navigation.map((item) => (
               <Link
-                to="/preise"
-                className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
-                onClick={() => setIsMenuOpen(false)}
+                key={item.name}
+                to={item.href}
+                className={`flex items-center gap-2 p-3 rounded-lg hover:bg-muted ${
+                  location.pathname.startsWith(item.href) ? 'bg-accent text-accent-foreground' : ''
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
               >
-                Preise
+                {item.icon && <item.icon className="h-5 w-5" />}
+                <div>
+                  <div className="font-medium">{item.name}</div>
+                  {item.description && (
+                    <div className="text-xs text-muted-foreground">{item.description}</div>
+                  )}
+                </div>
               </Link>
               <a
                 href="https://bescheidboxer.fintutto.de"
@@ -162,12 +149,24 @@ export default function Header() {
                   >
                     Kostenlos starten
                   </Link>
+                  <Button variant="ghost" size="sm" onClick={signOut}>
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/login">Anmelden</Link>
+                  </Button>
+                  <Button className="w-full gradient-portal text-white border-0" asChild>
+                    <Link to="/register">Kostenlos starten</Link>
+                  </Button>
                 </>
               )}
-            </nav>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </header>
   )
 }
