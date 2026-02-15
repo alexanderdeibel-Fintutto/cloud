@@ -14,6 +14,10 @@ import CheckoutSuccessPage from '@/pages/CheckoutSuccessPage'
 import CheckoutCancelPage from '@/pages/CheckoutCancelPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import ResultPage from '@/pages/ResultPage'
+import ImpressumPage from '@/pages/ImpressumPage'
+import DatenschutzPage from '@/pages/DatenschutzPage'
+import AgbPage from '@/pages/AgbPage'
+import UeberUnsPage from '@/pages/UeberUnsPage'
 
 // Hub / Listing Pages
 import RechnerPage from '@/pages/RechnerPage'
@@ -109,6 +113,12 @@ function App() {
             <Route path="/formulare/mietbescheinigung" element={<MietbescheinigungFormular />} />
             <Route path="/formulare/wohnungsgeberbestaetigung" element={<WohnungsgeberbestaetigungFormular />} />
             <Route path="/formulare/nebenkostenvorauszahlung" element={<NebenkostenvorauszahlungFormular />} />
+
+            {/* Legal Pages */}
+            <Route path="/impressum" element={<ImpressumPage />} />
+            <Route path="/datenschutz" element={<DatenschutzPage />} />
+            <Route path="/agb" element={<AgbPage />} />
+            <Route path="/ueber-uns" element={<UeberUnsPage />} />
 
             {/* Result Page */}
             <Route path="/ergebnis/:checkerId/:resultId" element={<ResultPage />} />

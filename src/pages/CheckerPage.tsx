@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Shield, ArrowRight, Scale, AlertTriangle, Wrench, Home, Euro, FileWarning, Ban, HardHat, Paintbrush, BookOpen } from 'lucide-react'
+import { ArrowRight, Scale, AlertTriangle, Wrench, Home, Euro, FileWarning, Ban, HardHat, Paintbrush } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const checkers = [
