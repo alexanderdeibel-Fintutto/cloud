@@ -335,7 +335,31 @@ export class BotExecutor {
     console.log(`[BOT] Aktive Stunden: ${this.config.bot_active_hours_start}:00 - ${this.config.bot_active_hours_end}:00`)
     console.log(`[BOT] Max Posts/Tag: ${this.config.bot_max_posts_per_day}, Max Comments/Tag: ${this.config.bot_max_comments_per_day}`)
 
+    // Auto-Tagesplan: Wenn für heute noch kein Plan existiert, automatisch generieren
+    this.ensureTodaysSchedule()
+
     await this.tick()
+  }
+
+  /** Prüft ob für heute ein Tagesplan existiert, generiert sonst einen neuen */
+  private ensureTodaysSchedule(): void {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const schedule = loadSchedule()
+    const todaysActions = schedule.filter(a => a.scheduled_at.startsWith(todayStr))
+
+    if (todaysActions.length === 0) {
+      console.log('[BOT] Kein Tagesplan für heute gefunden – generiere automatisch...')
+      try {
+        const result = this.generateTodaysSchedule()
+        console.log(`[BOT] Tagesplan erstellt: ${result.actions} Aktionen`)
+        console.log(`[BOT] Zusammenfassung:`, JSON.stringify(result.summary, null, 2))
+      } catch (err) {
+        console.error('[BOT] Tagesplan-Generierung fehlgeschlagen:', err)
+      }
+    } else {
+      const pending = todaysActions.filter(a => a.status === 'pending').length
+      console.log(`[BOT] Tagesplan vorhanden: ${todaysActions.length} Aktionen (${pending} pending)`)
+    }
   }
 
   stop(): void {
@@ -347,11 +371,20 @@ export class BotExecutor {
     console.log('[BOT] Bot gestoppt.')
   }
 
+  private lastScheduleDate = ''
+
   private async tick(): Promise<void> {
     if (!this.running) return
 
     const now = new Date()
     const hour = now.getHours()
+    const todayStr = now.toISOString().slice(0, 10)
+
+    // Neuer Tag? Tagesplan automatisch generieren
+    if (todayStr !== this.lastScheduleDate) {
+      this.ensureTodaysSchedule()
+      this.lastScheduleDate = todayStr
+    }
 
     // Außerhalb der aktiven Stunden: schlafe bis Start
     if (hour < this.config.bot_active_hours_start || hour >= this.config.bot_active_hours_end) {
