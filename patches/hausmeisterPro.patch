@@ -1,0 +1,73 @@
+From 3f753c3eada294fa671286cb687f240cd015fe90 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 15 Feb 2026 22:51:30 +0000
+Subject: [PATCH] Add Enterprise tier Stripe IDs and yearly pricing support
+
+- Enterprise: price_1T0nb4/price_1T0nb5 (49.99/479.90 EUR)
+- Added priceIdYearly field to PricingPlan interface
+- Added Enterprise to PRICE_TO_PLAN mapping
+- Starter/Pro yearly IDs still need Stripe creation
+
+https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
+---
+ src/config/pricing.ts | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/config/pricing.ts b/src/config/pricing.ts
+index 4e911d1..75a61c8 100644
+--- a/src/config/pricing.ts
++++ b/src/config/pricing.ts
+@@ -5,6 +5,7 @@ export interface PricingPlan {
+   monthlyPrice: number;
+   yearlyPrice: number;
+   priceId: string;
++  priceIdYearly: string;
+   features: string[];
+   highlighted?: boolean;
+ }
+@@ -17,6 +18,7 @@ export const PRICING_PLANS: PricingPlan[] = [
+     monthlyPrice: 0,
+     yearlyPrice: 0,
+     priceId: '',
++    priceIdYearly: '',
+     features: [
+       'Bis zu 3 Gebäude',
+       'Basis-Aufgabenverwaltung',
+@@ -30,6 +32,7 @@ export const PRICING_PLANS: PricingPlan[] = [
+     monthlyPrice: 9.99,
+     yearlyPrice: 95.90,
+     priceId: 'price_1St3Eg52lqSgjCze5l6pqANG',
++    priceIdYearly: '', // TODO: Create yearly price in Stripe Dashboard
+     features: [
+       'Bis zu 10 Gebäude',
+       'Erweiterte Aufgabenverwaltung',
+@@ -45,6 +48,7 @@ export const PRICING_PLANS: PricingPlan[] = [
+     monthlyPrice: 24.99,
+     yearlyPrice: 239.90,
+     priceId: 'price_1St3FA52lqSgjCzeE8lXHzKH',
++    priceIdYearly: '', // TODO: Create yearly price in Stripe Dashboard
+     features: [
+       'Unbegrenzte Gebäude',
+       'Alle Starter-Features',
+@@ -61,7 +65,8 @@ export const PRICING_PLANS: PricingPlan[] = [
+     description: 'Für große Hausverwaltungen',
+     monthlyPrice: 49.99,
+     yearlyPrice: 479.90,
+-    priceId: '', // TODO: Replace after running create-all-stripe-products.sh
++    priceId: 'price_1T0nb452lqSgjCzeKfvkna7n',
++    priceIdYearly: 'price_1T0nb552lqSgjCzelBBrkq6c',
+     features: [
+       'Unbegrenzte Gebäude',
+       'Alle Pro-Features',
+@@ -79,6 +84,8 @@ export const PRICING_PLANS: PricingPlan[] = [
+ export const PRICE_TO_PLAN: Record<string, string> = {
+   'price_1St3Eg52lqSgjCze5l6pqANG': 'starter',
+   'price_1St3FA52lqSgjCzeE8lXHzKH': 'pro',
++  'price_1T0nb452lqSgjCzeKfvkna7n': 'enterprise',
++  'price_1T0nb552lqSgjCzelBBrkq6c': 'enterprise',
+ };
+ 
+ export const formatPrice = (price: number): string => {
+-- 
+2.43.0
+

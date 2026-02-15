@@ -1,334 +1,85 @@
-From 8c5f3f5a1f351b416a5e43acd47cd9dc48383e84 Mon Sep 17 00:00:00 2001
+From 6f9b2251d22014263a7899805fec684486838c82 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
-Date: Thu, 12 Feb 2026 17:23:53 +0000
-Subject: [PATCH] Add Stripe Price IDs, fix yearly discounts, implement
- referral system
+Date: Sun, 15 Feb 2026 22:51:15 +0000
+Subject: [PATCH] Replace placeholder Stripe price IDs with real ones
 
-- Added stripePriceIdMonthly/Yearly to PlanConfig interface
-- Stripe Price ID placeholders for all paid plans + credit packages
-- Fixed yearly prices to consistent 20% discount (was ~17%)
-- Created referral system with 30 bonus credits for both sides
-- Added useReferrals hook with tracking and stats
-- Enhanced gamification: super_empfehler + netzwerker badges
+- Starter: price_1T0nav/price_1T0naw (monthly/yearly)
+- Kaempfer: price_1T0nax (monthly/yearly)
+- Vollschutz: price_1T0nay (monthly/yearly)
+- Credit packages: 10/25/50 with real Stripe IDs
+- Referral: updated to 1 Monat Kaempfer gratis (both sides)
 
 https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
 ---
- src/hooks/useReferrals.ts                     | 150 ++++++++++++++++++
- src/lib/credits.ts                            |  24 ++-
- src/lib/gamification.ts                       |   7 +-
- .../20260212120000_referral_system.sql        |  43 +++++
- 4 files changed, 216 insertions(+), 8 deletions(-)
- create mode 100644 src/hooks/useReferrals.ts
- create mode 100644 supabase/migrations/20260212120000_referral_system.sql
+ src/hooks/useReferrals.ts |  2 +-
+ src/lib/credits.ts        | 22 +++++++++-------------
+ 2 files changed, 10 insertions(+), 14 deletions(-)
 
 diff --git a/src/hooks/useReferrals.ts b/src/hooks/useReferrals.ts
-new file mode 100644
-index 00000000..fb3df88d
---- /dev/null
+index fb3df88d..8dcb41cc 100644
+--- a/src/hooks/useReferrals.ts
 +++ b/src/hooks/useReferrals.ts
-@@ -0,0 +1,150 @@
-+// Referral-System fuer BescheidBoxer
-+// Belohnung: 30 Bonus-Credits fuer BEIDE Seiten
-+
-+import { useState, useEffect, useCallback } from 'react'
-+import { supabase } from '@/integrations/supabase/client'
-+import { useToast } from '@/hooks/use-toast'
-+
-+interface Referral {
-+  id: string
-+  referred_email: string
-+  status: string
-+  reward_applied_referrer: boolean
-+  created_at: string
-+  converted_at: string | null
-+}
-+
-+interface ReferralStats {
-+  total_sent: number
-+  total_converted: number
-+  total_credits_earned: number
-+}
-+
-+export function useReferrals() {
-+  const { toast } = useToast()
-+  const [referralCode, setReferralCode] = useState<string | null>(null)
-+  const [referrals, setReferrals] = useState<Referral[]>([])
-+  const [stats, setStats] = useState<ReferralStats>({
-+    total_sent: 0,
-+    total_converted: 0,
-+    total_credits_earned: 0,
-+  })
-+  const [loading, setLoading] = useState(true)
-+
-+  const generateCode = useCallback((userId: string) => {
-+    const base = userId.replace(/-/g, '').substring(0, 8).toUpperCase()
-+    return `BB-${base}`
-+  }, [])
-+
-+  const ensureReferralCode = useCallback(async () => {
-+    const { data: { user } } = await supabase.auth.getUser()
-+    if (!user) return
-+
-+    const { data: profile } = await supabase
-+      .from('amt_users')
-+      .select('referral_code')
-+      .eq('id', user.id)
-+      .single()
-+
-+    if (profile?.referral_code) {
-+      setReferralCode(profile.referral_code)
-+    } else {
-+      const code = generateCode(user.id)
-+      await supabase
-+        .from('amt_users')
-+        .update({ referral_code: code })
-+        .eq('id', user.id)
-+      setReferralCode(code)
-+    }
-+  }, [generateCode])
-+
-+  const fetchReferrals = useCallback(async () => {
-+    const { data: { user } } = await supabase.auth.getUser()
-+    if (!user) return
-+    setLoading(true)
-+
-+    try {
-+      const { data, error } = await supabase
-+        .from('amt_referrals')
-+        .select('*')
-+        .eq('referrer_user_id', user.id)
-+        .order('created_at', { ascending: false })
-+
-+      if (error) throw error
-+
-+      const refs = (data || []) as Referral[]
-+      setReferrals(refs)
-+
-+      const converted = refs.filter((r) => r.status === 'converted').length
-+      const rewarded = refs.filter((r) => r.reward_applied_referrer).length
-+
-+      setStats({
-+        total_sent: refs.length,
-+        total_converted: converted,
-+        total_credits_earned: rewarded * 30, // 30 Credits pro Referral
-+      })
-+    } catch (err) {
-+      console.error('Error fetching referrals:', err)
-+    } finally {
-+      setLoading(false)
-+    }
-+  }, [])
-+
-+  useEffect(() => {
-+    ensureReferralCode()
-+    fetchReferrals()
-+  }, [ensureReferralCode, fetchReferrals])
-+
-+  const createReferral = async (email: string) => {
-+    const { data: { user } } = await supabase.auth.getUser()
-+    if (!user || !referralCode) return false
-+
-+    try {
-+      const { error } = await supabase.from('amt_referrals').insert({
-+        referrer_user_id: user.id,
-+        referred_email: email.toLowerCase(),
-+        referral_code: `${referralCode}-${Date.now().toString(36)}`,
-+        status: 'pending',
-+      })
-+
-+      if (error) throw error
-+
-+      toast({
-+        title: 'Einladung erstellt',
-+        description: `Referral-Link fuer ${email} wurde generiert.`,
-+      })
-+
-+      await fetchReferrals()
-+      return true
-+    } catch (err) {
-+      console.error('Error creating referral:', err)
-+      toast({
-+        title: 'Fehler',
-+        description: 'Referral konnte nicht erstellt werden.',
-+        variant: 'destructive',
-+      })
-+      return false
-+    }
-+  }
-+
-+  const copyReferralLink = async () => {
-+    if (!referralCode) return false
-+    const link = `https://bescheidboxer.fintutto.cloud/registrieren?ref=${referralCode}`
-+    await navigator.clipboard.writeText(link)
-+    toast({
-+      title: 'Link kopiert!',
-+      description: 'Der Referral-Link wurde in die Zwischenablage kopiert.',
-+    })
-+    return true
-+  }
-+
-+  return {
-+    referralCode,
-+    referrals,
-+    stats,
-+    loading,
-+    createReferral,
-+    copyReferralLink,
-+    fetchReferrals,
-+  }
-+}
+@@ -1,5 +1,5 @@
+ // Referral-System fuer BescheidBoxer
+-// Belohnung: 30 Bonus-Credits fuer BEIDE Seiten
++// Belohnung: 1 Monat Kaempfer gratis fuer BEIDE Seiten (via Ecosystem Stripe Coupon)
+ 
+ import { useState, useEffect, useCallback } from 'react'
+ import { supabase } from '@/integrations/supabase/client'
 diff --git a/src/lib/credits.ts b/src/lib/credits.ts
-index b3d8912c..6aa3bb13 100644
+index 6aa3bb13..0cf467ab 100644
 --- a/src/lib/credits.ts
 +++ b/src/lib/credits.ts
-@@ -15,6 +15,8 @@ export interface PlanConfig {
-   letterPrice: number
-   tier: number
-   badge?: string
-+  stripePriceIdMonthly?: string
-+  stripePriceIdYearly?: string
- }
- 
- export const PLANS: Record<PlanType, PlanConfig> = {
-@@ -36,7 +38,7 @@ export const PLANS: Record<PlanType, PlanConfig> = {
-   starter: {
-     name: 'Starter',
-     price: 2.99,
--    priceYearly: 29.99,
-+    priceYearly: 28.70, // 20% Rabatt (einheitlich ueber alle Apps)
-     creditsPerMonth: 10,
-     chatMessagesPerDay: 10,
-     lettersPerMonth: 1,
-@@ -47,11 +49,14 @@ export const PLANS: Record<PlanType, PlanConfig> = {
+@@ -49,9 +49,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
      mieterAppInklusive: false,
      letterPrice: 1.99,
      tier: 1,
-+    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
-+    stripePriceIdMonthly: 'price_bb_starter_monthly',
-+    stripePriceIdYearly: 'price_bb_starter_yearly',
+-    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
+-    stripePriceIdMonthly: 'price_bb_starter_monthly',
+-    stripePriceIdYearly: 'price_bb_starter_yearly',
++    stripePriceIdMonthly: 'price_1T0nav52lqSgjCzezfeyYiwy',
++    stripePriceIdYearly: 'price_1T0naw52lqSgjCzeZU9otXyg',
    },
    kaempfer: {
      name: 'Kaempfer',
-     price: 4.99,
--    priceYearly: 49.99,
-+    priceYearly: 47.90, // 20% Rabatt (einheitlich ueber alle Apps)
-     creditsPerMonth: 25,
-     chatMessagesPerDay: -1,
-     lettersPerMonth: 3,
-@@ -63,11 +68,14 @@ export const PLANS: Record<PlanType, PlanConfig> = {
+@@ -68,9 +67,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
      letterPrice: 0.99,
      tier: 2,
      badge: 'Beliebt',
-+    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
-+    stripePriceIdMonthly: 'price_bb_kaempfer_monthly',
-+    stripePriceIdYearly: 'price_bb_kaempfer_yearly',
+-    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
+-    stripePriceIdMonthly: 'price_bb_kaempfer_monthly',
+-    stripePriceIdYearly: 'price_bb_kaempfer_yearly',
++    stripePriceIdMonthly: 'price_1T0nax52lqSgjCzeELDbmrUQ',
++    stripePriceIdYearly: 'price_1T0nax52lqSgjCzecXnrSRr0',
    },
    vollschutz: {
      name: 'Vollschutz',
-     price: 7.99,
--    priceYearly: 79.99,
-+    priceYearly: 76.70, // 20% Rabatt (einheitlich ueber alle Apps)
-     creditsPerMonth: 50,
-     chatMessagesPerDay: -1,
-     lettersPerMonth: -1,
-@@ -79,6 +87,9 @@ export const PLANS: Record<PlanType, PlanConfig> = {
+@@ -87,9 +85,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
      letterPrice: 0,
      tier: 3,
      badge: 'VIP',
-+    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
-+    stripePriceIdMonthly: 'price_bb_vollschutz_monthly',
-+    stripePriceIdYearly: 'price_bb_vollschutz_yearly',
+-    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
+-    stripePriceIdMonthly: 'price_bb_vollschutz_monthly',
+-    stripePriceIdYearly: 'price_bb_vollschutz_yearly',
++    stripePriceIdMonthly: 'price_1T0nay52lqSgjCzexKgGvJkS',
++    stripePriceIdYearly: 'price_1T0nay52lqSgjCzeHLGLpsuu',
    },
  }
  
-@@ -94,9 +105,10 @@ export const CREDIT_COSTS = {
+@@ -105,10 +102,9 @@ export const CREDIT_COSTS = {
  }
  
  export const CREDIT_PACKAGES = [
--  { credits: 10, price: 4.99, label: '10 Credits' },
--  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%' },
--  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%' },
-+  // TODO: Replace stripePriceId with real Stripe Price IDs after running create-all-stripe-products.sh
-+  { credits: 10, price: 4.99, label: '10 Credits', stripePriceId: 'price_bb_credits_10' },
-+  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%', stripePriceId: 'price_bb_credits_25' },
-+  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%', stripePriceId: 'price_bb_credits_50' },
+-  // TODO: Replace stripePriceId with real Stripe Price IDs after running create-all-stripe-products.sh
+-  { credits: 10, price: 4.99, label: '10 Credits', stripePriceId: 'price_bb_credits_10' },
+-  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%', stripePriceId: 'price_bb_credits_25' },
+-  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%', stripePriceId: 'price_bb_credits_50' },
++  { credits: 10, price: 4.99, label: '10 Credits', stripePriceId: 'price_1T0naz52lqSgjCzeYuBqo0na' },
++  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%', stripePriceId: 'price_1T0naz52lqSgjCzeJUXiFb19' },
++  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%', stripePriceId: 'price_1T0nb052lqSgjCzeyUSt1hL6' },
  ]
  
  export interface UserCredits {
-diff --git a/src/lib/gamification.ts b/src/lib/gamification.ts
-index f2e4022f..20fc870a 100644
---- a/src/lib/gamification.ts
-+++ b/src/lib/gamification.ts
-@@ -72,7 +72,9 @@ export const BADGES: BoxerBadge[] = [
-   { id: 'scanner_pro', name: 'Scanner-Profi', description: '5 Bescheide gescannt', icon: '📋', points: 50 },
-   { id: 'community_star', name: 'Community-Star', description: '50 Upvotes im Forum', icon: '⭐', points: 75 },
-   { id: 'dokumenten_meister', name: 'Dokumenten-Meister', description: '10 Schreiben erstellt', icon: '📝', points: 100 },
--  { id: 'empfehler', name: 'Empfehler', description: 'Einen Freund eingeladen', icon: '📢', points: 50 },
-+  { id: 'empfehler', name: 'Empfehler', description: 'Einen Freund eingeladen + 30 Credits', icon: '📢', points: 50 },
-+  { id: 'super_empfehler', name: 'Super-Empfehler', description: '5 Freunde eingeladen', icon: '🌟', points: 200 },
-+  { id: 'netzwerker', name: 'Netzwerker', description: '10 Freunde eingeladen', icon: '🔗', points: 500 },
- ]
- 
- export const POINTS_CONFIG = {
-@@ -85,7 +87,8 @@ export const POINTS_CONFIG = {
-   profileComplete: 25,
-   firstLogin: 10,
-   dailyLogin: 3,
--  referral: 50,
-+  referral: 50, // + 30 Bonus-Credits bei erfolgreicher Konvertierung
-+  referralConverted: 100, // Zusaetzliche Punkte wenn Geworbener ein Abo abschliesst
- }
- 
- export function getLevelForPoints(points: number): BoxerLevelInfo {
-diff --git a/supabase/migrations/20260212120000_referral_system.sql b/supabase/migrations/20260212120000_referral_system.sql
-new file mode 100644
-index 00000000..8ff99b20
---- /dev/null
-+++ b/supabase/migrations/20260212120000_referral_system.sql
-@@ -0,0 +1,43 @@
-+-- #11: Referral-System fuer BescheidBoxer
-+-- Belohnung: 30 Bonus-Credits fuer BEIDE Seiten + 7 Tage Kaempfer-Trial fuer Geworbenen
-+
-+-- Referral tracking table
-+CREATE TABLE IF NOT EXISTS public.amt_referrals (
-+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-+  referrer_user_id UUID NOT NULL,
-+  referred_email TEXT NOT NULL,
-+  referred_user_id UUID,
-+  referral_code TEXT NOT NULL,
-+  status TEXT NOT NULL DEFAULT 'pending',
-+  reward_type TEXT DEFAULT 'credits',
-+  reward_credits INTEGER DEFAULT 30,
-+  reward_applied_referrer BOOLEAN DEFAULT false,
-+  reward_applied_referred BOOLEAN DEFAULT false,
-+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-+  converted_at TIMESTAMPTZ,
-+  reward_applied_at TIMESTAMPTZ
-+);
-+
-+ALTER TABLE public.amt_referrals ENABLE ROW LEVEL SECURITY;
-+
-+CREATE POLICY "Users can view own referrals"
-+ON public.amt_referrals FOR SELECT
-+USING (auth.uid() = referrer_user_id);
-+
-+CREATE POLICY "Users can create referrals"
-+ON public.amt_referrals FOR INSERT
-+WITH CHECK (auth.uid() = referrer_user_id);
-+
-+CREATE INDEX IF NOT EXISTS idx_amt_referrals_referrer ON public.amt_referrals(referrer_user_id);
-+CREATE INDEX IF NOT EXISTS idx_amt_referrals_code ON public.amt_referrals(referral_code);
-+
-+-- Add referral columns to amt_users
-+DO $$
-+BEGIN
-+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'amt_users' AND column_name = 'referral_code') THEN
-+    ALTER TABLE public.amt_users ADD COLUMN referral_code TEXT UNIQUE;
-+  END IF;
-+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'amt_users' AND column_name = 'referred_by') THEN
-+    ALTER TABLE public.amt_users ADD COLUMN referred_by UUID;
-+  END IF;
-+END $$;
 -- 
 2.43.0
 
