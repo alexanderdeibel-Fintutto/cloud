@@ -29,6 +29,10 @@ import UpgradePage from './pages/UpgradePage'
 import EinspruchVorlagenPage from './pages/einspruch/EinspruchVorlagenPage'
 import FinanzamtVerzeichnisPage from './pages/FinanzamtVerzeichnisPage'
 import ChecklistePage from './pages/ChecklistePage'
+import MehrfachUploadPage from './pages/MehrfachUploadPage'
+import BerichtExportPage from './pages/BerichtExportPage'
+import ArchivPage from './pages/ArchivPage'
+import SchnellerfassungPage from './pages/SchnellerfassungPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -77,6 +81,10 @@ function App() {
             <Route path="einspruch/vorlagen" element={<EinspruchVorlagenPage />} />
             <Route path="finanzaemter" element={<FinanzamtVerzeichnisPage />} />
             <Route path="checkliste" element={<ChecklistePage />} />
+            <Route path="mehrfach-upload" element={<MehrfachUploadPage />} />
+            <Route path="bericht" element={<BerichtExportPage />} />
+            <Route path="archiv" element={<ArchivPage />} />
+            <Route path="schnellerfassung" element={<SchnellerfassungPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

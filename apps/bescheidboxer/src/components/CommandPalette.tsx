@@ -23,6 +23,10 @@ import {
   ClipboardCheck,
   FileStack,
   CreditCard,
+  FolderUp,
+  FileDown,
+  Archive,
+  Zap,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -80,6 +84,10 @@ export default function CommandPalette() {
     { id: 'nav-checkliste', label: 'Steuer-Checkliste', description: 'Schritt-fuer-Schritt Pruefung', icon: ClipboardCheck, category: 'navigation', keywords: ['checkliste', 'todo', 'schritte', 'pruefung'], action: () => runAndClose(() => navigate('/checkliste')) },
     { id: 'nav-finanzaemter', label: 'Finanzamt-Verzeichnis', description: 'Finanzaemter finden', icon: Building2, category: 'navigation', keywords: ['finanzamt', 'verzeichnis', 'adresse', 'kontakt', 'telefon'], action: () => runAndClose(() => navigate('/finanzaemter')) },
     { id: 'nav-upgrade', label: 'Upgrade', description: 'Tarife & Preise', icon: CreditCard, category: 'navigation', keywords: ['upgrade', 'premium', 'pro', 'tarif', 'preis', 'abo'], action: () => runAndClose(() => navigate('/upgrade')) },
+    { id: 'nav-mehrfach', label: 'Mehrfach-Upload', description: 'Mehrere Bescheide hochladen', icon: FolderUp, category: 'navigation', keywords: ['mehrfach', 'batch', 'multi', 'upload', 'drag', 'drop'], action: () => runAndClose(() => navigate('/mehrfach-upload')) },
+    { id: 'nav-bericht', label: 'Bericht exportieren', description: 'Steuerbericht erstellen', icon: FileDown, category: 'navigation', keywords: ['bericht', 'export', 'pdf', 'drucken', 'report'], action: () => runAndClose(() => navigate('/bericht')) },
+    { id: 'nav-archiv', label: 'Archiv', description: 'Abgeschlossene Bescheide', icon: Archive, category: 'navigation', keywords: ['archiv', 'erledigt', 'abgeschlossen', 'alt', 'history'], action: () => runAndClose(() => navigate('/archiv')) },
+    { id: 'nav-schnell', label: 'Schnellerfassung', description: 'Bescheid schnell anlegen', icon: Zap, category: 'navigation', keywords: ['schnell', 'neu', 'anlegen', 'erfassen', 'wizard', 'quick'], action: () => runAndClose(() => navigate('/schnellerfassung')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

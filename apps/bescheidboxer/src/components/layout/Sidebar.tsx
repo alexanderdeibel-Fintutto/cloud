@@ -17,6 +17,10 @@ import {
   Building2,
   ClipboardCheck,
   FileStack,
+  FolderUp,
+  FileDown,
+  Archive,
+  Zap,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -33,6 +37,10 @@ const navigation = [
   { name: 'Steuer-Rechner', href: '/steuerrechner', icon: Calculator },
   { name: 'Checkliste', href: '/checkliste', icon: ClipboardCheck },
   { name: 'Finanzaemter', href: '/finanzaemter', icon: Building2 },
+  { name: 'Mehrfach-Upload', href: '/mehrfach-upload', icon: FolderUp },
+  { name: 'Schnellerfassung', href: '/schnellerfassung', icon: Zap },
+  { name: 'Archiv', href: '/archiv', icon: Archive },
+  { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
   { name: 'Mein Profil', href: '/profil', icon: User },
   { name: 'Freunde werben', href: '/referral', icon: Users },
