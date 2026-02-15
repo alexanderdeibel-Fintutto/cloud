@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom'
-import { Bot, Users, Calendar, Activity, Settings, BarChart3, Sliders } from 'lucide-react'
+import { Bot, Users, Calendar, Activity, Settings, BarChart3, Sliders, Shield } from 'lucide-react'
 import DashboardPage from './pages/DashboardPage'
 import PersonasPage from './pages/PersonasPage'
 import SchedulePage from './pages/SchedulePage'
 import ActivityPage from './pages/ActivityPage'
 import SettingsPage from './pages/SettingsPage'
 import SteuerungPage from './pages/SteuerungPage'
+import OrganikPage from './pages/OrganikPage'
 
 function DashboardLayout() {
   const location = useLocation()
@@ -13,6 +14,7 @@ function DashboardLayout() {
   const nav = [
     { path: '/', label: 'Dashboard', icon: BarChart3 },
     { path: '/steuerung', label: 'Steuerung', icon: Sliders },
+    { path: '/organik', label: 'Organik', icon: Shield },
     { path: '/personas', label: 'Personas', icon: Users },
     { path: '/schedule', label: 'Zeitplan', icon: Calendar },
     { path: '/activity', label: 'Aktivität', icon: Activity },
@@ -70,6 +72,7 @@ function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="steuerung" element={<SteuerungPage />} />
+          <Route path="organik" element={<OrganikPage />} />
           <Route path="personas" element={<PersonasPage />} />
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="activity" element={<ActivityPage />} />

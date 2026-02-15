@@ -243,4 +243,5 @@ export interface BotConfig {
   bot_active_hours_start: number
   bot_active_hours_end: number
   bescheidboxer_mention_rate: number
+  anthropic_api_key: string
 }

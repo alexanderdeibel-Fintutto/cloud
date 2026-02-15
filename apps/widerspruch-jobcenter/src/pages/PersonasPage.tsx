@@ -1,8 +1,31 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, Users, ChevronLeft, ChevronRight, Plus, Pencil } from 'lucide-react'
+import {
+  ArrowLeft, RefreshCw, Users, ChevronLeft, ChevronRight,
+  Plus, Pencil, Search, X, Bot, User, ArrowUpDown,
+} from 'lucide-react'
 import { api } from '@/lib/api'
 import PersonaForm from '@/components/PersonaForm'
+
+type FilterType = 'all' | 'auto' | 'manuell'
+type SortType = '' | 'name' | 'bb_desc' | 'newest' | 'wave'
+
+const WAVE_LABELS: Record<string, { label: string; color: string }> = {
+  auto: { label: 'Auto-Bot', color: 'bg-gray-100 text-gray-600' },
+  gruender: { label: 'Gründer', color: 'bg-gray-100 text-gray-600' },
+  welle2: { label: 'Welle 2', color: 'bg-gray-100 text-gray-600' },
+  spaeteinsteiger: { label: 'Späteinsteiger', color: 'bg-gray-100 text-gray-600' },
+  manuell: { label: 'Manuell', color: 'bg-blue-100 text-blue-700' },
+  erfolgs_persona: { label: 'Erfolgs-Persona', color: 'bg-green-100 text-green-700' },
+  empfehler_subtil: { label: 'Stille Empfehlerin', color: 'bg-emerald-100 text-emerald-700' },
+  community_helfer: { label: 'Community-Helfer', color: 'bg-purple-100 text-purple-700' },
+  neuling: { label: 'Neuling', color: 'bg-orange-100 text-orange-700' },
+}
+
+function getWaveBadge(wave: string) {
+  const info = WAVE_LABELS[wave] || { label: wave, color: 'bg-yellow-100 text-yellow-700' }
+  return info
+}
 
 export default function PersonasPage() {
   const [data, setData] = useState<any>(null)
@@ -13,19 +36,48 @@ export default function PersonasPage() {
   const [editPersona, setEditPersona] = useState<any>(null)
   const [saving, setSaving] = useState(false)
 
-  const fetchPersonas = async (p: number) => {
+  // Search & Filter
+  const [searchText, setSearchText] = useState('')
+  const [activeSearch, setActiveSearch] = useState('')
+  const [filterType, setFilterType] = useState<FilterType>('all')
+  const [sortType, setSortType] = useState<SortType>('')
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>()
+
+  const fetchPersonas = useCallback(async (p: number, q?: string, type?: FilterType, sort?: SortType) => {
     setLoading(true)
     try {
-      const result = await api.getPersonas(p, 25)
+      const result = await api.getPersonas(p, 25, {
+        q: q || undefined,
+        type: type === 'all' ? undefined : type,
+        sort: sort || undefined,
+      })
       setData(result)
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  useEffect(() => {
+    fetchPersonas(page, activeSearch, filterType, sortType)
+  }, [page, activeSearch, filterType, sortType, fetchPersonas])
+
+  // Debounced search
+  const handleSearchInput = (val: string) => {
+    setSearchText(val)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => {
+      setPage(1)
+      setActiveSearch(val)
+    }, 300)
   }
 
-  useEffect(() => { fetchPersonas(page) }, [page])
+  const clearSearch = () => {
+    setSearchText('')
+    setActiveSearch('')
+    setPage(1)
+  }
 
   const totalPages = data ? Math.ceil(data.total / data.per_page) : 0
 
@@ -64,7 +116,7 @@ export default function PersonasPage() {
       }
       setFormMode('closed')
       setEditPersona(null)
-      await fetchPersonas(page)
+      await fetchPersonas(page, activeSearch, filterType, sortType)
     } catch (err) {
       console.error(err)
       alert(err instanceof Error ? err.message : 'Fehler beim Speichern')
@@ -80,7 +132,7 @@ export default function PersonasPage() {
       await api.deletePersona(editPersona.id)
       setFormMode('closed')
       setEditPersona(null)
-      await fetchPersonas(page)
+      await fetchPersonas(page, activeSearch, filterType, sortType)
     } catch (err) {
       console.error(err)
       alert(err instanceof Error ? err.message : 'Fehler beim Löschen')
@@ -113,22 +165,95 @@ export default function PersonasPage() {
         <ArrowLeft className="w-3 h-3" /> Dashboard
       </Link>
 
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
-            Personas ({data?.total || 0})
+            Personas
           </h1>
-          <p className="text-xs text-muted-foreground mt-1">Alle generierten Personas und ihre Profile</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {data ? `${data.total_auto || 0} Auto-Bots · ${data.total_manuell || 0} Manuell erstellt` : 'Wird geladen...'}
+          </p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="btn-forum-primary text-xs"
-        >
+        <button onClick={handleCreate} className="btn-forum-primary text-xs">
           <Plus className="w-3.5 h-3.5" />
           Neue Persona
         </button>
       </div>
+
+      {/* Search + Filter Bar */}
+      <div className="bg-card border border-border rounded-lg p-3 mb-4 space-y-3">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-muted-foreground" />
+          <input
+            value={searchText}
+            onChange={e => handleSearchInput(e.target.value)}
+            placeholder="Suche nach Name, Username, ID, Situation, Wave..."
+            className="w-full pl-8 pr-8 py-1.5 text-xs bg-background border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          {searchText && (
+            <button onClick={clearSearch} className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter Tabs + Sort */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            {([
+              { key: 'all', label: 'Alle', icon: Users, count: data ? (data.total_auto + data.total_manuell) : undefined },
+              { key: 'auto', label: 'Auto-Bots', icon: Bot, count: data?.total_auto },
+              { key: 'manuell', label: 'Meine Personas', icon: User, count: data?.total_manuell },
+            ] as const).map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => { setFilterType(tab.key); setPage(1) }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  filterType === tab.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                <tab.icon className="w-3 h-3" />
+                {tab.label}
+                {tab.count !== undefined && (
+                  <span className={`text-[10px] px-1 rounded ${
+                    filterType === tab.key ? 'bg-white/20' : 'bg-background'
+                  }`}>{tab.count}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-1.5">
+            <ArrowUpDown className="w-3 h-3 text-muted-foreground" />
+            <select
+              value={sortType}
+              onChange={e => { setSortType(e.target.value as SortType); setPage(1) }}
+              className="text-xs bg-background border border-input rounded-md px-2 py-1"
+            >
+              <option value="">Standard (ID)</option>
+              <option value="name">Name A-Z</option>
+              <option value="bb_desc">BB-Affinität hoch→niedrig</option>
+              <option value="newest">Neueste zuerst</option>
+              <option value="wave">Nach Wave/Typ</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Active search info */}
+      {activeSearch && (
+        <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+          <Search className="w-3 h-3" />
+          <span>{data?.total || 0} Ergebnisse für "<strong className="text-foreground">{activeSearch}</strong>"</span>
+          <button onClick={clearSearch} className="text-primary hover:underline">Zurücksetzen</button>
+        </div>
+      )}
 
       {/* Persona Detail Modal */}
       {selected && (
@@ -170,57 +295,87 @@ export default function PersonasPage() {
               <table className="w-full text-xs">
                 <thead className="bg-muted text-muted-foreground">
                   <tr>
-                    <th className="text-left p-2 font-medium">ID</th>
                     <th className="text-left p-2 font-medium">Persona</th>
+                    <th className="text-left p-2 font-medium">Typ</th>
                     <th className="text-left p-2 font-medium">Situation</th>
                     <th className="text-left p-2 font-medium">Engagement</th>
                     <th className="text-left p-2 font-medium">Frequenz</th>
-                    <th className="text-left p-2 font-medium">Zeitprofil</th>
-                    <th className="text-left p-2 font-medium">Foren</th>
-                    <th className="text-left p-2 font-medium">BB-Aff.</th>
-                    <th className="text-left p-2 font-medium">WP-ID</th>
+                    <th className="text-left p-2 font-medium">BB</th>
+                    <th className="text-left p-2 font-medium">WP</th>
                     <th className="text-left p-2 font-medium"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.data.map((p: any) => (
-                    <tr
-                      key={p.id}
-                      className="border-t border-border hover:bg-muted/50 cursor-pointer"
-                      onClick={async () => {
-                        try {
-                          const full = await api.getPersona(p.id)
-                          setSelected(full)
-                        } catch { setSelected(p) }
-                      }}
-                    >
-                      <td className="p-2 text-muted-foreground">{p.id}</td>
-                      <td className="p-2">
-                        <div className="font-medium">{p.display_name}</div>
-                        <div className="text-muted-foreground">@{p.username}</div>
-                      </td>
-                      <td className="p-2">{p.situation}</td>
-                      <td className="p-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] ${engagementColors[p.engagement_style] || ''}`}>
-                          {p.engagement_style}
-                        </span>
-                      </td>
-                      <td className="p-2">{p.posting_frequency}</td>
-                      <td className="p-2">{p.time_profile}</td>
-                      <td className="p-2">{p.active_forums?.slice(0, 2).join(', ')}</td>
-                      <td className="p-2">{(p.bescheidboxer_affinity * 100).toFixed(0)}%</td>
-                      <td className="p-2">{p.wp_user_id || '–'}</td>
-                      <td className="p-2">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleEdit(p.id) }}
-                          className="p-1 text-muted-foreground hover:text-primary rounded hover:bg-muted"
-                          title="Bearbeiten"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {data.data.map((p: any) => {
+                    const waveBadge = getWaveBadge(p.wave || 'auto')
+                    const isManual = !['auto', 'gruender', 'welle2', 'spaeteinsteiger', ''].includes(p.wave || 'auto')
+
+                    return (
+                      <tr
+                        key={p.id}
+                        className={`border-t border-border hover:bg-muted/50 cursor-pointer ${
+                          isManual ? 'bg-blue-50/30' : ''
+                        }`}
+                        onClick={async () => {
+                          try {
+                            const full = await api.getPersona(p.id)
+                            setSelected(full)
+                          } catch { setSelected(p) }
+                        }}
+                      >
+                        <td className="p-2">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                              style={{ backgroundColor: p.avatar_color || '#3498db' }}
+                            >
+                              {p.display_name?.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-medium truncate">{p.display_name}</div>
+                              <div className="text-muted-foreground text-[10px]">{p.id} · @{p.username}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-2">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${waveBadge.color}`}>
+                            {waveBadge.label}
+                          </span>
+                        </td>
+                        <td className="p-2">{p.situation}</td>
+                        <td className="p-2">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] ${engagementColors[p.engagement_style] || ''}`}>
+                            {p.engagement_style}
+                          </span>
+                        </td>
+                        <td className="p-2 text-[10px]">{p.posting_frequency}</td>
+                        <td className="p-2">
+                          <span className={`font-mono text-[10px] ${
+                            p.bescheidboxer_affinity > 0.3 ? 'text-green-600 font-bold' :
+                            p.bescheidboxer_affinity > 0 ? 'text-yellow-600' : 'text-muted-foreground'
+                          }`}>
+                            {(p.bescheidboxer_affinity * 100).toFixed(0)}%
+                          </span>
+                        </td>
+                        <td className="p-2">
+                          {p.wp_user_id ? (
+                            <span className="text-green-600 text-[10px]">#{p.wp_user_id}</span>
+                          ) : (
+                            <span className="text-muted-foreground text-[10px]">–</span>
+                          )}
+                        </td>
+                        <td className="p-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleEdit(p.id) }}
+                            className="p-1 text-muted-foreground hover:text-primary rounded hover:bg-muted"
+                            title="Bearbeiten"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -239,6 +394,23 @@ export default function PersonasPage() {
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
               </button>
+              {/* Page number buttons */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const start = Math.max(1, Math.min(page - 2, totalPages - 4))
+                const p = start + i
+                if (p > totalPages) return null
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`px-2 py-1 rounded text-xs ${
+                      p === page ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              })}
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
@@ -252,10 +424,21 @@ export default function PersonasPage() {
       ) : (
         <div className="text-center py-12">
           <Users className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Noch keine Personas generiert.</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Klicke auf "Neue Persona" oder im Dashboard auf "500 Personas generieren".
-          </p>
+          {activeSearch || filterType !== 'all' ? (
+            <>
+              <p className="text-sm text-muted-foreground">Keine Personas gefunden.</p>
+              <button onClick={() => { clearSearch(); setFilterType('all') }} className="text-xs text-primary hover:underline mt-2">
+                Filter zurücksetzen
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">Noch keine Personas generiert.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Klicke auf "Neue Persona" oder im Dashboard auf "500 Personas generieren".
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

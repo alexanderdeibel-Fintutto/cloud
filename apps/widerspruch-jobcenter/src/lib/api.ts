@@ -21,8 +21,13 @@ export const api = {
   getConfig: () => apiFetch<any>('/config'),
 
   // Personas
-  getPersonas: (page = 1, perPage = 50) =>
-    apiFetch<any>(`/personas?page=${page}&per_page=${perPage}`),
+  getPersonas: (page = 1, perPage = 50, opts?: { q?: string; type?: string; sort?: string }) => {
+    const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })
+    if (opts?.q) params.set('q', opts.q)
+    if (opts?.type) params.set('type', opts.type)
+    if (opts?.sort) params.set('sort', opts.sort)
+    return apiFetch<any>(`/personas?${params}`)
+  },
   getPersona: (id: string) => apiFetch<any>(`/personas/${id}`),
   searchPersonas: (q: string) => apiFetch<any>(`/personas/search?q=${encodeURIComponent(q)}`),
   createPersona: (data: any) =>
@@ -82,4 +87,33 @@ export const api = {
 
   // WordPress Test
   testWp: () => apiFetch<any>('/wp/test'),
+
+  // Starter Threads
+  getStarterThreads: () => apiFetch<any[]>('/starter-threads'),
+  postStarterThread: (data: { thread_index: number; persona_id: string; title_override?: string; body_override?: string }) =>
+    apiFetch<any>('/starter-threads/post', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Organik-Check
+  getOrganikCheck: () => apiFetch<any>('/bot/organik-check'),
+
+  // KI-Textgenerator
+  generateText: (data: { persona_id: string; stichpunkte: string; forum_id?: string; kontext?: string }) =>
+    apiFetch<{ text: string; persona: string; tokens: any }>('/bot/generate-text', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Konversations-Planer
+  planConversation: (data: {
+    forum_id: string
+    topic_title: string
+    persona_ids: string[]
+    start_delay_minutes?: number
+  }) => apiFetch<any>('/bot/plan-conversation', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 }
