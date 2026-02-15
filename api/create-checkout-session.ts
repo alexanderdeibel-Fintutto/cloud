@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, userEmail, tierId, couponId, trialDays } = req.body
+    const { priceId, userId, userEmail, tierId, couponId, trialDays, appId, bundleId } = req.body
 
     if (!priceId) {
       return res.status(400).json({ error: 'Price ID is required' })
@@ -40,10 +40,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         userId: userId || '',
         tierId: tierId || '',
         checksLimit: String(TIER_LIMITS[tierId] || 3),
+        appId: appId || 'mieter-checker',
+        bundleId: bundleId || '',
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       locale: 'de',
+      currency: 'eur',
     }
 
     // #15: Apply referral coupon if provided (1 Monat gratis fuer Geworbenen)

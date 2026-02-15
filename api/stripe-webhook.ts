@@ -17,6 +17,19 @@ const TIER_LIMITS: Record<string, number> = {
   premium: -1, // unlimited
 }
 
+// Referral reward tier per app (which tier the free month covers)
+const REFERRAL_REWARD_TIERS: Record<string, { tier: string; monthlyPriceEur: number }> = {
+  'mieter-checker': { tier: 'premium', monthlyPriceEur: 3.99 },
+  'fintutto-portal': { tier: 'kombi_pro', monthlyPriceEur: 14.99 },
+  'vermieter-portal': { tier: 'pro', monthlyPriceEur: 7.99 },
+  'bescheidboxer': { tier: 'kaempfer', monthlyPriceEur: 4.99 },
+  'vermietify': { tier: 'basic', monthlyPriceEur: 9.99 },
+  'hausmeisterpro': { tier: 'starter', monthlyPriceEur: 9.99 },
+  'ablesung': { tier: 'basic', monthlyPriceEur: 9.99 },
+  'mieter-app': { tier: 'basic', monthlyPriceEur: 4.99 },
+  'financial-compass': { tier: 'basic', monthlyPriceEur: 9.99 },
+}
+
 export const config = {
   api: {
     bodyParser: false,
@@ -100,9 +113,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // --- REFERRAL REWARD LOGIC ---
         // Check if the subscriber was referred and apply rewards for BOTH sides
+        // Supports cross-app referral: referrer gets reward in their own app
         const subscriberEmail = customerEmail || session.customer_details?.email
+        const appId = session.metadata?.appId || 'mieter-checker'
         if (subscriberEmail) {
-          await processReferralReward(subscriberEmail, session.customer as string)
+          await processReferralReward(subscriberEmail, session.customer as string, appId)
+        }
+
+        // Track subscription in user_app_subscriptions for bundle discount calculation
+        if (userId && tierId && tierId !== 'free') {
+          await supabase.from('user_app_subscriptions').upsert({
+            user_id: userId,
+            app_id: appId,
+            plan_id: tierId,
+            is_active: true,
+            stripe_subscription_id: session.subscription as string,
+            subscribed_at: new Date().toISOString(),
+          }, { onConflict: 'user_id,app_id' })
         }
 
         break
@@ -171,8 +198,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 // ============================================================================
 // REFERRAL REWARD LOGIC
 // 1 Monat gratis fuer BEIDE Seiten (Werber + Geworbener)
+// Cross-App: Referrer bekommt Reward in SEINER App, Geworbener in SEINER
 // ============================================================================
-async function processReferralReward(subscriberEmail: string, stripeCustomerId: string) {
+async function processReferralReward(subscriberEmail: string, stripeCustomerId: string, referredAppId: string) {
   try {
     // Find the subscriber and check if they were referred
     const { data: subscriber } = await supabase
@@ -208,17 +236,53 @@ async function processReferralReward(subscriberEmail: string, stripeCustomerId: 
       return
     }
 
-    console.log('Processing referral reward:', { referrerEmail: referrer.email, subscriberEmail })
+    // Determine referrer's app (for cross-app referral)
+    const { data: referrerAppSub } = await supabase
+      .from('user_app_subscriptions')
+      .select('app_id')
+      .eq('user_id', referrer.id)
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+
+    const referrerAppId = referrerAppSub?.app_id || referredAppId
+    const rewardInfo = REFERRAL_REWARD_TIERS[referrerAppId] || { tier: 'basic', monthlyPriceEur: 9.99 }
+
+    console.log('Processing referral reward:', {
+      referrerEmail: referrer.email,
+      subscriberEmail,
+      referrerApp: referrerAppId,
+      referredApp: referredAppId,
+      rewardTier: rewardInfo.tier,
+    })
 
     // Create 100% off coupon for referrer (1 month free)
     const referrerCoupon = await stripe.coupons.create({
       percent_off: 100,
       duration: 'once',
-      name: `Referral-Belohnung: Gratismonat (Einladung von ${subscriberEmail})`,
+      name: `Referral: 1 Monat ${rewardInfo.tier} gratis (${subscriberEmail} eingeladen)`,
       max_redemptions: 1,
+      metadata: {
+        type: 'referral_reward',
+        referrer_app: referrerAppId,
+        referred_app: referredAppId,
+      },
     })
 
-    // Apply coupon to referrer's active subscription if they have one
+    // Create 100% off coupon for referred user too (1 month free for BOTH sides)
+    const referredCoupon = await stripe.coupons.create({
+      percent_off: 100,
+      duration: 'once',
+      name: `Willkommensgeschenk: 1 Monat gratis (eingeladen von ${referrer.email})`,
+      max_redemptions: 1,
+      metadata: {
+        type: 'referral_welcome',
+        referrer_app: referrerAppId,
+        referred_app: referredAppId,
+      },
+    })
+
+    // Apply coupon to referrer's active subscription
     const referrerCustomers = await stripe.customers.list({
       email: referrer.email,
       limit: 1,
@@ -239,12 +303,29 @@ async function processReferralReward(subscriberEmail: string, stripeCustomerId: 
       }
     }
 
+    // Apply coupon to referred user's subscription (just created)
+    const referredSubs = await stripe.subscriptions.list({
+      customer: stripeCustomerId,
+      status: 'active',
+      limit: 1,
+    })
+
+    if (referredSubs.data.length > 0) {
+      await stripe.subscriptions.update(referredSubs.data[0].id, {
+        coupon: referredCoupon.id,
+      })
+      console.log('Referred user coupon applied to subscription:', referredSubs.data[0].id)
+    }
+
     // Update referral record
     const updateData = {
       reward_applied_referrer: true,
       reward_applied_referred: true,
       reward_applied_at: new Date().toISOString(),
       stripe_coupon_id_referrer: referrerCoupon.id,
+      stripe_coupon_id_referred: referredCoupon.id,
+      referrer_app_id: referrerAppId,
+      referred_app_id: referredAppId,
       status: 'converted',
       converted_at: new Date().toISOString(),
     }
