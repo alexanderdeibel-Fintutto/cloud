@@ -836,6 +836,95 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     })
   })
 
+  // ── KI-Textgenerator: Stichpunkte → Persona-Stil-Text ──
+
+  router.post('/bot/generate-text', async (req, res) => {
+    const { persona_id, stichpunkte, forum_id, kontext } = req.body
+    if (!persona_id || !stichpunkte) {
+      return res.status(400).json({ error: 'persona_id und stichpunkte sind erforderlich' })
+    }
+
+    if (!config.anthropic_api_key) {
+      return res.status(400).json({ error: 'ANTHROPIC_API_KEY nicht in .env konfiguriert' })
+    }
+
+    const personas = loadPersonas()
+    const persona = personas.find(p => p.id === persona_id)
+    if (!persona) return res.status(404).json({ error: 'Persona nicht gefunden' })
+
+    const tonMap: Record<string, string> = {
+      emotional_aber_sachlich: 'emotional aber sachlich, zeigt Gefühle aber bleibt bei den Fakten',
+      warmherzig: 'warmherzig und einfühlsam, tröstet und ermutigt andere',
+      unsicher: 'unsicher und fragend, sucht Bestätigung',
+      kämpferisch: 'kämpferisch und entschlossen, lässt sich nichts gefallen',
+      verunsichert: 'verunsichert und ängstlich, weiß nicht weiter',
+      präzise_juristisch: 'präzise und juristisch informiert, zitiert Paragraphen',
+      frustriert_sarkastisch: 'frustriert und sarkastisch, hat die Nase voll',
+      positiv_lösungsorientiert: 'positiv und lösungsorientiert, sieht das Gute',
+      höflich_altmodisch: 'höflich und etwas altmodisch in der Ausdrucksweise',
+      pragmatisch: 'pragmatisch und nüchtern, kommt auf den Punkt',
+    }
+
+    const stilMap: Record<string, string> = {
+      hochdeutsch: 'Korrektes Hochdeutsch, vollständige Sätze, korrekte Grammatik',
+      umgangssprache_leicht: 'Leichte Umgangssprache, natürlich und locker aber lesbar',
+      umgangssprache_mittel: 'Deutliche Umgangssprache, Abkürzungen, lockerer Satzbau',
+      umgangssprache_stark: 'Starke Umgangssprache, fast wie gesprochene Sprache, Dialekteinflüsse',
+      jugendsprache: 'Jugendsprache, kurze Sätze, aktuelle Ausdrücke',
+    }
+
+    const prompt = `Du schreibst einen Forum-Beitrag als fiktive Persona in einem Bürgergeld-Forum (jobcenter-erfahrungen.de).
+
+PERSONA-PROFIL:
+- Name: ${persona.display_name}
+- Alter: ${persona.profile.alter}, Geschlecht: ${persona.profile.geschlecht === 'w' ? 'weiblich' : persona.profile.geschlecht === 'm' ? 'männlich' : 'divers'}
+- Situation: ${persona.profile.situation}
+- Bundesland: ${persona.profile.bundesland}
+- Ton: ${tonMap[persona.profile.ton] || persona.profile.ton}
+- Schreibstil: ${stilMap[persona.profile.schreibstil] || persona.profile.schreibstil}
+- Emoji-Nutzung: ${persona.profile.emoji_nutzung}
+- Tippfehler: ${persona.profile.tippfehler_rate > 0.05 ? 'gelegentlich' : persona.profile.tippfehler_rate > 0 ? 'sehr selten' : 'keine'}
+- Groß/Klein-Fehler: ${persona.profile.gross_klein_fehler ? 'ja, schreibt oft alles klein' : 'nein, normale Groß/Kleinschreibung'}
+${persona.profile.beispiel_saetze?.length ? `- Beispiel-Sätze dieser Persona: "${persona.profile.beispiel_saetze.join('", "')}"` : ''}
+
+FORUM: ${forum_id || 'allgemeines'}
+${kontext ? `KONTEXT: ${kontext}` : ''}
+
+STICHPUNKTE DES NUTZERS (daraus den Text erstellen):
+${stichpunkte}
+
+REGELN:
+- Schreibe NUR den Forum-Beitrag, keine Erklärungen drumherum
+- Verwende IMMER korrekte deutsche Umlaute (ä, ö, ü, ß) – niemand schreibt "Koeln" oder "fuer"
+- Schreibe authentisch im Stil der Persona – der Text muss wie von einem echten Menschen in einem Forum klingen
+- Natürliche Absätze, nicht zu perfekt strukturiert
+- Keine Überschriften oder Formatierung die nach KI aussieht
+- Länge: 3-8 Absätze, je nach Inhalt
+- Wenn die Persona Tippfehler macht, baue sehr vereinzelt welche ein (maximal 1-2)
+- Wenn Groß/Klein-Fehler: schreibe lockerer mit der Groß/Kleinschreibung
+- KEIN BescheidBoxer erwähnen außer der Nutzer schreibt es explizit in die Stichpunkte`
+
+    try {
+      const Anthropic = (await import('@anthropic-ai/sdk')).default
+      const client = new Anthropic({ apiKey: config.anthropic_api_key })
+
+      const message = await client.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }],
+      })
+
+      const text = message.content
+        .filter(b => b.type === 'text')
+        .map(b => (b as any).text)
+        .join('')
+
+      res.json({ text, persona: persona.display_name, tokens: message.usage })
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) })
+    }
+  })
+
   return router
 }
 

@@ -99,6 +99,13 @@ export const api = {
   // Organik-Check
   getOrganikCheck: () => apiFetch<any>('/bot/organik-check'),
 
+  // KI-Textgenerator
+  generateText: (data: { persona_id: string; stichpunkte: string; forum_id?: string; kontext?: string }) =>
+    apiFetch<{ text: string; persona: string; tokens: any }>('/bot/generate-text', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
   // Konversations-Planer
   planConversation: (data: {
     forum_id: string

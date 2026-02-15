@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   ArrowLeft, Send, Search, RefreshCw, Sliders,
   UserPlus, MessageSquare, FileText, Users,
-  ChevronDown, ChevronRight, CheckCircle, AlertCircle, Megaphone,
+  ChevronDown, ChevronRight, CheckCircle, AlertCircle, Megaphone, Sparkles,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -167,7 +167,29 @@ function ComposeAsPersona() {
   const [wpPosts, setWpPosts] = useState<any[]>([])
   const [wpTopics, setWpTopics] = useState<any[]>([])
   const [posting, setPosting] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [kiStichpunkte, setKiStichpunkte] = useState('')
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null)
+
+  const handleGenerate = async () => {
+    if (!selectedPersona || !kiStichpunkte.trim()) return
+    setGenerating(true)
+    try {
+      const res = await api.generateText({
+        persona_id: selectedPersona.id,
+        stichpunkte: kiStichpunkte.trim(),
+        forum_id: forumId,
+        kontext: actionType === 'forum_reply' ? 'Antwort auf ein bestehendes Forum-Topic' :
+                 actionType === 'blog_comment' ? 'Kommentar zu einem Blog-Beitrag' :
+                 actionType === 'forum_topic' ? 'Neues Forum-Topic erstellen' : 'Blog-Beitrag',
+      })
+      setBody(res.text)
+    } catch (err) {
+      setResult({ success: false, message: `KI-Fehler: ${err instanceof Error ? err.message : 'Unbekannt'}` })
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   const searchPersonas = async (q: string) => {
     setSearch(q)
@@ -336,6 +358,31 @@ function ComposeAsPersona() {
         </div>
       )}
 
+      {/* KI-Textgenerator */}
+      {selectedPersona && (
+        <div className="bg-violet-50/50 border border-violet-200/50 rounded-lg p-3 space-y-2">
+          <label className="flex items-center gap-1.5 text-xs font-medium text-violet-700">
+            <Sparkles className="w-3.5 h-3.5" />
+            KI-Text aus Stichpunkten
+          </label>
+          <textarea
+            value={kiStichpunkte}
+            onChange={e => setKiStichpunkte(e.target.value)}
+            rows={3}
+            placeholder="Stichpunkte hier, z.B.:&#10;- Bescheid falsch berechnet, 85€ fehlen&#10;- will Widerspruch einlegen&#10;- bin alleinerziehend, total überfordert"
+            className="w-full px-2.5 py-1.5 text-xs bg-white border border-violet-200 rounded-md focus:outline-none focus:ring-1 focus:ring-violet-400 resize-y"
+          />
+          <button
+            onClick={handleGenerate}
+            disabled={generating || !kiStichpunkte.trim()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 transition-colors"
+          >
+            {generating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            {generating ? 'Generiere...' : 'Text im Persona-Stil generieren'}
+          </button>
+        </div>
+      )}
+
       {/* Content */}
       <div>
         <label className="block text-xs font-medium mb-1">Inhalt</label>
@@ -343,7 +390,7 @@ function ComposeAsPersona() {
           value={body}
           onChange={e => setBody(e.target.value)}
           rows={6}
-          placeholder="Den Text hier reinschreiben... Schreibe im Stil der gewählten Persona. Tipp: Subtil sein mit BB-Erwähnungen – eher 'schaut doch mal hier' statt Werbung."
+          placeholder="Den Text hier reinschreiben oder oben per KI generieren lassen..."
           className="w-full px-2.5 py-1.5 text-xs bg-background border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring resize-y font-mono"
         />
         <p className="text-[10px] text-muted-foreground mt-1">
@@ -641,6 +688,8 @@ function StarterThreads() {
   const [searchResults, setSearchResults] = useState<Record<number, any[]>>({})
   const [selectedPersonas, setSelectedPersonas] = useState<Record<number, any>>({})
   const [posting, setPosting] = useState<number | null>(null)
+  const [generating, setGenerating] = useState<number | null>(null)
+  const [stichpunkte, setStichpunkte] = useState<Record<number, string>>({})
   const [results, setResults] = useState<Record<number, { success: boolean; message: string }>>({})
   const [postedIndices, setPostedIndices] = useState<Set<number>>(new Set())
 
@@ -664,6 +713,30 @@ function StarterThreads() {
     setSelectedPersonas(prev => ({ ...prev, [idx]: persona }))
     setSearchResults(prev => ({ ...prev, [idx]: [] }))
     setPersonaSearch(prev => ({ ...prev, [idx]: '' }))
+  }
+
+  const handleGenerate = async (idx: number) => {
+    const persona = selectedPersonas[idx]
+    const notes = stichpunkte[idx]
+    if (!persona || !notes?.trim()) return
+    setGenerating(idx)
+    try {
+      const thread = threads[idx]
+      const res = await api.generateText({
+        persona_id: persona.id,
+        stichpunkte: notes.trim(),
+        forum_id: thread.forum_id,
+        kontext: `Starter-Thread im Forum "${thread.forum_label}". Vorgeschlagener Titel: "${thread.title}"`,
+      })
+      setEdits(prev => ({
+        ...prev,
+        [idx]: { title: prev[idx]?.title ?? thread.title, body: res.text },
+      }))
+    } catch (err) {
+      setResults(prev => ({ ...prev, [idx]: { success: false, message: `KI-Fehler: ${err instanceof Error ? err.message : 'Unbekannt'}` } }))
+    } finally {
+      setGenerating(null)
+    }
   }
 
   const handlePost = async (idx: number) => {
@@ -829,6 +902,31 @@ function StarterThreads() {
                           className="w-full px-2 py-1 text-[11px] bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
                         />
                       </div>
+
+                      {/* KI-Textgenerator */}
+                      {persona && (
+                        <div className="bg-violet-50/50 border border-violet-200/50 rounded-lg p-2 space-y-1.5">
+                          <label className="flex items-center gap-1 text-[10px] font-medium text-violet-700">
+                            <Sparkles className="w-3 h-3" />
+                            KI-Text aus Stichpunkten ({persona.display_name})
+                          </label>
+                          <textarea
+                            value={stichpunkte[idx] || ''}
+                            onChange={e => setStichpunkte(prev => ({ ...prev, [idx]: e.target.value }))}
+                            rows={3}
+                            placeholder="Stichpunkte hier eingeben, z.B.:&#10;- Bescheid falsch berechnet&#10;- 85€ fehlen pro Monat&#10;- will Widerspruch einlegen, weiß nicht wie"
+                            className="w-full px-2 py-1 text-[11px] bg-white border border-violet-200 rounded focus:outline-none focus:ring-1 focus:ring-violet-400 resize-y"
+                          />
+                          <button
+                            onClick={() => handleGenerate(idx)}
+                            disabled={generating === idx || !stichpunkte[idx]?.trim()}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 transition-colors"
+                          >
+                            {generating === idx ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                            {generating === idx ? 'Generiere...' : 'Text generieren'}
+                          </button>
+                        </div>
+                      )}
 
                       {/* Editable body */}
                       <div>
