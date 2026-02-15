@@ -33,6 +33,10 @@ import MehrfachUploadPage from './pages/MehrfachUploadPage'
 import BerichtExportPage from './pages/BerichtExportPage'
 import ArchivPage from './pages/ArchivPage'
 import SchnellerfassungPage from './pages/SchnellerfassungPage'
+import StatistikPage from './pages/StatistikPage'
+import DokumentenPage from './pages/DokumentenPage'
+import BenachrichtigungenPage from './pages/BenachrichtigungenPage'
+import OnboardingPage from './pages/OnboardingPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -85,6 +89,10 @@ function App() {
             <Route path="bericht" element={<BerichtExportPage />} />
             <Route path="archiv" element={<ArchivPage />} />
             <Route path="schnellerfassung" element={<SchnellerfassungPage />} />
+            <Route path="statistiken" element={<StatistikPage />} />
+            <Route path="dokumente" element={<DokumentenPage />} />
+            <Route path="benachrichtigungen" element={<BenachrichtigungenPage />} />
+            <Route path="onboarding" element={<OnboardingPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

@@ -21,6 +21,9 @@ import {
   FileDown,
   Archive,
   Zap,
+  PieChart,
+  FolderOpen,
+  Bell,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -40,6 +43,9 @@ const navigation = [
   { name: 'Mehrfach-Upload', href: '/mehrfach-upload', icon: FolderUp },
   { name: 'Schnellerfassung', href: '/schnellerfassung', icon: Zap },
   { name: 'Archiv', href: '/archiv', icon: Archive },
+  { name: 'Statistiken', href: '/statistiken', icon: PieChart },
+  { name: 'Dokumente', href: '/dokumente', icon: FolderOpen },
+  { name: 'Benachrichtigungen', href: '/benachrichtigungen', icon: Bell },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
   { name: 'Mein Profil', href: '/profil', icon: User },

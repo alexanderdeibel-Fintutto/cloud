@@ -27,6 +27,10 @@ import {
   FileDown,
   Archive,
   Zap,
+  PieChart,
+  FolderOpen,
+  Bell,
+  Sparkles,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -88,6 +92,10 @@ export default function CommandPalette() {
     { id: 'nav-bericht', label: 'Bericht exportieren', description: 'Steuerbericht erstellen', icon: FileDown, category: 'navigation', keywords: ['bericht', 'export', 'pdf', 'drucken', 'report'], action: () => runAndClose(() => navigate('/bericht')) },
     { id: 'nav-archiv', label: 'Archiv', description: 'Abgeschlossene Bescheide', icon: Archive, category: 'navigation', keywords: ['archiv', 'erledigt', 'abgeschlossen', 'alt', 'history'], action: () => runAndClose(() => navigate('/archiv')) },
     { id: 'nav-schnell', label: 'Schnellerfassung', description: 'Bescheid schnell anlegen', icon: Zap, category: 'navigation', keywords: ['schnell', 'neu', 'anlegen', 'erfassen', 'wizard', 'quick'], action: () => runAndClose(() => navigate('/schnellerfassung')) },
+    { id: 'nav-statistik', label: 'Statistiken', description: 'Charts & Auswertungen', icon: PieChart, category: 'navigation', keywords: ['statistik', 'chart', 'auswertung', 'analytics', 'diagramm'], action: () => runAndClose(() => navigate('/statistiken')) },
+    { id: 'nav-dokumente', label: 'Dokumente', description: 'Alle hochgeladenen Dateien', icon: FolderOpen, category: 'navigation', keywords: ['dokument', 'datei', 'file', 'pdf', 'bild', 'foto'], action: () => runAndClose(() => navigate('/dokumente')) },
+    { id: 'nav-benachrichtigungen', label: 'Benachrichtigungen', description: 'Alle Nachrichten', icon: Bell, category: 'navigation', keywords: ['benachrichtigung', 'nachricht', 'notification', 'alarm', 'glocke'], action: () => runAndClose(() => navigate('/benachrichtigungen')) },
+    { id: 'nav-onboarding', label: 'Einfuehrung', description: 'App-Tour starten', icon: Sparkles, category: 'navigation', keywords: ['onboarding', 'tour', 'einfuehrung', 'willkommen', 'hilfe', 'start'], action: () => runAndClose(() => navigate('/onboarding')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
