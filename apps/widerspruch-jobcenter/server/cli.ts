@@ -179,10 +179,13 @@ async function main() {
     }
 
     case 'setup-wp-users': {
-      const personas = loadPersonas()
+      let personas = loadPersonas()
       if (personas.length === 0) {
-        console.error('\nKeine Personas vorhanden. Führe zuerst "generate-personas" aus.\n')
-        process.exit(1)
+        console.log('\nKeine Personas vorhanden – generiere 500 Personas (Seed: 42)...\n')
+        const newPersonas = generatePersonas({ count: 500, seed: 42, startId: 1 })
+        savePersonas(newPersonas)
+        printPersonaStats(newPersonas, `${newPersonas.length} Personas generiert und gespeichert in data/personas.json`)
+        personas = newPersonas
       }
       if (!config.wp_admin_app_password) {
         console.error('\nWP_ADMIN_APP_PASSWORD nicht in .env gesetzt.\n')
