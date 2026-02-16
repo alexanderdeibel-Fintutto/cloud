@@ -6,6 +6,7 @@ import { CheckerProvider } from '@/contexts/CheckerContext'
 import Layout from '@/components/layout/Layout'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -80,6 +81,7 @@ function App() {
       <CheckerProvider>
         <ScrollToTop />
         <Layout>
+          <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -143,6 +145,7 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
+          </ErrorBoundary>
         </Layout>
         <Toaster position="top-right" richColors />
       </CheckerProvider>
