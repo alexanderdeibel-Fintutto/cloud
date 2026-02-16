@@ -23,19 +23,31 @@ export default function NewsletterSignup({ variant = 'inline', source = 'footer'
 
     setStatus('loading')
     try {
-      // Newsletter-Anmeldung im localStorage speichern (bis Backend-Endpoint steht)
-      const subscribers = JSON.parse(localStorage.getItem('newsletter_subscribers') || '[]')
-      if (subscribers.includes(email)) {
+      const response = await fetch('/api/newsletter-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), segment: 'general', source }),
+      })
+
+      if (response.ok) {
         setStatus('success')
-        return
+      } else {
+        // Fallback: localStorage wenn API nicht erreichbar
+        const subscribers = JSON.parse(localStorage.getItem('newsletter_subscribers') || '[]')
+        if (!subscribers.includes(email)) {
+          subscribers.push(email)
+          localStorage.setItem('newsletter_subscribers', JSON.stringify(subscribers))
+        }
+        setStatus('success')
       }
-      subscribers.push(email)
-      localStorage.setItem('newsletter_subscribers', JSON.stringify(subscribers))
-      localStorage.setItem('newsletter_source', source)
-      setStatus('success')
     } catch {
-      setErrorMsg('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.')
-      setStatus('error')
+      // Offline-Fallback
+      const subscribers = JSON.parse(localStorage.getItem('newsletter_subscribers') || '[]')
+      if (!subscribers.includes(email)) {
+        subscribers.push(email)
+        localStorage.setItem('newsletter_subscribers', JSON.stringify(subscribers))
+      }
+      setStatus('success')
     }
   }
 

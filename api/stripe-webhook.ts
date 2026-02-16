@@ -56,13 +56,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const session = event.data.object as Stripe.Checkout.Session
 
         const userId = session.metadata?.userId
+        const purchaseType = session.metadata?.purchaseType
         const tierId = session.metadata?.tierId
         const checksLimit = parseInt(session.metadata?.checksLimit || '3', 10)
         const customerEmail = session.customer_email
         const referralCode = session.metadata?.referralCode
 
-        console.log('Checkout completed:', { userId, tierId, customerEmail, referralCode })
+        console.log('Checkout completed:', { userId, purchaseType, tierId, customerEmail, referralCode })
 
+        // Handle one-time purchases
+        if (purchaseType === 'one_time') {
+          const productId = session.metadata?.productId
+          const resultId = session.metadata?.resultId
+
+          await supabase
+            .from('one_time_purchases')
+            .insert({
+              user_id: userId || null,
+              product_type: productId,
+              stripe_checkout_session_id: session.id,
+              stripe_payment_intent_id: session.payment_intent as string,
+              amount: session.amount_total || 0,
+              status: 'completed',
+              metadata: { resultId, customerEmail },
+              completed_at: new Date().toISOString(),
+            })
+
+          // Log monetization event
+          await supabase
+            .from('monetization_events')
+            .insert({
+              event_type: 'one_time',
+              user_id: userId || null,
+              source: 'checkout',
+              source_detail: productId,
+              revenue: (session.amount_total || 0) / 100,
+              metadata: { sessionId: session.id, resultId },
+            })
+
+          console.log('One-time purchase recorded:', { productId, amount: session.amount_total })
+          break
+        }
+
+        // Handle subscriptions (existing logic)
         let resolvedUserId = userId
 
         if (userId) {
@@ -101,6 +137,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .eq('id', existingUser.id)
           }
         }
+
+        // Log subscription monetization event
+        await supabase
+          .from('monetization_events')
+          .insert({
+            event_type: 'subscription',
+            user_id: resolvedUserId || null,
+            source: 'checkout',
+            source_detail: tierId,
+            revenue: (session.amount_total || 0) / 100,
+            metadata: { sessionId: session.id, tierId },
+          })
 
         // Process referral subscription reward
         if (resolvedUserId && tierId && tierId !== 'free') {

@@ -19,6 +19,21 @@ interface AffiliateCardProps {
   checkerType: string
 }
 
+function trackClick(partnerId: string, partnerCategory: string, checkerType: string) {
+  fetch('/api/track-affiliate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      partnerId,
+      partnerCategory,
+      sourceChecker: checkerType,
+      sourcePage: 'result',
+    }),
+  }).catch(() => {
+    // Tracking failure should not block the user
+  })
+}
+
 export default function AffiliateCard({ checkerType }: AffiliateCardProps) {
   const mapping = AFFILIATE_MAPPINGS[checkerType]
   if (!mapping) return null
@@ -51,6 +66,7 @@ export default function AffiliateCard({ checkerType }: AffiliateCardProps) {
                 target="_blank"
                 rel="noopener noreferrer sponsored"
                 className="block"
+                onClick={() => trackClick(partner.id, partner.category, checkerType)}
               >
                 <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-white hover:border-amber-300 hover:shadow-md transition-all group">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50 group-hover:bg-amber-50 transition-colors flex-shrink-0">

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { motion } from 'framer-motion'
-import { AffiliateCard, AdSlot, PremiumTeaser } from '@/components/monetization'
+import { AffiliateCard, AdSlot, PremiumTeaser, OneTimePurchase } from '@/components/monetization'
 
 interface CheckerResultProps {
   result: CheckerResultType
@@ -132,8 +132,14 @@ export default function CheckerResult({
       {/* Kontextbezogene Partner-Empfehlungen */}
       <AffiliateCard checkerType={checkerType} />
 
-      {/* Premium-Teaser für PDF-Export */}
+      {/* Einmalkauf oder Premium-Teaser */}
       <PremiumTeaser feature="pdf" />
+
+      {/* Einmalkauf: PDF-Export ohne Abo */}
+      <div className="text-center">
+        <p className="text-xs text-gray-500 mb-2">Oder einzeln kaufen:</p>
+        <OneTimePurchase productId="single_pdf_export" variant="single" />
+      </div>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
