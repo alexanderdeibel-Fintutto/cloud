@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
 import Layout from '@/components/layout/Layout'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { ScrollToTop } from '@/components/ScrollToTop'
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -77,6 +78,7 @@ function App() {
   return (
     <AuthProvider>
       <CheckerProvider>
+        <ScrollToTop />
         <Layout>
           <Suspense fallback={<PageLoader />}>
             <Routes>
