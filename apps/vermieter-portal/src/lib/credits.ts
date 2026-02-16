@@ -1,63 +1,112 @@
-// Credits System Types and Constants for Fintutto Vermieter-Portal
+// Credits System for Fintutto Vermieter-Portal
+// Uses the same plan structure as the main portal credits system
+// Stripe Price IDs are configured via environment variables
 
-export type PlanType = 'free' | 'starter' | 'pro' | 'unlimited'
+export type PlanType = 'free' | 'vermieter_basic' | 'kombi_pro' | 'unlimited'
 
 export interface Plan {
   id: PlanType
   name: string
+  description: string
   price: number // in cents
   yearlyPrice: number // in cents
   monthlyCredits: number // -1 for unlimited
   canSave: boolean
   aiMessages: number // -1 for unlimited, 0 for none
-  stripePriceIdMonthly?: string
-  stripePriceIdYearly?: string
+  stripePriceIdMonthly: string
+  stripePriceIdYearly: string
+  features: string[]
+}
+
+function getEnv(key: string, fallback: string = ''): string {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[key] || fallback
+  }
+  return fallback
 }
 
 export const PLANS: Record<PlanType, Plan> = {
   free: {
     id: 'free',
-    name: 'Free',
+    name: 'Kostenlos',
+    description: 'Zum Ausprobieren',
     price: 0,
     yearlyPrice: 0,
     monthlyCredits: 3,
     canSave: false,
     aiMessages: 0,
+    stripePriceIdMonthly: '',
+    stripePriceIdYearly: '',
+    features: [
+      '3 Credits pro Monat',
+      'Alle Rechner verfuegbar',
+      'Alle Formulare verfuegbar',
+      'PDF-Export (mit Wasserzeichen)',
+    ],
   },
-  starter: {
-    id: 'starter',
-    name: 'Starter',
-    price: 299, // 2.99€
-    yearlyPrice: 2870, // 28.70€
-    monthlyCredits: 10,
+  vermieter_basic: {
+    id: 'vermieter_basic',
+    name: 'Vermieter',
+    description: 'Alle Rechner & Formulare',
+    price: 799, // 7.99 EUR
+    yearlyPrice: 7670, // 76.70 EUR
+    monthlyCredits: 20,
     canSave: true,
-    aiMessages: 0,
-    stripePriceIdMonthly: 'price_vermieter_starter_monthly',
-    stripePriceIdYearly: 'price_vermieter_starter_yearly',
+    aiMessages: 20,
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_VERMIETER_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_VERMIETER_YEARLY'),
+    features: [
+      '20 Credits pro Monat',
+      'Alle Rechner verfuegbar',
+      'Alle Formulare verfuegbar',
+      'PDF-Export ohne Wasserzeichen',
+      'Berechnungen speichern',
+      '20 KI-Nachrichten/Monat',
+    ],
   },
-  pro: {
-    id: 'pro',
-    name: 'Pro',
-    price: 799, // 7.99€
-    yearlyPrice: 7670, // 76.70€
-    monthlyCredits: 30,
+  kombi_pro: {
+    id: 'kombi_pro',
+    name: 'Kombi Pro',
+    description: 'Rechner + Checker + Formulare',
+    price: 1199, // 11.99 EUR
+    yearlyPrice: 11510, // 115.10 EUR
+    monthlyCredits: 50,
     canSave: true,
     aiMessages: 50,
-    stripePriceIdMonthly: 'price_vermieter_pro_monthly',
-    stripePriceIdYearly: 'price_vermieter_pro_yearly',
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_KOMBI_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_KOMBI_YEARLY'),
+    features: [
+      '50 Credits pro Monat',
+      'Alle Rechner + Checker',
+      'Alle Formulare',
+      'PDF-Export ohne Wasserzeichen',
+      'Berechnungen speichern',
+      '50 KI-Nachrichten/Monat',
+    ],
   },
   unlimited: {
     id: 'unlimited',
     name: 'Unlimited',
-    price: 1499, // 14.99€
-    yearlyPrice: 14390, // 143.90€
-    monthlyCredits: -1, // unlimited
+    description: 'Unbegrenzt alles nutzen',
+    price: 1999, // 19.99 EUR
+    yearlyPrice: 19190, // 191.90 EUR
+    monthlyCredits: -1,
     canSave: true,
-    aiMessages: -1, // unlimited
-    stripePriceIdMonthly: 'price_vermieter_unlimited_monthly',
-    stripePriceIdYearly: 'price_vermieter_unlimited_yearly',
+    aiMessages: -1,
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_UNLIMITED_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_UNLIMITED_YEARLY'),
+    features: [
+      'Unbegrenzte Credits',
+      'Alle Rechner + Checker',
+      'Alle Formulare',
+      'PDF-Export ohne Wasserzeichen',
+      'Unbegrenzt speichern',
+      'KI-Assistent (unbegrenzt)',
+    ],
   },
 }
+
+export const PLANS_LIST: Plan[] = Object.values(PLANS)
 
 // Credit costs for different actions
 export type ActionType =
@@ -127,7 +176,7 @@ export function canPerformAction(
 
   return {
     allowed: false,
-    reason: `Du benötigst ${totalCost} Credits, hast aber nur ${userCredits.creditsRemaining} übrig.`,
+    reason: `Du benoetigst ${totalCost} Credits, hast aber nur ${userCredits.creditsRemaining} uebrig.`,
     cost: totalCost,
   }
 }
@@ -138,7 +187,7 @@ export function canUseAI(userCredits: UserCredits): { allowed: boolean; reason?:
   if (plan.aiMessages === 0) {
     return {
       allowed: false,
-      reason: 'Der KI-Assistent ist nur in Pro und Unlimited verfügbar.',
+      reason: 'Der KI-Assistent ist nur in kostenpflichtigen Plaenen verfuegbar.',
     }
   }
 
@@ -158,6 +207,6 @@ export function canUseAI(userCredits: UserCredits): { allowed: boolean; reason?:
 }
 
 export function formatCreditsDisplay(credits: number): string {
-  if (credits === -1) return '∞'
+  if (credits === -1) return '\u221E'
   return credits.toString()
 }

@@ -1,87 +1,14 @@
 import { useState } from 'react'
-import { CheckCircle2, XCircle, Coins, Calculator, FileText, Sparkles, Zap, MessageSquare } from 'lucide-react'
+import { CheckCircle2, Coins, Calculator, FileText, Sparkles, Zap, MessageSquare } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
-
-const plans = [
-  {
-    name: 'Free',
-    description: 'Zum Ausprobieren',
-    price: '0',
-    period: 'für immer',
-    credits: 3,
-    features: [
-      { text: '3 Credits pro Monat', included: true, highlight: true },
-      { text: 'Alle Rechner verfügbar', included: true },
-      { text: 'Alle Formulare verfügbar', included: true },
-      { text: 'PDF-Export (mit Wasserzeichen)', included: true },
-      { text: 'Berechnungen speichern', included: false },
-      { text: 'KI-Assistent', included: false },
-    ],
-    cta: 'Kostenlos starten',
-    popular: false,
-  },
-  {
-    name: 'Starter',
-    description: 'Für gelegentliche Nutzung',
-    price: '2,99',
-    period: 'pro Monat',
-    yearlyPrice: '28,70',
-    credits: 10,
-    features: [
-      { text: '10 Credits pro Monat', included: true, highlight: true },
-      { text: 'Alle Rechner verfügbar', included: true },
-      { text: 'Alle Formulare verfügbar', included: true },
-      { text: 'PDF-Export ohne Wasserzeichen', included: true },
-      { text: 'Berechnungen speichern', included: true },
-      { text: 'KI-Assistent', included: false },
-    ],
-    cta: 'Starter wählen',
-    popular: false,
-  },
-  {
-    name: 'Pro',
-    description: 'Für aktive Vermieter',
-    price: '7,99',
-    period: 'pro Monat',
-    yearlyPrice: '76,70',
-    credits: 30,
-    features: [
-      { text: '30 Credits pro Monat', included: true, highlight: true },
-      { text: 'Alle Rechner verfügbar', included: true },
-      { text: 'Alle Formulare verfügbar', included: true },
-      { text: 'PDF-Export ohne Wasserzeichen', included: true },
-      { text: 'Berechnungen speichern', included: true },
-      { text: 'KI-Assistent (50 Nachrichten/Monat)', included: true },
-    ],
-    cta: 'Pro werden',
-    popular: true,
-  },
-  {
-    name: 'Unlimited',
-    description: 'Für Profis & Hausverwaltungen',
-    price: '14,99',
-    period: 'pro Monat',
-    yearlyPrice: '143,90',
-    credits: -1, // unlimited
-    features: [
-      { text: 'Unbegrenzte Credits', included: true, highlight: true },
-      { text: 'Alle Rechner verfügbar', included: true },
-      { text: 'Alle Formulare verfügbar', included: true },
-      { text: 'PDF-Export ohne Wasserzeichen', included: true },
-      { text: 'Berechnungen speichern', included: true },
-      { text: 'KI-Assistent (unbegrenzt)', included: true },
-    ],
-    cta: 'Unlimited wählen',
-    popular: false,
-  },
-]
+import { PLANS_LIST, CREDIT_COSTS } from '../lib/credits'
 
 const creditCosts = [
-  { icon: Calculator, name: 'Einfache Rechner', description: 'Kaution, Mieterhöhung, etc.', cost: 1 },
-  { icon: FileText, name: 'Standard Dokumente', description: 'Nebenkostenabrechnung, Protokolle', cost: 2 },
-  { icon: Sparkles, name: 'Premium Dokumente', description: 'Rechtssichere Verträge & Schreiben', cost: 3 },
-  { icon: Zap, name: 'PDF-Export', description: 'Zusatz zu jeder Berechnung/Dokument', cost: 1 },
+  { icon: Calculator, name: 'Einfache Rechner', description: 'Kaution, Mieterhoehung, etc.', cost: CREDIT_COSTS.simple_calculator },
+  { icon: FileText, name: 'Standard Dokumente', description: 'Nebenkostenabrechnung, Protokolle', cost: CREDIT_COSTS.standard_document },
+  { icon: Sparkles, name: 'Premium Dokumente', description: 'Rechtssichere Vertraege & Schreiben', cost: CREDIT_COSTS.premium_document },
+  { icon: Zap, name: 'PDF-Export', description: 'Zusatz zu jeder Berechnung/Dokument', cost: CREDIT_COSTS.pdf_export },
 ]
 
 export default function PricingPage() {
@@ -96,7 +23,7 @@ export default function PricingPage() {
             Einfaches Credit-System
           </h1>
           <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
-            Zahle nur für das, was du nutzt. Kaufe Credits und setze sie flexibel ein.
+            Zahle nur fuer das, was du nutzt. Kaufe Credits und setze sie flexibel ein.
           </p>
 
           {/* Billing Toggle */}
@@ -119,7 +46,7 @@ export default function PricingPage() {
                   : 'text-white hover:bg-white/10'
               }`}
             >
-              Jährlich
+              Jaehrlich
               <span className="ml-1 text-xs bg-success text-white px-2 py-0.5 rounded-full">
                 -20%
               </span>
@@ -155,71 +82,70 @@ export default function PricingPage() {
       <section className="py-12">
         <div className="container">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {plans.map((plan) => (
-              <Card
-                key={plan.name}
-                className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="gradient-vermieter text-white text-xs font-medium px-4 py-1 rounded-full">
-                      Beliebteste Wahl
-                    </span>
-                  </div>
-                )}
-                <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold">
-                      {billingPeriod === 'yearly' && plan.yearlyPrice
-                        ? (parseFloat(plan.yearlyPrice.replace(',', '.')) / 12).toFixed(2).replace('.', ',')
-                        : plan.price}€
-                    </span>
-                    <span className="text-muted-foreground">/Monat</span>
-                    {billingPeriod === 'yearly' && plan.yearlyPrice && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {plan.yearlyPrice}€ jährlich abgerechnet
-                      </p>
-                    )}
-                  </div>
+            {PLANS_LIST.map((plan) => {
+              const isPopular = plan.id === 'kombi_pro'
+              const monthlyPrice = billingPeriod === 'yearly' && plan.yearlyPrice > 0
+                ? (plan.yearlyPrice / 100 / 12).toFixed(2).replace('.', ',')
+                : (plan.price / 100).toFixed(2).replace('.', ',')
 
-                  {/* Credits Badge */}
-                  <div className="mb-6 flex justify-center">
-                    <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
-                      <Coins className="h-5 w-5 text-primary" />
-                      <span className="font-semibold text-primary">
-                        {plan.credits === -1 ? '∞ Unbegrenzt' : `${plan.credits} Credits/Monat`}
+              return (
+                <Card
+                  key={plan.id}
+                  className={`relative ${isPopular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="gradient-vermieter text-white text-xs font-medium px-4 py-1 rounded-full">
+                        Beliebteste Wahl
                       </span>
                     </div>
-                  </div>
+                  )}
+                  <CardHeader className="text-center pb-2">
+                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                    <CardDescription>{plan.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="mb-4">
+                      <span className="text-4xl font-bold">
+                        {monthlyPrice}\u20AC
+                      </span>
+                      <span className="text-muted-foreground">/Monat</span>
+                      {billingPeriod === 'yearly' && plan.yearlyPrice > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {(plan.yearlyPrice / 100).toFixed(2).replace('.', ',')}\u20AC jaehrlich abgerechnet
+                        </p>
+                      )}
+                    </div>
 
-                  <ul className="space-y-3 mb-6 text-left">
-                    {plan.features.map((feature) => (
-                      <li key={feature.text} className="flex items-start gap-2 text-sm">
-                        {feature.included ? (
-                          <CheckCircle2 className={`h-5 w-5 shrink-0 mt-0.5 ${feature.highlight ? 'text-primary' : 'text-success'}`} />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-muted-foreground/50 shrink-0 mt-0.5" />
-                        )}
-                        <span className={feature.included ? '' : 'text-muted-foreground'}>
-                          {feature.text}
+                    {/* Credits Badge */}
+                    <div className="mb-6 flex justify-center">
+                      <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
+                        <Coins className="h-5 w-5 text-primary" />
+                        <span className="font-semibold text-primary">
+                          {plan.monthlyCredits === -1 ? '\u221E Unbegrenzt' : `${plan.monthlyCredits} Credits/Monat`}
                         </span>
-                      </li>
-                    ))}
-                  </ul>
+                      </div>
+                    </div>
 
-                  <Button
-                    className={`w-full ${plan.popular ? 'gradient-vermieter text-white' : ''}`}
-                    variant={plan.popular ? 'default' : 'outline'}
-                  >
-                    {plan.cta}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    <ul className="space-y-3 mb-6 text-left">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-2 text-sm">
+                          <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-success" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Button
+                      className={`w-full ${isPopular ? 'gradient-vermieter text-white' : ''}`}
+                      variant={isPopular ? 'default' : 'outline'}
+                    >
+                      {plan.price === 0 ? 'Kostenlos starten' : 'Jetzt starten'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -234,9 +160,9 @@ export default function PricingPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">
                 <span className="text-xl font-bold text-primary">1</span>
               </div>
-              <h3 className="font-semibold mb-2">Plan wählen</h3>
+              <h3 className="font-semibold mb-2">Plan waehlen</h3>
               <p className="text-sm text-muted-foreground">
-                Wähle einen Plan mit Credits, die zu deinem Bedarf passen.
+                Waehle einen Plan mit Credits, die zu deinem Bedarf passen.
               </p>
             </div>
             <div className="text-center">
@@ -254,7 +180,7 @@ export default function PricingPage() {
               </div>
               <h3 className="font-semibold mb-2">Monatlich erneuern</h3>
               <p className="text-sm text-muted-foreground">
-                Credits werden jeden Monat aufgefüllt. Ungenutzte verfallen.
+                Credits werden jeden Monat aufgefuellt. Ungenutzte verfallen.
               </p>
             </div>
           </div>
@@ -268,7 +194,7 @@ export default function PricingPage() {
                 <div>
                   <h3 className="font-semibold mb-1">KI-Assistent</h3>
                   <p className="text-sm text-muted-foreground">
-                    Pro-Nutzer erhalten 50 KI-Nachrichten pro Monat, Unlimited-Nutzer unbegrenzt.
+                    Kombi-Pro-Nutzer erhalten 50 KI-Nachrichten pro Monat, Unlimited-Nutzer unbegrenzt.
                     Der Assistent hilft bei Fragen zu Mietrecht, Berechnungen und Dokumenten.
                   </p>
                 </div>
@@ -281,33 +207,33 @@ export default function PricingPage() {
       {/* FAQ */}
       <section className="py-12">
         <div className="container max-w-3xl">
-          <h2 className="text-2xl font-bold text-center mb-8">Häufige Fragen</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">Haeufige Fragen</h2>
           <div className="space-y-4">
             <div className="bg-card p-6 rounded-xl border">
               <h3 className="font-semibold mb-2">Was passiert, wenn meine Credits aufgebraucht sind?</h3>
               <p className="text-muted-foreground text-sm">
-                Du kannst jederzeit auf einen höheren Plan upgraden. Alternativ warte bis zum nächsten Monat,
-                wenn deine Credits wieder aufgefüllt werden.
+                Du kannst jederzeit auf einen hoeheren Plan upgraden. Alternativ warte bis zum naechsten Monat,
+                wenn deine Credits wieder aufgefuellt werden.
               </p>
             </div>
             <div className="bg-card p-6 rounded-xl border">
-              <h3 className="font-semibold mb-2">Kann ich jederzeit kündigen?</h3>
+              <h3 className="font-semibold mb-2">Kann ich jederzeit kuendigen?</h3>
               <p className="text-muted-foreground text-sm">
-                Ja, du kannst dein Abo jederzeit zum Ende des Abrechnungszeitraums kündigen.
-                Keine versteckten Fristen oder Gebühren.
+                Ja, du kannst dein Abo jederzeit zum Ende des Abrechnungszeitraums kuendigen.
+                Keine versteckten Fristen oder Gebuehren.
               </p>
             </div>
             <div className="bg-card p-6 rounded-xl border">
-              <h3 className="font-semibold mb-2">Werden ungenutzte Credits übertragen?</h3>
+              <h3 className="font-semibold mb-2">Werden ungenutzte Credits uebertragen?</h3>
               <p className="text-muted-foreground text-sm">
-                Nein, Credits verfallen am Ende jedes Abrechnungszeitraums und werden neu aufgefüllt.
-                Wähle einen Plan, der zu deiner tatsächlichen Nutzung passt.
+                Nein, Credits verfallen am Ende jedes Abrechnungszeitraums und werden neu aufgefuellt.
+                Waehle einen Plan, der zu deiner tatsaechlichen Nutzung passt.
               </p>
             </div>
             <div className="bg-card p-6 rounded-xl border">
               <h3 className="font-semibold mb-2">Welche Zahlungsmethoden werden akzeptiert?</h3>
               <p className="text-muted-foreground text-sm">
-                Wir akzeptieren alle gängigen Kreditkarten, SEPA-Lastschrift und PayPal.
+                Wir akzeptieren alle gaengigen Kreditkarten, SEPA-Lastschrift und PayPal.
               </p>
             </div>
           </div>

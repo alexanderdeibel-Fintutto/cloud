@@ -1,51 +1,54 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Zap, Shield, Users, Sparkles } from 'lucide-react'
+import { Check, Zap, Shield, Users, Sparkles, Crown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { PRICING_TIERS, PricingTier } from '@/lib/stripe'
+import { PLANS_LIST, Plan } from '@/lib/credits'
+import { createCheckoutSession } from '@/lib/stripe'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
-import { cn, formatCurrency } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+
+const PLAN_ICONS: Record<string, React.ElementType> = {
+  free: Zap,
+  mieter_basic: Shield,
+  vermieter_basic: Users,
+  kombi_pro: Sparkles,
+  unlimited: Crown,
+}
 
 export default function PricingPage() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly')
-  const [loadingTier, setLoadingTier] = useState<string | null>(null)
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const { user, profile } = useAuth()
-  const userTier = profile?.tier || 'free'
+  const userPlan = profile?.tier || 'free'
 
-  const handleSubscribe = async (tier: PricingTier) => {
-    if (tier.id === 'free') {
+  const handleSubscribe = async (plan: Plan) => {
+    if (plan.id === 'free') {
       toast.info('Sie nutzen bereits den kostenlosen Plan.')
       return
     }
 
-    setLoadingTier(tier.id)
+    const priceId = billingInterval === 'monthly'
+      ? plan.stripePriceIdMonthly
+      : plan.stripePriceIdYearly
+
+    if (!priceId) {
+      toast.error('Dieser Plan ist noch nicht verfuegbar.')
+      return
+    }
+
+    setLoadingPlan(plan.id)
 
     try {
-      const priceId = billingInterval === 'monthly' ? tier.monthlyPriceId : tier.yearlyPriceId
-
       toast.info('Stripe Checkout wird vorbereitet...')
 
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId,
-          userId: user?.id || '',
-          userEmail: user?.email || '',
-          tierId: tier.id,
-        }),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.details || 'Checkout fehlgeschlagen')
-      }
-
-      const { url } = await response.json()
+      const url = await createCheckoutSession(
+        priceId,
+        user?.id || '',
+        user?.email || '',
+        plan.id
+      )
 
       if (url) {
         window.location.href = url
@@ -57,19 +60,27 @@ export default function PricingPage() {
       toast.error('Fehler beim Starten der Zahlung.', {
         description: error instanceof Error ? error.message : 'Unbekannter Fehler'
       })
-      setLoadingTier(null)
+      setLoadingPlan(null)
     }
   }
 
-  const getButtonText = (tier: PricingTier) => {
-    if (tier.id === 'free') return 'Aktueller Plan'
-    if (userTier === tier.id) return 'Aktueller Plan'
-    if (loadingTier === tier.id) return 'Wird geladen...'
+  const getButtonText = (plan: Plan) => {
+    if (plan.id === 'free') return 'Aktueller Plan'
+    if (userPlan === plan.id) return 'Aktueller Plan'
+    if (loadingPlan === plan.id) return 'Wird geladen...'
     return 'Jetzt starten'
   }
 
-  const isCurrentPlan = (tier: PricingTier) => {
-    return tier.id === 'free' ? userTier === 'free' : userTier === tier.id
+  const isCurrentPlan = (plan: Plan) => {
+    return plan.id === userPlan
+  }
+
+  const isHighlighted = (plan: Plan) => {
+    return plan.id === 'kombi_pro'
+  }
+
+  const formatPrice = (cents: number): string => {
+    return (cents / 100).toFixed(2).replace('.', ',') + ' \u20AC'
   }
 
   return (
@@ -86,7 +97,7 @@ export default function PricingPage() {
               Waehlen Sie Ihren Plan
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Pruefen Sie Ihre Mieterrechte mit unseren leistungsstarken Checkern.
+              Nutzen Sie Checker, Rechner und Formulare mit unserem flexiblen Credit-System.
               Starten Sie kostenlos und upgraden Sie bei Bedarf.
             </p>
           </motion.div>
@@ -120,100 +131,105 @@ export default function PricingPage() {
             >
               Jaehrlich
               <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                -17%
+                -20%
               </span>
             </button>
           </motion.div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PRICING_TIERS.map((tier, index) => (
-            <motion.div
-              key={tier.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
-            >
-              <Card
-                className={cn(
-                  'relative h-full flex flex-col',
-                  tier.highlighted && 'border-fintutto-primary border-2 shadow-lg',
-                  isCurrentPlan(tier) && 'ring-2 ring-green-500'
-                )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {PLANS_LIST.map((plan, index) => {
+            const Icon = PLAN_ICONS[plan.id] || Zap
+            const highlighted = isHighlighted(plan)
+
+            return (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
               >
-                {tier.badge && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-fintutto-primary text-white text-sm font-medium px-3 py-1 rounded-full">
-                      {tier.badge}
-                    </span>
-                  </div>
-                )}
-
-                {isCurrentPlan(tier) && (
-                  <div className="absolute -top-3 right-4">
-                    <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">
-                      Aktiv
-                    </span>
-                  </div>
-                )}
-
-                <CardHeader className="text-center pb-2">
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-fintutto-primary/10 flex items-center justify-center">
-                    {tier.id === 'free' && <Zap className="w-6 h-6 text-fintutto-primary" />}
-                    {tier.id === 'basic' && <Shield className="w-6 h-6 text-fintutto-primary" />}
-                    {tier.id === 'premium' && <Sparkles className="w-6 h-6 text-fintutto-primary" />}
-                    {tier.id === 'professional' && <Users className="w-6 h-6 text-fintutto-primary" />}
-                  </div>
-                  <CardTitle className="text-xl">{tier.name}</CardTitle>
-                  <CardDescription>{tier.description}</CardDescription>
-                </CardHeader>
-
-                <CardContent className="flex-1">
-                  <div className="text-center mb-6">
-                    <span className="text-4xl font-bold">
-                      {formatCurrency(billingInterval === 'monthly' ? tier.monthlyPrice : tier.yearlyPrice)}
-                    </span>
-                    {tier.monthlyPrice > 0 && (
-                      <span className="text-gray-500 ml-1">
-                        /{billingInterval === 'monthly' ? 'Monat' : 'Jahr'}
+                <Card
+                  className={cn(
+                    'relative h-full flex flex-col',
+                    highlighted && 'border-fintutto-primary border-2 shadow-lg',
+                    isCurrentPlan(plan) && 'ring-2 ring-green-500'
+                  )}
+                >
+                  {highlighted && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-fintutto-primary text-white text-sm font-medium px-3 py-1 rounded-full">
+                        Beliebt
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
-                  <div className="text-center mb-6 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-lg font-semibold text-fintutto-primary">
-                      {tier.checksPerMonth === 'unlimited' ? 'Unbegrenzt' : tier.checksPerMonth}
-                    </span>
-                    <span className="text-gray-600 ml-1">
-                      Checks/Monat
-                    </span>
-                  </div>
+                  {isCurrentPlan(plan) && (
+                    <div className="absolute -top-3 right-4">
+                      <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+                        Aktiv
+                      </span>
+                    </div>
+                  )}
 
-                  <ul className="space-y-3">
-                    {tier.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-gray-600">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
+                  <CardHeader className="text-center pb-2">
+                    <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-fintutto-primary/10 flex items-center justify-center">
+                      <Icon className="w-6 h-6 text-fintutto-primary" />
+                    </div>
+                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                    <CardDescription>{plan.description}</CardDescription>
+                  </CardHeader>
 
-                <CardFooter>
-                  <Button
-                    variant={tier.highlighted ? 'fintutto' : 'outline'}
-                    className="w-full"
-                    size="lg"
-                    disabled={isCurrentPlan(tier) || loadingTier === tier.id}
-                    onClick={() => handleSubscribe(tier)}
-                  >
-                    {getButtonText(tier)}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
+                  <CardContent className="flex-1">
+                    <div className="text-center mb-6">
+                      <span className="text-4xl font-bold">
+                        {plan.price === 0
+                          ? '0 \u20AC'
+                          : formatPrice(billingInterval === 'monthly' ? plan.price : plan.yearlyPrice)
+                        }
+                      </span>
+                      {plan.price > 0 && (
+                        <span className="text-gray-500 ml-1">
+                          /{billingInterval === 'monthly' ? 'Monat' : 'Jahr'}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="text-center mb-6 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-lg font-semibold text-fintutto-primary">
+                        {plan.monthlyCredits === -1 ? 'Unbegrenzt' : plan.monthlyCredits}
+                      </span>
+                      <span className="text-gray-600 ml-1">
+                        Credits/Monat
+                      </span>
+                    </div>
+
+                    <ul className="space-y-3">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-gray-600">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter>
+                    <Button
+                      variant={highlighted ? 'fintutto' : 'outline'}
+                      className="w-full"
+                      size="lg"
+                      disabled={isCurrentPlan(plan) || loadingPlan === plan.id}
+                      onClick={() => handleSubscribe(plan)}
+                    >
+                      {getButtonText(plan)}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            )
+          })}
         </div>
 
         {/* FAQ Section */}
@@ -237,9 +253,9 @@ export default function PricingPage() {
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <h3 className="font-semibold mb-2">Was passiert mit nicht genutzten Checks?</h3>
+                <h3 className="font-semibold mb-2">Was passiert mit nicht genutzten Credits?</h3>
                 <p className="text-gray-600">
-                  Nicht genutzte Checks verfallen am Ende des Abrechnungszeitraums und werden nicht uebertragen.
+                  Nicht genutzte Credits verfallen am Ende des Abrechnungszeitraums und werden nicht uebertragen.
                 </p>
               </CardContent>
             </Card>

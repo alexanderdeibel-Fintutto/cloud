@@ -11,10 +11,21 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Map tier IDs to check limits
-const TIER_LIMITS: Record<string, number> = {
+// Credit limits per plan (aligned with credits.ts)
+const PLAN_CREDIT_LIMITS: Record<string, number> = {
+  // Portal plans
+  free: 3,
+  mieter_basic: 15,
+  vermieter_basic: 20,
+  kombi_pro: 50,
+  unlimited: -1,
+  // Legacy plan names (backwards compatibility)
   basic: 3,
-  premium: -1, // unlimited
+  premium: -1,
+  // Vermietify plans
+  starter: 3,
+  pro: 30,
+  enterprise: -1,
 }
 
 export const config = {
@@ -57,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const userId = session.metadata?.userId
         const tierId = session.metadata?.tierId
-        const checksLimit = parseInt(session.metadata?.checksLimit || '3', 10)
+        const creditsLimit = parseInt(session.metadata?.creditsLimit || '3', 10)
         const customerEmail = session.customer_email
         const referralCode = session.metadata?.referralCode
 
@@ -71,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from('users')
             .update({
               tier: tierId,
-              checks_limit: checksLimit,
+              checks_limit: creditsLimit,
               stripe_customer_id: session.customer as string,
               stripe_subscription_id: session.subscription as string,
             })
@@ -94,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .from('users')
               .update({
                 tier: tierId,
-                checks_limit: checksLimit,
+                checks_limit: creditsLimit,
                 stripe_customer_id: session.customer as string,
                 stripe_subscription_id: session.subscription as string,
               })
@@ -130,7 +141,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .from('users')
               .update({
                 tier: 'free',
-                checks_limit: 1,
+                checks_limit: PLAN_CREDIT_LIMITS.free,
               })
               .eq('id', user.id)
           }
@@ -154,7 +165,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from('users')
             .update({
               tier: 'free',
-              checks_limit: 1,
+              checks_limit: PLAN_CREDIT_LIMITS.free,
               stripe_subscription_id: null,
             })
             .eq('id', user.id)

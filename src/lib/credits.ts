@@ -1,5 +1,7 @@
 // Unified Credits System for Fintutto Portal
-// Supports both Mieter (Checker) and Vermieter (Rechner/Formulare) tools
+// Single source of truth for all Portal pricing (Mieter + Vermieter)
+// Stripe Price IDs are configured via environment variables (VITE_STRIPE_PRICE_*)
+// Run scripts/create-stripe-products.sh to create products in Stripe and get the IDs
 
 export type PlanType = 'free' | 'mieter_basic' | 'vermieter_basic' | 'kombi_pro' | 'unlimited'
 export type UserRole = 'mieter' | 'vermieter' | 'kombi'
@@ -15,8 +17,18 @@ export interface Plan {
   canSave: boolean
   canExportPdf: boolean
   aiMessages: number // -1 for unlimited, 0 for none
-  stripePriceIdMonthly?: string
-  stripePriceIdYearly?: string
+  stripePriceIdMonthly: string
+  stripePriceIdYearly: string
+  features: string[]
+}
+
+// Read Stripe Price IDs from environment variables
+// Set these in Vercel/production via VITE_STRIPE_PRICE_* env vars
+function getEnv(key: string, fallback: string = ''): string {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[key] || fallback
+  }
+  return fallback
 }
 
 export const PLANS: Record<PlanType, Plan> = {
@@ -31,6 +43,14 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: false,
     canExportPdf: false,
     aiMessages: 0,
+    stripePriceIdMonthly: '',
+    stripePriceIdYearly: '',
+    features: [
+      '3 Credits pro Monat',
+      'Alle Checker & Rechner verfuegbar',
+      'Sofortige Ergebnisse',
+      'Kein Speichern moeglich',
+    ],
   },
   mieter_basic: {
     id: 'mieter_basic',
@@ -43,8 +63,16 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 10,
-    stripePriceIdMonthly: 'price_portal_mieter_monthly',
-    stripePriceIdYearly: 'price_portal_mieter_yearly',
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_MIETER_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_MIETER_YEARLY'),
+    features: [
+      '15 Credits pro Monat',
+      'Alle Mieter-Checker',
+      'Mieter-Formulare',
+      'Ergebnisse speichern',
+      'PDF-Export',
+      '10 KI-Nachrichten/Monat',
+    ],
   },
   vermieter_basic: {
     id: 'vermieter_basic',
@@ -57,8 +85,16 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 20,
-    stripePriceIdMonthly: 'price_portal_vermieter_monthly',
-    stripePriceIdYearly: 'price_portal_vermieter_yearly',
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_VERMIETER_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_VERMIETER_YEARLY'),
+    features: [
+      '20 Credits pro Monat',
+      'Alle Vermieter-Rechner',
+      'Vermieter-Formulare',
+      'Ergebnisse speichern',
+      'PDF-Export',
+      '20 KI-Nachrichten/Monat',
+    ],
   },
   kombi_pro: {
     id: 'kombi_pro',
@@ -71,8 +107,16 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: 50,
-    stripePriceIdMonthly: 'price_portal_kombi_monthly',
-    stripePriceIdYearly: 'price_portal_kombi_yearly',
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_KOMBI_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_KOMBI_YEARLY'),
+    features: [
+      '50 Credits pro Monat',
+      'Alle Checker + Rechner',
+      'Alle Formulare',
+      'Ergebnisse speichern',
+      'PDF-Export',
+      '50 KI-Nachrichten/Monat',
+    ],
   },
   unlimited: {
     id: 'unlimited',
@@ -85,9 +129,39 @@ export const PLANS: Record<PlanType, Plan> = {
     canSave: true,
     canExportPdf: true,
     aiMessages: -1,
-    stripePriceIdMonthly: 'price_portal_unlimited_monthly',
-    stripePriceIdYearly: 'price_portal_unlimited_yearly',
+    stripePriceIdMonthly: getEnv('VITE_STRIPE_PRICE_UNLIMITED_MONTHLY'),
+    stripePriceIdYearly: getEnv('VITE_STRIPE_PRICE_UNLIMITED_YEARLY'),
+    features: [
+      'Unbegrenzte Credits',
+      'Alle Checker + Rechner',
+      'Alle Formulare',
+      'Unbegrenzt speichern',
+      'PDF-Export',
+      'Unbegrenzt KI-Nachrichten',
+    ],
   },
+}
+
+// Helper: Get plan as array (for rendering pricing pages)
+export const PLANS_LIST: Plan[] = Object.values(PLANS)
+
+// Credit limits per plan (for webhook/API use)
+export const PLAN_CREDIT_LIMITS: Record<PlanType, number> = {
+  free: 3,
+  mieter_basic: 15,
+  vermieter_basic: 20,
+  kombi_pro: 50,
+  unlimited: -1,
+}
+
+// Resolve a Stripe Price ID to a PlanType (for webhook processing)
+export function getPlanByPriceId(priceId: string): PlanType | undefined {
+  for (const plan of PLANS_LIST) {
+    if (plan.stripePriceIdMonthly === priceId || plan.stripePriceIdYearly === priceId) {
+      return plan.id
+    }
+  }
+  return undefined
 }
 
 export type ActionType =

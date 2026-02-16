@@ -5,10 +5,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
 })
 
-// Map tier IDs to check limits
-const TIER_LIMITS: Record<string, number> = {
-  basic: 3,
-  premium: -1, // unlimited
+// Credit limits per plan (aligned with credits.ts PLAN_CREDIT_LIMITS)
+const PLAN_CREDIT_LIMITS: Record<string, number> = {
+  // Portal plans (credits system)
+  free: 3,
+  mieter_basic: 15,
+  vermieter_basic: 20,
+  kombi_pro: 50,
+  unlimited: -1,
+  // Vermietify plans
+  starter: 3,
+  basic: 10,
+  pro: 30,
+  enterprise: -1,
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -39,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: {
         userId: userId || '',
         tierId: tierId || '',
-        checksLimit: String(TIER_LIMITS[tierId] || 3),
+        creditsLimit: String(PLAN_CREDIT_LIMITS[tierId] || 3),
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required',
