@@ -274,7 +274,7 @@ export default function JahresberichtPage() {
 
         {/* Print footer */}
         <div className="hidden print:block text-center pt-4 border-t text-xs text-muted-foreground">
-          <p>Fintutto Bescheidboxer &middot; www.fintutto.de &middot; Erstellt am {new Date().toLocaleDateString('de-DE')}</p>
+          <p>Fintutto Bescheidboxer &middot; portal.fintutto.cloud &middot; Erstellt am {new Date().toLocaleDateString('de-DE')}</p>
         </div>
       </div>
     </div>

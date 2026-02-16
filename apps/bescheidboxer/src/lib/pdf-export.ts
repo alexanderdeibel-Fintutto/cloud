@@ -111,7 +111,7 @@ export function exportEinspruchAsPdf(data: EinspruchPdfData) {
   </div>
 
   <div class="footer">
-    Erstellt mit Bescheidboxer by Fintutto | www.fintutto.cloud
+    Erstellt mit Bescheidboxer by Fintutto | portal.fintutto.cloud
   </div>
 </body>
 </html>`

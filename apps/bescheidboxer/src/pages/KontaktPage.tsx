@@ -105,7 +105,7 @@ export default function KontaktPage() {
             </div>
             <h3 className="font-semibold">E-Mail</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              support@bescheidboxer.de
+              support@fintutto.de
             </p>
             <Badge variant="secondary" className="mt-2 text-[10px]">
               <Clock className="h-3 w-3 mr-1" />

@@ -148,9 +148,9 @@ export default function RegisterPage() {
 
           <p className="text-xs text-muted-foreground text-center mt-4">
             Mit der Registrierung akzeptieren Sie unsere{' '}
-            <a href="https://fintutto.de/agb" className="text-primary hover:underline">AGB</a>
+            <a href="https://portal.fintutto.cloud/agb" className="text-primary hover:underline">AGB</a>
             {' '}und{' '}
-            <a href="https://fintutto.de/datenschutz" className="text-primary hover:underline">Datenschutzerklaerung</a>.
+            <a href="https://portal.fintutto.cloud/datenschutz" className="text-primary hover:underline">Datenschutzerklaerung</a>.
           </p>
 
           <div className="mt-4 text-center text-sm text-muted-foreground">

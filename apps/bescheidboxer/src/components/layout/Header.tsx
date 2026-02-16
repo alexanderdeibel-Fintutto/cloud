@@ -47,11 +47,20 @@ export default function Header() {
           <a href={PORTAL_URL} className="hover:text-white transition-colors flex items-center gap-1">
             Fintutto Portal <ExternalLink className="h-3 w-3" />
           </a>
-          <a href="https://formulare.fintutto.cloud" className="hover:text-white transition-colors hidden sm:inline">
+          <a href={`${PORTAL_URL}/rechner`} className="hover:text-white transition-colors hidden sm:inline">
+            Rechner
+          </a>
+          <a href={`${PORTAL_URL}/checker`} className="hover:text-white transition-colors hidden sm:inline">
+            Checker
+          </a>
+          <a href={`${PORTAL_URL}/formulare`} className="hover:text-white transition-colors hidden sm:inline">
             Formulare
           </a>
-          <a href="https://rendite.fintutto.cloud" className="hover:text-white transition-colors hidden sm:inline">
-            Rendite-Rechner
+          <a href={`${PORTAL_URL}/preise`} className="hover:text-white transition-colors hidden sm:inline">
+            Preise
+          </a>
+          <a href={`${PORTAL_URL}/apps`} className="hover:text-white transition-colors hidden sm:inline">
+            Apps
           </a>
         </div>
         <span className="text-white/50 hidden sm:inline">Fintutto Oekosystem</span>

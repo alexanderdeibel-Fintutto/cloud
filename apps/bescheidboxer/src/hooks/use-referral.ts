@@ -170,7 +170,7 @@ export function useReferral() {
   }, [user?.id, referralUser.referralCode])
 
   const getReferralLink = useCallback(() => {
-    return `https://bescheidboxer.fintutto.de/register?ref=${referralUser.referralCode}`
+    return `https://portal.fintutto.cloud/apps/bescheidboxer/register?ref=${referralUser.referralCode}`
   }, [referralUser.referralCode])
 
   return {
