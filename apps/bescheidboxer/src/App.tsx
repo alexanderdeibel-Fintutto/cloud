@@ -41,6 +41,8 @@ import AktivitaetsProtokollPage from './pages/AktivitaetsProtokollPage'
 import SteuerTippsPage from './pages/SteuerTippsPage'
 import KontaktPage from './pages/KontaktPage'
 import DatenExportPage from './pages/DatenExportPage'
+import ImmobilienPage from './pages/ImmobilienPage'
+import MieterBereichPage from './pages/MieterBereichPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -101,6 +103,8 @@ function App() {
             <Route path="steuer-tipps" element={<SteuerTippsPage />} />
             <Route path="kontakt" element={<KontaktPage />} />
             <Route path="daten-export" element={<DatenExportPage />} />
+            <Route path="immobilien" element={<ImmobilienPage />} />
+            <Route path="mieterbereich" element={<MieterBereichPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

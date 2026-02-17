@@ -35,6 +35,7 @@ import {
   Lightbulb,
   LifeBuoy,
   FolderDown,
+  Home,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -104,6 +105,8 @@ export default function CommandPalette() {
     { id: 'nav-steuer-tipps', label: 'Steuer-Tipps', description: 'Tipps zur Steuerersparnis', icon: Lightbulb, category: 'navigation', keywords: ['tipp', 'steuer', 'sparen', 'ratgeber', 'hinweis'], action: () => runAndClose(() => navigate('/steuer-tipps')) },
     { id: 'nav-kontakt', label: 'Kontakt & Support', description: 'Hilfe & FAQ', icon: LifeBuoy, category: 'navigation', keywords: ['kontakt', 'support', 'hilfe', 'faq', 'frage', 'telefon', 'email'], action: () => runAndClose(() => navigate('/kontakt')) },
     { id: 'nav-daten-export', label: 'Daten-Export', description: 'Daten herunterladen', icon: FolderDown, category: 'navigation', keywords: ['export', 'daten', 'download', 'csv', 'json', 'pdf', 'herunterladen'], action: () => runAndClose(() => navigate('/daten-export')) },
+    { id: 'nav-immobilien', label: 'Immobilien', description: 'Immobilien verwalten', icon: Home, category: 'navigation', keywords: ['immobilie', 'haus', 'wohnung', 'gebaeude', 'property'], action: () => runAndClose(() => navigate('/immobilien')) },
+    { id: 'nav-mieterbereich', label: 'Mieterbereich', description: 'Mieter Self-Service', icon: Users, category: 'navigation', keywords: ['mieter', 'tenant', 'wohnung', 'zaehler', 'meldung'], action: () => runAndClose(() => navigate('/mieterbereich')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

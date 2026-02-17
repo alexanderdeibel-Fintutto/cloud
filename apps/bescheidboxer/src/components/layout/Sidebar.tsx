@@ -28,6 +28,7 @@ import {
   Lightbulb,
   LifeBuoy,
   FolderDown,
+  Home,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -52,6 +53,8 @@ const navigation = [
   { name: 'Benachrichtigungen', href: '/benachrichtigungen', icon: Bell },
   { name: 'Aktivitaeten', href: '/aktivitaeten', icon: Activity },
   { name: 'Steuer-Tipps', href: '/steuer-tipps', icon: Lightbulb },
+  { name: 'Immobilien', href: '/immobilien', icon: Home },
+  { name: 'Mieterbereich', href: '/mieterbereich', icon: Users },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
