@@ -40,7 +40,7 @@ const categories = [
 ]
 
 const stats = [
-  { value: '28+', label: 'Tools verfügbar' },
+  { value: '27', label: 'Tools verfügbar' },
   { value: '16', label: 'Bundesländer' },
   { value: '100%', label: 'DSGVO-konform' },
   { value: '§0', label: 'Kostenlos starten' },
@@ -66,7 +66,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-              28+ professionelle Tools: Rechner für Vermieter, Checker für Mieter
+              27 professionelle Tools: Rechner für Vermieter, Checker für Mieter
               und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -163,7 +163,7 @@ export default function HomePage() {
               { icon: '🔧', name: 'HausmeisterPro', desc: 'Facility Management' },
               { icon: '📊', name: 'Ablesung', desc: 'Zählerstände' },
               { icon: '🥊', name: 'BescheidBoxer', desc: 'Bescheid-Analyse' },
-              { icon: '✨', name: 'Portal', desc: '28+ Tools' },
+              { icon: '✨', name: 'Portal', desc: '27 Tools' },
             ].map((app) => (
               <div
                 key={app.name}

@@ -1,5 +1,14 @@
 // All Fintutto Ecosystem Apps - definitions, features, pricing, and URLs
 
+const APP_URLS = {
+  portal: import.meta.env.VITE_APP_URL_PORTAL || 'https://portal.fintutto.cloud',
+  vermietify: import.meta.env.VITE_APP_URL_VERMIETIFY || 'https://vermietify.vercel.app',
+  mieter: import.meta.env.VITE_APP_URL_MIETER || 'https://mieter-kw8d.vercel.app',
+  hausmeister: import.meta.env.VITE_APP_URL_HAUSMEISTER || 'https://hausmeister-pro.vercel.app',
+  ablesung: import.meta.env.VITE_APP_URL_ABLESUNG || 'https://ablesung.vercel.app',
+  bescheidboxer: import.meta.env.VITE_APP_URL_BESCHEIDBOXER || 'https://bescheidboxer.vercel.app',
+}
+
 export interface AppInfo {
   id: string
   name: string
@@ -25,11 +34,11 @@ export const FINTUTTO_APPS: AppInfo[] = [
     name: 'Fintutto Portal',
     tagline: 'Alle Mietrecht-Tools an einem Ort',
     description:
-      '28+ professionelle Tools: Rechner für Vermieter, Checker für Mieter und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.',
+      '27 professionelle Tools: Rechner für Vermieter, Checker für Mieter und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.',
     icon: '✨',
     color: 'from-purple-600 to-indigo-600',
-    url: 'https://portal.fintutto.cloud',
-    registerUrl: 'https://portal.fintutto.cloud/register',
+    url: APP_URLS.portal,
+    registerUrl: `${APP_URLS.portal}/register`,
     features: [
       '7 Vermieter-Rechner (Kaution, Rendite, Kaufnebenkosten...)',
       '10 Mieter-Checker (Mietpreisbremse, Kündigung, Nebenkosten...)',
@@ -48,7 +57,7 @@ export const FINTUTTO_APPS: AppInfo[] = [
       ],
     },
     stats: [
-      { label: 'Tools', value: '28+' },
+      { label: 'Tools', value: '27' },
       { label: 'Bundesländer', value: '16' },
       { label: 'DSGVO', value: '100%' },
     ],
@@ -63,8 +72,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Gebäude, Mieter, Verträge, Zahlungen, Dokumente – alles in einer App. Mit 69 Formularen, automatischer Nebenkostenabrechnung und KI-Assistent.',
     icon: '🏠',
     color: 'from-blue-600 to-cyan-500',
-    url: 'https://vermietify.vercel.app',
-    registerUrl: 'https://vermietify.vercel.app/register',
+    url: APP_URLS.vermietify,
+    registerUrl: `${APP_URLS.vermietify}/register`,
     features: [
       'Gebäude- & Einheitenverwaltung',
       'Mieterverwaltung mit Vertragsdaten',
@@ -97,8 +106,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Mängel melden, Zähler ablesen, Dokumente anfordern und direkt mit der Hausverwaltung chatten. Mit 10 Rechts-Checkern für deine Mietrechte.',
     icon: '🔑',
     color: 'from-green-600 to-emerald-500',
-    url: 'https://mieter-kw8d.vercel.app',
-    registerUrl: 'https://mieter-kw8d.vercel.app/register',
+    url: APP_URLS.mieter,
+    registerUrl: `${APP_URLS.mieter}/register`,
     features: [
       'Mangel melden mit Foto-Upload',
       'Zählerstand digital ablesen',
@@ -130,8 +139,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Aufgaben verwalten, Belege fotografieren, mit Eigentümern kommunizieren. Die digitale Zentrale für Hausmeister und Facility Manager.',
     icon: '🔧',
     color: 'from-orange-500 to-amber-500',
-    url: 'https://hausmeister-pro.vercel.app',
-    registerUrl: 'https://hausmeister-pro.vercel.app/register',
+    url: APP_URLS.hausmeister,
+    registerUrl: `${APP_URLS.hausmeister}/register`,
     features: [
       'Aufgabenverwaltung (erstellen, zuweisen, tracken)',
       'Belegerfassung mit Foto-Upload',
@@ -161,8 +170,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Strom, Gas, Wasser, Heizung – alle Zählerstände digital erfassen, tracken und analysieren. Mit Verbrauchsanalyse und CSV-Import.',
     icon: '📊',
     color: 'from-teal-500 to-cyan-500',
-    url: 'https://ablesung.vercel.app',
-    registerUrl: 'https://ablesung.vercel.app/register',
+    url: APP_URLS.ablesung,
+    registerUrl: `${APP_URLS.ablesung}/register`,
     features: [
       'Digitale Zählerstand-Erfassung',
       'Gebäude- & Einheitenverwaltung',
@@ -192,8 +201,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Lade deinen Bescheid hoch und lass ihn analysieren. Grundsteuer, Nebenkosten, Betriebskostenabrechnungen – finde versteckte Fehler und spare Geld.',
     icon: '🥊',
     color: 'from-red-500 to-rose-500',
-    url: 'https://bescheidboxer.vercel.app',
-    registerUrl: 'https://bescheidboxer.vercel.app/register',
+    url: APP_URLS.bescheidboxer,
+    registerUrl: `${APP_URLS.bescheidboxer}/register`,
     features: [
       'Bescheid-Upload & KI-Analyse',
       'Grundsteuerbescheid prüfen',

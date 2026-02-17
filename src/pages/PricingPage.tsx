@@ -53,7 +53,6 @@ export default function PricingPage() {
         throw new Error('Keine Checkout-URL erhalten')
       }
     } catch (error) {
-      console.error('Checkout error:', error)
       toast.error('Fehler beim Starten der Zahlung.', {
         description: error instanceof Error ? error.message : 'Unbekannter Fehler'
       })
