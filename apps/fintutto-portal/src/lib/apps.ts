@@ -217,13 +217,6 @@ export const FINTUTTO_APPS: AppInfo[] = [
     targetAudience: 'Mieter & Eigentümer',
     badge: 'Neu',
   },
-]
-
-// Generate a referral URL for a specific app
-export function getReferralUrl(app: AppInfo, referralCode: string): string {
-  return `${app.registerUrl}?ref=${referralCode}`
-}
-
   {
     id: 'admin-hub',
     name: 'Admin-Hub',
