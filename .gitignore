@@ -8,12 +8,10 @@ dist
 dist-ssr
 *.local
 
-# Environment
+# Environment (all apps)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Logs
 logs
@@ -38,6 +36,9 @@ lerna-debug.log*
 # Testing
 coverage
 *.lcov
+
+# Lovable artifacts
+.lovable/
 
 # Misc
 *.pem
