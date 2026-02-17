@@ -34,7 +34,7 @@ echo "📌 Aktueller Branch: $(git branch --show-current)"
 cd "$TARGET_ABLESUNG"
 git checkout main
 git pull origin main
-git checkout -b feature/phase-a-to-e-features 2>/dev/null || git checkout feature/phase-a-to-e-features
+git checkout -b feature/phase-a-to-e-complete 2>/dev/null || git checkout feature/phase-a-to-e-complete
 
 echo ""
 echo "📁 Kopiere geänderte Dateien..."
@@ -60,6 +60,12 @@ FILES=(
     "src/pages/SolarDashboard.tsx"
     "src/pages/TariffManager.tsx"
     "src/pages/UtilityBilling.tsx"
+    # Phase B/D/E completion (15.02.2026)
+    "src/pages/InvoiceOCRDialog.tsx"
+    "src/pages/MeterQRCodeGenerator.tsx"
+    "src/pages/UtilitySettlementManager.tsx"
+    "src/pages/EnergyPassportManager.tsx"
+    "src/pages/MieterStromDashboard.tsx"
 )
 
 for FILE in "${FILES[@]}"; do
@@ -75,32 +81,32 @@ echo ""
 echo "📝 Erstelle Commit..."
 
 git add -A
-git commit -m "feat: implement Phase A-E features (36 new features)
+git commit -m "feat: implement Phase A-E features complete (41 features)
 
-Phase A: Quick Wins (10 features)
+Phase A: Quick Wins (10/10)
 - ConsumptionForecast, CostForecast, PV Amortisation, Finanz-Cockpit
 - 48h Ertragsprognose, BK-Modus, QuickReadingWidget, CostSummary
-- YearOverYearComparison, CostBreakdownChart
 
-Phase B: Kernfeatures (9 features)
+Phase B: Kernfeatures (10/10)
 - TariffManager, HeatPumpDashboard, SmartAlerts, OCRFeedbackWidget
 - BatchScanner, MeterSchedule, OfflineQueue, CostCalculation
+- InvoiceOCRDialog (Rechnungserkennung mit KI)
 
-Phase C: Analyse & KI (10 features)
-- ConsumptionHeatmap, SavingsSimulator, EnergyChat (KI-Berater)
-- EnergyFlow (Framer Motion), PeakDetection, TariffOptimization
+Phase C: Analyse & KI (10/10)
+- ConsumptionHeatmap, SavingsSimulator, EnergyChat, EnergyFlow
 
-Phase D: Reports & Export (4 features)
-- ReportBuilder (6 Sektionen, Print, CSV)
+Phase D: Reports & Export (5/5)
+- ReportBuilder, MeterQRCodeGenerator (QR-Labels)
 
-Phase E: Heizkosten (3 features)
-- UtilityBilling (HeizkV §7, 4 Verteilschlüssel, PieChart, CSV)"
+Phase E: Heizkosten & Vermietify (6/6)
+- UtilityBilling, UtilitySettlementManager (Signatur + Versand)
+- EnergyPassportManager (GEG), MieterStromDashboard (ZEV)"
 
 echo ""
 echo "✅ Commit erstellt!"
 echo ""
 echo "👉 Nächste Schritte:"
 echo "   cd $TARGET_ABLESUNG"
-echo "   git push -u origin feature/phase-a-to-e-features"
+echo "   git push -u origin feature/phase-a-to-e-complete"
 echo "   # Dann PR auf GitHub erstellen"
 echo ""
