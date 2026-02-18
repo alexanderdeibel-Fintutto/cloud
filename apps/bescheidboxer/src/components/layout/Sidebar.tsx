@@ -32,6 +32,10 @@ import {
   Receipt,
   ScanLine,
   LayoutGrid,
+  Landmark,
+  GitBranch,
+  Wallet,
+  Scale,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -62,6 +66,10 @@ const navigation = [
   { name: 'Dokument-Scanner', href: '/dokument-scanner', icon: ScanLine },
   { name: 'Steuerkalender', href: '/steuerkalender', icon: CalendarDays },
   { name: 'Verwalter', href: '/verwalter', icon: LayoutGrid },
+  { name: 'Grundsteuer-Simulator', href: '/grundsteuer-simulator', icon: Landmark },
+  { name: 'Widerspruch-Tracker', href: '/widerspruch-tracker', icon: GitBranch },
+  { name: 'Zahlungen', href: '/zahlungen', icon: Wallet },
+  { name: 'Benchmark', href: '/benchmark', icon: Scale },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
