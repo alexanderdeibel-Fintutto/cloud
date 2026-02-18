@@ -1,9 +1,9 @@
 {
+  "buildCommand": "cd apps/arbeitslos-portal && npm install && npm run build",
+  "outputDirectory": "apps/arbeitslos-portal/dist",
+  "framework": "vite",
+  "installCommand": "echo 'skip root install'",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
