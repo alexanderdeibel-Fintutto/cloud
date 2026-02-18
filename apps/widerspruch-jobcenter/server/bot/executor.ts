@@ -10,6 +10,7 @@ import {
   getPendingActions, updateScheduledAction,
   logActivity, getTodaysActivityCount,
   loadSchedule, saveSchedule, savePersonas,
+  archiveSchedule,
 } from '../db'
 import { generateContent } from '../content/generator'
 import { generateDailySchedule, summarizeSchedule } from './scheduler'
@@ -162,11 +163,25 @@ export class BotExecutor {
     this.migrateCreatedAtIfNeeded()
 
     const today = new Date()
-    const schedule = generateDailySchedule(today, this.config)
-
-    // Bestehende pending actions für heute entfernen
     const todayStr = today.toISOString().slice(0, 10)
     const existingSchedule = loadSchedule()
+
+    // Alte Tagespläne archivieren bevor sie überschrieben werden
+    const dateGroups = new Map<string, ScheduledAction[]>()
+    for (const a of existingSchedule) {
+      const dateKey = a.scheduled_at.slice(0, 10)
+      if (dateKey !== todayStr) {
+        if (!dateGroups.has(dateKey)) dateGroups.set(dateKey, [])
+        dateGroups.get(dateKey)!.push(a)
+      }
+    }
+    for (const [dateKey, actions] of dateGroups) {
+      archiveSchedule(dateKey, actions)
+    }
+
+    const schedule = generateDailySchedule(today, this.config)
+
+    // Bestehende pending actions für heute entfernen, alte Tage nicht mehr mitführen
     const otherDays = existingSchedule.filter(a => !a.scheduled_at.startsWith(todayStr) || a.status !== 'pending')
     saveSchedule([...otherDays, ...schedule])
 

@@ -193,12 +193,29 @@ export function generateCommentContent(
   const rng = seededRng(seed)
 
   const { engagement_style, kommentar_laenge, bescheidboxer_affinity } = persona.activity
+  const forumId = action.target.forum_id || 'allgemeines'
 
-  // Kommentar-Typ wählen basierend auf Persona
-  const typeWeights: [string, number][] =
-    engagement_style === 'kommentierer'
-      ? [['rat', 30], ['empathie', 20], ['frage', 15], ['zustimmung', 15], ['rechtlich', 10], ['danke', 10]]
-      : [['empathie', 25], ['zustimmung', 20], ['frage', 20], ['rat', 15], ['danke', 15], ['rechtlich', 5]]
+  // Forum-spezifische Gewichtung: Im "Auskotzen"-Forum keine Ratschläge,
+  // im "Widerspruch"-Forum mehr rechtliche Hilfe, etc.
+  const FORUM_COMMENT_WEIGHTS: Record<string, [string, number][]> = {
+    auskotzen:       [['empathie', 40], ['zustimmung', 25], ['frage', 15], ['danke', 15], ['rat', 3], ['rechtlich', 2]],
+    erfolge:         [['zustimmung', 30], ['danke', 25], ['empathie', 20], ['frage', 15], ['rat', 5], ['rechtlich', 5]],
+    'hilfe-bescheid':[['rat', 25], ['rechtlich', 20], ['empathie', 15], ['frage', 15], ['zustimmung', 15], ['danke', 10]],
+    widerspruch:     [['rechtlich', 25], ['rat', 25], ['empathie', 15], ['frage', 15], ['zustimmung', 10], ['danke', 10]],
+    sanktionen:      [['empathie', 25], ['rechtlich', 20], ['rat', 20], ['frage', 15], ['zustimmung', 10], ['danke', 10]],
+    'kdu-miete':     [['rat', 25], ['frage', 20], ['empathie', 15], ['rechtlich', 15], ['zustimmung', 15], ['danke', 10]],
+    zuverdienst:     [['rat', 25], ['frage', 20], ['empathie', 15], ['rechtlich', 15], ['zustimmung', 15], ['danke', 10]],
+    allgemeines:     [['empathie', 20], ['frage', 20], ['zustimmung', 20], ['rat', 15], ['danke', 15], ['rechtlich', 10]],
+  }
+
+  // Basis-Gewichtung nach Forum, dann Persona-Engagement-Stil als Modifikator
+  let typeWeights = FORUM_COMMENT_WEIGHTS[forumId] || FORUM_COMMENT_WEIGHTS['allgemeines']
+  if (engagement_style === 'kommentierer') {
+    // Kommentierer: Rat und Rechtliches etwas stärker gewichten
+    typeWeights = typeWeights.map(([type, w]) =>
+      type === 'rat' || type === 'rechtlich' ? [type, Math.round(w * 1.3)] : [type, w]
+    ) as [string, number][]
+  }
 
   const total = typeWeights.reduce((s, [, w]) => s + w, 0)
   let r = rng() * total
