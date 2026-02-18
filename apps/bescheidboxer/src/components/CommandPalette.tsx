@@ -47,6 +47,10 @@ import {
   Bot,
   BookOpen,
   UserCheck,
+  TrendingUp,
+  ReceiptText,
+  Percent,
+  Newspaper,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -130,6 +134,10 @@ export default function CommandPalette() {
     { id: 'nav-automatisierung', label: 'Automatisierung', description: 'Regeln & Workflows', icon: Bot, category: 'navigation', keywords: ['automatisierung', 'regel', 'workflow', 'trigger', 'aktion', 'automatisch'], action: () => runAndClose(() => navigate('/automatisierung')) },
     { id: 'nav-wissensdatenbank', label: 'Wissens-Datenbank', description: 'Steuer-Fachwissen', icon: BookOpen, category: 'navigation', keywords: ['wissen', 'datenbank', 'artikel', 'faq', 'lexikon', 'steuerrecht'], action: () => runAndClose(() => navigate('/wissensdatenbank')) },
     { id: 'nav-mandanten', label: 'Mandantenverwaltung', description: 'Mandanten verwalten', icon: UserCheck, category: 'navigation', keywords: ['mandant', 'kunde', 'verwaltung', 'berater', 'kanzlei'], action: () => runAndClose(() => navigate('/mandanten')) },
+    { id: 'nav-steuerlast', label: 'Steuerlast-Prognose', description: 'Steuerbelastung prognostizieren', icon: TrendingUp, category: 'navigation', keywords: ['prognose', 'forecast', 'trend', 'steuerlast', 'vorhersage', 'entwicklung'], action: () => runAndClose(() => navigate('/steuerlast-prognose')) },
+    { id: 'nav-belege', label: 'Beleg-Manager', description: 'Belege verwalten & OCR', icon: ReceiptText, category: 'navigation', keywords: ['beleg', 'quittung', 'rechnung', 'ocr', 'scan', 'bon'], action: () => runAndClose(() => navigate('/belege')) },
+    { id: 'nav-afa', label: 'AfA-Rechner', description: 'Abschreibung berechnen', icon: Percent, category: 'navigation', keywords: ['afa', 'abschreibung', 'immobilie', 'nutzungsdauer', 'degressiv', 'linear'], action: () => runAndClose(() => navigate('/afa-rechner')) },
+    { id: 'nav-news', label: 'Steuer-News', description: 'Aktuelle Steuer-Nachrichten', icon: Newspaper, category: 'navigation', keywords: ['news', 'nachrichten', 'aktuell', 'urteil', 'gesetz', 'aenderung'], action: () => runAndClose(() => navigate('/steuer-news')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

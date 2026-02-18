@@ -55,6 +55,10 @@ import SteuerBeraterPage from './pages/SteuerBeraterPage'
 import AutomatisierungPage from './pages/AutomatisierungPage'
 import WissensDatenbankPage from './pages/WissensDatenbankPage'
 import MandantenVerwaltungPage from './pages/MandantenVerwaltungPage'
+import SteuerlastPrognosePage from './pages/SteuerlastPrognosePage'
+import BelegManagerPage from './pages/BelegManagerPage'
+import AbschreibungsRechnerPage from './pages/AbschreibungsRechnerPage'
+import SteuerNewsPage from './pages/SteuerNewsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -129,6 +133,10 @@ function App() {
             <Route path="automatisierung" element={<AutomatisierungPage />} />
             <Route path="wissensdatenbank" element={<WissensDatenbankPage />} />
             <Route path="mandanten" element={<MandantenVerwaltungPage />} />
+            <Route path="steuerlast-prognose" element={<SteuerlastPrognosePage />} />
+            <Route path="belege" element={<BelegManagerPage />} />
+            <Route path="afa-rechner" element={<AbschreibungsRechnerPage />} />
+            <Route path="steuer-news" element={<SteuerNewsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

@@ -40,6 +40,10 @@ import {
   Bot,
   BookOpen,
   UserCheck,
+  TrendingUp,
+  ReceiptText,
+  Percent,
+  Newspaper,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -78,6 +82,10 @@ const navigation = [
   { name: 'Automatisierung', href: '/automatisierung', icon: Bot },
   { name: 'Wissens-Datenbank', href: '/wissensdatenbank', icon: BookOpen },
   { name: 'Mandanten', href: '/mandanten', icon: UserCheck },
+  { name: 'Steuerlast-Prognose', href: '/steuerlast-prognose', icon: TrendingUp },
+  { name: 'Beleg-Manager', href: '/belege', icon: ReceiptText },
+  { name: 'AfA-Rechner', href: '/afa-rechner', icon: Percent },
+  { name: 'Steuer-News', href: '/steuer-news', icon: Newspaper },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
