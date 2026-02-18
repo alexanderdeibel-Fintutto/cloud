@@ -77,57 +77,80 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   cancelled: 'Abgebrochen',
 }
 
-// Fintutto Ecosystem App Registry
+// Fintutto Ecosystem App Registry (with URLs for cross-app navigation)
 export const FINTUTTO_APPS = {
   vermietify: {
     name: 'Vermietify',
     slug: 'vermietify',
     description: 'Immobilienverwaltung für Vermieter',
     icon: '🏠',
+    url: 'https://vermietify.vercel.app',
   },
   ablesung: {
     name: 'Ablesung',
     slug: 'ablesung',
     description: 'Zählerablesung & Verbrauchserfassung',
     icon: '📊',
+    url: 'https://ablesung.vercel.app',
   },
   hausmeisterPro: {
     name: 'HausmeisterPro',
     slug: 'hausmeister-pro',
     description: 'Hausmeister- & Gebäudeverwaltung',
     icon: '🔧',
+    url: 'https://hausmeister-pro.vercel.app',
   },
   mieter: {
     name: 'Mieter',
     slug: 'mieter',
     description: 'Mieter-Portal & Tools',
     icon: '🏡',
+    url: 'https://mieter-kw8d.vercel.app',
   },
   bescheidboxer: {
     name: 'BescheidBoxer',
     slug: 'bescheidboxer',
     description: 'Steuerbescheid-Prüfer',
     icon: '📋',
+    url: 'https://bescheidboxer.vercel.app',
   },
   portal: {
     name: 'Fintutto Portal',
     slug: 'portal',
     description: 'Rechner, Checker & Formulare',
     icon: '🧮',
+    url: 'https://portal.fintutto.cloud',
   },
   adminHub: {
     name: 'Admin-Hub',
     slug: 'admin-hub',
     description: 'Zentrale Verwaltung',
     icon: '⚙️',
+    url: 'https://fintutto-admin-hub.vercel.app',
   },
   financialCompass: {
     name: 'Financial Compass',
     slug: 'financial-compass',
     description: 'Finanzübersicht & Buchhaltung',
     icon: '🧭',
+    url: 'https://fintutto-your-financial-compass.vercel.app',
   },
 } as const
 
+export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
+
+// Get all apps except the current one (for cross-app navigation)
+export function getOtherApps(currentAppSlug: string) {
+  return Object.values(FINTUTTO_APPS).filter((app) => app.slug !== currentAppSlug)
+}
+
+// Get app URL by key
+export function getAppUrl(appKey: FintuttoAppKey): string {
+  return FINTUTTO_APPS[appKey].url
+}
+
 // Re-export all database types
 export * from './types/database'
+
+// Re-export shared hooks
+export * from './hooks'

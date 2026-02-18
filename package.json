@@ -1,11 +1,19 @@
 {
-  "name": "fintutto-mieter-checker",
+  "name": "fintutto-portal-monorepo",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "vite",
+    "dev:portal": "npm run dev --workspace=apps/fintutto-portal",
+    "dev:vermietify": "npm run dev --workspace=apps/vermietify",
     "build": "tsc && vite build",
+    "build:portal": "npm run build --workspace=apps/fintutto-portal",
+    "build:vermietify": "npm run build --workspace=apps/vermietify",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -45,7 +53,8 @@
     "stripe": "^14.0.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@fintutto/shared": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",

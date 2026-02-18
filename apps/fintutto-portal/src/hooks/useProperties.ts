@@ -1,32 +1,36 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import type { Building, Unit, Tenant } from '@fintutto/shared'
 
 export interface PropertyOption {
   id: string
   name: string
-  street: string
-  house_number: string
+  address: string
   postal_code: string
   city: string
-  property_type: string
+  building_type: string
   units: {
     id: string
-    name: string
-    living_space: number
-    current_rent: number | null
-    tenants: {
-      id: string
-      first_name: string
-      last_name: string
+    unit_number: string
+    area: number
+    rent_amount: number
+    status: string
+    leases: {
+      tenant_id: string
+      tenants: {
+        id: string
+        first_name: string
+        last_name: string
+      } | null
     }[]
   }[]
 }
 
 /**
- * Hook to fetch the logged-in user's properties from the shared Supabase.
+ * Hook to fetch the logged-in user's buildings from the shared Supabase.
+ * Queries the real schema: buildings → units → leases → tenants.
  * Used by Rechner and Formulare to pre-fill building/tenant data.
- * Only fetches if the user is logged in.
  */
 export function useProperties() {
   const { user } = useAuth()
@@ -41,21 +45,23 @@ export function useProperties() {
 
     setIsLoading(true)
     supabase
-      .from('properties')
+      .from('buildings')
       .select(`
-        id, name, street, house_number, postal_code, city, property_type,
+        id, name, address, postal_code, city, building_type,
         units (
-          id, name, living_space, current_rent,
-          tenants (id, first_name, last_name)
+          id, unit_number, area, rent_amount, status,
+          leases (
+            tenant_id,
+            tenants ( id, first_name, last_name )
+          )
         )
       `)
-      .eq('user_id', user.id)
       .order('name')
       .then(({ data, error }) => {
         if (error) {
-          console.error('Error fetching properties:', error)
+          console.error('Error fetching buildings:', error)
         } else {
-          setProperties((data as PropertyOption[]) || [])
+          setProperties((data as unknown as PropertyOption[]) || [])
         }
         setIsLoading(false)
       })
