@@ -4,13 +4,10 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
 import Layout from '@/components/layout/Layout'
- claude/review-repo-setup-0rnoo
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-
 import { ExitIntentPopup } from '@/components/monetization'
- main
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -71,8 +68,11 @@ const NebenkostenvorauszahlungFormular = lazy(() => import('@/pages/formulare/Ne
 
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center min-h-[40vh]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent mx-auto mb-3" />
+        <p className="text-sm text-muted-foreground">Lädt...</p>
+      </div>
     </div>
   )
 }

@@ -1,0 +1,19 @@
+{
+  "name": "Fintutto Portal",
+  "short_name": "Fintutto",
+  "description": "Digitale Mietrecht-Tools für Mieter & Vermieter. 7 Rechner, 10 Checker, 10 Formulare.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f8f8",
+  "theme_color": "#5b21b6",
+  "lang": "de",
+  "categories": ["productivity", "business", "finance"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
