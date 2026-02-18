@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
 
+claude/review-repo-setup-0rnoo
+Sitemap: https://fintutto.de/sitemap.xml
+
 Sitemap: https://portal.fintutto.cloud/sitemap.xml
 
 # Crawl-Delay für respektvolles Crawling
@@ -12,3 +15,4 @@ Disallow: /checkout/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+ main

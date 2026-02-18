@@ -121,3 +121,16 @@
     @apply bg-blue-50 border-l-4 border-primary p-4 rounded-r-lg text-sm text-gray-700;
   }
 }
+
+/* Print styles for Formulare */
+@media print {
+  header, footer, nav, .no-print { display: none !important; }
+  body { background: white !important; color: black !important; font-size: 12pt; }
+  main { padding: 0 !important; }
+  .container { max-width: 100% !important; padding: 0 !important; }
+  button { display: none !important; }
+  a { text-decoration: none; color: black; }
+  h1, h2, h3 { page-break-after: avoid; }
+  .form-section { border: 1px solid #ccc; page-break-inside: avoid; box-shadow: none !important; }
+  @page { margin: 2cm; }
+}

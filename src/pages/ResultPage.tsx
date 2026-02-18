@@ -32,7 +32,6 @@ export default function ResultPage() {
       .single()
 
     if (error) {
-      console.error('Error fetching result:', error)
       navigate('/')
       return
     }

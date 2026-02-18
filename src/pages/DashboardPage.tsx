@@ -56,9 +56,7 @@ export default function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(10)
 
-    if (error) {
-      console.error('Error fetching results:', error)
-    } else {
+    if (!error) {
       setResults(data as unknown as CheckerResultRecord[])
     }
     setLoadingResults(false)
