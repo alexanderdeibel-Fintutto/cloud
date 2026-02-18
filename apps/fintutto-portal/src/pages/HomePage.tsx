@@ -10,41 +10,41 @@ import { Button } from '@/components/ui/button'
 const categories = [
   {
     title: 'Rechner',
-    subtitle: 'F\u00fcr Vermieter',
-    description: '9 professionelle Rechner f\u00fcr Immobilieneigent\u00fcmer und Vermieter.',
+    subtitle: 'Für Vermieter',
+    description: '9 professionelle Rechner für Immobilieneigentümer und Vermieter.',
     icon: Calculator,
     href: '/rechner',
-    gradient: 'gradient-vermieter',
+    gradient: 'gradient-card-left',
     count: 7,
-    highlights: ['Kaufnebenkosten', 'Rendite', 'Mieterh\u00f6hung', 'Grundsteuer'],
+    highlights: ['Kaufnebenkosten', 'Rendite', 'Mieterhöhung', 'Grundsteuer'],
   },
   {
     title: 'Checker',
-    subtitle: 'F\u00fcr Mieter',
-    description: '11 rechtliche Pr\u00fcfungen f\u00fcr Mieter \u2013 kenne deine Rechte.',
+    subtitle: 'Für Mieter',
+    description: '11 rechtliche Prüfungen für Mieter – kenne deine Rechte.',
     icon: Shield,
     href: '/checker',
-    gradient: 'gradient-mieter',
+    gradient: 'gradient-card-center',
     count: 10,
-    highlights: ['Mietpreisbremse', 'K\u00fcndigung', 'Nebenkosten', 'Kaution'],
+    highlights: ['Mietpreisbremse', 'Kündigung', 'Nebenkosten', 'Kaution'],
   },
   {
     title: 'Formulare',
-    subtitle: 'F\u00fcr alle',
-    description: 'Rechtssichere Vorlagen f\u00fcr Mietvertrag, \u00dcbergabe & mehr.',
+    subtitle: 'Für alle',
+    description: 'Rechtssichere Vorlagen für Mietvertrag, Übergabe & mehr.',
     icon: FileText,
     href: '/formulare',
-    gradient: 'gradient-portal',
+    gradient: 'gradient-card-right',
     count: 5,
-    highlights: ['Mietvertrag', '\u00dcbergabeprotokoll', 'BK-Abrechnung', 'Selbstauskunft'],
+    highlights: ['Mietvertrag', 'Übergabeprotokoll', 'BK-Abrechnung', 'Selbstauskunft'],
   },
 ]
 
 const stats = [
-  { value: '28+', label: 'Tools verf\u00fcgbar' },
-  { value: '16', label: 'Bundesl\u00e4nder', },
+  { value: '28+', label: 'Tools verfügbar' },
+  { value: '16', label: 'Bundesländer', },
   { value: '100%', label: 'DSGVO-konform' },
-  { value: '\u00a70', label: 'Kostenlos starten' },
+  { value: '§0', label: 'Kostenlos starten' },
 ]
 
 export default function HomePage() {
@@ -57,18 +57,18 @@ export default function HomePage() {
             <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="h-4 w-4 text-yellow-300" />
               <span className="text-white/90 text-sm font-medium">
-                Rechner + Checker + Formulare \u2013 alles an einem Ort
+                Rechner + Checker + Formulare – alles an einem Ort
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
               Dein Mietrecht-Portal
               <span className="block text-white/80 text-2xl md:text-3xl mt-2 font-normal">
-                F\u00fcr Mieter & Vermieter
+                Für Mieter & Vermieter
               </span>
             </h1>
             <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-              28+ professionelle Tools: Rechner f\u00fcr Vermieter, Checker f\u00fcr Mieter
-              und rechtssichere Formulare f\u00fcr alle. Basierend auf aktuellem deutschen Mietrecht.
+              28+ professionelle Tools: Rechner für Vermieter, Checker für Mieter
+              und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-white text-purple-900 hover:bg-white/90" asChild>
@@ -108,7 +108,7 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Alles was du brauchst</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Ob Mieter oder Vermieter \u2013 finde das richtige Tool f\u00fcr dein Anliegen.
+              Ob Mieter oder Vermieter – finde das richtige Tool für dein Anliegen.
             </p>
           </div>
 
@@ -145,22 +145,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Vermietify Integration Teaser */}
+      {/* Ecosystem Teaser */}
       <section className="py-16 bg-muted/30">
         <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-4">
-              Mehr als nur Tools? Entdecke Vermietify
+              Das komplette Fintutto Ökosystem
             </h2>
-            <p className="text-muted-foreground mb-6">
-              Alle deine Berechnungen und Formulare flie\u00dfen nahtlos in Vermietify \u2013
-              die komplette Immobilienverwaltung. Geb\u00e4ude, Mieter, Vertr\u00e4ge, Zahlungen
-              und mehr \u2013 alles an einem Ort.
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              6 Apps für jeden Schritt im Mietalltag – alle verbunden, alle kostenlos starten.
             </p>
-            <Button variant="outline" size="lg" asChild>
-              <a href="https://vermietify.fintutto.cloud" target="_blank" rel="noopener noreferrer">
-                Vermietify kennenlernen <ArrowRight className="h-4 w-4 ml-2" />
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto mb-8">
+            {[
+              { icon: '🏠', name: 'Vermietify', desc: 'Immobilienverwaltung', url: 'https://vermietify.vercel.app' },
+              { icon: '🔑', name: 'Mieter-App', desc: 'Mieter-Dashboard', url: 'https://mieter-kw8d.vercel.app' },
+              { icon: '🔧', name: 'HausmeisterPro', desc: 'Facility Management', url: 'https://hausmeister-pro.vercel.app' },
+              { icon: '📊', name: 'Ablesung', desc: 'Zählerstände', url: 'https://ablesung.vercel.app' },
+              { icon: '🥊', name: 'BescheidBoxer', desc: 'Bescheid-Analyse', url: 'https://bescheidboxer.vercel.app' },
+              { icon: '✨', name: 'Portal', desc: '28+ Tools', url: '/apps' },
+            ].map((app) => (
+              <a
+                key={app.name}
+                href={app.url.startsWith('/') ? undefined : app.url}
+                target={app.url.startsWith('/') ? undefined : '_blank'}
+                rel={app.url.startsWith('/') ? undefined : 'noopener noreferrer'}
+                className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/30 transition-all group"
+              >
+                <span className="text-3xl mb-2">{app.icon}</span>
+                <span className="font-semibold text-sm">{app.name}</span>
+                <span className="text-xs text-muted-foreground">{app.desc}</span>
               </a>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/apps">
+                Alle Apps entdecken <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
             </Button>
           </div>
         </div>

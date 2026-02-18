@@ -5,93 +5,93 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const checkers = [
   {
     title: 'Mietpreisbremse',
-    description: 'Ist deine Miete zu hoch? Pr\u00fcfe ob die Mietpreisbremse greift und wie viel du sparen kannst.',
+    description: 'Ist deine Miete zu hoch? Prüfe ob die Mietpreisbremse greift und wie viel du sparen kannst.',
     icon: Euro,
     href: '/checker/mietpreisbremse',
     color: 'text-red-600',
     bgColor: 'bg-red-50',
-    features: ['Mietpreisbremse \u00a7556d BGB', 'Ortsvergleich', 'Sparpotential berechnen'],
+    features: ['Mietpreisbremse §556d BGB', 'Ortsvergleich', 'Sparpotential berechnen'],
   },
   {
-    title: 'Mieterh\u00f6hung',
-    description: 'Ist die angek\u00fcndigte Mieterh\u00f6hung rechtm\u00e4\u00dfig? Pr\u00fcfe Fristen und Grenzen.',
+    title: 'Mieterhöhung',
+    description: 'Ist die angekündigte Mieterhöhung rechtmäßig? Prüfe Fristen und Grenzen.',
     icon: Scale,
     href: '/checker/mieterhoehung',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
-    features: ['Kappungsgrenze pr\u00fcfen', '\u00a7558 BGB', 'Widerspruchshilfe'],
+    features: ['Kappungsgrenze prüfen', '§558 BGB', 'Widerspruchshilfe'],
   },
   {
     title: 'Nebenkosten',
-    description: 'Stimmt deine Nebenkostenabrechnung? Finde m\u00f6gliche Fehler und Ungereimtheiten.',
+    description: 'Stimmt deine Nebenkostenabrechnung? Finde mögliche Fehler und Ungereimtheiten.',
     icon: FileWarning,
     href: '/checker/nebenkosten',
     color: 'text-green-600',
     bgColor: 'bg-green-50',
-    features: ['17 Kostenarten', 'Fristenpr\u00fcfung', 'Umlagef\u00e4higkeit'],
+    features: ['17 Kostenarten', 'Fristenprüfung', 'Umlagefähigkeit'],
   },
   {
     title: 'Betriebskosten',
-    description: 'Pr\u00fcfe deine Betriebskostenabrechnung auf formelle und inhaltliche Fehler.',
+    description: 'Prüfe deine Betriebskostenabrechnung auf formelle und inhaltliche Fehler.',
     icon: AlertTriangle,
     href: '/checker/betriebskosten',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
-    features: ['Formelle Pr\u00fcfung', 'Inhaltliche Pr\u00fcfung', 'Abrechnungsfrist'],
+    features: ['Formelle Prüfung', 'Inhaltliche Prüfung', 'Abrechnungsfrist'],
   },
   {
-    title: 'K\u00fcndigung',
-    description: 'Wurde dir gek\u00fcndigt? Pr\u00fcfe ob die K\u00fcndigung wirksam ist.',
+    title: 'Kündigung',
+    description: 'Wurde dir gekündigt? Prüfe ob die Kündigung wirksam ist.',
     icon: Ban,
     href: '/checker/kuendigung',
     color: 'text-red-700',
     bgColor: 'bg-red-50',
-    features: ['\u00a7573 BGB', 'Formvorschriften', 'K\u00fcndigungsfristen'],
+    features: ['§573 BGB', 'Formvorschriften', 'Kündigungsfristen'],
   },
   {
     title: 'Kaution',
-    description: 'Probleme mit der Kaution? Pr\u00fcfe R\u00fcckzahlungsanspruch und Fristen.',
+    description: 'Probleme mit der Kaution? Prüfe Rückzahlungsanspruch und Fristen.',
     icon: Euro,
     href: '/checker/kaution',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
-    features: ['\u00a7551 BGB', 'Verzinsung', 'R\u00fcckzahlungsfrist'],
+    features: ['§551 BGB', 'Verzinsung', 'Rückzahlungsfrist'],
   },
   {
     title: 'Mietminderung',
-    description: 'M\u00e4ngel in der Wohnung? Pr\u00fcfe ob und wie viel du mindern darfst.',
+    description: 'Mängel in der Wohnung? Prüfe ob und wie viel du mindern darfst.',
     icon: Wrench,
     href: '/checker/mietminderung',
     color: 'text-amber-600',
     bgColor: 'bg-amber-50',
-    features: ['\u00a7536 BGB', 'Minderungsquoten', 'Mangelanzeige'],
+    features: ['§536 BGB', 'Minderungsquoten', 'Mangelanzeige'],
   },
   {
     title: 'Eigenbedarf',
-    description: 'Eigenbedarfsk\u00fcndigung erhalten? Pr\u00fcfe ob sie rechtm\u00e4\u00dfig ist.',
+    description: 'Eigenbedarfskündigung erhalten? Prüfe ob sie rechtmäßig ist.',
     icon: Home,
     href: '/checker/eigenbedarf',
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
-    features: ['\u00a7573 Abs. 2 BGB', 'Begr\u00fcndungspr\u00fcfung', 'H\u00e4rtefallpr\u00fcfung'],
+    features: ['§573 Abs. 2 BGB', 'Begründungsprüfung', 'Härtefallprüfung'],
   },
   {
     title: 'Modernisierung',
-    description: 'Modernisierungsma\u00dfnahmen angek\u00fcndigt? Pr\u00fcfe deine Rechte.',
+    description: 'Modernisierungsmaßnahmen angekündigt? Prüfe deine Rechte.',
     icon: HardHat,
     href: '/checker/modernisierung',
     color: 'text-teal-600',
     bgColor: 'bg-teal-50',
-    features: ['\u00a7559 BGB', 'Duldungspflicht', 'Mieterh\u00f6hung pr\u00fcfen'],
+    features: ['§559 BGB', 'Duldungspflicht', 'Mieterhöhung prüfen'],
   },
   {
-    title: 'Sch\u00f6nheitsreparaturen',
-    description: 'Musst du beim Auszug renovieren? Pr\u00fcfe ob die Klausel wirksam ist.',
+    title: 'Schönheitsreparaturen',
+    description: 'Musst du beim Auszug renovieren? Prüfe ob die Klausel wirksam ist.',
     icon: Paintbrush,
     href: '/checker/schoenheitsreparaturen',
     color: 'text-pink-600',
     bgColor: 'bg-pink-50',
-    features: ['Klauselpr\u00fcfung', 'BGH-Rechtsprechung', 'Fristenplan'],
+    features: ['Klauselprüfung', 'BGH-Rechtsprechung', 'Fristenplan'],
   },
 ]
 
@@ -102,10 +102,10 @@ export default function CheckerPage() {
         <div className="container">
           <div className="max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Checker f\u00fcr Mieter
+              Checker für Mieter
             </h1>
             <p className="text-lg text-white/80">
-              Kenne deine Rechte. Pr\u00fcfe Mieterh\u00f6hung, K\u00fcndigung, Nebenkosten und mehr \u2013
+              Kenne deine Rechte. Prüfe Mieterhöhung, Kündigung, Nebenkosten und mehr –
               basierend auf aktuellem deutschem Mietrecht.
             </p>
           </div>
@@ -135,7 +135,7 @@ export default function CheckerPage() {
                       ))}
                     </ul>
                     <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                      Jetzt pr\u00fcfen <ArrowRight className="h-4 w-4" />
+                      Jetzt prüfen <ArrowRight className="h-4 w-4" />
                     </span>
                   </CardContent>
                 </Card>

@@ -1,0 +1,649 @@
+================================================================================
+BRIEFING: ABLESUNG-APP -- MIGRATION VON FT_OCR_ZAEHLER-BASE44
+================================================================================
+
+Stand: 14.02.2026
+Ziel-Repo:    alexanderdeibel-Fintutto/ablesung   (Lovable-App, ablesung.vercel.app)
+Quell-Repo:   alexanderdeibel-Fintutto/ft_ocr_zaehler-base44  (Base44-App, 500+ Dateien)
+
+AUFGABE: Features aus der alten ft_ocr_zaehler Base44-App in die neue
+         ablesung Lovable-App uebernehmen. Die ablesung-App ist die
+         EINZIGE Zaehler-App im Fintutto-Oekosystem.
+
+HINWEIS: BK-Abrechnung (Nebenkostenabrechnung) gehoert NICHT in die
+         Zaehler-App sondern ins Portal (separates Repo).
+
+================================================================================
+1. FEATURE-VERGLEICH: WAS HAT DIE ALTE APP, WAS FEHLT IN DER NEUEN?
+================================================================================
+
+1.1 BEREITS IN ABLESUNG VORHANDEN (nicht nochmal bauen)
+---------------------------------------------------------
+
+  [x] Zaehler-Dashboard (Dashboard.tsx)
+  [x] Gebaeude/Einheiten CRUD (BuildingDetail, BuildingNew, Units, UnitDetail)
+  [x] Zaehler-Detail mit Charts (MeterDetail.tsx)
+  [x] Kamera/OCR-Ablesung (ReadMeter.tsx + 3 Edge Functions)
+  [x] OCR Zaehlernummer-Erkennung (MeterNumberScanner.tsx)
+  [x] CSV/Excel/PDF Import (ImportReadingsWizard.tsx, 4-Schritt)
+  [x] Zaehler anlegen mit OCR + Zaehlerwechsel (AddMeterDialog.tsx)
+  [x] Stripe Pricing mit 3 Tiers (Pricing.tsx)
+  [x] Empfehlungsprogramm (Referrals.tsx)
+  [x] Cross-App Marketing (CrossMarketingBanner.tsx)
+  [x] Google Maps Adresssuche (AddressAutocomplete.tsx)
+  [x] Auth: Login/Register/ForgotPassword
+  [x] Rollen: admin, vermieter, mieter, hausmeister
+  [x] Supabase Backend (Auth, DB, Storage, Edge Functions)
+  [x] Responsive Design (Mobile-First, Bottom-Nav)
+  [x] Kalt-/Warmwasser getrennt im Schema (water_cold, water_hot)
+
+
+1.2 FEATURES AUS FT_OCR_ZAEHLER DIE IN ABLESUNG FEHLEN
+---------------------------------------------------------
+
+Die alte Base44-App hat 104 Seiten und 500+ Dateien. Davon sind folgende
+Features fuer die Zaehler-App relevant und muessen migriert werden:
+
+  PRIO 0 -- MUSS REIN:
+  +-----+------------------------------------------+-----------------------------+
+  | #   | Feature                                  | Quelle (ft_ocr_zaehler)     |
+  +-----+------------------------------------------+-----------------------------+
+  | M1  | TARIFVERGLEICH / ANBIETERWECHSEL          |                             |
+  |     | Strom-/Gas-Tarife vergleichen             | TariffManager.jsx           |
+  |     | Optimierungsvorschlaege                   | TariffOptimization.jsx      |
+  |     | Anbieter-Empfehlungen                     | Providers.jsx               |
+  |     | Tarif-Analytics                           | TariffAnalytics.jsx         |
+  |     | Marktdaten abrufen                        | fetchMarketData.ts          |
+  |     | Anbieter-Empfehlungen generieren          | generateProviderRec...ts    |
+  |     | Tarif analysieren + empfehlen             | analyzeTariffsAndRec...ts   |
+  +-----+------------------------------------------+-----------------------------+
+  | M2  | KOSTENBERECHNUNG                          |                             |
+  |     | Zaehlerkosten berechnen                   | calculateMeterCost.ts       |
+  |     | Detaillierte Kostenaufstellung             | calculateDetailedCost.ts    |
+  |     | Effizienz-Berechnung                      | calculateEfficiency.ts      |
+  |     | Kosten-Seite                              | CostCalculation.jsx         |
+  +-----+------------------------------------------+-----------------------------+
+  | M3  | VERBRAUCHSANALYSE (erweitert)             |                             |
+  |     | Verbrauchsvorhersage                      | ConsumptionForecast.jsx     |
+  |     | Anomalie-Erkennung                        | detectConsumptionAnom...ts  |
+  |     | Verbrauchsprognose generieren              | generateConsumptionF...ts   |
+  |     | Jahresvergleich                           | YearOverYearComparison.jsx  |
+  |     | Spitzenwert-Erkennung                     | PeakDetection.jsx           |
+  |     | Verbrauchsanalyse (AI)                    | ConsumptionAnalysis.jsx     |
+  |     | Heatmap (erweitert)                       | ConsumptionHeatmap...jsx    |
+  +-----+------------------------------------------+-----------------------------+
+  | M4  | SMART ALERTS                              |                             |
+  |     | Intelligente Warnungen                    | SmartAlerts.jsx             |
+  |     | Alert-Karten                              | AlertCard.jsx               |
+  |     | Smart Alerts erstellen/verwalten          | createSmartAlert.ts         |
+  |     | Smart Alerts triggern                     | triggerSmartAlerts.ts       |
+  |     | Benachrichtigungen senden                 | sendNotificationEmail.ts    |
+  +-----+------------------------------------------+-----------------------------+
+
+  PRIO 1 -- SOLLTE REIN:
+  +-----+------------------------------------------+-----------------------------+
+  | #   | Feature                                  | Quelle (ft_ocr_zaehler)     |
+  +-----+------------------------------------------+-----------------------------+
+  | S1  | PDF-BERICHTE                              |                             |
+  |     | PDF generieren                            | generatePDF.ts              |
+  |     | Erweiterte PDFs                           | generateEnhancedPDF.ts      |
+  |     | Bank-PDFs                                 | generateBankPDF.ts          |
+  |     | PDF-Automatisierung                       | generatePDFAutomation.ts    |
+  |     | Detail-Berichte                           | DetailedReports.jsx         |
+  |     | Reports-Seite                             | Reports.jsx                 |
+  +-----+------------------------------------------+-----------------------------+
+  | S2  | AI/KI-FEATURES                            |                             |
+  |     | AI Chat (FinTutto KI)                     | AIChat.jsx / KIChat.jsx     |
+  |     | FinTutto KI Analyse                       | FinTuttoKIAnalysis.jsx      |
+  |     | Smart OCR Upload                          | SmartOCRUpload.jsx          |
+  |     | AI Budget-Verwaltung                      | AIBudgetOverview.jsx        |
+  |     | AI Nutzungsmonitor                        | AIUsageMonitoring.jsx       |
+  |     | KI-Service aufrufen                       | callFinTuttoKI.ts           |
+  |     | AI Kontext laden                          | loadAIContext.ts            |
+  +-----+------------------------------------------+-----------------------------+
+  | S3  | SZENARIEN-VERGLEICH                       |                             |
+  |     | Szenarien erstellen/vergleichen            | Compare.jsx                 |
+  |     | Szenarien teilen                          | shareScenario.ts            |
+  |     | Szenarien exportieren/importieren          | exportScenarios.ts          |
+  |     | Szenarien-Kommentare                      | addScenarioComment.ts       |
+  |     | Szenarien-Versionen                       | getScenarioVersions.ts      |
+  +-----+------------------------------------------+-----------------------------+
+  | S4  | WAERMEPUMPE & PV                          |                             |
+  |     | Waermepumpen-Dashboard                    | HeatPumpDashboard.jsx       |
+  |     | PV-Anlagen Dashboard                      | PvDashboard.jsx             |
+  |     | Energie-Empfehlungen                      | generateEnergyRec...ts      |
+  |     | Energie-Automatisierung                   | executeEnergyAuto...ts      |
+  +-----+------------------------------------------+-----------------------------+
+  | S5  | DOKUMENTE                                 |                             |
+  |     | Dokumenten-Manager                        | DocumentManager.jsx         |
+  |     | 50+ Dokumenten-Komponenten                | documents/*.jsx             |
+  |     | AI Dokumenten-Analyse                     | DocumentAIAnalysis.jsx      |
+  |     | Dokumenten-Klassifizierung (OCR)          | classifyDocumentWithOCR.ts  |
+  |     | Dokumenten-Automatisierung                | DocumentAutomation.jsx      |
+  +-----+------------------------------------------+-----------------------------+
+  | S6  | VERTRAEGE                                 |                             |
+  |     | Vertragsformular                          | ContractForm.jsx            |
+  |     | Vertragsliste                             | ContractsList.jsx           |
+  |     | Vertragsablauf-Pruefung                   | checkDocumentExpiry.ts      |
+  +-----+------------------------------------------+-----------------------------+
+
+  PRIO 2 -- KANN SPAETER / NICE-TO-HAVE:
+  +-----+------------------------------------------+-----------------------------+
+  | #   | Feature                                  | Quelle (ft_ocr_zaehler)     |
+  +-----+------------------------------------------+-----------------------------+
+  | N1  | AUTOMATISIERUNG                           |                             |
+  |     | Regel-Builder                             | RuleBuilder.jsx             |
+  |     | Trigger-Selector                          | TriggerSelector.jsx         |
+  |     | Action-Selector                           | ActionSelector.jsx          |
+  |     | Automatisierungsregeln                    | AutomationRules.jsx         |
+  |     | Workflow-Ausfuehrung                      | executeWorkflowRules.ts     |
+  +-----+------------------------------------------+-----------------------------+
+  | N2  | ADMIN / TEAM                              |                             |
+  |     | Admin-Dashboard                           | AdminDashboard.jsx          |
+  |     | Benutzer-Verwaltung                       | UserManagement.jsx          |
+  |     | Organisation-Manager                      | OrganizationManager.jsx     |
+  |     | Einladungs-Manager                        | InvitationManager.jsx       |
+  |     | Team-Mitglied einladen                    | inviteTeamMember.ts         |
+  +-----+------------------------------------------+-----------------------------+
+  | N3  | ZUSAETZLICHE ZAHLUNGSANBIETER             |                             |
+  |     | PayPal Checkout                           | createPayPalCheckout.ts     |
+  |     | Klarna Session                            | createKlarnaSession.ts      |
+  |     | SEPA Ueberweisung                         | createSepaTransfer.ts       |
+  |     | Zahlungs-Management Seite                 | PaymentManagement.jsx       |
+  +-----+------------------------------------------+-----------------------------+
+  | N4  | ANALYTICS / MONITORING                    |                             |
+  |     | Analytics-Dashboard                       | Analytics.jsx               |
+  |     | API-Nutzung                               | ApiActivityAnalytics.jsx    |
+  |     | System-Gesundheit                         | SystemHealth.jsx            |
+  |     | Google Analytics                          | GoogleAnalyticsInit.jsx     |
+  |     | Sentry Error Tracking                     | SentryInit.jsx              |
+  +-----+------------------------------------------+-----------------------------+
+  | N5  | MIETRECHT-CHAT                            |                             |
+  |     | Mietrecht-KI Chat                         | mietrechtChat.ts            |
+  |     | (Rechtliche Fragen beantworten)            |                             |
+  +-----+------------------------------------------+-----------------------------+
+  | N6  | ONBOARDING                                |                             |
+  |     | Nutzer-Einfuehrung                        | Onboarding.jsx              |
+  |     | Hilfe-Center                              | HelpCenter.jsx              |
+  +-----+------------------------------------------+-----------------------------+
+  | N7  | IMMOBILIEN-BEWERTUNG                      |                             |
+  |     | AI Immobilien-Bewertung                   | getAIPropertyEvaluation.ts  |
+  |     | Immobilien-Vergleich                      | PropertyComparisonView.jsx  |
+  +-----+------------------------------------------+-----------------------------+
+  | N8  | DSGVO / COMPLIANCE                        |                             |
+  |     | DSGVO-Dashboard                           | GDPRDashboard.jsx           |
+  |     | Nutzerdaten exportieren                   | exportUserData.ts           |
+  |     | Nutzerdaten loeschen                      | deleteUserData.ts           |
+  |     | Audit-Compliance                          | AuditCompliance.jsx         |
+  +-----+------------------------------------------+-----------------------------+
+  | N9  | DARK MODE                                 |                             |
+  |     | Dark Mode Toggle                          | DarkModeToggle.jsx          |
+  +-----+------------------------------------------+-----------------------------+
+  | N10 | OFFLINE-MODUS                             |                             |
+  |     | Service Worker                            | initializeServiceWorker.ts  |
+  |     | Offline-Indikator                         | OfflineIndicator.jsx        |
+  +-----+------------------------------------------+-----------------------------+
+  | N11 | KEYBOARD SHORTCUTS                        |                             |
+  |     | Tastaturkuerzel                           | KeyboardShortcuts.jsx       |
+  +-----+------------------------------------------+-----------------------------+
+
+
+================================================================================
+2. WAS AKTUELL IN ABLESUNG EXISTIERT (16 Seiten, 12 Hooks, 9 Edge Functions)
+================================================================================
+
+  ROUTEN:
+  /landing, /login, /register, /forgot-password, /
+  /dashboard, /buildings/:id, /buildings/new
+  /units, /units/:id, /meters/:id
+  /read-meter, /pricing, /referrals, /success, /*
+
+  KOMPONENTEN (src/components/):
+  meters/     -- AddMeterDialog, AddReadingDialog, ImportReadingsWizard,
+                 MeterIcon, MeterNumberScanner
+  dashboard/  -- UnitCard, CrossMarketingBanner, FintuttoSuiteSection
+  address/    -- AddressAutocomplete
+  subscription/ -- PricingCard, PricingToggle, UpgradePrompt
+  layout/     -- AppLayout
+  auth/       -- AuthLayout
+  ui/         -- 50+ shadcn/ui Komponenten
+
+  HOOKS:
+  useAuth, useProfile, useOrganization, useBuildings,
+  useProducts, useSubscription, useReferrals,
+  useCrossMarketing, useGoogleMapsApi, useSignedUrl,
+  use-mobile, use-toast
+
+  EDGE FUNCTIONS:
+  ocr-meter-number, ocr-meter, parse-meter-import,
+  check-subscription, create-checkout, customer-portal,
+  get-maps-key, process-referral, sync-stripe-products
+
+  DATENBANK: 21 Migrationen, 17 Tabellen
+  (buildings, units, leases, meters, meter_readings,
+   operating_costs, tasks, documents, messages,
+   profiles, user_roles, organizations,
+   referrals, referral_rewards, user_subscriptions,
+   products, ai_cross_sell_triggers)
+
+  TECH STACK:
+  React 18.3.1, TypeScript, Vite, Tailwind CSS,
+  shadcn/ui (Radix UI), react-hook-form, Zod,
+  @tanstack/react-query, Recharts, Supabase,
+  Stripe, Lucide React, Framer Motion,
+  date-fns, Google Maps/Places API
+
+
+================================================================================
+3. WAS FT_OCR_ZAEHLER HAT (104 Seiten, 500+ Dateien)
+================================================================================
+
+  TECH STACK (alt):
+  React 18.2, JavaScript (NICHT TypeScript!), Vite 6.1,
+  Base44 SDK, Tailwind CSS, Radix UI (30+ Pakete),
+  @tanstack/react-query, Recharts, Supabase, Stripe,
+  PayPal, Framer Motion, Three.js, jsPDF,
+  Leaflet Maps, Sentry, react-hook-form, Zod,
+  xlsx, papaparse, markdown-it
+
+  WICHTIGER UNTERSCHIED:
+  - ft_ocr_zaehler = JavaScript (.jsx) + Base44 SDK
+  - ablesung       = TypeScript (.tsx) + Lovable
+
+  --> Code kann NICHT 1:1 kopiert werden.
+  --> Logik und UI-Konzepte uebernehmen, in TypeScript neu schreiben.
+  --> Base44 API-Calls muessen durch Supabase-Queries ersetzt werden.
+
+  SEITEN (104 Stueck, Auswahl der relevantesten):
+
+  ZAEHLER-KERN:
+  - Dashboard.jsx        -- Haupt-Dashboard
+  - MetersList.jsx       -- Alle Zaehler
+  - MeterDetail.jsx      -- Zaehler-Einzelansicht
+  - AddReading.jsx       -- Ablesung hinzufuegen
+  - BulkImport.jsx       -- Massen-Import
+
+  TARIFE & KOSTEN:
+  - TariffManager.jsx    -- Tarifverwaltung
+  - TariffOptimization.jsx -- Tarifoptimierung
+  - TariffAnalytics.jsx  -- Tarif-Auswertung
+  - Providers.jsx        -- Anbieter-Vergleich
+  - CostCalculation.jsx  -- Kostenberechnung
+  - Compare.jsx          -- Szenario-Vergleich
+
+  ENERGIE:
+  - HeatPumpDashboard.jsx -- Waermepumpe
+  - PvDashboard.jsx      -- Photovoltaik
+
+  AI/KI:
+  - AIDemo.jsx, AIFeatures.jsx, AISettings.jsx
+  - AIUsageMonitoring.jsx, AIUsageReports.jsx
+  - AIWorkflowAutomation.jsx, AIReportingDashboard.jsx
+
+  DOKUMENTE:
+  - DocumentManager.jsx  -- 50+ Sub-Komponenten
+  - MyDocuments.jsx
+
+  BERICHTE:
+  - Reports.jsx          -- Berichts-Seite
+  - DetailedReports.jsx  -- Detail-Berichte
+
+  ADMIN:
+  - AdminDashboard.jsx
+  - UserManagement.jsx
+  - OrganizationManager.jsx
+  - Settings.jsx, UserSettings.jsx, Profile.jsx
+
+  ZAHLUNGEN:
+  - Billing.jsx, BillingSuccess.jsx
+  - PaymentManagement.jsx
+  - Pricing.jsx
+
+  AUTOMATISIERUNG:
+  - AutomationRules.jsx
+  - SmartAlerts.jsx
+  - MonitoringAlerts.jsx
+
+  SICHERHEIT:
+  - AdvancedSecurity.jsx
+  - IncidentResponse.jsx
+  - AuditCompliance.jsx
+
+  SONSTIGES:
+  - Onboarding.jsx, HelpCenter.jsx
+  - Integrations.jsx, Messages.jsx, Notifications.jsx
+  - DataMigration.jsx, FeatureFlags.jsx
+  - Impressum.jsx, Datenschutz.jsx, AGB.jsx
+
+
+  FUNKTIONEN (functions/ -- 200+ TypeScript-Dateien):
+
+  OCR & DOKUMENTE:
+  - processOCRImage.ts, processOCRFeedback.ts
+  - classifyDocumentWithOCR.ts, extractMeterFromInvoice.ts
+
+  TARIFE & KOSTEN:
+  - calculateMeterCost.ts, calculateDetailedCost.ts, calculateEfficiency.ts
+  - analyzeTariffsAndRecommend.ts, getRealTariffData.ts
+  - fetchMarketData.ts, generateProviderRecommendations.ts
+  - generateEnergyRecommendations.ts
+
+  VERBRAUCH:
+  - detectConsumptionAnomalies.ts, generateConsumptionForecast.ts
+  - syncMeterData.ts, importMeterReadings.ts
+
+  PDF:
+  - generatePDF.ts, generateEnhancedPDF.ts, generateBankPDF.ts
+  - generateToolPDF.ts, generatePDFReport.ts, generatePDFAutomation.ts
+
+  AI/KI:
+  - callFinTuttoKI.ts, callKIService.ts, callScenarioAI.ts
+  - loadAIContext.ts, resetMonthlyAIBudget.ts, wizardKIHelper.ts
+
+  ALERTS:
+  - createSmartAlert.ts, generateSmartAlerts.ts
+  - triggerSmartAlerts.ts, notifySmartAlerts.ts
+
+  EMAIL:
+  - sendWelcomeEmail.ts, sendMagicLink.ts, sendInvitationEmail.ts
+  - sendNotificationEmail.ts, sendBudgetWarningEmail.ts
+  - sendPurchaseConfirmation.ts, sendResultEmail.ts
+
+  ZAHLUNGEN:
+  - createStripeCheckout.ts, createPayPalCheckout.ts
+  - createKlarnaSession.ts, createSepaTransfer.ts
+  - refundStripePayment.ts, refundPayPalPayment.ts
+
+  IMMOBILIEN:
+  - getPropertyData.ts, saveProspectBuilding.ts
+  - loadBuildingsFromSupabase.ts, getAIPropertyEvaluation.ts
+
+  SICHERHEIT:
+  - advancedSecurity.ts, securityAudit.ts, securityHeaders.ts
+  - complianceServices.ts, encryptDocument.ts
+
+  WORKFLOW:
+  - executeWorkflowRules.ts, workflowServices.ts
+  - triggerWorkflowsOnBudgetOverrun.ts
+  - triggerWorkflowsOnDocumentClassification.ts
+  - triggerWorkflowsOnMeterIssue.ts, triggerWorkflowsOnMarketData.ts
+
+  EXPORT/SYNC:
+  - exportToVermietify.ts, syncDocumentToApps.ts
+  - syncDocumentToGoogleDrive.ts, uploadToGoogleDrive.ts
+
+
+================================================================================
+4. EMPFOHLENE MIGRATIONSREIHENFOLGE
+================================================================================
+
+Phase 1: VERBRAUCHSANALYSE ERWEITERN (Woche 1-2)
+--------------------------------------------------
+
+  Was: Die erweiterte Verbrauchsanalyse aus ft_ocr_zaehler uebernehmen
+  Warum: Kernfunktion einer Zaehler-App, direkt nutzbar
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 1.1  | Anomalie-Erkennung einbauen          | detectConsumptionAnomalies.ts |
+  | 1.2  | Verbrauchsprognose                   | generateConsumptionForecast.ts|
+  |      |                                     | ConsumptionForecast.jsx       |
+  | 1.3  | Jahresvergleich (Year-over-Year)     | YearOverYearComparison.jsx    |
+  | 1.4  | Spitzenwert-Erkennung                | PeakDetection.jsx             |
+  | 1.5  | Erweiterte Heatmap                   | ConsumptionHeatmapEnhanced   |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 2: KOSTENBERECHNUNG & TARIFE (Woche 3-4)
+------------------------------------------------
+
+  Was: Kosten pro Zaehler berechnen + Tarifvergleich
+  Warum: Kernmehrwert -- Nutzer sehen was sie zahlen + sparen koennen
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 2.1  | Kostenberechnung pro Zaehler         | calculateMeterCost.ts         |
+  |      |                                     | calculateDetailedCost.ts      |
+  | 2.2  | Kosten-Seite                        | CostCalculation.jsx           |
+  | 2.3  | Tarifvergleich-Seite                 | TariffManager.jsx             |
+  | 2.4  | Tarifoptimierung                     | TariffOptimization.jsx        |
+  | 2.5  | Anbieter-Empfehlungen                | Providers.jsx                 |
+  |      |                                     | generateProviderRec...ts      |
+  | 2.6  | Marktdaten abrufen                   | fetchMarketData.ts            |
+  |      |                                     | getRealTariffData.ts          |
+  | 2.7  | Tarif-Analytics                      | TariffAnalytics.jsx           |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 3: SMART ALERTS & BENACHRICHTIGUNGEN (Woche 5)
+------------------------------------------------------
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 3.1  | Smart Alert System                   | SmartAlerts.jsx               |
+  |      |                                     | createSmartAlert.ts           |
+  |      |                                     | triggerSmartAlerts.ts         |
+  | 3.2  | Alert-Karten UI                      | AlertCard.jsx                 |
+  | 3.3  | Email-Benachrichtigungen             | sendNotificationEmail.ts      |
+  | 3.4  | Budget-Warnungen                     | sendBudgetWarningEmail.ts     |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 4: PDF-BERICHTE (Woche 6)
+---------------------------------
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 4.1  | PDF-Generierung (jsPDF)              | generatePDF.ts                |
+  |      |                                     | generateEnhancedPDF.ts        |
+  | 4.2  | Berichts-Seite                      | Reports.jsx                   |
+  |      |                                     | DetailedReports.jsx           |
+  | 4.3  | PDF-Automatisierung                  | generatePDFAutomation.ts      |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 5: AI/KI-FEATURES (Woche 7-8)
+--------------------------------------
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 5.1  | KI-Chat (FinTutto KI)                | AIChat.jsx / KIChat.jsx       |
+  |      |                                     | callFinTuttoKI.ts             |
+  | 5.2  | KI-Analyse                           | FinTuttoKIAnalysis.jsx        |
+  | 5.3  | Smart OCR (erweitert)                | SmartOCRUpload.jsx            |
+  | 5.4  | AI Budget-Verwaltung                 | AIBudgetOverview.jsx          |
+  | 5.5  | AI Nutzungs-Monitoring               | AIUsageMonitoring.jsx         |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 6: SZENARIEN & ENERGIE (Woche 9-10)
+-------------------------------------------
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 6.1  | Szenarien-Vergleich                  | Compare.jsx                   |
+  |      |                                     | shareScenario.ts              |
+  | 6.2  | Waermepumpen-Dashboard               | HeatPumpDashboard.jsx         |
+  | 6.3  | PV-Dashboard                         | PvDashboard.jsx               |
+  | 6.4  | Energie-Empfehlungen                 | generateEnergyRec...ts        |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 7: DOKUMENTE & VERTRAEGE (Woche 11-12)
+----------------------------------------------
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 7.1  | Dokumenten-Manager                   | DocumentManager.jsx           |
+  | 7.2  | Dokumenten-AI-Analyse                | DocumentAIAnalysis.jsx        |
+  | 7.3  | Dokumenten-Klassifizierung           | classifyDocumentWithOCR.ts    |
+  | 7.4  | Vertraege verwalten                  | ContractForm.jsx              |
+  |      |                                     | ContractsList.jsx             |
+  +------+-------------------------------------+-------------------------------+
+
+
+Phase 8: POLISH & EXTRAS (Woche 13-14)
+----------------------------------------
+
+  +------+-------------------------------------+-------------------------------+
+  | #    | Aufgabe                             | Quell-Datei (ft_ocr)          |
+  +------+-------------------------------------+-------------------------------+
+  | 8.1  | Dark Mode                            | DarkModeToggle.jsx            |
+  | 8.2  | Onboarding                           | Onboarding.jsx                |
+  | 8.3  | Hilfe-Center                         | HelpCenter.jsx                |
+  | 8.4  | Keyboard Shortcuts                   | KeyboardShortcuts.jsx         |
+  | 8.5  | Offline-Modus                        | OfflineIndicator.jsx          |
+  |      |                                     | initializeServiceWorker.ts    |
+  | 8.6  | DSGVO-Dashboard                      | GDPRDashboard.jsx             |
+  | 8.7  | Impressum, Datenschutz, AGB          | Impressum/Datenschutz/AGB.jsx |
+  | 8.8  | Nachrichten-System                   | Messages.jsx                  |
+  +------+-------------------------------------+-------------------------------+
+
+
+================================================================================
+5. TECHNISCHE MIGRATIONS-HINWEISE
+================================================================================
+
+5.1 SPRACH-UNTERSCHIED
+-----------------------
+
+  ft_ocr_zaehler:  JavaScript (.jsx)  +  Base44 SDK
+  ablesung:        TypeScript (.tsx)   +  Lovable / Supabase
+
+  --> NICHT copy-paste. Konzepte + Logik uebernehmen, in TypeScript umschreiben.
+  --> Base44 API-Calls (base44Client.js) -> Supabase Queries
+  --> Base44 Functions -> Supabase Edge Functions
+
+
+5.2 BASE44 -> SUPABASE MAPPING
+--------------------------------
+
+  Base44:                          Supabase:
+  base44Client.fetch(...)          supabase.from('table').select(...)
+  base44Client.create(...)         supabase.from('table').insert(...)
+  base44Client.update(...)         supabase.from('table').update(...)
+  base44Client.delete(...)         supabase.from('table').delete(...)
+  functions/xyz.ts                 supabase/functions/xyz/index.ts
+
+
+5.3 NEUE SUPABASE-TABELLEN (fuer migrierte Features)
+------------------------------------------------------
+
+  -- Tarife
+  CREATE TABLE tariffs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    meter_id UUID REFERENCES meters(id),
+    provider_name TEXT,
+    tariff_name TEXT,
+    price_per_unit DECIMAL,
+    base_price_monthly DECIMAL,
+    valid_from DATE,
+    valid_until DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  );
+
+  -- Smart Alerts
+  CREATE TABLE smart_alerts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    meter_id UUID REFERENCES meters(id),
+    alert_type TEXT,               -- anomaly, threshold, budget, expiry
+    condition JSONB,               -- {operator: '>', value: 100, unit: 'kWh'}
+    is_active BOOLEAN DEFAULT TRUE,
+    last_triggered_at TIMESTAMPTZ,
+    notification_channels TEXT[],  -- ['email', 'push', 'in_app']
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  );
+
+  -- Szenarien
+  CREATE TABLE scenarios (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    name TEXT,
+    description TEXT,
+    parameters JSONB,
+    results JSONB,
+    is_shared BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  );
+
+  -- Vertraege
+  CREATE TABLE contracts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    property_id UUID REFERENCES buildings(id),
+    provider_name TEXT,
+    contract_type TEXT,            -- electricity, gas, water, heating
+    start_date DATE,
+    end_date DATE,
+    cancellation_period_days INT,
+    monthly_cost DECIMAL,
+    document_url TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  );
+
+
+5.4 NEUE EDGE FUNCTIONS (fuer migrierte Features)
+---------------------------------------------------
+
+  Aus ft_ocr_zaehler uebernehmen und als Supabase Edge Functions umschreiben:
+
+  +-----+----------------------------------+------------------------------------+
+  | #   | Edge Function                    | Basiert auf                        |
+  +-----+----------------------------------+------------------------------------+
+  | EF1 | detect-consumption-anomalies     | detectConsumptionAnomalies.ts      |
+  | EF2 | generate-consumption-forecast    | generateConsumptionForecast.ts     |
+  | EF3 | calculate-meter-cost             | calculateMeterCost.ts              |
+  | EF4 | fetch-market-data                | fetchMarketData.ts                 |
+  | EF5 | analyze-tariffs                  | analyzeTariffsAndRecommend.ts      |
+  | EF6 | generate-pdf-report              | generatePDF.ts                     |
+  | EF7 | trigger-smart-alerts             | triggerSmartAlerts.ts              |
+  | EF8 | call-fintutto-ki                 | callFinTuttoKI.ts                  |
+  | EF9 | send-notification-email          | sendNotificationEmail.ts           |
+  +-----+----------------------------------+------------------------------------+
+
+
+================================================================================
+6. HINWEISE FUER DEN AGENTEN
+================================================================================
+
+  1. DIE ABLESUNG-APP IST DIE ZIEL-APP.
+     Alle Features aus ft_ocr_zaehler werden IN diese App migriert.
+     Die App ist Lovable-basiert, auf Vercel deployed, mit Supabase Backend.
+
+  2. ft_ocr_zaehler IST DIE QUELL-APP.
+     500+ Dateien, JavaScript, Base44 SDK. Code NICHT kopieren, sondern
+     die Logik und Konzepte in TypeScript fuer Lovable/Supabase umschreiben.
+
+  3. BK-ABRECHNUNG GEHOERT NICHT HIERHER.
+     Nebenkostenabrechnung laeuft ueber das Portal (separates Repo).
+     Die Zaehler-App liefert nur Daten (meter_readings) per shared DB.
+
+  4. PRIORITAETEN BEACHTEN:
+     Phase 1-2 (Verbrauch + Tarife) sind KERN-FEATURES.
+     Phase 5-8 (AI, Szenarien, Dokumente) koennen spaeter kommen.
+
+  5. VORHANDENEN CODE NICHT UEBERSCHREIBEN.
+     Die ablesung-App hat bereits 16 Seiten und 12 Hooks.
+     Neue Features ERGAENZEN, bestehende nicht ersetzen.
+
+  6. SUPABASE-TENANT:
+     Pruefen ob gleicher Tenant wie Portal. 21 Migrationen vorhanden.
+     Neue Tabellen (tariffs, smart_alerts, scenarios, contracts) hinzufuegen.
+
+  7. Das Repo ft_ocr_zaehler ist TEMPORAER public. Schnell klonen/lesen,
+     dann wird es wieder auf privat gesetzt.
+
+================================================================================
+ENDE DES MIGRATIONSPLANS
+================================================================================

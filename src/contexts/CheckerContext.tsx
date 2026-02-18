@@ -145,8 +145,6 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
     if (!currentSession) throw new Error('No active session')
 
     const formMapping = CHECKER_FORM_MAPPINGS[currentSession.checkerType]
-    const formularAppUrl = import.meta.env.VITE_FORMULARE_APP_URL || 'https://formulare.fintutto.cloud'
-    const fullFormUrl = `${formularAppUrl}${formMapping.formUrl}`
 
     const { data, error } = await supabase
       .from('checker_results')
@@ -156,7 +154,7 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
         input_data: currentSession.data as object,
         result_data: result as unknown as object,
         recommendation: result.recommendation,
-        form_redirect_url: fullFormUrl,
+        form_redirect_url: formMapping.formUrl,
       })
       .select()
       .single()
