@@ -97,8 +97,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Mängel melden, Zähler ablesen, Dokumente anfordern und direkt mit der Hausverwaltung chatten. Mit 10 Rechts-Checkern für deine Mietrechte.',
     icon: '🔑',
     color: 'from-green-600 to-emerald-500',
-    url: 'https://mieter-kw8d.vercel.app',
-    registerUrl: 'https://mieter-kw8d.vercel.app/register',
+    url: 'https://mieter.fintutto.cloud',
+    registerUrl: 'https://mieter.fintutto.cloud/register',
     features: [
       'Mangel melden mit Foto-Upload',
       'Zählerstand digital ablesen',
