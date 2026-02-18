@@ -136,7 +136,7 @@ export default function RechnerPage() {
 
           {/* Newsletter-Signup */}
           <div className="mt-12 max-w-xl mx-auto">
-            <NewsletterSignup variant="card" source="rechner-hub" />
+            <NewsletterSignup variant="card" source="rechner-hub" segment="vermieter" />
           </div>
         </div>
       </section>

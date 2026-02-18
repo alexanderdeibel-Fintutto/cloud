@@ -183,7 +183,7 @@ export default function FormularePage() {
 
           {/* Newsletter-Signup */}
           <div className="mt-12 max-w-xl mx-auto">
-            <NewsletterSignup variant="card" source="formulare-hub" />
+            <NewsletterSignup variant="card" source="formulare-hub" segment="kombi" />
           </div>
         </div>
       </section>

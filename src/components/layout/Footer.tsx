@@ -25,6 +25,7 @@ const footerLinks = {
     { name: 'Mieterhöhung', href: '/formulare/mieterhoehung' },
   ],
   oekosystem: [
+    { name: 'Ratgeber', href: '/ratgeber' },
     { name: 'Alle Apps', href: '/apps' },
     { name: 'Referral-Programm', href: '/referral' },
     { name: 'Preise', href: '/preise' },

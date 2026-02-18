@@ -41,4 +41,17 @@
   <url><loc>https://portal.fintutto.cloud/formulare/mietbescheinigung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://portal.fintutto.cloud/formulare/wohnungsgeberbestaetigung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://portal.fintutto.cloud/formulare/nebenkostenvorauszahlung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- Blog / Ratgeber -->
+  <url><loc>https://portal.fintutto.cloud/ratgeber</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/mietpreisbremse-so-pruefen-sie-ihre-miete</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/nebenkostenabrechnung-pruefen-haeufige-fehler</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/eigenbedarfskuendigung-rechte-als-mieter</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/kaution-zurueckfordern-so-gehts</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/immobilie-als-kapitalanlage-rendite-berechnen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- SEO Landing Pages -->
+  <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-berlin</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-muenchen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/nebenkosten-pruefen-hamburg</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

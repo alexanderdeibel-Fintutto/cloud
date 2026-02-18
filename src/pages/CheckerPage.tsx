@@ -151,7 +151,7 @@ export default function CheckerPage() {
 
           {/* Newsletter-Signup */}
           <div className="mt-12 max-w-xl mx-auto">
-            <NewsletterSignup variant="card" source="checker-hub" />
+            <NewsletterSignup variant="card" source="checker-hub" segment="mieter" />
           </div>
         </div>
       </section>

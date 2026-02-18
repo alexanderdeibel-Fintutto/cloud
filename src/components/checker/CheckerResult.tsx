@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { motion } from 'framer-motion'
-import { AffiliateCard, AdSlot, PremiumTeaser, OneTimePurchase } from '@/components/monetization'
+import { AffiliateCard, AdSlot, PremiumTeaser, OneTimePurchase, LeadCaptureForm, CHECKER_LEAD_MAPPING } from '@/components/monetization'
 
 interface CheckerResultProps {
   result: CheckerResultType
@@ -131,6 +131,15 @@ export default function CheckerResult({
 
       {/* Kontextbezogene Partner-Empfehlungen */}
       <AffiliateCard checkerType={checkerType} />
+
+      {/* Lead-Vermittlung (Anwalt, Makler, etc.) */}
+      {CHECKER_LEAD_MAPPING[checkerType]?.slice(0, 1).map((leadType) => (
+        <LeadCaptureForm
+          key={leadType}
+          leadType={leadType}
+          checkerType={checkerType}
+        />
+      ))}
 
       {/* Einmalkauf oder Premium-Teaser */}
       <PremiumTeaser feature="pdf" />

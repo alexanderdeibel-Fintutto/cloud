@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut } from 'lucide-react'
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, BookOpen } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ const navigation = [
   { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Für Vermieter' },
   { name: 'Checker', href: '/checker', icon: Shield, description: 'Für Mieter' },
   { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Für alle' },
+  { name: 'Ratgeber', href: '/ratgeber', icon: BookOpen, description: 'Blog & Tipps' },
   { name: 'Preise', href: '/preise', icon: null, description: '' },
   { name: 'Apps', href: '/apps', icon: LayoutGrid, description: 'Alle Fintutto-Apps' },
   { name: 'Referral', href: '/referral', icon: Gift, description: 'Empfehlen & profitieren' },

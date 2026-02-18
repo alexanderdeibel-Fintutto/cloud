@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input'
 interface NewsletterSignupProps {
   variant?: 'inline' | 'card'
   source?: string
+  segment?: 'mieter' | 'vermieter' | 'kombi' | 'general'
 }
 
-export default function NewsletterSignup({ variant = 'inline', source = 'footer' }: NewsletterSignupProps) {
+export default function NewsletterSignup({ variant = 'inline', source = 'footer', segment = 'general' }: NewsletterSignupProps) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -26,7 +27,7 @@ export default function NewsletterSignup({ variant = 'inline', source = 'footer'
       const response = await fetch('/api/newsletter-subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), segment: 'general', source }),
+        body: JSON.stringify({ email: email.trim(), segment, source }),
       })
 
       if (response.ok) {

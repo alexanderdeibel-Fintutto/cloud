@@ -15,6 +15,9 @@ import CheckoutSuccessPage from '@/pages/CheckoutSuccessPage'
 import CheckoutCancelPage from '@/pages/CheckoutCancelPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import ResultPage from '@/pages/ResultPage'
+import BlogPage from '@/pages/BlogPage'
+import BlogArticlePage from '@/pages/BlogArticlePage'
+import LandingPage from '@/pages/LandingPage'
 
 // Hub / Listing Pages
 import RechnerPage from '@/pages/RechnerPage'
@@ -113,6 +116,13 @@ function App() {
 
             {/* Result Page */}
             <Route path="/ergebnis/:checkerId/:resultId" element={<ResultPage />} />
+
+            {/* Blog / Ratgeber */}
+            <Route path="/ratgeber" element={<BlogPage />} />
+            <Route path="/ratgeber/:slug" element={<BlogArticlePage />} />
+
+            {/* SEO Landing Pages */}
+            <Route path="/l/:slug" element={<LandingPage />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
