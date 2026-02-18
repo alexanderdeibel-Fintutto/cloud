@@ -1,6 +1,10 @@
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
+import { AppConfigProvider } from "@fintutto/core";
 import App from "./App.tsx";
+import { vermietifyConfig } from "./app-config";
+// Supabase-Import initialisiert auch den Shared Client
+import "@/integrations/supabase/client";
 import "./i18n";
 import "./index.css";
 
@@ -15,6 +19,8 @@ if ("serviceWorker" in navigator) {
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <App />
+    <AppConfigProvider config={vermietifyConfig}>
+      <App />
+    </AppConfigProvider>
   </ThemeProvider>
 );
