@@ -8,6 +8,7 @@ import { BotExecutor } from '../bot/executor'
 import {
   loadPersonas, savePersonas, loadSchedule, saveSchedule,
   loadActivityLog, getTodaysActions,
+  getScheduleByDate, getScheduleDates,
 } from '../db'
 import { generatePersonas, sanitizeForEmail } from '../personas/generator'
 import { summarizeSchedule } from '../bot/scheduler'
@@ -395,13 +396,48 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     res.json({ summary, actions })
   })
 
+  router.get('/schedule/history', (req, res) => {
+    const date = req.query.date as string
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.json({ summary: { total: 0, byType: {}, byHour: {}, personas: 0 }, actions: [] })
+    }
+    const actions = getScheduleByDate(date)
+    const summary = summarizeSchedule(actions)
+    res.json({ summary, actions })
+  })
+
+  router.get('/schedule/dates', (_req, res) => {
+    res.json(getScheduleDates())
+  })
+
   // ── Activity Log ──
 
   router.get('/activity', (req, res) => {
-    const log = loadActivityLog()
-    const limit = parseInt(req.query.limit as string) || 100
+    let log = loadActivityLog()
+    const limit = parseInt(req.query.limit as string) || 200
+    const persona = req.query.persona as string
+    const type = req.query.type as string
+    const date = req.query.date as string
+    const status = req.query.status as string
+    const q = (req.query.q as string || '').toLowerCase()
+
+    if (persona) log = log.filter(e => e.persona_id === persona)
+    if (type) {
+      const types = type.split(',')
+      log = log.filter(e => types.includes(e.action_type))
+    }
+    if (date) log = log.filter(e => e.timestamp.startsWith(date))
+    if (status === 'success') log = log.filter(e => e.success)
+    if (status === 'failed') log = log.filter(e => !e.success)
+    if (q) log = log.filter(e =>
+      e.persona_id.toLowerCase().includes(q) ||
+      e.action_type.toLowerCase().includes(q) ||
+      (e.details || '').toLowerCase().includes(q)
+    )
+
+    const total = log.length
     res.json({
-      total: log.length,
+      total,
       entries: log.slice(-limit).reverse(),
     })
   })
