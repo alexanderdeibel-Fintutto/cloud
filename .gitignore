@@ -39,7 +39,8 @@ node_modules
 dist
 dist-ssr
 *.local
-*.tsbuildinfo
+.next
+.turbo
 
 # Environment (all apps)
 .env
