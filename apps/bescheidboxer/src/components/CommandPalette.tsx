@@ -39,6 +39,10 @@ import {
   Receipt,
   ScanLine,
   LayoutGrid,
+  Landmark,
+  GitBranch,
+  Wallet,
+  Scale,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -114,6 +118,10 @@ export default function CommandPalette() {
     { id: 'nav-scanner', label: 'Dokument-Scanner', description: 'OCR-Scan starten', icon: ScanLine, category: 'navigation', keywords: ['scan', 'scanner', 'ocr', 'kamera', 'foto', 'erkennung'], action: () => runAndClose(() => navigate('/dokument-scanner')) },
     { id: 'nav-steuerkalender', label: 'Steuerkalender', description: 'Steuertermine 2026', icon: CalendarDays, category: 'navigation', keywords: ['steuerkalender', 'termin', 'frist', 'vorauszahlung', 'abgabe'], action: () => runAndClose(() => navigate('/steuerkalender')) },
     { id: 'nav-verwalter', label: 'Verwalter-Dashboard', description: 'Immobilien-Management', icon: LayoutGrid, category: 'navigation', keywords: ['verwalter', 'manager', 'verwaltung', 'dashboard', 'ueberblick'], action: () => runAndClose(() => navigate('/verwalter')) },
+    { id: 'nav-grundsteuer-sim', label: 'Grundsteuer-Simulator', description: 'Grundsteuer berechnen', icon: Landmark, category: 'navigation', keywords: ['grundsteuer', 'simulator', 'berechnen', 'bundesmodell', 'hebesatz', 'bodenrichtwert'], action: () => runAndClose(() => navigate('/grundsteuer-simulator')) },
+    { id: 'nav-widerspruch-tracker', label: 'Widerspruch-Tracker', description: 'Einsprüche verfolgen', icon: GitBranch, category: 'navigation', keywords: ['widerspruch', 'tracker', 'einspruch', 'status', 'timeline', 'verfolgen'], action: () => runAndClose(() => navigate('/widerspruch-tracker')) },
+    { id: 'nav-zahlungen', label: 'Zahlungsübersicht', description: 'Steuer-Zahlungen & Erstattungen', icon: Wallet, category: 'navigation', keywords: ['zahlung', 'erstattung', 'belastung', 'uebersicht', 'transaktion', 'saldo'], action: () => runAndClose(() => navigate('/zahlungen')) },
+    { id: 'nav-benchmark', label: 'Steuer-Benchmark', description: 'Regionale Vergleiche', icon: Scale, category: 'navigation', keywords: ['benchmark', 'vergleich', 'regional', 'bundesland', 'ranking', 'durchschnitt'], action: () => runAndClose(() => navigate('/benchmark')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
