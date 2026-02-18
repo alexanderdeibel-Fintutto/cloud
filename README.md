@@ -1,103 +1,76 @@
-# Fintutto Mieter-Checker
+# Fintutto Ecosystem
 
-Eine vollstaendige React-Anwendung fuer Mieter, die ihre Mietrechte pruefen moechten.
+Monorepo für alle selbst-gehosteten Fintutto Apps.
 
-## Features
+## Apps
 
-- **10 spezialisierte Checker** fuer verschiedene Mietrechts-Themen
-- **KI-gestuetzte Beratung** bei jedem Eingabefeld
-- **Sofortige Ergebnisse** mit Handlungsempfehlungen
-- **Direkte Integration** mit der Formulare-App
-- **Tier-basiertes System** (Free: 3 Checks, Basic: 20, Premium: 100, Professional: unbegrenzt)
-
-## Verfuegbare Checker
-
-| Checker | Domain | Beschreibung |
-|---------|--------|--------------|
-| Mietpreisbremse | checker-mietpreisbremse.fintutto.de | Pruefen, ob die Miete zu hoch ist |
-| Mieterhoehung | checker-mieterhoehung.fintutto.de | Mieterhoehungen auf Wirksamkeit pruefen |
-| Nebenkosten | checker-nebenkosten.fintutto.de | Nebenkostenabrechnungen pruefen |
-| Betriebskosten | checker-betriebskosten.fintutto.de | Detaillierte Betriebskostenpruefung |
-| Kuendigung | checker-kuendigung.fintutto.de | Kuendigungen auf Wirksamkeit pruefen |
-| Kaution | checker-kaution.fintutto.de | Kautionsrueckforderung pruefen |
-| Mietminderung | checker-mietminderung.fintutto.de | Minderungsquote berechnen |
-| Eigenbedarf | checker-eigenbedarf.fintutto.de | Eigenbedarfskuendigungen pruefen |
-| Modernisierung | checker-modernisierung.fintutto.de | Modernisierungsumlagen pruefen |
-| Schoenheitsreparaturen | checker-schoenheitsreparaturen.fintutto.de | Renovierungspflicht pruefen |
+| App | Beschreibung | Domain |
+|-----|--------------|--------|
+| `vermietify` | Immobilienverwaltung für Vermieter | vermietify.fintutto.cloud |
+| `vermieter-portal` | Rechner & Formulare für Vermieter (legacy, wird ersetzt) | - |
+| `fintutto-portal` | **NEU** Unified Portal: Rechner + Checker + Formulare | portal.fintutto.cloud |
 
 ## Tech Stack
 
-- **Frontend**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS + shadcn/ui
-- **State Management**: React Context + TanStack Query
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui
 - **Backend**: Supabase (Auth, Database, Storage)
-- **Animation**: Framer Motion
+- **Deployment**: Vercel
 
-## Installation
+## Setup
 
 ```bash
-# Dependencies installieren
-npm install
+# Install pnpm
+npm install -g pnpm
 
-# Development Server starten
-npm run dev
+# Install dependencies
+pnpm install
 
-# Production Build erstellen
-npm run build
+# Create .env file
+cp apps/vermietify/.env.example apps/vermietify/.env
+
+# Start development server
+pnpm dev:vermietify
 ```
 
-## Umgebungsvariablen
+## Environment Variables
 
-Erstelle eine `.env` Datei:
+Erstelle `apps/vermietify/.env`:
 
 ```env
 VITE_SUPABASE_URL=https://aaefocdqgdgexkcrjhks.supabase.co
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_FORMULARE_APP_URL=https://formulare.fintutto.cloud
-VITE_CLAUDE_API_ENDPOINT=https://api.fintutto.cloud/ai
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-## Supabase Setup
+## Deployment
 
-Fuehre das Schema-Script aus:
+Jede App wird separat auf Vercel deployed:
 
-```bash
-# In Supabase SQL Editor
-supabase/schema.sql
-```
+1. Vercel Projekt erstellen
+2. Root Directory: `apps/vermietify`
+3. Environment Variables hinzufügen
+4. Deploy
 
-## Projektstruktur
-
-```
-src/
-├── components/
-│   ├── checker/          # Checker-spezifische Komponenten
-│   ├── layout/           # Layout-Komponenten (Header, Footer)
-│   └── ui/               # Wiederverwendbare UI-Komponenten
-├── contexts/
-│   ├── AuthContext.tsx   # Authentifizierung
-│   └── CheckerContext.tsx # Checker-Logik
-├── integrations/
-│   └── supabase/         # Supabase Client & Types
-├── lib/
-│   └── utils.ts          # Hilfsfunktionen
-├── pages/
-│   ├── checkers/         # Alle Checker-Seiten
-│   ├── HomePage.tsx      # Startseite
-│   ├── DashboardPage.tsx # Nutzer-Dashboard
-│   └── ResultPage.tsx    # Ergebnis-Anzeige
-└── App.tsx               # Haupt-App mit Routing
-```
-
-## Integration mit Formulare-App
-
-Nach Abschluss eines Checks wird der Nutzer automatisch zum passenden Formular in der Formulare-App weitergeleitet. Die Daten werden per URL-Parameter uebergeben:
+## Struktur
 
 ```
-https://formulare.fintutto.cloud/formulare/mietpreisbremse-ruege?plz=10115&kaltmiete=850&...
+fintutto-ecosystem/
+├── apps/
+│   ├── vermietify/          # Vermieter-Dashboard (Referenz)
+│   ├── vermieter-portal/    # Rechner + Formulare (legacy → fintutto-portal)
+│   └── fintutto-portal/     # NEU: Unified Portal (Rechner + Checker + Formulare)
+├── packages/
+│   └── shared/              # Geteilte Komponenten
+├── src/                     # Mieter-Checker (Root-App, wird in Portal integriert)
+├── supabase/                # Datenbank-Schema
+└── pnpm-workspace.yaml
 ```
 
-## Lizenz
+## Dokumentation
 
-Proprietaer - Fintutto GmbH
+- [Inventar Komplett](./INVENTAR_KOMPLETT.md) - Vollständige Bestandsaufnahme aller 39 Repos
+- [6-App-Architektur](./ARCHITEKTUR_6_APPS.md) - Konsolidierungsplan auf 6 Apps
+- [Vercel Env Guide](./VERCEL_ENV_GUIDE.md) - Environment Variables Konfiguration
+- [Konsolidierungsplan](./KONSOLIDIERUNGSPLAN_VERMIETIFY.md)
+- [Gap Analyse](./GAP_ANALYSE_VERMIETIFY.md)
+- [Lovable Prompts](./LOVABLE_PROMPTS_KOMPLETT.md)

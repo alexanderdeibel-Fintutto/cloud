@@ -1,286 +1,188 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import {
-  Home,
-  TrendingUp,
-  Receipt,
-  FileWarning,
-  Key,
-  Wrench,
-  AlertTriangle,
-  Paintbrush,
-  Building,
-  Banknote,
-  ArrowRight,
-  CheckCircle,
-  Shield,
-  Zap,
+  Calculator, Shield, FileText, ArrowRight, CheckCircle2,
+  Sparkles
 } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-const checkers = [
+const categories = [
   {
-    id: 'mietpreisbremse',
-    title: 'Mietpreisbremse',
-    description: 'Pruefen Sie, ob Ihre Miete zu hoch ist und Sie Geld zurueckfordern koennen.',
-    icon: Home,
-    color: 'bg-blue-500',
-    popular: true,
+    title: 'Rechner',
+    subtitle: 'Für Vermieter',
+    description: '7 professionelle Rechner für Immobilieneigentümer und Vermieter.',
+    icon: Calculator,
+    href: '/rechner',
+    gradient: 'gradient-card-left',
+    count: 7,
+    highlights: ['Kaufnebenkosten', 'Rendite', 'Mieterhöhung', 'Grundsteuer'],
   },
   {
-    id: 'mieterhoehung',
-    title: 'Mieterhoehung',
-    description: 'Ist die Mieterhoehung Ihres Vermieters rechtmaessig? Wir pruefen das fuer Sie.',
-    icon: TrendingUp,
-    color: 'bg-orange-500',
-    popular: true,
+    title: 'Checker',
+    subtitle: 'Für Mieter',
+    description: '10 rechtliche Prüfungen für Mieter – kenne deine Rechte.',
+    icon: Shield,
+    href: '/checker',
+    gradient: 'gradient-card-center',
+    count: 10,
+    highlights: ['Mietpreisbremse', 'Kündigung', 'Nebenkosten', 'Kaution'],
   },
   {
-    id: 'nebenkosten',
-    title: 'Nebenkosten',
-    description: 'Stimmt Ihre Nebenkostenabrechnung? Finden Sie versteckte Fehler.',
-    icon: Receipt,
-    color: 'bg-green-500',
-    popular: true,
-  },
-  {
-    id: 'betriebskosten',
-    title: 'Betriebskosten',
-    description: 'Detaillierte Pruefung aller Betriebskostenpositionen.',
-    icon: Banknote,
-    color: 'bg-emerald-500',
-  },
-  {
-    id: 'kuendigung',
-    title: 'Kuendigung',
-    description: 'Wurde Ihnen gekuendigt? Pruefen Sie die Rechtmaessigkeit.',
-    icon: FileWarning,
-    color: 'bg-red-500',
-    popular: true,
-  },
-  {
-    id: 'kaution',
-    title: 'Kaution',
-    description: 'Kaution nicht zurueckerhalten? Pruefen Sie Ihre Ansprueche.',
-    icon: Key,
-    color: 'bg-purple-500',
-  },
-  {
-    id: 'mietminderung',
-    title: 'Mietminderung',
-    description: 'Maengel in der Wohnung? Berechnen Sie Ihre Minderungsquote.',
-    icon: Wrench,
-    color: 'bg-amber-500',
-  },
-  {
-    id: 'eigenbedarf',
-    title: 'Eigenbedarf',
-    description: 'Eigenbedarfskuendigung erhalten? Wir pruefen die Wirksamkeit.',
-    icon: AlertTriangle,
-    color: 'bg-rose-500',
-  },
-  {
-    id: 'modernisierung',
-    title: 'Modernisierung',
-    description: 'Modernisierungsumlage zu hoch? Pruefen Sie die Berechnung.',
-    icon: Building,
-    color: 'bg-cyan-500',
-  },
-  {
-    id: 'schoenheitsreparaturen',
-    title: 'Schoenheitsreparaturen',
-    description: 'Muessen Sie wirklich renovieren? Pruefen Sie die Klauseln.',
-    icon: Paintbrush,
-    color: 'bg-pink-500',
+    title: 'Formulare',
+    subtitle: 'Für alle',
+    description: 'Rechtssichere Vorlagen für Mietvertrag, Übergabe & mehr.',
+    icon: FileText,
+    href: '/formulare',
+    gradient: 'gradient-card-right',
+    count: 10,
+    highlights: ['Mietvertrag', 'Übergabeprotokoll', 'BK-Abrechnung', 'Selbstauskunft'],
   },
 ]
 
-const features = [
-  {
-    icon: Zap,
-    title: 'Sofortige Analyse',
-    description: 'Erhalten Sie innerhalb von Minuten eine fundierte Einschaetzung.',
-  },
-  {
-    icon: Shield,
-    title: 'KI-unterstuetzt',
-    description: 'Unsere KI beraet Sie bei jedem Eingabefeld.',
-  },
-  {
-    icon: CheckCircle,
-    title: 'Kostenlos starten',
-    description: 'Der erste Check ist immer kostenlos.',
-  },
+const stats = [
+  { value: '28+', label: 'Tools verfügbar' },
+  { value: '16', label: 'Bundesländer' },
+  { value: '100%', label: 'DSGVO-konform' },
+  { value: '§0', label: 'Kostenlos starten' },
 ]
 
 export default function HomePage() {
-  const popularCheckers = checkers.filter((c) => c.popular)
-  const otherCheckers = checkers.filter((c) => !c.popular)
-
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-fintutto-primary via-fintutto-secondary to-fintutto-dark text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Pruefen Sie Ihre Mietrechte mit KI-Unterstuetzung
+      {/* Hero */}
+      <section className="gradient-portal py-20">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
+              <Sparkles className="h-4 w-4 text-yellow-300" />
+              <span className="text-white/90 text-sm font-medium">
+                Rechner + Checker + Formulare – alles an einem Ort
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Dein Mietrecht-Portal
+              <span className="block text-white/80 text-2xl md:text-3xl mt-2 font-normal">
+                Für Mieter & Vermieter
+              </span>
             </h1>
-            <p className="text-xl text-blue-100 mb-8">
-              Kostenlose Checks fuer Mieter. Sofortige Ergebnisse. Direkte Weiterleitung zu den
-              passenden Formularen.
+            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+              28+ professionelle Tools: Rechner für Vermieter, Checker für Mieter
+              und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="xl" className="bg-white text-fintutto-primary hover:bg-blue-50" asChild>
-                <Link to="/checker/mietpreisbremse">
-                  Ersten Check starten
-                  <ArrowRight className="ml-2 w-5 h-5" />
+              <Button size="lg" className="bg-white text-purple-900 hover:bg-white/90" asChild>
+                <Link to="/rechner">
+                  <Calculator className="h-5 w-5 mr-2" />
+                  Rechner entdecken
                 </Link>
               </Button>
-              <Button
-                size="xl"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-                asChild
-              >
-                <a href="#alle-checker">Alle Checker ansehen</a>
+              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" asChild>
+                <Link to="/checker">
+                  <Shield className="h-5 w-5 mr-2" />
+                  Checker ausprobieren
+                </Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-12 bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="flex items-center gap-4"
-              >
-                <div className="w-12 h-12 bg-fintutto-primary/10 rounded-lg flex items-center justify-center">
-                  <feature.icon className="w-6 h-6 text-fintutto-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{feature.title}</h3>
-                  <p className="text-sm text-gray-600">{feature.description}</p>
-                </div>
-              </motion.div>
+      {/* Stats */}
+      <section className="py-8 border-b border-border">
+        <div className="container">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="stat-value">{stat.value}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Popular Checkers */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Categories */}
+      <section className="py-16">
+        <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Beliebte Checker</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Diese Checks werden am haeufigsten genutzt. Starten Sie mit einem Klick.
+            <h2 className="text-3xl font-bold mb-4">Alles was du brauchst</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Ob Mieter oder Vermieter – finde das richtige Tool für dein Anliegen.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularCheckers.map((checker, index) => (
-              <motion.div
-                key={checker.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Link to={`/checker/${checker.id}`}>
-                  <Card className="h-full hover:shadow-lg transition-all hover:border-fintutto-primary/50 cursor-pointer group">
-                    <CardHeader>
-                      <div
-                        className={`w-12 h-12 ${checker.color} rounded-lg flex items-center justify-center mb-2`}
-                      >
-                        <checker.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <CardTitle className="group-hover:text-fintutto-primary transition-colors">
-                        {checker.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription>{checker.description}</CardDescription>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {categories.map((cat) => (
+              <Link key={cat.title} to={cat.href}>
+                <Card className="h-full hover:shadow-xl hover:border-primary/30 transition-all group overflow-hidden">
+                  <div className={`${cat.gradient} p-6`}>
+                    <cat.icon className="h-10 w-10 text-white mb-3" />
+                    <h3 className="text-2xl font-bold text-white">{cat.title}</h3>
+                    <p className="text-white/70 text-sm">{cat.subtitle}</p>
+                  </div>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground mb-4">{cat.description}</p>
+                    <div className="space-y-2 mb-4">
+                      {cat.highlights.map((h) => (
+                        <div key={h} className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          {h}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{cat.count} Tools</span>
+                      <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Alle anzeigen <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* All Checkers */}
-      <section id="alle-checker" className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Alle Checker</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Waehlen Sie den passenden Check fuer Ihre Situation.
+      {/* Ecosystem Teaser */}
+      <section className="py-16 bg-muted/30">
+        <div className="container">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold mb-4">
+              Das komplette Fintutto Ökosystem
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              6 Apps für jeden Schritt im Mietalltag – alle verbunden, alle kostenlos starten.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {otherCheckers.map((checker, index) => (
-              <motion.div
-                key={checker.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto mb-8">
+            {[
+              { icon: '🏠', name: 'Vermietify', desc: 'Immobilienverwaltung' },
+              { icon: '🔑', name: 'Mieter-App', desc: 'Mieter-Dashboard' },
+              { icon: '🔧', name: 'HausmeisterPro', desc: 'Facility Management' },
+              { icon: '📊', name: 'Ablesung', desc: 'Zählerstände' },
+              { icon: '🥊', name: 'BescheidBoxer', desc: 'Bescheid-Analyse' },
+              { icon: '✨', name: 'Portal', desc: '28+ Tools' },
+            ].map((app) => (
+              <div
+                key={app.name}
+                className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/30 transition-all"
               >
-                <Link to={`/checker/${checker.id}`}>
-                  <Card className="h-full hover:shadow-lg transition-all hover:border-fintutto-primary/50 cursor-pointer group">
-                    <CardHeader className="flex flex-row items-center gap-4">
-                      <div
-                        className={`w-10 h-10 ${checker.color} rounded-lg flex items-center justify-center flex-shrink-0`}
-                      >
-                        <checker.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg group-hover:text-fintutto-primary transition-colors">
-                          {checker.title}
-                        </CardTitle>
-                        <CardDescription className="text-sm">
-                          {checker.description}
-                        </CardDescription>
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              </motion.div>
+                <span className="text-3xl mb-2">{app.icon}</span>
+                <span className="font-semibold text-sm">{app.name}</span>
+                <span className="text-xs text-muted-foreground">{app.desc}</span>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-fintutto-primary">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Bereit, Ihre Mietrechte zu pruefen?
-          </h2>
-          <p className="text-blue-100 mb-8 text-lg">
-            Starten Sie jetzt kostenlos und erhalten Sie sofort eine fundierte Einschaetzung.
-          </p>
-          <Button size="xl" className="bg-white text-fintutto-primary hover:bg-blue-50" asChild>
-            <Link to="/checker/mietpreisbremse">
-              Jetzt kostenlos pruefen
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Link>
-          </Button>
+          <div className="text-center">
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/apps">
+                Alle Apps entdecken <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>
