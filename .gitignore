@@ -39,13 +39,13 @@ node_modules
 dist
 dist-ssr
 *.local
+.next
+.turbo
 
-# Environment
+# Environment (all apps)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Logs
 logs
@@ -71,6 +71,11 @@ lerna-debug.log*
 coverage
 *.lcov
 
+# Lovable artifacts
+.lovable/
+
 # Misc
 *.pem
 
+# Cloned sub-repos (separate GitHub repos)
+# ablesung/ - now tracked for feature implementation

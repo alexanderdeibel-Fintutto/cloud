@@ -18,9 +18,14 @@
     "bot:discover-wp": "tsx server/cli.ts discover-wp",
     "bot:setup-categories": "tsx server/cli.ts setup-wp-categories",
     "bot:setup-forums": "tsx server/cli.ts setup-wp-forums",
-    "server": "tsx server/index.ts"
+    "server": "tsx server/index.ts",
+    "server:pm2": "npx pm2 start ecosystem.config.cjs",
+    "server:pm2:stop": "npx pm2 stop board-bot",
+    "server:pm2:logs": "npx pm2 logs board-bot",
+    "server:pm2:status": "npx pm2 status"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",

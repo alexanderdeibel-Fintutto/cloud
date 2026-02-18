@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [actionResult, setActionResult] = useState<string | null>(null)
   const [wpProgress, setWpProgress] = useState<WpSetupProgress | null>(null)
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -77,6 +78,7 @@ export default function DashboardPage() {
 
   const handleAction = async (action: string, fn: () => Promise<any>) => {
     setActionLoading(action)
+    setActionResult(null)
     try {
       const result = await fn()
       // WP-Setup: Start polling statt auf Response warten
@@ -84,6 +86,11 @@ export default function DashboardPage() {
         setWpProgress(result.progress)
         startProgressPolling()
         return // Nicht actionLoading clearen – polling macht das
+      }
+      // Ergebnis-Meldung anzeigen
+      if (result?.message) {
+        setActionResult(result.message)
+        setTimeout(() => setActionResult(null), 6000)
       }
       await fetchStatus()
     } catch (err) {
@@ -134,6 +141,12 @@ export default function DashboardPage() {
           <p className="text-xs text-destructive/70 mt-1">
             Stelle sicher, dass der Bot-Server läuft: <code className="bg-destructive/10 px-1 rounded">pnpm dev:server</code>
           </p>
+        </div>
+      )}
+
+      {actionResult && (
+        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-6">
+          <p className="text-sm text-green-700">{actionResult}</p>
         </div>
       )}
 

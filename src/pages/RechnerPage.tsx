@@ -10,6 +10,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AdSlot, NewsletterSignup } from '@/components/monetization'
 
 const rechner = [
   {
@@ -98,6 +99,11 @@ export default function RechnerPage() {
       {/* Rechner Grid */}
       <section className="py-12">
         <div className="container">
+          {/* Upgrade-Banner für Free-User */}
+          <div className="mb-8">
+            <AdSlot placement="hub" />
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {rechner.map((item) => (
               <Link key={item.title} to={item.href}>
@@ -126,6 +132,11 @@ export default function RechnerPage() {
                 </Card>
               </Link>
             ))}
+          </div>
+
+          {/* Newsletter-Signup */}
+          <div className="mt-12 max-w-xl mx-auto">
+            <NewsletterSignup variant="card" source="rechner-hub" />
           </div>
         </div>
       </section>

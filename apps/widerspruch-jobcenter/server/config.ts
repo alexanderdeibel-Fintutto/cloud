@@ -45,5 +45,6 @@ export function loadConfig(): BotConfig {
     bot_active_hours_start: envInt('BOT_ACTIVE_HOURS_START', 7),
     bot_active_hours_end: envInt('BOT_ACTIVE_HOURS_END', 23),
     bescheidboxer_mention_rate: envFloat('BESCHEIDBOXER_MENTION_RATE', 0.18),
+    anthropic_api_key: env('ANTHROPIC_API_KEY'),
   }
 }

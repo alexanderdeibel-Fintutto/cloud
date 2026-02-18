@@ -4,9 +4,13 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
 import Layout from '@/components/layout/Layout'
+ claude/review-repo-setup-0rnoo
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+
+import { ExitIntentPopup } from '@/components/monetization'
+ main
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -148,6 +152,7 @@ function App() {
           </ErrorBoundary>
         </Layout>
         <Toaster position="top-right" richColors />
+        <ExitIntentPopup />
       </CheckerProvider>
     </AuthProvider>
   )

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
+import { NewsletterSignup } from '@/components/monetization'
 
 const footerLinks = {
   rechner: [
@@ -119,6 +120,32 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-sm text-gray-500">
+            {currentYear} Fintutto. Alle Rechte vorbehalten.
+          </p>
+          <div className="flex space-x-4 mt-4 md:mt-0">
+            <a
+              href="https://formulare.fintutto.cloud"
+              className="text-sm text-gray-400 hover:text-fintutto-accent"
+            >
+              Formulare-App
+            </a>
+            <a
+              href="https://rendite.fintutto.cloud"
+              className="text-sm text-gray-400 hover:text-fintutto-accent"
+            >
+              Rendite-Rechner
+            </a>
+            <a
+              href="https://bescheidboxer.fintutto.de"
+              className="text-sm text-gray-400 hover:text-fintutto-accent"
+            >
+              Bescheidboxer
+            </a>
           </div>
         </div>
 

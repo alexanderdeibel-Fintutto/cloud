@@ -217,6 +217,68 @@ export const FINTUTTO_APPS: AppInfo[] = [
     targetAudience: 'Mieter & Eigentümer',
     badge: 'Neu',
   },
+  {
+    id: 'admin-hub',
+    name: 'Admin-Hub',
+    tagline: 'Zentrale Verwaltung aller Fintutto Apps',
+    description:
+      'Benutzerverwaltung, Organisationen, App-übergreifende Einstellungen und Berechtigungen. Das Cockpit für Hausverwaltungen und Teams.',
+    icon: '⚙️',
+    color: 'from-slate-600 to-zinc-500',
+    url: 'https://fintutto-admin-hub.vercel.app',
+    registerUrl: 'https://fintutto-admin-hub.vercel.app/register',
+    features: [
+      'Benutzerverwaltung & Rollen',
+      'Organisationsverwaltung',
+      'App-übergreifende Einstellungen',
+      'Lizenz- & Aboverwaltung',
+      'Audit-Log & Aktivitätsprotokoll',
+    ],
+    pricing: {
+      free: 'Grundfunktionen inklusive',
+      plans: [
+        { name: 'Team', price: '9,99', period: '/Monat', highlight: true },
+      ],
+    },
+    stats: [
+      { label: 'Apps', value: '8' },
+      { label: 'Rollen', value: '∞' },
+      { label: 'SSO', value: 'Ja' },
+    ],
+    targetAudience: 'Hausverwaltungen & Teams',
+  },
+  {
+    id: 'financial-compass',
+    name: 'Financial Compass',
+    tagline: 'Deine Finanzübersicht auf einen Blick',
+    description:
+      'Einnahmen, Ausgaben, Steuern – alle Finanzdaten aus dem Fintutto-Ökosystem zusammengeführt. Mit automatischer Buchhaltung und Steuerreports.',
+    icon: '🧭',
+    color: 'from-violet-600 to-purple-500',
+    url: 'https://fintutto-your-financial-compass.vercel.app',
+    registerUrl: 'https://fintutto-your-financial-compass.vercel.app/register',
+    features: [
+      'Einnahmen- & Ausgabenübersicht',
+      'Automatische Kategorisierung',
+      'Steuerreports (Anlage V)',
+      'Mieteinnahmen-Tracking',
+      'Export für Steuerberater',
+      'Anbindung an alle Fintutto-Apps',
+    ],
+    pricing: {
+      free: 'Grundübersicht kostenlos',
+      plans: [
+        { name: 'Plus', price: '4,99', period: '/Monat' },
+        { name: 'Pro', price: '9,99', period: '/Monat', highlight: true },
+      ],
+    },
+    stats: [
+      { label: 'Reports', value: '10+' },
+      { label: 'Export', value: 'CSV/PDF' },
+      { label: 'Steuer', value: 'Auto' },
+    ],
+    targetAudience: 'Vermieter & Eigentümer',
+  },
 ]
 
 // Generate a referral URL for a specific app

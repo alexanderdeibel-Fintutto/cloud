@@ -9,7 +9,7 @@ import {
   loadPersonas, getPersonaById, updatePersona,
   getPendingActions, updateScheduledAction,
   logActivity, getTodaysActivityCount,
-  loadSchedule, saveSchedule,
+  loadSchedule, saveSchedule, savePersonas,
 } from '../db'
 import { generateContent } from '../content/generator'
 import { generateDailySchedule, summarizeSchedule } from './scheduler'
@@ -38,30 +38,28 @@ export class BotExecutor {
   // ── Einmaliges Setup: Personas als WP-User anlegen ──
 
   async setupPersonasInWordPress(): Promise<{ created: number; skipped: number; errors: string[] }> {
+    // Personas frisch laden – so werden bereits gesetzte wp_user_ids respektiert (Resume!)
     const personas = loadPersonas()
+    const remaining = personas.filter(p => !p.wp_user_id)
     let created = 0
-    let skipped = 0
+    let skipped = personas.length - remaining.length
     const errors: string[] = []
 
     this.wpSetupProgress = {
       running: true,
       total: personas.length,
-      current: 0,
+      current: skipped,
       created: 0,
-      skipped: 0,
+      skipped,
       errors: 0,
       currentPersona: '',
     }
 
-    for (const persona of personas) {
+    console.log(`[WP-SETUP] ${remaining.length} Personas ohne WP-User (${skipped} bereits vorhanden)`)
+
+    for (const persona of remaining) {
       this.wpSetupProgress.current++
       this.wpSetupProgress.currentPersona = `${persona.id} (${persona.display_name})`
-
-      if (persona.wp_user_id) {
-        skipped++
-        this.wpSetupProgress.skipped = skipped
-        continue
-      }
 
       try {
         const nameParts = persona.display_name.split(' ')
@@ -105,16 +103,64 @@ export class BotExecutor {
 
         errors.push(`${persona.id} (${persona.username}): ${msg}`)
         this.wpSetupProgress.errors = errors.length
+
+        // Bei Netzwerk-Fehlern: kurze Pause, dann weiter
+        if (msg.includes('ECONNREFUSED') || msg.includes('ETIMEDOUT') || msg.includes('fetch failed')) {
+          console.warn(`[WP-SETUP] Netzwerk-Fehler bei ${persona.id}, warte 10s...`)
+          await sleep(10000)
+        }
       }
     }
 
     this.wpSetupProgress.running = false
+    console.log(`[WP-SETUP] Fertig: ${created} erstellt, ${skipped} übersprungen, ${errors.length} Fehler`)
     return { created, skipped, errors }
   }
 
   // ── Tagesplan generieren ──
 
+  /**
+   * Prüft ob alle Personas zu neue created_at-Daten haben (Warm-Up-Bug)
+   * und datiert sie automatisch zurück, ohne WP-IDs zu verlieren.
+   */
+  private migrateCreatedAtIfNeeded(): void {
+    const personas = loadPersonas()
+    if (personas.length === 0) return
+
+    const now = Date.now()
+    const threeDaysMs = 3 * 86400000
+
+    // Prüfe ob ALLE Personas jünger als 3 Tage sind
+    const allTooNew = personas.every(p => {
+      if (!p.stats.created_at) return true
+      return (now - new Date(p.stats.created_at).getTime()) < threeDaysMs
+    })
+    if (!allTooNew) return
+
+    console.log('[BOT] Migration: Alle Personas < 3 Tage alt – datiere created_at zurück...')
+    const rng = (() => { let s = 42; return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff } })()
+
+    for (let i = 0; i < personas.length; i++) {
+      const pct = i / personas.length
+      let daysAgo: number
+      if (pct < 0.4) {
+        daysAgo = 60 + Math.floor(rng() * 60)  // Gründer: 60-120 Tage
+      } else if (pct < 0.7) {
+        daysAgo = 14 + Math.floor(rng() * 46)   // Welle 2: 14-60 Tage
+      } else {
+        daysAgo = 3 + Math.floor(rng() * 11)    // Späteinsteiger: 3-14 Tage
+      }
+      personas[i].stats.created_at = new Date(now - daysAgo * 86400000).toISOString()
+    }
+
+    savePersonas(personas)
+    console.log(`[BOT] Migration fertig: ${personas.length} Personas rückdatiert`)
+  }
+
   generateTodaysSchedule(): { actions: number; summary: ReturnType<typeof summarizeSchedule> } {
+    // Auto-Migration: bestehende Personas rückdatieren wenn nötig
+    this.migrateCreatedAtIfNeeded()
+
     const today = new Date()
     const schedule = generateDailySchedule(today, this.config)
 
@@ -330,7 +376,31 @@ export class BotExecutor {
     console.log(`[BOT] Aktive Stunden: ${this.config.bot_active_hours_start}:00 - ${this.config.bot_active_hours_end}:00`)
     console.log(`[BOT] Max Posts/Tag: ${this.config.bot_max_posts_per_day}, Max Comments/Tag: ${this.config.bot_max_comments_per_day}`)
 
+    // Auto-Tagesplan: Wenn für heute noch kein Plan existiert, automatisch generieren
+    this.ensureTodaysSchedule()
+
     await this.tick()
+  }
+
+  /** Prüft ob für heute ein Tagesplan existiert, generiert sonst einen neuen */
+  private ensureTodaysSchedule(): void {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const schedule = loadSchedule()
+    const todaysActions = schedule.filter(a => a.scheduled_at.startsWith(todayStr))
+
+    if (todaysActions.length === 0) {
+      console.log('[BOT] Kein Tagesplan für heute gefunden – generiere automatisch...')
+      try {
+        const result = this.generateTodaysSchedule()
+        console.log(`[BOT] Tagesplan erstellt: ${result.actions} Aktionen`)
+        console.log(`[BOT] Zusammenfassung:`, JSON.stringify(result.summary, null, 2))
+      } catch (err) {
+        console.error('[BOT] Tagesplan-Generierung fehlgeschlagen:', err)
+      }
+    } else {
+      const pending = todaysActions.filter(a => a.status === 'pending').length
+      console.log(`[BOT] Tagesplan vorhanden: ${todaysActions.length} Aktionen (${pending} pending)`)
+    }
   }
 
   stop(): void {
@@ -342,11 +412,20 @@ export class BotExecutor {
     console.log('[BOT] Bot gestoppt.')
   }
 
+  private lastScheduleDate = ''
+
   private async tick(): Promise<void> {
     if (!this.running) return
 
     const now = new Date()
     const hour = now.getHours()
+    const todayStr = now.toISOString().slice(0, 10)
+
+    // Neuer Tag? Tagesplan automatisch generieren
+    if (todayStr !== this.lastScheduleDate) {
+      this.ensureTodaysSchedule()
+      this.lastScheduleDate = todayStr
+    }
 
     // Außerhalb der aktiven Stunden: schlafe bis Start
     if (hour < this.config.bot_active_hours_start || hour >= this.config.bot_active_hours_end) {
