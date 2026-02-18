@@ -29,6 +29,9 @@ import {
   LifeBuoy,
   FolderDown,
   Home,
+  Receipt,
+  ScanLine,
+  LayoutGrid,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -54,7 +57,11 @@ const navigation = [
   { name: 'Aktivitaeten', href: '/aktivitaeten', icon: Activity },
   { name: 'Steuer-Tipps', href: '/steuer-tipps', icon: Lightbulb },
   { name: 'Immobilien', href: '/immobilien', icon: Home },
+  { name: 'Nebenkosten', href: '/nebenkosten', icon: Receipt },
   { name: 'Mieterbereich', href: '/mieterbereich', icon: Users },
+  { name: 'Dokument-Scanner', href: '/dokument-scanner', icon: ScanLine },
+  { name: 'Steuerkalender', href: '/steuerkalender', icon: CalendarDays },
+  { name: 'Verwalter', href: '/verwalter', icon: LayoutGrid },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

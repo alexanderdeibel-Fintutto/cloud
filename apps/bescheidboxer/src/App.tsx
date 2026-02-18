@@ -43,6 +43,10 @@ import KontaktPage from './pages/KontaktPage'
 import DatenExportPage from './pages/DatenExportPage'
 import ImmobilienPage from './pages/ImmobilienPage'
 import MieterBereichPage from './pages/MieterBereichPage'
+import NebenkostenabrechnungPage from './pages/NebenkostenabrechnungPage'
+import DokumentScannerPage from './pages/DokumentScannerPage'
+import SteuerKalenderPage from './pages/SteuerKalenderPage'
+import VerwalterDashboardPage from './pages/VerwalterDashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -105,6 +109,10 @@ function App() {
             <Route path="daten-export" element={<DatenExportPage />} />
             <Route path="immobilien" element={<ImmobilienPage />} />
             <Route path="mieterbereich" element={<MieterBereichPage />} />
+            <Route path="nebenkosten" element={<NebenkostenabrechnungPage />} />
+            <Route path="dokument-scanner" element={<DokumentScannerPage />} />
+            <Route path="steuerkalender" element={<SteuerKalenderPage />} />
+            <Route path="verwalter" element={<VerwalterDashboardPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

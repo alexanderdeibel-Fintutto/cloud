@@ -36,6 +36,9 @@ import {
   LifeBuoy,
   FolderDown,
   Home,
+  Receipt,
+  ScanLine,
+  LayoutGrid,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -107,6 +110,10 @@ export default function CommandPalette() {
     { id: 'nav-daten-export', label: 'Daten-Export', description: 'Daten herunterladen', icon: FolderDown, category: 'navigation', keywords: ['export', 'daten', 'download', 'csv', 'json', 'pdf', 'herunterladen'], action: () => runAndClose(() => navigate('/daten-export')) },
     { id: 'nav-immobilien', label: 'Immobilien', description: 'Immobilien verwalten', icon: Home, category: 'navigation', keywords: ['immobilie', 'haus', 'wohnung', 'gebaeude', 'property'], action: () => runAndClose(() => navigate('/immobilien')) },
     { id: 'nav-mieterbereich', label: 'Mieterbereich', description: 'Mieter Self-Service', icon: Users, category: 'navigation', keywords: ['mieter', 'tenant', 'wohnung', 'zaehler', 'meldung'], action: () => runAndClose(() => navigate('/mieterbereich')) },
+    { id: 'nav-nebenkosten', label: 'Nebenkosten', description: 'Nebenkostenabrechnung', icon: Receipt, category: 'navigation', keywords: ['nebenkosten', 'betriebskosten', 'abrechnung', 'heizung', 'wasser'], action: () => runAndClose(() => navigate('/nebenkosten')) },
+    { id: 'nav-scanner', label: 'Dokument-Scanner', description: 'OCR-Scan starten', icon: ScanLine, category: 'navigation', keywords: ['scan', 'scanner', 'ocr', 'kamera', 'foto', 'erkennung'], action: () => runAndClose(() => navigate('/dokument-scanner')) },
+    { id: 'nav-steuerkalender', label: 'Steuerkalender', description: 'Steuertermine 2026', icon: CalendarDays, category: 'navigation', keywords: ['steuerkalender', 'termin', 'frist', 'vorauszahlung', 'abgabe'], action: () => runAndClose(() => navigate('/steuerkalender')) },
+    { id: 'nav-verwalter', label: 'Verwalter-Dashboard', description: 'Immobilien-Management', icon: LayoutGrid, category: 'navigation', keywords: ['verwalter', 'manager', 'verwaltung', 'dashboard', 'ueberblick'], action: () => runAndClose(() => navigate('/verwalter')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
