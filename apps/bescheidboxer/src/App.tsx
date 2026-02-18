@@ -51,6 +51,10 @@ import GrundsteuerSimulatorPage from './pages/GrundsteuerSimulatorPage'
 import WiderspruchTrackerPage from './pages/WiderspruchTrackerPage'
 import ZahlungsUebersichtPage from './pages/ZahlungsUebersichtPage'
 import BenchmarkPage from './pages/BenchmarkPage'
+import SteuerBeraterPage from './pages/SteuerBeraterPage'
+import AutomatisierungPage from './pages/AutomatisierungPage'
+import WissensDatenbankPage from './pages/WissensDatenbankPage'
+import MandantenVerwaltungPage from './pages/MandantenVerwaltungPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -121,6 +125,10 @@ function App() {
             <Route path="widerspruch-tracker" element={<WiderspruchTrackerPage />} />
             <Route path="zahlungen" element={<ZahlungsUebersichtPage />} />
             <Route path="benchmark" element={<BenchmarkPage />} />
+            <Route path="steuerberater" element={<SteuerBeraterPage />} />
+            <Route path="automatisierung" element={<AutomatisierungPage />} />
+            <Route path="wissensdatenbank" element={<WissensDatenbankPage />} />
+            <Route path="mandanten" element={<MandantenVerwaltungPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

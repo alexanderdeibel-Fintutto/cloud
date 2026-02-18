@@ -43,6 +43,10 @@ import {
   GitBranch,
   Wallet,
   Scale,
+  Briefcase,
+  Bot,
+  BookOpen,
+  UserCheck,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -122,6 +126,10 @@ export default function CommandPalette() {
     { id: 'nav-widerspruch-tracker', label: 'Widerspruch-Tracker', description: 'Einsprüche verfolgen', icon: GitBranch, category: 'navigation', keywords: ['widerspruch', 'tracker', 'einspruch', 'status', 'timeline', 'verfolgen'], action: () => runAndClose(() => navigate('/widerspruch-tracker')) },
     { id: 'nav-zahlungen', label: 'Zahlungsübersicht', description: 'Steuer-Zahlungen & Erstattungen', icon: Wallet, category: 'navigation', keywords: ['zahlung', 'erstattung', 'belastung', 'uebersicht', 'transaktion', 'saldo'], action: () => runAndClose(() => navigate('/zahlungen')) },
     { id: 'nav-benchmark', label: 'Steuer-Benchmark', description: 'Regionale Vergleiche', icon: Scale, category: 'navigation', keywords: ['benchmark', 'vergleich', 'regional', 'bundesland', 'ranking', 'durchschnitt'], action: () => runAndClose(() => navigate('/benchmark')) },
+    { id: 'nav-steuerberater', label: 'Steuerberater finden', description: 'Berater in der Nähe', icon: Briefcase, category: 'navigation', keywords: ['steuerberater', 'berater', 'kanzlei', 'finden', 'suche', 'beratung'], action: () => runAndClose(() => navigate('/steuerberater')) },
+    { id: 'nav-automatisierung', label: 'Automatisierung', description: 'Regeln & Workflows', icon: Bot, category: 'navigation', keywords: ['automatisierung', 'regel', 'workflow', 'trigger', 'aktion', 'automatisch'], action: () => runAndClose(() => navigate('/automatisierung')) },
+    { id: 'nav-wissensdatenbank', label: 'Wissens-Datenbank', description: 'Steuer-Fachwissen', icon: BookOpen, category: 'navigation', keywords: ['wissen', 'datenbank', 'artikel', 'faq', 'lexikon', 'steuerrecht'], action: () => runAndClose(() => navigate('/wissensdatenbank')) },
+    { id: 'nav-mandanten', label: 'Mandantenverwaltung', description: 'Mandanten verwalten', icon: UserCheck, category: 'navigation', keywords: ['mandant', 'kunde', 'verwaltung', 'berater', 'kanzlei'], action: () => runAndClose(() => navigate('/mandanten')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

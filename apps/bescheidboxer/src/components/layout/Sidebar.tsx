@@ -36,6 +36,10 @@ import {
   GitBranch,
   Wallet,
   Scale,
+  Briefcase,
+  Bot,
+  BookOpen,
+  UserCheck,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -70,6 +74,10 @@ const navigation = [
   { name: 'Widerspruch-Tracker', href: '/widerspruch-tracker', icon: GitBranch },
   { name: 'Zahlungen', href: '/zahlungen', icon: Wallet },
   { name: 'Benchmark', href: '/benchmark', icon: Scale },
+  { name: 'Steuerberater', href: '/steuerberater', icon: Briefcase },
+  { name: 'Automatisierung', href: '/automatisierung', icon: Bot },
+  { name: 'Wissens-Datenbank', href: '/wissensdatenbank', icon: BookOpen },
+  { name: 'Mandanten', href: '/mandanten', icon: UserCheck },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
