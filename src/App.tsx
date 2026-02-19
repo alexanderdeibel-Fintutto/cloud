@@ -7,7 +7,8 @@ import Layout from '@/components/layout/Layout'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { ExitIntentPopup } from '@/components/monetization'
+
+const ExitIntentPopup = lazy(() => import('@/components/monetization/ExitIntentPopup'))
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -152,7 +153,7 @@ function App() {
           </ErrorBoundary>
         </Layout>
         <Toaster position="top-right" richColors />
-        <ExitIntentPopup />
+        <Suspense fallback={null}><ExitIntentPopup /></Suspense>
       </CheckerProvider>
     </AuthProvider>
   )
