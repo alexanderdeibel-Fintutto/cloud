@@ -59,6 +59,10 @@ import SteuerlastPrognosePage from './pages/SteuerlastPrognosePage'
 import BelegManagerPage from './pages/BelegManagerPage'
 import AbschreibungsRechnerPage from './pages/AbschreibungsRechnerPage'
 import SteuerNewsPage from './pages/SteuerNewsPage'
+import VorauszahlungsPlanerPage from './pages/VorauszahlungsPlanerPage'
+import SteuerSparRechnerPage from './pages/SteuerSparRechnerPage'
+import BetriebspruefungPage from './pages/BetriebspruefungPage'
+import DokumentVorlagenPage from './pages/DokumentVorlagenPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -137,6 +141,10 @@ function App() {
             <Route path="belege" element={<BelegManagerPage />} />
             <Route path="afa-rechner" element={<AbschreibungsRechnerPage />} />
             <Route path="steuer-news" element={<SteuerNewsPage />} />
+            <Route path="vorauszahlungen" element={<VorauszahlungsPlanerPage />} />
+            <Route path="steuerspar-rechner" element={<SteuerSparRechnerPage />} />
+            <Route path="betriebspruefung" element={<BetriebspruefungPage />} />
+            <Route path="dokument-vorlagen" element={<DokumentVorlagenPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

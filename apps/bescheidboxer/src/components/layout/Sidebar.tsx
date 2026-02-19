@@ -44,6 +44,10 @@ import {
   ReceiptText,
   Percent,
   Newspaper,
+  CalendarClock,
+  BadgeDollarSign,
+  ShieldCheck,
+  FileSignature,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -86,6 +90,10 @@ const navigation = [
   { name: 'Beleg-Manager', href: '/belege', icon: ReceiptText },
   { name: 'AfA-Rechner', href: '/afa-rechner', icon: Percent },
   { name: 'Steuer-News', href: '/steuer-news', icon: Newspaper },
+  { name: 'Vorauszahlungen', href: '/vorauszahlungen', icon: CalendarClock },
+  { name: 'Steuerspar-Rechner', href: '/steuerspar-rechner', icon: BadgeDollarSign },
+  { name: 'Betriebsprüfung', href: '/betriebspruefung', icon: ShieldCheck },
+  { name: 'Dokument-Vorlagen', href: '/dokument-vorlagen', icon: FileSignature },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

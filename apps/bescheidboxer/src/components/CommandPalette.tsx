@@ -51,6 +51,10 @@ import {
   ReceiptText,
   Percent,
   Newspaper,
+  CalendarClock,
+  BadgeDollarSign,
+  ShieldCheck,
+  FileSignature,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -138,6 +142,10 @@ export default function CommandPalette() {
     { id: 'nav-belege', label: 'Beleg-Manager', description: 'Belege verwalten & OCR', icon: ReceiptText, category: 'navigation', keywords: ['beleg', 'quittung', 'rechnung', 'ocr', 'scan', 'bon'], action: () => runAndClose(() => navigate('/belege')) },
     { id: 'nav-afa', label: 'AfA-Rechner', description: 'Abschreibung berechnen', icon: Percent, category: 'navigation', keywords: ['afa', 'abschreibung', 'immobilie', 'nutzungsdauer', 'degressiv', 'linear'], action: () => runAndClose(() => navigate('/afa-rechner')) },
     { id: 'nav-news', label: 'Steuer-News', description: 'Aktuelle Steuer-Nachrichten', icon: Newspaper, category: 'navigation', keywords: ['news', 'nachrichten', 'aktuell', 'urteil', 'gesetz', 'aenderung'], action: () => runAndClose(() => navigate('/steuer-news')) },
+    { id: 'nav-vorauszahlungen', label: 'Vorauszahlungen', description: 'Vorauszahlungsplaner', icon: CalendarClock, category: 'navigation', keywords: ['vorauszahlung', 'planer', 'quartal', 'termin', 'liquiditaet'], action: () => runAndClose(() => navigate('/vorauszahlungen')) },
+    { id: 'nav-steuerspar', label: 'Steuerspar-Rechner', description: 'Sparmöglichkeiten finden', icon: BadgeDollarSign, category: 'navigation', keywords: ['sparen', 'optimierung', 'tipp', 'potential', 'absetzen', 'werbungskosten'], action: () => runAndClose(() => navigate('/steuerspar-rechner')) },
+    { id: 'nav-betriebspruefung', label: 'Betriebsprüfung', description: 'Prüfungs-Vorbereitung', icon: ShieldCheck, category: 'navigation', keywords: ['betriebspruefung', 'pruefung', 'audit', 'checkliste', 'risiko', 'vorbereitung'], action: () => runAndClose(() => navigate('/betriebspruefung')) },
+    { id: 'nav-vorlagen', label: 'Dokument-Vorlagen', description: 'Brief- und Antragsvorlagen', icon: FileSignature, category: 'navigation', keywords: ['vorlage', 'template', 'brief', 'antrag', 'formular', 'muster', 'schreiben'], action: () => runAndClose(() => navigate('/dokument-vorlagen')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
