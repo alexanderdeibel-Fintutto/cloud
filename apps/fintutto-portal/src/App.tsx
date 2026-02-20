@@ -10,7 +10,17 @@ import FormularePage from '@/pages/FormularePage'
 import PricingPage from '@/pages/PricingPage'
 import AppsPage from '@/pages/AppsPage'
 import ReferralPage from '@/pages/ReferralPage'
+import SavedCalculationsPage from '@/pages/SavedCalculationsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+
+// Legal Pages
+import ImpressumPage from '@/pages/legal/ImpressumPage'
+import DatenschutzPage from '@/pages/legal/DatenschutzPage'
+import AGBPage from '@/pages/legal/AGBPage'
+
+// Module Pages
+import BetriebskostenModulPage from '@/pages/BetriebskostenModulPage'
+import ImmobilienPage from '@/pages/ImmobilienPage'
 
 // Rechner (7 Vermieter-Tools)
 import KautionsRechner from '@/pages/rechner/KautionsRechner'
@@ -93,6 +103,14 @@ function App() {
           <Route path="pricing" element={<PricingPage />} />
           <Route path="apps" element={<AppsPage />} />
           <Route path="referral" element={<ReferralPage />} />
+          <Route path="gespeichert" element={<SavedCalculationsPage />} />
+          <Route path="betriebskosten" element={<BetriebskostenModulPage />} />
+          <Route path="immobilien" element={<ImmobilienPage />} />
+
+          {/* === LEGAL === */}
+          <Route path="impressum" element={<ImpressumPage />} />
+          <Route path="datenschutz" element={<DatenschutzPage />} />
+          <Route path="agb" element={<AGBPage />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
