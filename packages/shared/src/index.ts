@@ -154,3 +154,32 @@ export * from './types/database'
 
 // Re-export shared hooks
 export * from './hooks'
+
+// Re-export ecosystem bar helpers
+export { getEcosystemBarItems, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+
+// Re-export ErrorBoundary
+export { ErrorBoundary } from './components/ErrorBoundary'
+
+// Re-export AnnouncementBanner
+export { AnnouncementBanner } from './components/AnnouncementBanner'
+
+// Re-export CommandPalette
+export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS } from './components/CommandPalette'
+export type { CommandItem } from './components/CommandPalette'
+
+// Re-export Breadcrumbs
+export { Breadcrumbs } from './components/Breadcrumbs'
+
+// Re-export shared Supabase client factory
+export { createFintuttoClient } from './supabase'
+
+// Re-export deep link builders
+export {
+  kautionsRechnerLink,
+  mieterhoehungRechnerLink,
+  renditeRechnerLink,
+  mietvertragLink,
+  parseDeepLinkParams,
+  getPortalLinks,
+} from './deeplinks'

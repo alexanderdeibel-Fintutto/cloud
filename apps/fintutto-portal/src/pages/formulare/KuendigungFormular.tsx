@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer, FileText } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 type KuendigungsTyp = 'ordentlich' | 'ausserordentlich'
 type Absender = 'mieter' | 'vermieter'
@@ -60,6 +62,8 @@ const initialData: FormData = {
 }
 
 export default function KuendigungFormular() {
+  useDocumentTitle('Kündigung', 'Fintutto Portal')
+  useTrackTool('Kündigung')
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initialData)
 

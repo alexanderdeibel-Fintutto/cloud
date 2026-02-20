@@ -69,6 +69,7 @@
                area,
                rooms,
                floor,
+               rent_amount,
                buildings(id, name, address, city, postal_code)
              )
            `)

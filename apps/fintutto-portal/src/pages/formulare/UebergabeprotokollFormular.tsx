@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 type ItemStatus = 'pending' | 'ok' | 'defect'
 
@@ -31,6 +33,8 @@ const DEFAULT_KEYS: KeyItem[] = [
 ]
 
 export default function UebergabeprotokollFormular() {
+  useDocumentTitle('Übergabeprotokoll', 'Fintutto Portal')
+  useTrackTool('Übergabeprotokoll')
   const [section, setSection] = useState<'info' | 'rooms' | 'meters' | 'keys' | 'summary'>('info')
   const [protocolType, setProtocolType] = useState<'move_in' | 'move_out'>('move_in')
   const [date, setDate] = useState('')

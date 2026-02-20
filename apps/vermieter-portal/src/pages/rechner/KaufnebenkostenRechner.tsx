@@ -4,6 +4,7 @@ import { Euro, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle } from '@fintutto/shared'
 
 const bundeslaender = [
   { name: 'Baden-Württemberg', grunderwerbsteuer: 5.0 },
@@ -25,6 +26,7 @@ const bundeslaender = [
 ]
 
 export default function KaufnebenkostenRechner() {
+  useDocumentTitle('Kaufnebenkosten-Rechner', 'Fintutto Vermieter')
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')
   const [makler, setMakler] = useState<string>('3.57')

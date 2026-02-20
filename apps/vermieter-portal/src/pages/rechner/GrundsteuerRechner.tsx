@@ -4,8 +4,10 @@ import { Calculator, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle } from '@fintutto/shared'
 
 export default function GrundsteuerRechner() {
+  useDocumentTitle('Grundsteuer-Rechner', 'Fintutto Vermieter')
   const [grundstueckswert, setGrundstueckswert] = useState<string>('')
   const [gebaeudewert, setGebaeudewert] = useState<string>('')
   const [hebesatz, setHebesatz] = useState<string>('400')

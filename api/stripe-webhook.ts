@@ -11,10 +11,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Map tier IDs to check limits
+// Map tier IDs to check limits (portal + fittutto)
 const TIER_LIMITS: Record<string, number> = {
   basic: 3,
   premium: -1, // unlimited
+  // FitTutto tiers
+  save_load: 0,
 }
 
 export const config = {
@@ -57,11 +59,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const userId = session.metadata?.userId
         const tierId = session.metadata?.tierId
+        const app = session.metadata?.app || 'portal'
         const checksLimit = parseInt(session.metadata?.checksLimit || '3', 10)
         const customerEmail = session.customer_email
         const referralCode = session.metadata?.referralCode
 
-        console.log('Checkout completed:', { userId, tierId, customerEmail, referralCode })
+        console.log('Checkout completed:', { userId, tierId, app, customerEmail, referralCode })
 
         let resolvedUserId = userId
 
