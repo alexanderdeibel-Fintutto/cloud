@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AFFILIATE_MAPPINGS, buildAffiliateUrl } from '@/lib/affiliate-config'
 import type { AffiliatePartner } from '@/lib/affiliate-config'
-import { motion } from 'framer-motion'
+
 
 const categoryIcons: Record<AffiliatePartner['category'], typeof Shield> = {
   rechtsschutz: Shield,
@@ -24,11 +24,7 @@ export default function AffiliateCard({ checkerType }: AffiliateCardProps) {
   if (!mapping) return null
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.3 }}
-    >
+    <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
       <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-white to-orange-50">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
@@ -84,6 +80,6 @@ export default function AffiliateCard({ checkerType }: AffiliateCardProps) {
           </p>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }

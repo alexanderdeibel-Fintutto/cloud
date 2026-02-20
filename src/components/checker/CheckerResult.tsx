@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { motion } from 'framer-motion'
 
 const AffiliateCard = lazy(() => import('@/components/monetization/AffiliateCard'))
 const PremiumTeaser = lazy(() => import('@/components/monetization/PremiumTeaser'))
@@ -59,12 +58,7 @@ export default function CheckerResult({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
+    <div className="animate-fade-scale-in space-y-6">
       {/* Main Result Card */}
       <Card className={`${getStatusColor()} border-2`}>
         <CardContent className="pt-8 pb-6">
@@ -180,6 +174,6 @@ export default function CheckerResult({
           Neuen Check starten
         </button>
       </div>
-    </motion.div>
+    </div>
   )
 }

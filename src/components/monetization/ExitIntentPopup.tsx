@@ -3,7 +3,7 @@ import { X, Sparkles, Gift, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+
 
 export default function ExitIntentPopup() {
   const [isVisible, setIsVisible] = useState(false)
@@ -43,14 +43,9 @@ export default function ExitIntentPopup() {
   }
 
   return (
-    <AnimatePresence>
+    <>
       {isVisible && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        >
+        <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -58,13 +53,7 @@ export default function ExitIntentPopup() {
           />
 
           {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
-          >
+          <div className="animate-popup-in relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
             {/* Gradient Header */}
             <div className="gradient-portal p-6 text-center">
               <button
@@ -125,9 +114,9 @@ export default function ExitIntentPopup() {
                 Nein danke, ich möchte weiter ohne Konto
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   )
 }
