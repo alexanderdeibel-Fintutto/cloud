@@ -18,6 +18,9 @@ const PLAN_CREDIT_LIMITS: Record<string, number> = {
   basic: 10,
   pro: 30,
   enterprise: -1,
+  // Mieter-Checker plans (mieterportal)
+  mieter_checker_basis: 5,
+  mieter_checker_premium: 15,
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

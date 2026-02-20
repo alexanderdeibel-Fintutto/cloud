@@ -11,6 +11,7 @@ import Nebenkosten from "./pages/Nebenkosten";
 import Mietrecht from "./pages/Mietrecht";
 import Rechner from "./pages/Rechner";
 import Profil from "./pages/Profil";
+import Preise from "./pages/Preise";
 
 // Layout
 import Layout from "./components/Layout";
@@ -30,6 +31,7 @@ function App() {
             <Route path="/mietrecht" element={<Mietrecht />} />
             <Route path="/rechner" element={<Rechner />} />
             <Route path="/profil" element={<Profil />} />
+            <Route path="/preise" element={<Preise />} />
           </Routes>
         </Layout>
 
