@@ -92,7 +92,7 @@ export default function ExitIntentPopup() {
               <div className="space-y-3">
                 {[
                   { icon: '3', text: 'kostenlose Checks pro Monat' },
-                  { icon: '28+', text: 'professionelle Mietrecht-Tools' },
+                  { icon: '27', text: 'professionelle Mietrecht-Tools' },
                   { icon: 'PDF', text: 'Ergebnisse speichern & exportieren' },
                 ].map((item) => (
                   <div key={item.text} className="flex items-center gap-3">
