@@ -1,7 +1,14 @@
 import { Link, useLocation } from 'react-router-dom'
+ claude/improve-app-integration-k7JF2
 import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, Search } from 'lucide-react'
 import { useState } from 'react'
+
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift } from 'lucide-react'
+import { useState, useEffect } from 'react'
+ main
 import { Button } from '@/components/ui/button'
+import ThemeToggle from '@/components/shared/ThemeToggle'
+import { initTheme } from '@/lib/darkMode'
 
 const navigation = [
   { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Für Vermieter' },
@@ -15,6 +22,8 @@ const navigation = [
 export default function Header() {
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => { initTheme() }, [])
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -45,6 +54,7 @@ export default function Header() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+ claude/improve-app-integration-k7JF2
           <button
             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
             className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-lg hover:bg-muted transition-colors"
@@ -55,6 +65,9 @@ export default function Header() {
               Ctrl K
             </kbd>
           </button>
+
+          <ThemeToggle />
+ main
           <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Anmelden</Link>
           </Button>

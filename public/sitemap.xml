@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+ claude/review-repo-setup-0rnoo
+  <url><loc>https://fintutto.de/</loc><priority>1.0</priority></url>
+  <url><loc>https://fintutto.de/rechner</loc><priority>0.9</priority></url>
+  <url><loc>https://fintutto.de/checker</loc><priority>0.9</priority></url>
+  <url><loc>https://fintutto.de/formulare</loc><priority>0.9</priority></url>
+  <url><loc>https://fintutto.de/preise</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/apps</loc><priority>0.7</priority></url>
+  <url><loc>https://fintutto.de/referral</loc><priority>0.6</priority></url>
+  <!-- Rechner -->
+  <url><loc>https://fintutto.de/rechner/kaution</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/rechner/mieterhoehung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/rechner/kaufnebenkosten</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/rechner/eigenkapital</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/rechner/grundsteuer</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/rechner/rendite</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/rechner/nebenkosten</loc><priority>0.8</priority></url>
+  <!-- Checker -->
+  <url><loc>https://fintutto.de/checker/mietpreisbremse</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/mieterhoehung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/nebenkosten</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/betriebskosten</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/kuendigung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/kaution</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/mietminderung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/eigenbedarf</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/modernisierung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/checker/schoenheitsreparaturen</loc><priority>0.8</priority></url>
+  <!-- Formulare -->
+  <url><loc>https://fintutto.de/formulare/mietvertrag</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/uebergabeprotokoll</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/mieterhoehung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/selbstauskunft</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/betriebskosten</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/kuendigung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/mahnung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/mietbescheinigung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/wohnungsgeberbestaetigung</loc><priority>0.8</priority></url>
+  <url><loc>https://fintutto.de/formulare/nebenkostenvorauszahlung</loc><priority>0.8</priority></url>
+  <!-- Legal -->
+  <url><loc>https://fintutto.de/impressum</loc><priority>0.3</priority></url>
+  <url><loc>https://fintutto.de/datenschutz</loc><priority>0.3</priority></url>
+  <url><loc>https://fintutto.de/agb</loc><priority>0.3</priority></url>
+  <url><loc>https://fintutto.de/ueber-uns</loc><priority>0.5</priority></url>
+
+  <!-- Hauptseiten -->
+  <url><loc>https://portal.fintutto.cloud/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://portal.fintutto.cloud/preise</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/apps</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/referral</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- 7 Rechner (Vermieter-Tools) -->
+  <url><loc>https://portal.fintutto.cloud/rechner/kaution</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner/mieterhoehung</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner/kaufnebenkosten</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner/eigenkapital</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner/grundsteuer</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner/rendite</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/rechner/nebenkosten</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- 10 Checker (Mieter-Tools) -->
+  <url><loc>https://portal.fintutto.cloud/checker/mietpreisbremse</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/mieterhoehung</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/nebenkosten</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/betriebskosten</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/kuendigung</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/kaution</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/mietminderung</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/eigenbedarf</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/modernisierung</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/checker/schoenheitsreparaturen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- 10 Formulare -->
+  <url><loc>https://portal.fintutto.cloud/formulare/mietvertrag</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/uebergabeprotokoll</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/mieterhoehung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/selbstauskunft</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/betriebskosten</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/kuendigung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/mahnung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/mietbescheinigung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/wohnungsgeberbestaetigung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://portal.fintutto.cloud/formulare/nebenkostenvorauszahlung</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+ main
+</urlset>

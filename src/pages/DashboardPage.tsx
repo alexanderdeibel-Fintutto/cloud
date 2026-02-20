@@ -56,9 +56,7 @@ export default function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(10)
 
-    if (error) {
-      console.error('Error fetching results:', error)
-    } else {
+    if (!error) {
       setResults(data as unknown as CheckerResultRecord[])
     }
     setLoadingResults(false)
@@ -208,10 +206,10 @@ export default function DashboardPage() {
                       )}
                       {result.form_redirect_url && (
                         <Button variant="outline" size="sm" asChild>
-                          <a href={result.form_redirect_url} target="_blank" rel="noopener noreferrer">
+                          <Link to={result.form_redirect_url}>
                             Zum Formular
                             <ArrowRight className="w-4 h-4 ml-1" />
-                          </a>
+                          </Link>
                         </Button>
                       )}
                     </div>

@@ -54,17 +54,34 @@ export function calculateMietpreisbremse(
   }
 }
 
+// Maps checker form types to internal formulare routes
+const CHECKER_FORM_ROUTE_MAP: Record<string, string> = {
+  'mietpreisbremse-ruege': '/formulare/mahnung',
+  'mieterhoehung-widerspruch': '/formulare/mieterhoehung',
+  'nebenkostenabrechnung-widerspruch': '/formulare/betriebskosten',
+  'betriebskosten-pruefung': '/formulare/betriebskosten',
+  'kuendigung-widerspruch': '/formulare/kuendigung',
+  'kaution-rueckforderung': '/formulare/mahnung',
+  'mietminderung-anzeige': '/formulare/mahnung',
+  'eigenbedarf-widerspruch': '/formulare/kuendigung',
+  'modernisierung-widerspruch': '/formulare/mahnung',
+  'schoenheitsreparaturen-widerspruch': '/formulare/kuendigung',
+}
+
 export function getFormulareAppUrl(formType: string, prefillData?: Record<string, string>): string {
+ claude/improve-app-integration-k7JF2
   const baseUrl = import.meta.env.VITE_FORMULARE_APP_URL || 'https://portal.fintutto.cloud'
   const url = new URL(`${baseUrl}/formulare/${formType}`)
 
+  const route = CHECKER_FORM_ROUTE_MAP[formType] || '/formulare'
+ main
+
   if (prefillData) {
-    Object.entries(prefillData).forEach(([key, value]) => {
-      url.searchParams.set(key, value)
-    })
+    const params = new URLSearchParams(prefillData).toString()
+    return `${route}?${params}`
   }
 
-  return url.toString()
+  return route
 }
 
 export function getRechnerAppUrl(rechnerType: string, prefillData?: Record<string, string>): string {

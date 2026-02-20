@@ -145,8 +145,7 @@ export default function MietpreisbremseChecker() {
       await incrementChecksUsed()
       setResult(checkerResult)
 
-    } catch (error) {
-      console.error('Error analyzing result:', error)
+    } catch {
       toast.error('Fehler bei der Analyse. Bitte versuchen Sie es erneut.')
     } finally {
       setIsLoading(false)
@@ -154,9 +153,7 @@ export default function MietpreisbremseChecker() {
   }
 
   const handleGoToForm = () => {
-    if (result?.formRedirectUrl) {
-      window.open(result.formRedirectUrl, '_blank')
-    }
+    navigate(result?.formRedirectUrl ?? '/formulare')
   }
 
   const handleStartNew = () => {
