@@ -18,6 +18,8 @@ import ResultPage from '@/pages/ResultPage'
 import BlogPage from '@/pages/BlogPage'
 import BlogArticlePage from '@/pages/BlogArticlePage'
 import LandingPage from '@/pages/LandingPage'
+import RevenueDashboardPage from '@/pages/RevenueDashboardPage'
+import WidgetEmbedPage from '@/pages/WidgetEmbedPage'
 
 // Hub / Listing Pages
 import RechnerPage from '@/pages/RechnerPage'
@@ -123,6 +125,10 @@ function App() {
 
             {/* SEO Landing Pages */}
             <Route path="/l/:slug" element={<LandingPage />} />
+
+            {/* Admin / Business */}
+            <Route path="/admin/revenue" element={<RevenueDashboardPage />} />
+            <Route path="/widget" element={<WidgetEmbedPage />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

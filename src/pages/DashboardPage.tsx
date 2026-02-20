@@ -221,6 +221,42 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Admin Links */}
+        <div className="grid md:grid-cols-2 gap-6 mt-8">
+          <Link to="/admin/revenue">
+            <Card className="hover:shadow-lg transition-all group cursor-pointer">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <TrendingUp className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Revenue Dashboard</p>
+                    <p className="text-sm text-gray-500">Alle Monetarisierungs-KPIs</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 ml-auto" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/widget">
+            <Card className="hover:shadow-lg transition-all group cursor-pointer">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <FileCheck className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Widget-Einbettung</p>
+                    <p className="text-sm text-gray-500">White-Label Tools für Ihre Website</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 ml-auto" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
     </div>
   )
