@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift } from 'lucide-react'
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, Search } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -45,6 +45,16 @@ export default function Header() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-lg hover:bg-muted transition-colors"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Suche</span>
+            <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-muted rounded border">
+              Ctrl K
+            </kbd>
+          </button>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Anmelden</Link>
           </Button>

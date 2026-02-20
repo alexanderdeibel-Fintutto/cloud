@@ -16,7 +16,7 @@ import {
   Shield,
   Zap,
 } from 'lucide-react'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags } from '@fintutto/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { getOtherApps } from '@fintutto/shared'
@@ -120,6 +120,12 @@ const features = [
 
 export default function HomePage() {
   useDocumentTitle('Mietrechts-Checker', 'Fintutto')
+  useMetaTags({
+    title: 'Fintutto Checker – Mietrecht pruefen',
+    description: '10 kostenlose Mietrechts-Checker: Mietpreisbremse, Mieterhoehung, Nebenkosten, Kuendigung und mehr – basierend auf aktuellem deutschem Recht.',
+    path: '/',
+    siteName: 'Fintutto Checker',
+  })
   const popularCheckers = checkers.filter((c) => c.popular)
   const otherCheckers = checkers.filter((c) => !c.popular)
 

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProperties } from '@/hooks/useProperties'
-import { getOtherApps, useDocumentTitle, useRecentTools, AnnouncementBanner } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner } from '@fintutto/shared'
 
 const categories = [
   {
@@ -54,6 +54,11 @@ const ecosystemApps = getOtherApps('portal')
 
 export default function HomePage() {
   useDocumentTitle('Rechner, Checker & Formulare', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Fintutto Portal – Rechner, Checker & Formulare',
+    description: 'Kostenlose Tools fuer Mieter und Vermieter: Kautions-Rechner, Mietpreisbremse-Checker, Mietvertrag-Generator und mehr.',
+    path: '/',
+  })
   const { user } = useAuth()
   const { properties, hasProperties } = useProperties()
   const { recentTools } = useRecentTools('portal')
