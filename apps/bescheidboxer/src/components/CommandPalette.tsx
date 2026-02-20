@@ -63,6 +63,10 @@ import {
   CalendarCheck,
   BookOpenCheck,
   ReceiptEuro,
+  Factory,
+  History,
+  Wrench,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -162,6 +166,10 @@ export default function CommandPalette() {
     { id: 'nav-steuertermine', label: 'Steuer-Termine', description: 'Beratungstermine verwalten', icon: CalendarCheck, category: 'navigation', keywords: ['termin', 'beratung', 'finanzamt', 'meeting', 'besprechung'], action: () => runAndClose(() => navigate('/steuer-termine')) },
     { id: 'nav-kassenbuch', label: 'Kassenbuch', description: 'Einnahmen & Ausgaben erfassen', icon: BookOpenCheck, category: 'navigation', keywords: ['kassenbuch', 'euer', 'einnahme', 'ausgabe', 'buchung', 'freiberufler'], action: () => runAndClose(() => navigate('/kassenbuch')) },
     { id: 'nav-umsatzsteuer', label: 'Umsatzsteuer', description: 'UStVA-Übersicht & Zahllast', icon: ReceiptEuro, category: 'navigation', keywords: ['umsatzsteuer', 'ust', 'voranmeldung', 'ustva', 'vorsteuer', 'zahllast', 'mehrwertsteuer'], action: () => runAndClose(() => navigate('/umsatzsteuer')) },
+    { id: 'nav-gewerbesteuer', label: 'Gewerbesteuer', description: 'GewSt berechnen mit Hebesatz', icon: Factory, category: 'navigation', keywords: ['gewerbesteuer', 'gewst', 'hebesatz', 'messbetrag', 'gewerbe', 'anrechnung'], action: () => runAndClose(() => navigate('/gewerbesteuer')) },
+    { id: 'nav-historie', label: 'Steuer-Historie', description: 'Steuerjahre im Überblick', icon: History, category: 'navigation', keywords: ['historie', 'verlauf', 'jahresvergleich', 'steuerquote', 'timeline'], action: () => runAndClose(() => navigate('/steuer-historie')) },
+    { id: 'nav-haushaltsnahe', label: 'Haushaltsnahe Dienste', description: '§ 35a Steuerermäßigung', icon: Wrench, category: 'navigation', keywords: ['haushaltsnahe', 'handwerker', 'dienstleistung', '35a', 'minijob', 'reinigung'], action: () => runAndClose(() => navigate('/haushaltsnahe')) },
+    { id: 'nav-formulare', label: 'Steuer-Formulare', description: 'Anlagen & Vordrucke erklärt', icon: FileSpreadsheet, category: 'navigation', keywords: ['formular', 'anlage', 'vordruck', 'mantelbogen', 'anlage-n', 'anlage-v', 'elster'], action: () => runAndClose(() => navigate('/steuer-formulare')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

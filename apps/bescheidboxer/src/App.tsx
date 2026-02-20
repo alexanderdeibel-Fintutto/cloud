@@ -71,6 +71,10 @@ import ErbschaftSteuerRechnerPage from './pages/ErbschaftSteuerRechnerPage'
 import SteuerTerminPage from './pages/SteuerTerminPage'
 import KassenBuchPage from './pages/KassenBuchPage'
 import UmsatzsteuerPage from './pages/UmsatzsteuerPage'
+import GewerbesteuerRechnerPage from './pages/GewerbesteuerRechnerPage'
+import SteuerHistoriePage from './pages/SteuerHistoriePage'
+import HaushaltsnaheRechnerPage from './pages/HaushaltsnaheRechnerPage'
+import SteuerFormularePage from './pages/SteuerFormularePage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -161,6 +165,10 @@ function App() {
             <Route path="steuer-termine" element={<SteuerTerminPage />} />
             <Route path="kassenbuch" element={<KassenBuchPage />} />
             <Route path="umsatzsteuer" element={<UmsatzsteuerPage />} />
+            <Route path="gewerbesteuer" element={<GewerbesteuerRechnerPage />} />
+            <Route path="steuer-historie" element={<SteuerHistoriePage />} />
+            <Route path="haushaltsnahe" element={<HaushaltsnaheRechnerPage />} />
+            <Route path="steuer-formulare" element={<SteuerFormularePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

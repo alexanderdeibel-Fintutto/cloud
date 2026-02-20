@@ -56,6 +56,10 @@ import {
   CalendarCheck,
   BookOpenCheck,
   ReceiptEuro,
+  Factory,
+  History,
+  Wrench,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -110,6 +114,10 @@ const navigation = [
   { name: 'Steuer-Termine', href: '/steuer-termine', icon: CalendarCheck },
   { name: 'Kassenbuch', href: '/kassenbuch', icon: BookOpenCheck },
   { name: 'Umsatzsteuer', href: '/umsatzsteuer', icon: ReceiptEuro },
+  { name: 'Gewerbesteuer', href: '/gewerbesteuer', icon: Factory },
+  { name: 'Steuer-Historie', href: '/steuer-historie', icon: History },
+  { name: 'Haushaltsnahe', href: '/haushaltsnahe', icon: Wrench },
+  { name: 'Steuer-Formulare', href: '/steuer-formulare', icon: FileSpreadsheet },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
