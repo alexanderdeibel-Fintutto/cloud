@@ -6,7 +6,6 @@ import Layout from '@/components/layout/Layout'
 
 // Eagerly loaded (always needed)
 import HomePage from '@/pages/HomePage'
- claude/improve-app-integration-k7JF2
 
 // Lazy-loaded pages
 const RechnerPage = lazy(() => import('@/pages/RechnerPage'))
@@ -15,26 +14,17 @@ const FormularePage = lazy(() => import('@/pages/FormularePage'))
 const PricingPage = lazy(() => import('@/pages/PricingPage'))
 const AppsPage = lazy(() => import('@/pages/AppsPage'))
 const ReferralPage = lazy(() => import('@/pages/ReferralPage'))
+const SavedCalculationsPage = lazy(() => import('@/pages/SavedCalculationsPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
-import RechnerPage from '@/pages/RechnerPage'
-import CheckerPage from '@/pages/CheckerPage'
-import FormularePage from '@/pages/FormularePage'
-import PricingPage from '@/pages/PricingPage'
-import AppsPage from '@/pages/AppsPage'
-import ReferralPage from '@/pages/ReferralPage'
-import SavedCalculationsPage from '@/pages/SavedCalculationsPage'
-import NotFoundPage from '@/pages/NotFoundPage'
- main
-
 // Legal Pages
-import ImpressumPage from '@/pages/legal/ImpressumPage'
-import DatenschutzPage from '@/pages/legal/DatenschutzPage'
-import AGBPage from '@/pages/legal/AGBPage'
+const ImpressumPage = lazy(() => import('@/pages/legal/ImpressumPage'))
+const DatenschutzPage = lazy(() => import('@/pages/legal/DatenschutzPage'))
+const AGBPage = lazy(() => import('@/pages/legal/AGBPage'))
 
 // Module Pages
-import BetriebskostenModulPage from '@/pages/BetriebskostenModulPage'
-import ImmobilienPage from '@/pages/ImmobilienPage'
+const BetriebskostenModulPage = lazy(() => import('@/pages/BetriebskostenModulPage'))
+const ImmobilienPage = lazy(() => import('@/pages/ImmobilienPage'))
 
 // Rechner (7 Vermieter-Tools)
 const KautionsRechner = lazy(() => import('@/pages/rechner/KautionsRechner'))
@@ -118,27 +108,19 @@ function App() {
             <Route path="formulare/wohnungsgeberbestaetigung" element={<WohnungsgeberbestaetigungFormular />} />
             <Route path="formulare/nebenkostenvorauszahlung" element={<NebenkostenvorauszahlungFormular />} />
 
- claude/improve-app-integration-k7JF2
             {/* === META === */}
             <Route path="preise" element={<PricingPage />} />
             <Route path="pricing" element={<PricingPage />} />
             <Route path="apps" element={<AppsPage />} />
             <Route path="referral" element={<ReferralPage />} />
+            <Route path="gespeichert" element={<SavedCalculationsPage />} />
+            <Route path="betriebskosten" element={<BetriebskostenModulPage />} />
+            <Route path="immobilien" element={<ImmobilienPage />} />
 
-          {/* === META === */}
-          <Route path="preise" element={<PricingPage />} />
-          <Route path="pricing" element={<PricingPage />} />
-          <Route path="apps" element={<AppsPage />} />
-          <Route path="referral" element={<ReferralPage />} />
-          <Route path="gespeichert" element={<SavedCalculationsPage />} />
-          <Route path="betriebskosten" element={<BetriebskostenModulPage />} />
-          <Route path="immobilien" element={<ImmobilienPage />} />
-
-          {/* === LEGAL === */}
-          <Route path="impressum" element={<ImpressumPage />} />
-          <Route path="datenschutz" element={<DatenschutzPage />} />
-          <Route path="agb" element={<AGBPage />} />
- main
+            {/* === LEGAL === */}
+            <Route path="impressum" element={<ImpressumPage />} />
+            <Route path="datenschutz" element={<DatenschutzPage />} />
+            <Route path="agb" element={<AGBPage />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />

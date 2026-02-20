@@ -1,34 +1,30 @@
 import { Link } from 'react-router-dom'
- claude/improve-app-integration-k7JF2
 import { getOtherApps } from '@fintutto/shared'
+import { Sparkles } from 'lucide-react'
 
 const ecosystemApps = getOtherApps('mieter-checker')
-
-import { Sparkles } from 'lucide-react'
-// import { NewsletterSignup } from '@/components/monetization'
- main
 
 const footerLinks = {
   rechner: [
     { name: 'Kautions-Rechner', href: '/rechner/kaution' },
-    { name: 'Mieterhöhungs-Rechner', href: '/rechner/mieterhoehung' },
+    { name: 'Mieterhoehungs-Rechner', href: '/rechner/mieterhoehung' },
     { name: 'Kaufnebenkosten-Rechner', href: '/rechner/kaufnebenkosten' },
     { name: 'Rendite-Rechner', href: '/rechner/rendite' },
     { name: 'Grundsteuer-Rechner', href: '/rechner/grundsteuer' },
   ],
   checker: [
     { name: 'Mietpreisbremse', href: '/checker/mietpreisbremse' },
-    { name: 'Mieterhöhung', href: '/checker/mieterhoehung' },
+    { name: 'Mieterhoehung', href: '/checker/mieterhoehung' },
     { name: 'Nebenkosten', href: '/checker/nebenkosten' },
-    { name: 'Kündigung', href: '/checker/kuendigung' },
+    { name: 'Kuendigung', href: '/checker/kuendigung' },
     { name: 'Kaution', href: '/checker/kaution' },
   ],
   formulare: [
     { name: 'Mietvertrag', href: '/formulare/mietvertrag' },
-    { name: 'Übergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
+    { name: 'Uebergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
     { name: 'Betriebskosten', href: '/formulare/betriebskosten' },
     { name: 'Selbstauskunft', href: '/formulare/selbstauskunft' },
-    { name: 'Mieterhöhung', href: '/formulare/mieterhoehung' },
+    { name: 'Mieterhoehung', href: '/formulare/mieterhoehung' },
   ],
   oekosystem: [
     { name: 'Alle Apps', href: '/apps' },
@@ -39,7 +35,7 @@ const footerLinks = {
     { name: 'Impressum', href: '/impressum' },
     { name: 'Datenschutz', href: '/datenschutz' },
     { name: 'AGB', href: '/agb' },
-    { name: 'Über uns', href: '/ueber-uns' },
+    { name: 'Ueber uns', href: '/ueber-uns' },
   ],
 }
 
@@ -59,7 +55,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Professionelle Tools für Mieter & Vermieter. Rechtssicher, einfach, digital.
+              Professionelle Tools fuer Mieter & Vermieter. Rechtssicher, einfach, digital.
             </p>
           </div>
 
@@ -103,7 +99,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-3">Ökosystem</h3>
+            <h3 className="font-semibold mb-3">Oekosystem</h3>
             <ul className="space-y-2">
               {footerLinks.oekosystem.map((link) => (
                 <li key={link.name}>
@@ -129,52 +125,21 @@ export default function Footer() {
           </div>
         </div>
 
- claude/improve-app-integration-k7JF2
-        {/* Ecosystem */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
-          <p className="text-xs text-gray-500 mb-3">Fintutto Oekosystem</p>
-          <div className="flex flex-wrap gap-3 mb-6">
+        {/* Ecosystem Apps */}
+        <div className="border-t mt-8 pt-8">
+          <p className="text-xs text-muted-foreground mb-3">Fintutto Oekosystem</p>
+          <div className="flex flex-wrap gap-3">
             {ecosystemApps.map((app) => (
               <a
-                key={app.key}
+                key={app.slug}
                 href={app.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-gray-400 hover:text-fintutto-accent"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {app.icon} {app.name}
               </a>
             ))}
-          </div>
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-gray-500">
-              {currentYear} Fintutto. Alle Rechte vorbehalten.
-            </p>
-
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">
-            {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
-          </p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a
-              href="https://formulare.fintutto.cloud"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Formulare-App
-            </a>
-            <a
-              href="https://rendite.fintutto.cloud"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Rendite-Rechner
-            </a>
-            <a
-              href="https://bescheidboxer.fintutto.de"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Bescheidboxer
-            </a>
- main
           </div>
         </div>
 

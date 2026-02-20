@@ -1,0 +1,20 @@
+{
+  "name": "Fintutto Portal - Rechner, Checker & Formulare",
+  "short_name": "Fintutto",
+  "description": "Kostenlose Tools fuer Mieter und Vermieter: Kautions-Rechner, Mietpreisbremse-Checker, Mietvertrag-Generator und mehr.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "utilities", "productivity"],
+  "lang": "de-DE"
+}

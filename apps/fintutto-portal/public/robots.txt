@@ -1,16 +1,12 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fintutto.de/sitemap.xml
 Sitemap: https://portal.fintutto.cloud/sitemap.xml
 
-# Crawl-Delay fuer respektvolles Crawling
 Crawl-delay: 1
 
-# Nicht-oeffentliche Bereiche
 Disallow: /dashboard
 Disallow: /checkout/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
-Disallow: /fittutto/
