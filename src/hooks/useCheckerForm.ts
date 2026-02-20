@@ -16,7 +16,7 @@ export function useCheckerForm<T extends object>({
   initialFormData,
 }: UseCheckerFormOptions<T>) {
   const navigate = useNavigate()
-  const { startSession, completeSession, clearSession } = useChecker()
+  const { startSession, completeSession, clearSession, setCurrentStep } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
 
   const [step, setStep] = useState(1)
@@ -36,6 +36,11 @@ export function useCheckerForm<T extends object>({
   useEffect(() => {
     initSession()
   }, [])
+
+  // Sync step to context so CheckerLayout's progress bar works
+  useEffect(() => {
+    setCurrentStep(step)
+  }, [step, setCurrentStep])
 
   const updateField = useCallback((field: keyof T, value: string | number | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
