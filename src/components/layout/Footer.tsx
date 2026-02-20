@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom'
+import { getOtherApps } from '@fintutto/shared'
+
+const ecosystemApps = getOtherApps('mieter-checker')
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -71,23 +74,26 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">
-            {currentYear} Fintutto. Alle Rechte vorbehalten.
-          </p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a
-              href="https://formulare.fintutto.cloud"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Formulare-App
-            </a>
-            <a
-              href="https://rendite.fintutto.cloud"
-              className="text-sm text-gray-400 hover:text-fintutto-accent"
-            >
-              Rendite-Rechner
-            </a>
+        {/* Ecosystem */}
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <p className="text-xs text-gray-500 mb-3">Fintutto Oekosystem</p>
+          <div className="flex flex-wrap gap-3 mb-6">
+            {ecosystemApps.map((app) => (
+              <a
+                key={app.key}
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-400 hover:text-fintutto-accent"
+              >
+                {app.icon} {app.name}
+              </a>
+            ))}
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-gray-500">
+              {currentYear} Fintutto. Alle Rechte vorbehalten.
+            </p>
           </div>
         </div>
       </div>

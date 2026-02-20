@@ -4,7 +4,7 @@ import { Banknote } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+import { getFormulareAppUrl, getRechnerAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -171,7 +171,7 @@ export default function BetriebskostenChecker() {
   if (result) {
     return (
       <CheckerLayout title="Betriebskosten-Checker" description="Ihr Ergebnis" icon={<Banknote className="w-8 h-8" />}>
-        <CheckerResult result={result} checkerType="betriebskosten" onGoToForm={handleGoToForm} onStartNew={handleStartNew} />
+        <CheckerResult result={result} checkerType="betriebskosten" onGoToForm={handleGoToForm} onStartNew={handleStartNew} rechnerUrl={getRechnerAppUrl('nebenkosten')} />
       </CheckerLayout>
     )
   }

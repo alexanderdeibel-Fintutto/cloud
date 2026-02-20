@@ -4,7 +4,7 @@ import { Home } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { calculateMietpreisbremse, getFormulareAppUrl } from '@/lib/utils'
+import { calculateMietpreisbremse, getFormulareAppUrl, getRechnerAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -193,6 +193,7 @@ export default function MietpreisbremseChecker() {
           checkerType="mietpreisbremse"
           onGoToForm={handleGoToForm}
           onStartNew={handleStartNew}
+          rechnerUrl={getRechnerAppUrl('mieterhoehung', { rent: String(formData.kaltmiete) })}
         />
       </CheckerLayout>
     )
