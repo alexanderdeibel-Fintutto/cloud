@@ -35,6 +35,7 @@ export function useSpeechRecognition() {
   const [error, setError] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   const shouldBeListeningRef = useRef(false)
+  const streamRef = useRef<MediaStream | null>(null)
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
@@ -49,10 +50,15 @@ export function useSpeechRecognition() {
       }
       recognitionRef.current = null
     }
+    // Release microphone stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop())
+      streamRef.current = null
+    }
     setIsListening(false)
   }, [])
 
-  const startListening = useCallback((lang: string, onResult: (text: string) => void) => {
+  const startListening = useCallback(async (lang: string, onResult: (text: string) => void) => {
     if (!isSupported) {
       setError('Spracheingabe wird von diesem Browser nicht unterstützt')
       return
@@ -67,8 +73,26 @@ export function useSpeechRecognition() {
       }
       recognitionRef.current = null
     }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop())
+      streamRef.current = null
+    }
 
     setError(null)
+
+    // Request microphone permission explicitly first
+    // Chrome's SpeechRecognition sometimes skips the permission dialog on localhost
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'NotAllowedError') {
+        setError('Mikrofon-Zugriff verweigert. Bitte erlauben Sie den Zugriff in den Browser-Einstellungen.')
+      } else {
+        setError('Mikrofon nicht verfügbar. Bitte prüfen Sie Ihre Geräte-Einstellungen.')
+      }
+      return
+    }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new SpeechRecognition()
@@ -104,11 +128,18 @@ export function useSpeechRecognition() {
       } else if (event.error === 'no-speech') {
         // No speech detected - don't treat as fatal, recognition will auto-restart via onend
         return
+      } else if (event.error === 'network') {
+        setError('Netzwerkfehler bei der Spracherkennung. Bitte prüfen Sie Ihre Internetverbindung.')
       } else if (event.error !== 'aborted') {
         setError(`Spracheingabe-Fehler: ${event.error}`)
       }
       shouldBeListeningRef.current = false
       setIsListening(false)
+      // Release mic
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop())
+        streamRef.current = null
+      }
     }
 
     recognition.onend = () => {
@@ -123,6 +154,11 @@ export function useSpeechRecognition() {
       }
       shouldBeListeningRef.current = false
       setIsListening(false)
+      // Release mic
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop())
+        streamRef.current = null
+      }
     }
 
     recognitionRef.current = recognition
@@ -132,11 +168,15 @@ export function useSpeechRecognition() {
       recognition.start()
       setIsListening(true)
       setTranscript('')
-    } catch (e) {
+    } catch {
       shouldBeListeningRef.current = false
       setError('Spracheingabe konnte nicht gestartet werden')
       setIsListening(false)
       recognitionRef.current = null
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop())
+        streamRef.current = null
+      }
     }
   }, [isSupported])
 
