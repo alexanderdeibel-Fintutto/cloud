@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
+import { useDocumentTitle } from '@fintutto/shared'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -16,6 +17,7 @@ interface RenditeResult {
 }
 
 export default function RenditeRechner() {
+  useDocumentTitle('Rendite-Rechner', 'Fintutto Vermieter')
   const [searchParams] = useSearchParams()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')

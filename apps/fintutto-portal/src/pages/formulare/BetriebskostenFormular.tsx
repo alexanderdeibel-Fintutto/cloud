@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 type DistKey = 'flaeche' | 'personen' | 'einheiten' | 'verbrauch'
 
@@ -28,6 +30,8 @@ const DEFAULT_COSTS: CostItem[] = [
 ]
 
 export default function BetriebskostenFormular() {
+  useDocumentTitle('Betriebskostenabrechnung', 'Fintutto Portal')
+  useTrackTool('Betriebskosten')
   const [step, setStep] = useState<'building' | 'costs' | 'units' | 'result'>('building')
   const [buildingName, setBuildingName] = useState('')
   const [buildingAddress, setBuildingAddress] = useState('')

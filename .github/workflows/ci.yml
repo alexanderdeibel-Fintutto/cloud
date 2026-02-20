@@ -6,10 +6,15 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         app:
           - name: mieter-checker
@@ -21,6 +26,8 @@ jobs:
           - name: vermietify
             path: apps/vermietify
 
+    name: Build ${{ matrix.app.name }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +37,11 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: TypeScript check (shared package)
+        run: npx tsc --noEmit -p packages/shared/tsconfig.json
+        continue-on-error: true
 
       - name: Build ${{ matrix.app.name }}
         run: npx vite build

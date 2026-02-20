@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Shield, ArrowRight, Scale, AlertTriangle, Wrench, Home, Euro, FileWarning, Ban, HardHat, Paintbrush, BookOpen } from 'lucide-react'
+import { useDocumentTitle } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const checkers = [
@@ -96,6 +97,7 @@ const checkers = [
 ]
 
 export default function CheckerPage() {
+  useDocumentTitle('Mietrechts-Checker', 'Fintutto Portal')
   return (
     <div>
       <section className="gradient-mieter py-16">

@@ -14,6 +14,7 @@ import {
   Home,
   Wallet
 } from 'lucide-react'
+import { useDocumentTitle } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const formulare = [
@@ -100,6 +101,7 @@ const formulare = [
 ]
 
 export default function FormularePage() {
+  useDocumentTitle('Formulare & Vorlagen', 'Fintutto Portal')
   return (
     <div>
       {/* Hero */}

@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
+import { useDocumentTitle } from '@fintutto/shared'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -37,6 +38,7 @@ const bundeslaender = [
 ]
 
 export default function MieterhoehungsRechner() {
+  useDocumentTitle('Mieterhöhungs-Rechner', 'Fintutto Vermieter')
   const [searchParams] = useSearchParams()
   const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')
 

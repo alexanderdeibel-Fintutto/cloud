@@ -161,6 +161,9 @@ export { getEcosystemBarItems, ECOSYSTEM_BAR_STYLE } from './components/Ecosyste
 // Re-export ErrorBoundary
 export { ErrorBoundary } from './components/ErrorBoundary'
 
+// Re-export AnnouncementBanner
+export { AnnouncementBanner } from './components/AnnouncementBanner'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 

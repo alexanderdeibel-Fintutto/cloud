@@ -8,6 +8,8 @@ import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
 import { useProperties } from '@/hooks/useProperties'
 import { useAuth } from '@/contexts/AuthContext'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface MietvertragData {
   objektStrasse: string
@@ -67,6 +69,8 @@ const CLAUSES = [
 ]
 
 export default function MietvertragFormular() {
+  useDocumentTitle('Mietvertrag erstellen', 'Fintutto Portal')
+  useTrackTool('Mietvertrag')
   const [searchParams] = useSearchParams()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<MietvertragData>(INITIAL)

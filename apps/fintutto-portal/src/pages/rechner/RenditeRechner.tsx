@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -17,6 +19,8 @@ interface RenditeResult {
 }
 
 export default function RenditeRechner() {
+  useDocumentTitle('Rendite-Rechner', 'Fintutto Portal')
+  useTrackTool('Rendite-Rechner')
   const [searchParams] = useSearchParams()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')

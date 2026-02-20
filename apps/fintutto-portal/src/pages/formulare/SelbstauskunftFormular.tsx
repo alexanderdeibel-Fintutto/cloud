@@ -6,6 +6,8 @@ import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface SelbstauskunftData {
   anrede: string; vorname: string; nachname: string; geburtsdatum: string; geburtsort: string; staatsangehoerigkeit: string
@@ -36,6 +38,8 @@ const STEPS = [
 ]
 
 export default function SelbstauskunftFormular() {
+  useDocumentTitle('Selbstauskunft', 'Fintutto Portal')
+  useTrackTool('Selbstauskunft')
   const [step, setStep] = useState(0)
   const [data, setData] = useState<SelbstauskunftData>(INITIAL)
   const update = (field: keyof SelbstauskunftData, value: string | boolean) => setData(prev => ({ ...prev, [field]: value }))

@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
+import { useDocumentTitle } from '@fintutto/shared'
 
 interface KautionResult {
   maxKaution: number
@@ -15,6 +16,7 @@ interface KautionResult {
 }
 
 export default function KautionsRechner() {
+  useDocumentTitle('Kautions-Rechner', 'Fintutto Vermieter')
   const [searchParams] = useSearchParams()
   const [kaltmiete, setKaltmiete] = useState<string>('')
   const [aktuelleKaution, setAktuelleKaution] = useState<string>('')

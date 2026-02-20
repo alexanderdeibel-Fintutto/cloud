@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 type Begruendung = 'mietspiegel' | 'gutachten' | 'vergleichswohnungen' | 'modernisierung'
 
@@ -16,6 +18,8 @@ const BEGRUENDUNGEN: { id: Begruendung; label: string; desc: string }[] = [
 ]
 
 export default function MieterhoehungFormular() {
+  useDocumentTitle('Mieterhöhung', 'Fintutto Portal')
+  useTrackTool('Mieterhöhung')
   const [step, setStep] = useState<'input' | 'result' | 'letter'>('input')
   const [vermieterName, setVermieterName] = useState('')
   const [vermieterAdresse, setVermieterAdresse] = useState('')

@@ -8,6 +8,7 @@ import {
   Receipt,
   ArrowRight
 } from 'lucide-react'
+import { useDocumentTitle } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const rechner = [
@@ -68,6 +69,7 @@ const rechner = [
 ]
 
 export default function RechnerPage() {
+  useDocumentTitle('Rechner', 'Fintutto Portal')
   return (
     <div>
       {/* Hero */}

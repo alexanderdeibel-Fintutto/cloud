@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProperties } from '@/hooks/useProperties'
-import { getOtherApps, useDocumentTitle } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle, useRecentTools, AnnouncementBanner } from '@fintutto/shared'
 
 const categories = [
   {
@@ -56,6 +56,7 @@ export default function HomePage() {
   useDocumentTitle('Rechner, Checker & Formulare', 'Fintutto Portal')
   const { user } = useAuth()
   const { properties, hasProperties } = useProperties()
+  const { recentTools } = useRecentTools('portal')
 
   const totalUnits = properties.reduce((sum, b) => sum + b.units.length, 0)
   const rentedUnits = properties.reduce(
@@ -64,6 +65,13 @@ export default function HomePage() {
 
   return (
     <div>
+      <AnnouncementBanner
+        id="vermieter-portal-launch"
+        message="Neu: Vermieter-Portal mit allen Rechner-Tools!"
+        linkText="Zum Vermieter-Portal"
+        linkHref="https://vermieter-portal.vercel.app"
+      />
+
       {/* Hero */}
       <section className="gradient-portal py-20">
         <div className="container">
@@ -115,6 +123,29 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Recently Used */}
+      {recentTools.length > 0 && (
+        <section className="py-8 bg-muted/20">
+          <div className="container">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+              Zuletzt verwendet
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {recentTools.map((tool) => (
+                <Link
+                  key={tool.path}
+                  to={tool.path}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border hover:border-primary/40 hover:shadow-sm transition-all text-sm font-medium"
+                >
+                  {tool.title}
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Categories */}
       <section className="py-16">

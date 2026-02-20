@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
+import { useDocumentTitle } from '@fintutto/shared'
 
 export default function MieterhoehungFormular() {
+  useDocumentTitle('Mieterhöhung', 'Fintutto Vermieter')
   return (
     <div>
       <section className="gradient-vermieter py-12">

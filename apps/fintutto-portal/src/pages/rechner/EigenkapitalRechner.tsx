@@ -4,8 +4,12 @@ import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 export default function EigenkapitalRechner() {
+  useDocumentTitle('Eigenkapital-Rechner', 'Fintutto Portal')
+  useTrackTool('Eigenkapital-Rechner')
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [eigenkapital, setEigenkapital] = useState<string>('')

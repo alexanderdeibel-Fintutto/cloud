@@ -4,8 +4,10 @@ import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle } from '@fintutto/shared'
 
 export default function EigenkapitalRechner() {
+  useDocumentTitle('Eigenkapital-Rechner', 'Fintutto Vermieter')
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [eigenkapital, setEigenkapital] = useState<string>('')
