@@ -1,15 +1,26 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Home, ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { formatCurrency } from '../../lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/utils'
+
+interface EigenkapitalResult {
+  gesamtkosten: number
+  fremdkapital: number
+  eigenkapitalQuote: number
+  beleihungsauslauf: number
+  mindestEK: number
+  empfohlenEK: number
+  optimalEK: number
+  bewertung: string
+}
 
 export default function EigenkapitalRechner() {
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [eigenkapital, setEigenkapital] = useState<string>('')
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<EigenkapitalResult | null>(null)
 
   const berechnen = () => {
     const kp = parseFloat(kaufpreis) || 0

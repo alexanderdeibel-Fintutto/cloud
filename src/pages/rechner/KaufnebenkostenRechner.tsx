@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Euro, ArrowLeft } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { formatCurrency } from '../../lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/utils'
 
 const bundeslaender = [
   { name: 'Baden-Württemberg', grunderwerbsteuer: 5.0 },
@@ -24,11 +24,27 @@ const bundeslaender = [
   { name: 'Thüringen', grunderwerbsteuer: 5.0 },
 ]
 
+interface KostenPosition {
+  prozent: number
+  betrag: number
+}
+
+interface KaufnebenkostenResult {
+  kaufpreis: number
+  grunderwerbsteuer: KostenPosition
+  notar: KostenPosition
+  grundbuch: KostenPosition
+  makler: KostenPosition
+  gesamtNebenkosten: number
+  gesamtkosten: number
+  prozentVomKaufpreis: number
+}
+
 export default function KaufnebenkostenRechner() {
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')
   const [makler, setMakler] = useState<string>('3.57')
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<KaufnebenkostenResult | null>(null)
 
   const berechnen = () => {
     const kp = parseFloat(kaufpreis) || 0

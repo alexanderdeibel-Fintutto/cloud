@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { formatCurrency } from '../../lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/utils'
 
 const kostenarten = [
   'Grundsteuer', 'Wasserversorgung', 'Entwässerung', 'Heizung', 'Warmwasser',
@@ -11,12 +11,26 @@ const kostenarten = [
   'Beleuchtung', 'Schornsteinfeger', 'Versicherungen', 'Hauswart', 'Antenne/Kabel', 'Sonstiges'
 ]
 
+interface NebenkostenEinzelkosten {
+  art: string
+  betrag: number
+}
+
+interface NebenkostenResult {
+  gesamtKosten: number
+  vorauszahlungGesamt: number
+  differenz: number
+  kostenProQm: number
+  monate: number
+  einzelkosten: NebenkostenEinzelkosten[]
+}
+
 export default function NebenkostenRechner() {
   const [wohnflaeche, setWohnflaeche] = useState<string>('')
   const [vorauszahlung, setVorauszahlung] = useState<string>('')
   const [zeitraum, setZeitraum] = useState<string>('12')
   const [kosten, setKosten] = useState<{art: string, betrag: string}[]>([{ art: 'Grundsteuer', betrag: '' }])
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<NebenkostenResult | null>(null)
 
   const addKosten = () => setKosten([...kosten, { art: 'Sonstiges', betrag: '' }])
   const removeKosten = (i: number) => setKosten(kosten.filter((_, idx) => idx !== i))
@@ -132,7 +146,7 @@ export default function NebenkostenRechner() {
                   <CardHeader><CardTitle>Abrechnung</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2 text-sm">
-                      {result.einzelkosten.filter((k: any) => k.betrag > 0).map((k: any, i: number) => (
+                      {result.einzelkosten.filter((k: NebenkostenEinzelkosten) => k.betrag > 0).map((k: NebenkostenEinzelkosten, i: number) => (
                         <div key={i} className="flex justify-between"><span>{k.art}</span><span>{formatCurrency(k.betrag)}</span></div>
                       ))}
                     </div>

@@ -1,15 +1,24 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { formatCurrency } from '../../lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/utils'
+
+interface GrundsteuerResult {
+  grundsteuerwert: number
+  steuermesszahl: number
+  grundsteuermessbetrag: number
+  hebesatz: number
+  grundsteuerJahr: number
+  grundsteuerMonat: number
+}
 
 export default function GrundsteuerRechner() {
   const [grundstueckswert, setGrundstueckswert] = useState<string>('')
   const [gebaeudewert, setGebaeudewert] = useState<string>('')
   const [hebesatz, setHebesatz] = useState<string>('400')
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<GrundsteuerResult | null>(null)
 
   const berechnen = () => {
     const gw = parseFloat(grundstueckswert) || 0
