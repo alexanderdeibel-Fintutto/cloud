@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProperties } from '@/hooks/useProperties'
-import { getOtherApps } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle } from '@fintutto/shared'
 
 const categories = [
   {
@@ -53,6 +53,7 @@ const stats = [
 const ecosystemApps = getOtherApps('portal')
 
 export default function HomePage() {
+  useDocumentTitle('Rechner, Checker & Formulare', 'Fintutto Portal')
   const { user } = useAuth()
   const { properties, hasProperties } = useProperties()
 

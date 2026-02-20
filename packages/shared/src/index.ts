@@ -158,6 +158,9 @@ export * from './hooks'
 // Re-export ecosystem bar helpers
 export { getEcosystemBarItems, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
 
+// Re-export ErrorBoundary
+export { ErrorBoundary } from './components/ErrorBoundary'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 

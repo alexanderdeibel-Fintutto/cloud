@@ -20,7 +20,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { useAuth } from '../contexts/AuthContext'
 import { useProperties } from '../hooks/useProperties'
-import { getOtherApps } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle } from '@fintutto/shared'
 
 const ecosystemApps = getOtherApps('portal')
 
@@ -121,6 +121,7 @@ const features = [
 ]
 
 export default function HomePage() {
+  useDocumentTitle('Vermieter-Tools', 'Fintutto')
   const { user } = useAuth()
   const { properties, hasProperties } = useProperties()
 

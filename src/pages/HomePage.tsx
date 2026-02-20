@@ -16,6 +16,7 @@ import {
   Shield,
   Zap,
 } from 'lucide-react'
+import { useDocumentTitle } from '@fintutto/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { getOtherApps } from '@fintutto/shared'
@@ -118,6 +119,7 @@ const features = [
 ]
 
 export default function HomePage() {
+  useDocumentTitle('Mietrechts-Checker', 'Fintutto')
   const popularCheckers = checkers.filter((c) => c.popular)
   const otherCheckers = checkers.filter((c) => !c.popular)
 

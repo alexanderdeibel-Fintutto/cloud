@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import { useChecker } from '@/contexts/CheckerContext'
+import { useDocumentTitle } from '@fintutto/shared'
 import { Progress } from '@/components/ui/progress'
 import { ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -12,6 +13,7 @@ interface CheckerLayoutProps {
 }
 
 export default function CheckerLayout({ title, description, icon, children }: CheckerLayoutProps) {
+  useDocumentTitle(title, 'Fintutto Checker')
   const { currentSession } = useChecker()
 
   const progressPercentage = currentSession

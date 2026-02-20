@@ -2,3 +2,4 @@ export { useBuildings, useBuildingsWithUnits, useBuilding } from './useBuildings
 export { useTenants, useTenantsWithLeases, useTenant } from './useTenants'
 export { useMeters, useMetersForUnit, useRecentReadings } from './useMeters'
 export { useDashboardStats, useOccupancyStats } from './useDashboard'
+export { useDocumentTitle } from './useDocumentTitle'

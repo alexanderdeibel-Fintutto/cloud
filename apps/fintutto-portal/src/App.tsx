@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import { ErrorBoundary } from '@fintutto/shared'
 import Layout from '@/components/layout/Layout'
 
 // Eagerly loaded (always needed)
@@ -58,6 +59,7 @@ function PageLoader() {
 
 function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -113,6 +115,7 @@ function App() {
       </Suspense>
       <Toaster position="top-right" richColors />
     </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 
