@@ -37,7 +37,7 @@ export function useCheckerForm<T extends object>({
     initSession()
   }, [])
 
-  const updateField = useCallback((field: keyof T, value: string | number | boolean) => {
+  const updateField = useCallback((field: keyof T, value: string | number | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }, [])
 

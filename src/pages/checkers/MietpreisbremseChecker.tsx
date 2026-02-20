@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Home } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { calculateMietpreisbremse, getFormulareAppUrl } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -35,57 +33,24 @@ const ORTSUEBLICHE_MIETEN: Record<string, number> = {
   default: 10.0,
 }
 
+const initialFormData: FormData = {
+  plz: '',
+  stadt: '',
+  mietbeginn: '',
+  kaltmiete: 0,
+  wohnflaeche: 0,
+  baujahr: '',
+  ausstattung: 'normal',
+  vormiete: 0,
+  vormieteUnbekannt: false,
+}
+
 export default function MietpreisbremseChecker() {
-  const navigate = useNavigate()
-  const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    plz: '',
-    stadt: '',
-    mietbeginn: '',
-    kaltmiete: 0,
-    wohnflaeche: 0,
-    baujahr: '',
-    ausstattung: 'normal',
-    vormiete: 0,
-    vormieteUnbekannt: false,
-  })
-
-  const totalSteps = 4
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Sie haben Ihr Limit erreicht. Bitte upgraden Sie Ihren Plan.')
-      navigate('/')
-      return
-    }
-    await startSession('mietpreisbremse', totalSteps)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    updateSessionData({ [field]: value })
-  }
-
-  const handleNext = () => {
-    const newStep = step + 1
-    setStep(newStep)
-    setCurrentStep(newStep)
-  }
-
-  const handlePrevious = () => {
-    const newStep = step - 1
-    setStep(newStep)
-    setCurrentStep(newStep)
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'mietpreisbremse', totalSteps: 4, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -141,37 +106,13 @@ export default function MietpreisbremseChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
     } catch {
       toast.error('Fehler bei der Analyse. Bitte versuchen Sie es erneut.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => {
-    navigate(result?.formRedirectUrl ?? '/formulare')
-  }
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      plz: '',
-      stadt: '',
-      mietbeginn: '',
-      kaltmiete: 0,
-      wohnflaeche: 0,
-      baujahr: '',
-      ausstattung: 'normal',
-      vormiete: 0,
-      vormieteUnbekannt: false,
-    })
-    initSession()
   }
 
   const canProceedStep1 = formData.plz.length === 5 && !!formData.mietbeginn
@@ -202,7 +143,7 @@ export default function MietpreisbremseChecker() {
       icon={<Home className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={handleNext} canProceed={canProceedStep1} showPrevious={false}>
+        <CheckerStep onNext={() => setStep(2)} canProceed={canProceedStep1} showPrevious={false}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Standort & Mietbeginn</h2>
           <p className="text-gray-600 mb-6">
             Die Mietpreisbremse gilt in bestimmten Gebieten mit angespanntem Wohnungsmarkt.
@@ -244,7 +185,7 @@ export default function MietpreisbremseChecker() {
       )}
 
       {step === 2 && (
-        <CheckerStep onNext={handleNext} onPrevious={handlePrevious} canProceed={canProceedStep2}>
+        <CheckerStep onNext={() => setStep(3)} onPrevious={() => setStep(1)} canProceed={canProceedStep2}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Mietkosten & Wohnflaeche</h2>
           <p className="text-gray-600 mb-6">
             Diese Angaben benoetigen wir, um Ihre Miete mit der ortsueblichen Vergleichsmiete zu vergleichen.
@@ -286,7 +227,7 @@ export default function MietpreisbremseChecker() {
       )}
 
       {step === 3 && (
-        <CheckerStep onNext={handleNext} onPrevious={handlePrevious} canProceed={canProceedStep3}>
+        <CheckerStep onNext={() => setStep(4)} onPrevious={() => setStep(2)} canProceed={canProceedStep3}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Wohnungsdetails</h2>
           <p className="text-gray-600 mb-6">
             Diese Informationen helfen uns, die korrekte Vergleichsmiete zu ermitteln.
@@ -343,7 +284,7 @@ export default function MietpreisbremseChecker() {
 
       {step === 4 && (
         <CheckerStep
-          onPrevious={handlePrevious}
+          onPrevious={() => setStep(3)}
           onNext={analyzeResult}
           nextLabel="Jetzt pruefen"
           isLoading={isLoading}

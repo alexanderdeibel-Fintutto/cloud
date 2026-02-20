@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Banknote } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -26,49 +24,18 @@ interface FormData {
   schornsteinfeger: number
 }
 
+const initialFormData: FormData = {
+  wohnflaeche: 0, gesamtkosten: 0, heizkosten: 0, warmwasser: 0, kaltwasser: 0,
+  abwasser: 0, muell: 0, strassenreinigung: 0, hausmeister: 0, gartenpflege: 0,
+  aufzug: 0, beleuchtung: 0, versicherung: 0, grundsteuer: 0, kabelanschluss: 0, schornsteinfeger: 0,
+}
+
 export default function BetriebskostenChecker() {
-  const navigate = useNavigate()
-  const { startSession, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    wohnflaeche: 0,
-    gesamtkosten: 0,
-    heizkosten: 0,
-    warmwasser: 0,
-    kaltwasser: 0,
-    abwasser: 0,
-    muell: 0,
-    strassenreinigung: 0,
-    hausmeister: 0,
-    gartenpflege: 0,
-    aufzug: 0,
-    beleuchtung: 0,
-    versicherung: 0,
-    grundsteuer: 0,
-    kabelanschluss: 0,
-    schornsteinfeger: 0,
-  })
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
-      return
-    }
-    await startSession('betriebskosten', 2)
-  }
-
-  const updateField = (field: keyof FormData, value: number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'betriebskosten', totalSteps: 2, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -143,29 +110,13 @@ export default function BetriebskostenChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
-    } catch (error) {
+    } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => navigate(result?.formRedirectUrl ?? '/formulare')
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      wohnflaeche: 0, gesamtkosten: 0, heizkosten: 0, warmwasser: 0, kaltwasser: 0,
-      abwasser: 0, muell: 0, strassenreinigung: 0, hausmeister: 0, gartenpflege: 0,
-      aufzug: 0, beleuchtung: 0, versicherung: 0, grundsteuer: 0, kabelanschluss: 0, schornsteinfeger: 0,
-    })
-    initSession()
   }
 
   if (result) {

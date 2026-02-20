@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { TrendingUp } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -18,56 +16,23 @@ interface FormData {
   mietspiegelVorhanden: boolean
 }
 
+const initialFormData: FormData = {
+  plz: '',
+  aktuelleKaltmiete: 0,
+  neueKaltmiete: 0,
+  wohnflaeche: 0,
+  letzteMieterhoehung: '',
+  mieterhoehungsDatum: '',
+  begruendung: 'mietspiegel',
+  mietspiegelVorhanden: true,
+}
+
 export default function MieterhoehungChecker() {
-  const navigate = useNavigate()
-  const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    plz: '',
-    aktuelleKaltmiete: 0,
-    neueKaltmiete: 0,
-    wohnflaeche: 0,
-    letzteMieterhoehung: '',
-    mieterhoehungsDatum: '',
-    begruendung: 'mietspiegel',
-    mietspiegelVorhanden: true,
-  })
-
-  const totalSteps = 3
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Sie haben Ihr Limit erreicht. Bitte upgraden Sie Ihren Plan.')
-      navigate('/')
-      return
-    }
-    await startSession('mieterhoehung', totalSteps)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    updateSessionData({ [field]: value })
-  }
-
-  const handleNext = () => {
-    const newStep = step + 1
-    setStep(newStep)
-    setCurrentStep(newStep)
-  }
-
-  const handlePrevious = () => {
-    const newStep = step - 1
-    setStep(newStep)
-    setCurrentStep(newStep)
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'mieterhoehung', totalSteps: 3, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -139,36 +104,13 @@ export default function MieterhoehungChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
     } catch {
       toast.error('Fehler bei der Analyse. Bitte versuchen Sie es erneut.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => {
-    navigate(result?.formRedirectUrl ?? '/formulare')
-  }
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      plz: '',
-      aktuelleKaltmiete: 0,
-      neueKaltmiete: 0,
-      wohnflaeche: 0,
-      letzteMieterhoehung: '',
-      mieterhoehungsDatum: '',
-      begruendung: 'mietspiegel',
-      mietspiegelVorhanden: true,
-    })
-    initSession()
   }
 
   if (result) {
@@ -196,7 +138,7 @@ export default function MieterhoehungChecker() {
     >
       {step === 1 && (
         <CheckerStep
-          onNext={handleNext}
+          onNext={() => setStep(2)}
           canProceed={formData.aktuelleKaltmiete > 0 && formData.neueKaltmiete > 0}
           showPrevious={false}
         >
@@ -240,7 +182,7 @@ export default function MieterhoehungChecker() {
       )}
 
       {step === 2 && (
-        <CheckerStep onNext={handleNext} onPrevious={handlePrevious} canProceed={!!formData.mieterhoehungsDatum}>
+        <CheckerStep onNext={() => setStep(3)} onPrevious={() => setStep(1)} canProceed={!!formData.mieterhoehungsDatum}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Zeitliche Angaben</h2>
           <p className="text-gray-600 mb-6">
             Diese Informationen benoetigen wir zur Pruefung der Sperrfristen.
@@ -270,7 +212,7 @@ export default function MieterhoehungChecker() {
 
       {step === 3 && (
         <CheckerStep
-          onPrevious={handlePrevious}
+          onPrevious={() => setStep(2)}
           onNext={analyzeResult}
           nextLabel="Jetzt pruefen"
           isLoading={isLoading}
