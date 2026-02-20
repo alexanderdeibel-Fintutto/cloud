@@ -21,10 +21,12 @@ import { useTranslationHistory } from '@/hooks/useTranslationHistory'
 
 interface TranslationPanelProps {
   initialText?: string
+  initialSourceLang?: string
+  initialTargetLang?: string
   onInitialTextConsumed?: () => void
 }
 
-export default function TranslationPanel({ initialText, onInitialTextConsumed }: TranslationPanelProps) {
+export default function TranslationPanel({ initialText, initialSourceLang, initialTargetLang, onInitialTextConsumed }: TranslationPanelProps) {
   const [sourceLang, setSourceLang] = useState('de')
   const [targetLang, setTargetLang] = useState('en')
   const [sourceText, setSourceText] = useState('')
@@ -40,13 +42,15 @@ export default function TranslationPanel({ initialText, onInitialTextConsumed }:
   const targetSpeech = useSpeechSynthesis()
   const { addEntry } = useTranslationHistory()
 
-  // Handle initial text from quick phrases
+  // Handle initial text from quick phrases or history
   useEffect(() => {
     if (initialText) {
       setSourceText(initialText)
+      if (initialSourceLang) setSourceLang(initialSourceLang)
+      if (initialTargetLang) setTargetLang(initialTargetLang)
       onInitialTextConsumed?.()
     }
-  }, [initialText, onInitialTextConsumed])
+  }, [initialText, initialSourceLang, initialTargetLang, onInitialTextConsumed])
 
   const doTranslate = useCallback(async (text: string) => {
     if (!text.trim()) {

@@ -1,13 +1,24 @@
 import { Languages, Mic, Globe, Zap } from 'lucide-react'
 import { useState, useCallback } from 'react'
 import TranslationPanel from '@/components/translator/TranslationPanel'
+import TranslationHistory from '@/components/translator/TranslationHistory'
 import QuickPhrases from '@/components/translator/QuickPhrases'
 
 export default function TranslatorPage() {
   const [quickText, setQuickText] = useState('')
+  const [sourceLang, setSourceLang] = useState('')
+  const [targetLang, setTargetLang] = useState('')
 
   const handleConsumed = useCallback(() => {
     setQuickText('')
+    setSourceLang('')
+    setTargetLang('')
+  }, [])
+
+  const handleHistorySelect = useCallback((text: string, src: string, tgt: string) => {
+    setQuickText(text)
+    setSourceLang(src)
+    setTargetLang(tgt)
   }, [])
 
   return (
@@ -41,10 +52,18 @@ export default function TranslatorPage() {
       </div>
 
       {/* Main Translation */}
-      <TranslationPanel initialText={quickText} onInitialTextConsumed={handleConsumed} />
+      <TranslationPanel
+        initialText={quickText}
+        initialSourceLang={sourceLang}
+        initialTargetLang={targetLang}
+        onInitialTextConsumed={handleConsumed}
+      />
 
-      {/* Quick Phrases */}
-      <QuickPhrases onSelect={setQuickText} />
+      {/* Quick Phrases & History */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <QuickPhrases onSelect={setQuickText} />
+        <TranslationHistory onSelect={handleHistorySelect} />
+      </div>
     </div>
   )
 }
