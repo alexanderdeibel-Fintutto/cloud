@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   wohnflaeche: number
@@ -30,6 +31,20 @@ export default function BetriebskostenChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Betriebskosten-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Betriebskosten-Checker – Abrechnung prüfen',
+    description: 'Prüfe deine Betriebskostenabrechnung auf formelle und inhaltliche Fehler. Mit Abrechnungsfrist.',
+    path: '/checker/betriebskosten',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Betriebskosten-Checker',
+    description: 'Prüfe deine Betriebskostenabrechnung auf formelle und inhaltliche Fehler',
+    url: 'https://portal.fintutto.cloud/checker/betriebskosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)

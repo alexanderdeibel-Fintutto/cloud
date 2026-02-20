@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface Bewohner {
@@ -39,6 +39,18 @@ const initial: FormData = {
 export default function WohnungsgeberbestaetigungFormular() {
   useDocumentTitle('Wohnungsgeberbestätigung', 'Fintutto Portal')
   useTrackTool('Wohnungsgeberbestätigung')
+  useMetaTags({
+    title: 'Wohnungsgeberbestätigung erstellen – §19 BMG konform',
+    description: 'Pflichtdokument nach §19 BMG für die Anmeldung. Für Ein- und Auszug, mehrere Personen.',
+    path: '/formulare/wohnungsgeberbestaetigung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Wohnungsgeberbestätigung-Generator',
+    description: 'Erstelle eine Wohnungsgeberbestätigung nach §19 BMG',
+    url: 'https://portal.fintutto.cloud/formulare/wohnungsgeberbestaetigung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 

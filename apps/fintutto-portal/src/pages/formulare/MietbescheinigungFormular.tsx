@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface FormData {
@@ -55,6 +55,18 @@ const ZAHLUNGSVERHALTEN = [
 export default function MietbescheinigungFormular() {
   useDocumentTitle('Mietbescheinigung', 'Fintutto Portal')
   useTrackTool('Mietbescheinigung')
+  useMetaTags({
+    title: 'Mietbescheinigung erstellen – Für Behörden und Banken',
+    description: 'Erstelle eine Mietbescheinigung für Behörden, Banken oder neue Vermieter. Mit Zahlungsverhalten.',
+    path: '/formulare/mietbescheinigung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietbescheinigung-Generator',
+    description: 'Erstelle eine offizielle Bestätigung des Mietverhältnisses',
+    url: 'https://portal.fintutto.cloud/formulare/mietbescheinigung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 

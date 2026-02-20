@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { calculateMietpreisbremse, getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   plz: string
@@ -39,6 +40,20 @@ export default function MietpreisbremseChecker() {
   const navigate = useNavigate()
   const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Mietpreisbremse-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Mietpreisbremse-Checker – Ist deine Miete zu hoch?',
+    description: 'Prüfe ob die Mietpreisbremse greift und wie viel du sparen kannst. Kostenlos nach §556d BGB.',
+    path: '/checker/mietpreisbremse',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietpreisbremse-Checker',
+    description: 'Prüfe ob die Mietpreisbremse bei deiner Wohnung greift',
+    url: 'https://portal.fintutto.cloud/checker/mietpreisbremse',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)

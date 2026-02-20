@@ -14,7 +14,7 @@ import {
   Home,
   Wallet
 } from 'lucide-react'
-import { useDocumentTitle, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, Breadcrumbs } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const formulare = [
@@ -102,6 +102,11 @@ const formulare = [
 
 export default function FormularePage() {
   useDocumentTitle('Formulare & Vorlagen', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Formulare & Vorlagen – Fintutto Portal',
+    description: '10 rechtssichere Formulare: Mietvertrag, Uebergabeprotokoll, Betriebskostenabrechnung, Kuendigung und mehr.',
+    path: '/formulare',
+  })
   return (
     <div>
       {/* Hero */}
@@ -149,9 +154,9 @@ export default function FormularePage() {
       {/* Formulare Grid */}
       <section className="py-12">
         <div className="container">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Verfügbare Formulare">
             {formulare.map((item) => (
-              <Link key={item.title} to={item.href}>
+              <Link key={item.title} to={item.href} aria-label={`${item.title} – ${item.description}`} role="listitem">
                 <Card className={`h-full hover:shadow-lg transition-all group ${item.popular ? 'border-primary/30 shadow-md' : 'hover:border-primary/30'}`}>
                   {item.popular && (
                     <div className="gradient-vermieter text-white text-xs font-medium px-3 py-1 rounded-t-xl text-center">

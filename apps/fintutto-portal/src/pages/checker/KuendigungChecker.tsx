@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   kuendigungsgrund: string
@@ -22,6 +23,20 @@ export default function KuendigungChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Kündigungs-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Kündigungs-Checker – Ist die Kündigung wirksam?',
+    description: 'Prüfe ob deine Kündigung wirksam ist. Formvorschriften, Fristen und §573 BGB.',
+    path: '/checker/kuendigung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kündigungs-Checker',
+    description: 'Prüfe die Wirksamkeit einer Mietkündigung nach §573 BGB',
+    url: 'https://portal.fintutto.cloud/checker/kuendigung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)

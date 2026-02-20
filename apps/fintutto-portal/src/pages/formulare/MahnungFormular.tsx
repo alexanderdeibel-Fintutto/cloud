@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type MahnStufe = 'zahlungserinnerung' | 'erste_mahnung' | 'zweite_mahnung' | 'letzte_mahnung'
@@ -47,6 +47,18 @@ const initial: FormData = {
 export default function MahnungFormular() {
   useDocumentTitle('Mahnung', 'Fintutto Portal')
   useTrackTool('Mahnung')
+  useMetaTags({
+    title: 'Mahnschreiben erstellen – Von Zahlungserinnerung bis letzte Mahnung',
+    description: 'Erstelle Mahnschreiben in 4 Stufen. Mit Mahngebühr, Fristsetzung und Bankverbindung.',
+    path: '/formulare/mahnung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mahnschreiben-Generator',
+    description: 'Erstelle Mahnschreiben für ausstehende Mietzahlungen',
+    url: 'https://portal.fintutto.cloud/formulare/mahnung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 

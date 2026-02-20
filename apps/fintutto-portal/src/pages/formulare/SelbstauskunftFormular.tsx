@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface SelbstauskunftData {
@@ -40,6 +40,18 @@ const STEPS = [
 export default function SelbstauskunftFormular() {
   useDocumentTitle('Selbstauskunft', 'Fintutto Portal')
   useTrackTool('Selbstauskunft')
+  useMetaTags({
+    title: 'Mieterselbstauskunft erstellen – DSGVO-konform',
+    description: 'DSGVO-konforme Mieterselbstauskunft für Wohnungsinteressenten. Mit Einkommensnachweis und Schufa-Klausel.',
+    path: '/formulare/selbstauskunft',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Selbstauskunft-Generator',
+    description: 'Erstelle eine DSGVO-konforme Mieterselbstauskunft',
+    url: 'https://portal.fintutto.cloud/formulare/selbstauskunft',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState(0)
   const [data, setData] = useState<SelbstauskunftData>(INITIAL)
   const update = (field: keyof SelbstauskunftData, value: string | boolean) => setData(prev => ({ ...prev, [field]: value }))

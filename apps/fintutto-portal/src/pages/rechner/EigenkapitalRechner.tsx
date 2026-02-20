@@ -4,11 +4,23 @@ import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 export default function EigenkapitalRechner() {
   useDocumentTitle('Eigenkapital-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Eigenkapital-Rechner – Wie viel Eigenkapital brauchst du?',
+    description: 'Berechne wie viel Eigenkapital du für deinen Immobilienkauf benötigst. Mit Finanzierungsquote und Empfehlung.',
+    path: '/rechner/eigenkapital',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Eigenkapital-Rechner',
+    description: 'Berechne das benötigte Eigenkapital für deinen Immobilienkauf',
+    url: 'https://portal.fintutto.cloud/rechner/eigenkapital',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   useTrackTool('Eigenkapital-Rechner')
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer, FileText } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type KuendigungsTyp = 'ordentlich' | 'ausserordentlich'
@@ -64,6 +64,18 @@ const initialData: FormData = {
 export default function KuendigungFormular() {
   useDocumentTitle('Kündigung', 'Fintutto Portal')
   useTrackTool('Kündigung')
+  useMetaTags({
+    title: 'Kündigungsschreiben erstellen – §573/§543 BGB',
+    description: 'Erstelle ein rechtssicheres Kündigungsschreiben für Mieter oder Vermieter. Ordentlich und außerordentlich.',
+    path: '/formulare/kuendigung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kündigungsschreiben-Generator',
+    description: 'Erstelle ein rechtssicheres Mietkündigungsschreiben',
+    url: 'https://portal.fintutto.cloud/formulare/kuendigung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initialData)
 

@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface FormData {
@@ -49,6 +49,18 @@ const initial: FormData = {
 export default function NebenkostenvorauszahlungFormular() {
   useDocumentTitle('Nebenkostenvorauszahlung', 'Fintutto Portal')
   useTrackTool('Nebenkostenvorauszahlung')
+  useMetaTags({
+    title: 'Nebenkostenvorauszahlung anpassen – §560 BGB konform',
+    description: 'Erstelle ein Anpassungsschreiben für die Nebenkostenvorauszahlung. 8 Kostenarten, Vergleichsübersicht.',
+    path: '/formulare/nebenkostenvorauszahlung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Nebenkostenvorauszahlung-Generator',
+    description: 'Erstelle ein Anpassungsschreiben für die Nebenkostenvorauszahlung nach §560 BGB',
+    url: 'https://portal.fintutto.cloud/formulare/nebenkostenvorauszahlung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 

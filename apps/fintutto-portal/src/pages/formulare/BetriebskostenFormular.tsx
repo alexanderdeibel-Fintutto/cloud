@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type DistKey = 'flaeche' | 'personen' | 'einheiten' | 'verbrauch'
@@ -32,6 +32,18 @@ const DEFAULT_COSTS: CostItem[] = [
 export default function BetriebskostenFormular() {
   useDocumentTitle('Betriebskostenabrechnung', 'Fintutto Portal')
   useTrackTool('Betriebskosten')
+  useMetaTags({
+    title: 'Betriebskostenabrechnung erstellen – 17 Kostenarten',
+    description: 'Erstelle eine korrekte Betriebskostenabrechnung für deine Mieter. 17 Kostenarten, Umlageschlüssel.',
+    path: '/formulare/betriebskosten',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Betriebskostenabrechnung-Generator',
+    description: 'Erstelle eine korrekte Betriebskostenabrechnung',
+    url: 'https://portal.fintutto.cloud/formulare/betriebskosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState<'building' | 'costs' | 'units' | 'result'>('building')
   const [buildingName, setBuildingName] = useState('')
   const [buildingAddress, setBuildingAddress] = useState('')

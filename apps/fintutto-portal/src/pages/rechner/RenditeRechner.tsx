@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface RenditeResult {
@@ -20,6 +20,18 @@ interface RenditeResult {
 
 export default function RenditeRechner() {
   useDocumentTitle('Rendite-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Rendite-Rechner – Immobilienrendite berechnen',
+    description: 'Berechne Brutto- und Netto-Rendite, Cashflow und Eigenkapitalrendite deiner Immobilie. Kostenlos und sofort.',
+    path: '/rechner/rendite',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Rendite-Rechner',
+    description: 'Berechne Brutto- und Netto-Rendite, Cashflow und Eigenkapitalrendite',
+    url: 'https://portal.fintutto.cloud/rechner/rendite',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   useTrackTool('Rendite-Rechner')
   const [searchParams] = useSearchParams()
   const [kaufpreis, setKaufpreis] = useState<string>('')

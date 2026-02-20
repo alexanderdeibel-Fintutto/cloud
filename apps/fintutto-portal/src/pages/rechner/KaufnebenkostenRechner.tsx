@@ -4,7 +4,7 @@ import { Euro, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 const bundeslaender = [
@@ -28,6 +28,18 @@ const bundeslaender = [
 
 export default function KaufnebenkostenRechner() {
   useDocumentTitle('Kaufnebenkosten-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Kaufnebenkosten-Rechner – Alle Nebenkosten beim Immobilienkauf',
+    description: 'Berechne alle Nebenkosten beim Immobilienkauf: Grunderwerbsteuer, Notar, Grundbuch und Makler. Alle 16 Bundesländer.',
+    path: '/rechner/kaufnebenkosten',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kaufnebenkosten-Rechner',
+    description: 'Berechne alle Nebenkosten beim Immobilienkauf inkl. Grunderwerbsteuer',
+    url: 'https://portal.fintutto.cloud/rechner/kaufnebenkosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   useTrackTool('Kaufnebenkosten-Rechner')
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')

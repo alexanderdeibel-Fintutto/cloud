@@ -4,7 +4,7 @@ import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 const kostenarten = [
@@ -15,6 +15,18 @@ const kostenarten = [
 
 export default function NebenkostenRechner() {
   useDocumentTitle('Nebenkosten-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Nebenkosten-Rechner – Nebenkostenabrechnung erstellen',
+    description: 'Erstelle eine korrekte Nebenkostenabrechnung für deine Mieter. Mit Umlageschlüssel und Vorauszahlungen.',
+    path: '/rechner/nebenkosten',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Nebenkosten-Rechner',
+    description: 'Erstelle eine korrekte Nebenkostenabrechnung für deine Mieter',
+    url: 'https://portal.fintutto.cloud/rechner/nebenkosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   useTrackTool('Nebenkosten-Rechner')
   const [wohnflaeche, setWohnflaeche] = useState<string>('')
   const [vorauszahlung, setVorauszahlung] = useState<string>('')

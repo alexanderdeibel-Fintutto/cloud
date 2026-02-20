@@ -18,6 +18,7 @@ interface MetaTagsOptions {
   path?: string
   siteName?: string
   image?: string
+  baseUrl?: string
 }
 
 function setMeta(property: string, content: string) {
@@ -37,7 +38,17 @@ function setMeta(property: string, content: string) {
   el.setAttribute('content', content)
 }
 
-export function useMetaTags({ title, description, path, siteName = 'Fintutto', image }: MetaTagsOptions) {
+function setCanonical(url: string) {
+  let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
+  if (!el) {
+    el = document.createElement('link')
+    el.setAttribute('rel', 'canonical')
+    document.head.appendChild(el)
+  }
+  el.setAttribute('href', url)
+}
+
+export function useMetaTags({ title, description, path, siteName = 'Fintutto', image, baseUrl = 'https://portal.fintutto.cloud' }: MetaTagsOptions) {
   useEffect(() => {
     // Standard meta
     setMeta('description', description)
@@ -49,7 +60,9 @@ export function useMetaTags({ title, description, path, siteName = 'Fintutto', i
     setMeta('og:site_name', siteName)
 
     if (path) {
-      setMeta('og:url', `https://portal.fintutto.cloud${path}`)
+      const fullUrl = `${baseUrl}${path}`
+      setMeta('og:url', fullUrl)
+      setCanonical(fullUrl)
     }
     if (image) {
       setMeta('og:image', image)
@@ -59,5 +72,5 @@ export function useMetaTags({ title, description, path, siteName = 'Fintutto', i
     setMeta('twitter:card', 'summary')
     setMeta('twitter:title', title)
     setMeta('twitter:description', description)
-  }, [title, description, path, siteName, image])
+  }, [title, description, path, siteName, image, baseUrl])
 }

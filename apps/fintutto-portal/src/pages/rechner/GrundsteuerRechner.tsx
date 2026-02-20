@@ -4,11 +4,23 @@ import { Calculator, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 export default function GrundsteuerRechner() {
   useDocumentTitle('Grundsteuer-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Grundsteuer-Rechner – Neue Grundsteuer berechnen',
+    description: 'Berechne die neue Grundsteuer nach dem Bundesmodell. Mit Hebesatz und monatlicher Belastung.',
+    path: '/rechner/grundsteuer',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Grundsteuer-Rechner',
+    description: 'Berechne die neue Grundsteuer nach dem Bundesmodell',
+    url: 'https://portal.fintutto.cloud/rechner/grundsteuer',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   useTrackTool('Grundsteuer-Rechner')
   const [grundstueckswert, setGrundstueckswert] = useState<string>('')
   const [gebaeudewert, setGebaeudewert] = useState<string>('')

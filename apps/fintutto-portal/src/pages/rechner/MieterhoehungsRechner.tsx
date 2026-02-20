@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface MieterhoehungResult {
@@ -41,6 +41,18 @@ const bundeslaender = [
 
 export default function MieterhoehungsRechner() {
   useDocumentTitle('Mieterhöhungs-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Mieterhöhungs-Rechner – Zulässige Mieterhöhung berechnen',
+    description: 'Berechne die zulässige Mieterhöhung nach §558 BGB mit Kappungsgrenze. Kostenlos und rechtssicher.',
+    path: '/rechner/mieterhoehung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterhöhungs-Rechner',
+    description: 'Berechne die zulässige Mieterhöhung nach §558 BGB mit Kappungsgrenze',
+    url: 'https://portal.fintutto.cloud/rechner/mieterhoehung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   useTrackTool('Mieterhöhungs-Rechner')
   const [searchParams] = useSearchParams()
   const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')

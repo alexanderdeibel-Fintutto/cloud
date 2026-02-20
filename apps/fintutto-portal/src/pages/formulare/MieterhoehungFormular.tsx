@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type Begruendung = 'mietspiegel' | 'gutachten' | 'vergleichswohnungen' | 'modernisierung'
@@ -20,6 +20,18 @@ const BEGRUENDUNGEN: { id: Begruendung; label: string; desc: string }[] = [
 export default function MieterhoehungFormular() {
   useDocumentTitle('Mieterhöhung', 'Fintutto Portal')
   useTrackTool('Mieterhöhung')
+  useMetaTags({
+    title: 'Mieterhöhungsschreiben erstellen – §558 BGB konform',
+    description: 'Erstelle ein korrektes Mieterhöhungsschreiben nach §558 BGB. Mit Begründung und Zustimmungsfrist.',
+    path: '/formulare/mieterhoehung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterhöhungsschreiben-Generator',
+    description: 'Erstelle ein korrektes Mieterhöhungsschreiben nach §558 BGB',
+    url: 'https://portal.fintutto.cloud/formulare/mieterhoehung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [step, setStep] = useState<'input' | 'result' | 'letter'>('input')
   const [vermieterName, setVermieterName] = useState('')
   const [vermieterAdresse, setVermieterAdresse] = useState('')

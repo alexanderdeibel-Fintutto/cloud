@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   kautionHoehe: number
@@ -23,6 +24,20 @@ export default function KautionChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Kautions-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Kautions-Checker – Rückzahlung und Fristen prüfen',
+    description: 'Probleme mit der Kaution? Prüfe Rückzahlungsanspruch, Verzinsung und Fristen nach §551 BGB.',
+    path: '/checker/kaution',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kautions-Checker',
+    description: 'Prüfe deinen Kautionsrückzahlungsanspruch nach §551 BGB',
+    url: 'https://portal.fintutto.cloud/checker/kaution',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)

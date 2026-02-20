@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   mietvertragJahr: string
@@ -21,6 +22,20 @@ export default function SchoenheitsreparaturenChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Schönheitsreparaturen-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Schönheitsreparaturen-Checker – Musst du renovieren?',
+    description: 'Musst du beim Auszug renovieren? Prüfe ob die Klausel wirksam ist. Mit BGH-Rechtsprechung.',
+    path: '/checker/schoenheitsreparaturen',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Schönheitsreparaturen-Checker',
+    description: 'Prüfe ob Schönheitsreparaturklauseln in deinem Mietvertrag wirksam sind',
+    url: 'https://portal.fintutto.cloud/checker/schoenheitsreparaturen',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)

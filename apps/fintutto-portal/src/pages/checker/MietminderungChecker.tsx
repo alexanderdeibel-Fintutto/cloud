@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   mangelart: string
@@ -36,6 +37,20 @@ export default function MietminderungChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Mietminderungs-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Mietminderungs-Checker – Darfst du die Miete mindern?',
+    description: 'Mängel in der Wohnung? Prüfe ob und wie viel du nach §536 BGB mindern darfst.',
+    path: '/checker/mietminderung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietminderungs-Checker',
+    description: 'Prüfe ob du die Miete bei Mängeln mindern darfst nach §536 BGB',
+    url: 'https://portal.fintutto.cloud/checker/mietminderung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)

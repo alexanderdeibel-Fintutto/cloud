@@ -8,7 +8,7 @@ import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
 import { useProperties } from '@/hooks/useProperties'
 import { useAuth } from '@/contexts/AuthContext'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface MietvertragData {
@@ -71,6 +71,18 @@ const CLAUSES = [
 export default function MietvertragFormular() {
   useDocumentTitle('Mietvertrag erstellen', 'Fintutto Portal')
   useTrackTool('Mietvertrag')
+  useMetaTags({
+    title: 'Mietvertrag erstellen – Rechtssicherer Wohnraummietvertrag',
+    description: 'Erstelle einen rechtssicheren Mietvertrag für Wohnraum. Mit Index- oder Staffelmiete und allen Pflichtangaben.',
+    path: '/formulare/mietvertrag',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietvertrag-Generator',
+    description: 'Erstelle einen rechtssicheren Wohnraummietvertrag online',
+    url: 'https://portal.fintutto.cloud/formulare/mietvertrag',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [searchParams] = useSearchParams()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<MietvertragData>(INITIAL)

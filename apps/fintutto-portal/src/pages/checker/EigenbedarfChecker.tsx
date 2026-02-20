@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface FormData {
   personAngegeben: string
@@ -20,6 +21,20 @@ export default function EigenbedarfChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Eigenbedarf-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Eigenbedarf-Checker – Ist die Kündigung rechtmäßig?',
+    description: 'Eigenbedarfskündigung erhalten? Prüfe Begründung und Härtefallregelung nach §573 Abs. 2 BGB.',
+    path: '/checker/eigenbedarf',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Eigenbedarf-Checker',
+    description: 'Prüfe die Rechtmäßigkeit einer Eigenbedarfskündigung nach §573 Abs. 2 BGB',
+    url: 'https://portal.fintutto.cloud/checker/eigenbedarf',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
