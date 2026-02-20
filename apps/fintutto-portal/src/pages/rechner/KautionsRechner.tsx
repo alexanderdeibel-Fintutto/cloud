@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface KautionResult {
@@ -32,10 +32,15 @@ export default function KautionsRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Kautions-Rechner')
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
-  const [kaltmiete, setKaltmiete] = useState<string>('')
-  const [aktuelleKaution, setAktuelleKaution] = useState<string>('')
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_kaution_inputs', { kaltmiete: '', aktuelleKaution: '' })
+  const [kaltmiete, setKaltmieteRaw] = useState<string>(savedInputs.kaltmiete)
+  const [aktuelleKaution, setAktuelleKautionRaw] = useState<string>(savedInputs.aktuelleKaution)
   const [result, setResult] = useState<KautionResult | null>(null)
+
+  const setKaltmiete = (v: string) => { setKaltmieteRaw(v); setDirty(); setSavedInputs(prev => ({ ...prev, kaltmiete: v })) }
+  const setAktuelleKaution = (v: string) => { setAktuelleKautionRaw(v); setDirty(); setSavedInputs(prev => ({ ...prev, aktuelleKaution: v })) }
 
   useEffect(() => {
     const rent = searchParams.get('rent')
@@ -74,9 +79,11 @@ export default function KautionsRechner() {
   }
 
   const reset = () => {
-    setKaltmiete('')
-    setAktuelleKaution('')
+    setKaltmieteRaw('')
+    setAktuelleKautionRaw('')
     setResult(null)
+    clearSaved()
+    resetDirty()
   }
 
   return (

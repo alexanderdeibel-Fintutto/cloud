@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface RenditeResult {
@@ -33,20 +33,34 @@ export default function RenditeRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Rendite-Rechner')
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
-  const [kaufpreis, setKaufpreis] = useState<string>('')
-  const [nebenkosten, setNebenkosten] = useState<string>('10')
-  const [monatsmiete, setMonatsmiete] = useState<string>('')
+  const defaultInputs = { kaufpreis: '', nebenkosten: '10', monatsmiete: '', nichtUmlagefaehig: '15', eigenkapital: '', zins: '3.5', tilgung: '2' }
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_rendite_inputs', defaultInputs)
+  const [kaufpreis, setKaufpreisRaw] = useState<string>(savedInputs.kaufpreis)
+  const [nebenkosten, setNebenkostenRaw] = useState<string>(savedInputs.nebenkosten)
+  const [monatsmiete, setMonatsmieteRaw] = useState<string>(savedInputs.monatsmiete)
+
+  const persist = (field: string, value: string) => { setDirty(); setSavedInputs(prev => ({ ...prev, [field]: value })) }
+
+  const setKaufpreis = (v: string) => { setKaufpreisRaw(v); persist('kaufpreis', v) }
+  const setNebenkosten = (v: string) => { setNebenkostenRaw(v); persist('nebenkosten', v) }
+  const setMonatsmiete = (v: string) => { setMonatsmieteRaw(v); persist('monatsmiete', v) }
 
   useEffect(() => {
     const rent = searchParams.get('rent')
     if (rent) setMonatsmiete(rent)
   }, [searchParams])
-  const [nichtUmlagefaehig, setNichtUmlagefaehig] = useState<string>('15')
-  const [eigenkapital, setEigenkapital] = useState<string>('')
-  const [zins, setZins] = useState<string>('3.5')
-  const [tilgung, setTilgung] = useState<string>('2')
+  const [nichtUmlagefaehig, setNichtUmlagefaehigRaw] = useState<string>(savedInputs.nichtUmlagefaehig)
+  const [eigenkapital, setEigenkapitalRaw] = useState<string>(savedInputs.eigenkapital)
+  const [zins, setZinsRaw] = useState<string>(savedInputs.zins)
+  const [tilgung, setTilgungRaw] = useState<string>(savedInputs.tilgung)
   const [result, setResult] = useState<RenditeResult | null>(null)
+
+  const setNichtUmlagefaehig = (v: string) => { setNichtUmlagefaehigRaw(v); persist('nichtUmlagefaehig', v) }
+  const setEigenkapital = (v: string) => { setEigenkapitalRaw(v); persist('eigenkapital', v) }
+  const setZins = (v: string) => { setZinsRaw(v); persist('zins', v) }
+  const setTilgung = (v: string) => { setTilgungRaw(v); persist('tilgung', v) }
 
   const berechnen = () => {
     const kp = parseFloat(kaufpreis) || 0
@@ -188,7 +202,7 @@ export default function RenditeRechner() {
                     <Button onClick={berechnen} disabled={!kaufpreis || !monatsmiete} className="flex-1 gradient-vermieter text-white">
                       Berechnen
                     </Button>
-                    <Button variant="outline" onClick={() => { setKaufpreis(''); setMonatsmiete(''); setResult(null) }}>
+                    <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setMonatsmieteRaw(''); setNebenkostenRaw('10'); setNichtUmlagefaehigRaw('15'); setEigenkapitalRaw(''); setZinsRaw('3.5'); setTilgungRaw('2'); setResult(null); clearSaved(); resetDirty() }}>
                       Zurücksetzen
                     </Button>
                   </div>
