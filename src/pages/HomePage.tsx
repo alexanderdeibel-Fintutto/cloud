@@ -18,6 +18,9 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { getOtherApps } from '@fintutto/shared'
+
+const ecosystemApps = getOtherApps('mieter-checker')
 
 const checkers = [
   {
@@ -261,6 +264,35 @@ export default function HomePage() {
                   </Card>
                 </Link>
               </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Ecosystem Teaser */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              Das Fintutto Oekosystem
+            </h2>
+            <p className="text-gray-600">
+              Noch mehr Tools fuer Mieter und Vermieter – alle verbunden.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+            {ecosystemApps.map((app) => (
+              <a
+                key={app.key}
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center p-4 rounded-xl border bg-white hover:shadow-lg hover:border-fintutto-primary/30 transition-all"
+              >
+                <span className="text-3xl mb-2">{app.icon}</span>
+                <span className="font-semibold text-sm text-gray-900">{app.name}</span>
+                <span className="text-xs text-gray-500 text-center">{app.description}</span>
+              </a>
             ))}
           </div>
         </div>
