@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import {
   FitnessProfile, FitnessGoal, FitnessLevel, TrainingLocation,
   Gender, WorkoutSession, PersonalRecord, TrainingPlan,
+  MealEntry, BodyMeasurement,
 } from '@/lib/fitness-types'
 
 interface FitnessContextType {
@@ -26,6 +27,15 @@ interface FitnessContextType {
   // PRs
   checkAndSavePersonalRecord: (exerciseId: string, exerciseName: string, weight: number, reps: number) => Promise<boolean>
   loadPersonalRecords: () => Promise<void>
+  // Nutrition
+  meals: MealEntry[]
+  saveMeal: (meal: MealEntry) => Promise<void>
+  deleteMeal: (mealId: string) => Promise<void>
+  loadMeals: (date: string) => Promise<void>
+  // Body Tracking
+  bodyMeasurements: BodyMeasurement[]
+  saveBodyMeasurement: (m: BodyMeasurement) => Promise<void>
+  loadBodyMeasurements: () => Promise<void>
 }
 
 const FitnessContext = createContext<FitnessContextType | undefined>(undefined)
@@ -38,6 +48,8 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([])
   const [plans, setPlans] = useState<TrainingPlan[]>([])
   const [activePlan, setActivePlanState] = useState<TrainingPlan | null>(null)
+  const [meals, setMeals] = useState<MealEntry[]>([])
+  const [bodyMeasurements, setBodyMeasurements] = useState<BodyMeasurement[]>([])
 
   // Load fitness profile when user changes
   useEffect(() => {
@@ -307,6 +319,118 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
     }
   }, [user])
 
+  // --- Nutrition ---
+  const saveMeal = async (meal: MealEntry) => {
+    if (!user) return
+    const { error } = await supabase.from('fitness_meal_entries').upsert({
+      id: meal.id,
+      user_id: user.id,
+      date: meal.date,
+      meal_type: meal.mealType,
+      name: meal.name,
+      calories: meal.calories,
+      protein_g: meal.proteinG,
+      carbs_g: meal.carbsG,
+      fat_g: meal.fatG,
+      fiber_g: meal.fiberG,
+      notes: meal.notes,
+    })
+    if (!error) {
+      setMeals(prev => {
+        const exists = prev.find(m => m.id === meal.id)
+        if (exists) return prev.map(m => m.id === meal.id ? meal : m)
+        return [...prev, meal]
+      })
+    }
+  }
+
+  const deleteMeal = async (mealId: string) => {
+    if (!user) return
+    await supabase.from('fitness_meal_entries').delete().eq('id', mealId).eq('user_id', user.id)
+    setMeals(prev => prev.filter(m => m.id !== mealId))
+  }
+
+  const loadMeals = useCallback(async (date: string) => {
+    if (!user) return
+    const { data } = await supabase
+      .from('fitness_meal_entries')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('date', date)
+      .order('created_at', { ascending: true })
+
+    if (data) {
+      setMeals(data.map((d: any): MealEntry => ({
+        id: d.id,
+        userId: d.user_id,
+        date: d.date,
+        mealType: d.meal_type,
+        name: d.name,
+        calories: Number(d.calories) || 0,
+        proteinG: Number(d.protein_g) || 0,
+        carbsG: Number(d.carbs_g) || 0,
+        fatG: Number(d.fat_g) || 0,
+        fiberG: d.fiber_g ? Number(d.fiber_g) : null,
+        notes: d.notes,
+        createdAt: d.created_at,
+      })))
+    }
+  }, [user])
+
+  // --- Body Measurements ---
+  const saveBodyMeasurement = async (m: BodyMeasurement) => {
+    if (!user) return
+    const { error } = await supabase.from('fitness_daily_progress').upsert({
+      id: m.id,
+      user_id: user.id,
+      date: m.date,
+      weight_kg: m.weightKg,
+      body_fat_percent: m.bodyFatPercent,
+      chest_cm: m.chestCm,
+      waist_cm: m.waistCm,
+      hips_cm: m.hipsCm,
+      biceps_cm: m.bicepsCm,
+      thigh_cm: m.thighCm,
+      calf_cm: m.calfCm,
+      notes: m.notes,
+    })
+    if (!error) {
+      setBodyMeasurements(prev => {
+        const exists = prev.find(x => x.id === m.id)
+        if (exists) return prev.map(x => x.id === m.id ? m : x)
+        return [...prev, m].sort((a, b) => a.date.localeCompare(b.date))
+      })
+    }
+  }
+
+  const loadBodyMeasurements = useCallback(async () => {
+    if (!user) return
+    const { data } = await supabase
+      .from('fitness_daily_progress')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date', { ascending: true })
+      .limit(365)
+
+    if (data) {
+      setBodyMeasurements(data.map((d: any): BodyMeasurement => ({
+        id: d.id,
+        userId: d.user_id,
+        date: d.date,
+        weightKg: d.weight_kg ? Number(d.weight_kg) : null,
+        bodyFatPercent: d.body_fat_percent ? Number(d.body_fat_percent) : null,
+        chestCm: d.chest_cm ? Number(d.chest_cm) : null,
+        waistCm: d.waist_cm ? Number(d.waist_cm) : null,
+        hipsCm: d.hips_cm ? Number(d.hips_cm) : null,
+        bicepsCm: d.biceps_cm ? Number(d.biceps_cm) : null,
+        thighCm: d.thigh_cm ? Number(d.thigh_cm) : null,
+        calfCm: d.calf_cm ? Number(d.calf_cm) : null,
+        notes: d.notes,
+        createdAt: d.created_at,
+      })))
+    }
+  }, [user])
+
   return (
     <FitnessContext.Provider value={{
       profile,
@@ -324,6 +448,13 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       loadPlans,
       checkAndSavePersonalRecord,
       loadPersonalRecords,
+      meals,
+      saveMeal,
+      deleteMeal,
+      loadMeals,
+      bodyMeasurements,
+      saveBodyMeasurement,
+      loadBodyMeasurements,
     }}>
       {children}
     </FitnessContext.Provider>

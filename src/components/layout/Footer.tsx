@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
-import { NewsletterSignup } from '@/components/monetization'
+// import { NewsletterSignup } from '@/components/monetization'
 
 const footerLinks = {
   rechner: [
@@ -125,7 +125,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500">
-            {currentYear} Fintutto. Alle Rechte vorbehalten.
+            {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
           </p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <a

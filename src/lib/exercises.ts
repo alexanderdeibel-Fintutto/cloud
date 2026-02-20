@@ -1,11 +1,12 @@
 import { Exercise } from './fitness-types'
+import { EXERCISES_EXTENDED } from './exercises-extended'
 
 // ============================================
 // FitTutto - Deutsche Uebungsbibliothek
-// 100+ Uebungen mit Anleitungen
+// 250+ Uebungen mit Anleitungen
 // ============================================
 
-export const EXERCISES: Exercise[] = [
+const EXERCISES_BASE: Exercise[] = [
   // ==================== BRUST ====================
   {
     id: 'bench-press-barbell',
@@ -1256,6 +1257,14 @@ export const EXERCISES: Exercise[] = [
     defaultSets: 3, defaultReps: 8, defaultRestSeconds: 120,
   },
 ]
+
+// Merge base + extended exercises (deduplicate by ID)
+const seenIds = new Set<string>()
+export const EXERCISES: Exercise[] = [...EXERCISES_BASE, ...EXERCISES_EXTENDED].filter(e => {
+  if (seenIds.has(e.id)) return false
+  seenIds.add(e.id)
+  return true
+})
 
 // --- Helper Functions ---
 

@@ -264,3 +264,61 @@ export interface DailyProgress {
   totalVolume: number
   weightKg: number | null
 }
+
+// --- Nutrition Tracking ---
+export interface MealEntry {
+  id: string
+  userId: string
+  date: string
+  mealType: MealType
+  name: string
+  calories: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+  fiberG: number | null
+  notes: string | null
+  createdAt: string
+}
+
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+
+export const MEAL_TYPE_LABELS: Record<MealType, string> = {
+  breakfast: 'Fruehstueck',
+  lunch: 'Mittagessen',
+  dinner: 'Abendessen',
+  snack: 'Snack',
+}
+
+export const MEAL_TYPE_ICONS: Record<MealType, string> = {
+  breakfast: '🌅',
+  lunch: '☀️',
+  dinner: '🌙',
+  snack: '🍎',
+}
+
+// --- Body Tracking ---
+export interface BodyMeasurement {
+  id: string
+  userId: string
+  date: string
+  weightKg: number | null
+  bodyFatPercent: number | null
+  chestCm: number | null
+  waistCm: number | null
+  hipsCm: number | null
+  bicepsCm: number | null
+  thighCm: number | null
+  calfCm: number | null
+  notes: string | null
+  createdAt: string
+}
+
+// --- Coach Tips ---
+export interface CoachTip {
+  id: string
+  category: 'training' | 'nutrition' | 'recovery' | 'motivation'
+  title: string
+  content: string
+  priority: number
+}

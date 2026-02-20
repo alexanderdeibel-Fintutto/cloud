@@ -22,6 +22,10 @@ const FitTuttoProfilePage = lazy(() => import('@/pages/FitTuttoProfilePage'))
 const FitTuttoExercisesPage = lazy(() => import('@/pages/FitTuttoExercisesPage'))
 const FitTuttoWorkoutPage = lazy(() => import('@/pages/FitTuttoWorkoutPage'))
 const FitTuttoPlanPage = lazy(() => import('@/pages/FitTuttoPlanPage'))
+const FitTuttoCoachPage = lazy(() => import('@/pages/FitTuttoCoachPage'))
+const FitTuttoNutritionPage = lazy(() => import('@/pages/FitTuttoNutritionPage'))
+const FitTuttoBodyTrackingPage = lazy(() => import('@/pages/FitTuttoBodyTrackingPage'))
+const FitTuttoHistoryPage = lazy(() => import('@/pages/FitTuttoHistoryPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const CheckoutSuccessPage = lazy(() => import('@/pages/CheckoutSuccessPage'))
@@ -106,6 +110,10 @@ function App() {
               <Route path="/fittutto/uebungen" element={<FitTuttoExercisesPage />} />
               <Route path="/fittutto/workout" element={<FitTuttoWorkoutPage />} />
               <Route path="/fittutto/plan" element={<FitTuttoPlanPage />} />
+              <Route path="/fittutto/coach" element={<FitTuttoCoachPage />} />
+              <Route path="/fittutto/ernaehrung" element={<FitTuttoNutritionPage />} />
+              <Route path="/fittutto/koerper" element={<FitTuttoBodyTrackingPage />} />
+              <Route path="/fittutto/historie" element={<FitTuttoHistoryPage />} />
               <Route path="/fittutto/preise" element={<FitTuttoPricingPage />} />
 
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />

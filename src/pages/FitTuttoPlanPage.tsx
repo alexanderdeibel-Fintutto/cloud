@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Trash2, Edit3, Save, Wand2, GripVertical,
-  Dumbbell, Search, X, Check,
+  Dumbbell, Search, X, Check, RefreshCw,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -119,6 +119,12 @@ export default function FitTuttoPlanPage() {
   const [showPicker, setShowPicker] = useState(false)
   const [pickerDayId, setPickerDayId] = useState<string | null>(null)
   const [pickerQuery, setPickerQuery] = useState('')
+
+  // Exercise swap
+  const [showSwap, setShowSwap] = useState(false)
+  const [swapDayId, setSwapDayId] = useState<string | null>(null)
+  const [swapIndex, setSwapIndex] = useState<number>(0)
+  const [swapQuery, setSwapQuery] = useState('')
 
   useEffect(() => { loadPlans() }, [loadPlans])
 
@@ -241,6 +247,43 @@ export default function FitTuttoPlanPage() {
     updatePlanDay(dayId, {
       exercises: day.exercises.map((e, i) => i === order ? { ...e, ...update } : e),
     })
+  }
+
+  const swapExercise = (dayId: string, index: number, newExercise: Exercise) => {
+    if (!editingPlan) return
+    const day = editingPlan.days.find(d => d.id === dayId)
+    if (!day) return
+    const old = day.exercises[index]
+    updatePlanDay(dayId, {
+      exercises: day.exercises.map((e, i) => i === index ? {
+        ...e,
+        exerciseId: newExercise.id,
+        exercise: newExercise,
+        sets: old.sets,
+        reps: old.reps,
+        restSeconds: newExercise.defaultRestSeconds || old.restSeconds,
+      } : e),
+    })
+    setShowSwap(false)
+    setSwapQuery('')
+  }
+
+  const getSwapSuggestions = (): Exercise[] => {
+    if (!editingPlan || !swapDayId) return []
+    const day = editingPlan.days.find(d => d.id === swapDayId)
+    if (!day || !day.exercises[swapIndex]) return []
+    const currentEx = day.exercises[swapIndex].exercise
+    const usedIds = new Set(day.exercises.map(e => e.exerciseId))
+
+    if (swapQuery) {
+      return searchExercises(swapQuery).filter(e => !usedIds.has(e.id))
+    }
+
+    // Find similar exercises (same primary muscles, not already in this day)
+    return EXERCISES.filter(e =>
+      !usedIds.has(e.id) &&
+      e.primaryMuscles.some(m => currentEx.primaryMuscles.includes(m))
+    ).slice(0, 20)
   }
 
   const pickerResults = pickerQuery ? searchExercises(pickerQuery) : EXERCISES.slice(0, 30)
@@ -490,6 +533,15 @@ export default function FitTuttoPlanPage() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          className="h-7 w-7 p-0 text-orange-400"
+                          title="Uebung tauschen"
+                          onClick={() => { setSwapDayId(day.id); setSwapIndex(exIdx); setShowSwap(true) }}
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
                           className="h-7 w-7 p-0 text-gray-400"
                           onClick={() => removeExerciseFromDay(day.id, exIdx)}
                         >
@@ -574,6 +626,72 @@ export default function FitTuttoPlanPage() {
                       </div>
                     </button>
                   ))}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Exercise Swap Modal */}
+        <AnimatePresence>
+          {showSwap && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center"
+              onClick={() => setShowSwap(false)}
+            >
+              <motion.div
+                initial={{ y: 100 }}
+                animate={{ y: 0 }}
+                exit={{ y: 100 }}
+                onClick={e => e.stopPropagation()}
+                className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[80vh] flex flex-col"
+              >
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-bold text-lg">Uebung tauschen</h3>
+                      <p className="text-sm text-gray-500">Aehnliche Uebungen fuer gleiche Muskelgruppe</p>
+                    </div>
+                    <button onClick={() => setShowSwap(false)}><X className="w-5 h-5" /></button>
+                  </div>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      value={swapQuery}
+                      onChange={e => setSwapQuery(e.target.value)}
+                      placeholder="Oder suche eine andere Uebung..."
+                      className="pl-10"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <div className="overflow-y-auto flex-1 p-2">
+                  {getSwapSuggestions().map(ex => (
+                    <button
+                      key={ex.id}
+                      onClick={() => {
+                        if (swapDayId) swapExercise(swapDayId, swapIndex, ex)
+                      }}
+                      className="w-full text-left p-3 rounded-lg hover:bg-orange-50 flex items-center gap-3 transition-colors"
+                    >
+                      <RefreshCw className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                      <div>
+                        <div className="font-medium text-sm">{ex.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {ex.primaryMuscles.map(m => MUSCLE_GROUP_LABELS[m]).join(', ')}
+                          {ex.equipment.length > 0 && ` · ${ex.equipment[0]}`}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                  {getSwapSuggestions().length === 0 && (
+                    <div className="text-center py-8 text-gray-400 text-sm">
+                      Keine passenden Uebungen gefunden
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </motion.div>

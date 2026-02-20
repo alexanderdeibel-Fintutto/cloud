@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Dumbbell, Trophy, TrendingUp, Calendar, Clock, Target,
-  Flame, BarChart3, Play, ChevronRight, Weight, Zap,
+  Flame, BarChart3, Play, ChevronRight, Weight,
+  Brain, Apple, Scale, History,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -295,22 +296,30 @@ export default function FitTuttoDashboardPage() {
             {/* Quick Actions */}
             <Card>
               <CardContent className="pt-6">
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/profil')}>
-                    <Target className="w-5 h-5 mb-1 text-orange-500" />
-                    <span className="text-xs">Ziele aendern</span>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/coach')}>
+                    <Brain className="w-5 h-5 mb-1 text-purple-500" />
+                    <span className="text-xs">KI-Coach</span>
                   </Button>
-                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/uebungen')}>
-                    <Dumbbell className="w-5 h-5 mb-1 text-orange-500" />
-                    <span className="text-xs">Uebungen</span>
+                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/ernaehrung')}>
+                    <Apple className="w-5 h-5 mb-1 text-green-500" />
+                    <span className="text-xs">Ernaehrung</span>
+                  </Button>
+                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/koerper')}>
+                    <Scale className="w-5 h-5 mb-1 text-blue-500" />
+                    <span className="text-xs">Koerper</span>
+                  </Button>
+                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/historie')}>
+                    <History className="w-5 h-5 mb-1 text-orange-500" />
+                    <span className="text-xs">Historie</span>
                   </Button>
                   <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/plan')}>
                     <BarChart3 className="w-5 h-5 mb-1 text-orange-500" />
                     <span className="text-xs">Plaene</span>
                   </Button>
-                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/preise')}>
-                    <Zap className="w-5 h-5 mb-1 text-orange-500" />
-                    <span className="text-xs">Upgrade</span>
+                  <Button variant="outline" className="h-auto py-3 flex-col" onClick={() => navigate('/fittutto/uebungen')}>
+                    <Dumbbell className="w-5 h-5 mb-1 text-orange-500" />
+                    <span className="text-xs">Uebungen</span>
                   </Button>
                 </div>
               </CardContent>
