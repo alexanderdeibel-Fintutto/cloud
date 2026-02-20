@@ -108,7 +108,15 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     setTranslatedText(sourceText)
   }
 
+  const [micWarning, setMicWarning] = useState<string | null>(null)
+
   const handleMicToggle = () => {
+    if (!micSupported) {
+      setMicWarning('Spracheingabe wird nur in Chrome und Edge unterstützt. Bitte wechseln Sie den Browser.')
+      setTimeout(() => setMicWarning(null), 5000)
+      return
+    }
+    setMicWarning(null)
     if (isListening) {
       stopListening()
     } else {
@@ -180,17 +188,15 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
                 {sourceLangData?.flag} {sourceLangData?.name}
               </span>
               <div className="flex items-center gap-1">
-                {micSupported && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleMicToggle}
-                    className={isListening ? 'text-destructive pulse-mic' : ''}
-                    title={isListening ? 'Aufnahme stoppen' : 'Spracheingabe'}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleMicToggle}
+                  className={isListening ? 'text-destructive pulse-mic' : !micSupported ? 'opacity-50' : ''}
+                  title={!micSupported ? 'Spracheingabe (nur in Chrome/Edge verfügbar)' : isListening ? 'Aufnahme stoppen' : 'Spracheingabe'}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
                 {sourceSpeech.isSupported && sourceText && (
                   <Button
                     variant="ghost"
@@ -225,8 +231,8 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
                   Aufnahme läuft...
                 </span>
               )}
-              {micError && (
-                <span className="text-xs text-destructive">{micError}</span>
+              {(micError || micWarning) && (
+                <span className="text-xs text-destructive">{micError || micWarning}</span>
               )}
             </div>
           </div>
