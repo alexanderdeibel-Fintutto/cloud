@@ -1,79 +1,50 @@
-From 6f9b2251d22014263a7899805fec684486838c82 Mon Sep 17 00:00:00 2001
+From 07f9cfc8799a1782e501962b83dcba3f8a1be10e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
-Date: Sun, 15 Feb 2026 22:51:15 +0000
-Subject: [PATCH] Replace placeholder Stripe price IDs with real ones
+Date: Fri, 20 Feb 2026 05:09:34 +0000
+Subject: [PATCH] Add Stripe price IDs for all plans and credit packages
 
-- Starter: price_1T0nav/price_1T0naw (monthly/yearly)
-- Kaempfer: price_1T0nax (monthly/yearly)
-- Vollschutz: price_1T0nay (monthly/yearly)
-- Credit packages: 10/25/50 with real Stripe IDs
-- Referral: updated to 1 Monat Kaempfer gratis (both sides)
-
-https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
 ---
- src/hooks/useReferrals.ts |  2 +-
- src/lib/credits.ts        | 22 +++++++++-------------
- 2 files changed, 10 insertions(+), 14 deletions(-)
+ src/lib/credits.ts | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/src/hooks/useReferrals.ts b/src/hooks/useReferrals.ts
-index fb3df88d..8dcb41cc 100644
---- a/src/hooks/useReferrals.ts
-+++ b/src/hooks/useReferrals.ts
-@@ -1,5 +1,5 @@
- // Referral-System fuer BescheidBoxer
--// Belohnung: 30 Bonus-Credits fuer BEIDE Seiten
-+// Belohnung: 1 Monat Kaempfer gratis fuer BEIDE Seiten (via Ecosystem Stripe Coupon)
- 
- import { useState, useEffect, useCallback } from 'react'
- import { supabase } from '@/integrations/supabase/client'
 diff --git a/src/lib/credits.ts b/src/lib/credits.ts
-index 6aa3bb13..0cf467ab 100644
+index b3d8912c..ad9ffdfd 100644
 --- a/src/lib/credits.ts
 +++ b/src/lib/credits.ts
-@@ -49,9 +49,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
+@@ -47,6 +47,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
      mieterAppInklusive: false,
      letterPrice: 1.99,
      tier: 1,
--    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
--    stripePriceIdMonthly: 'price_bb_starter_monthly',
--    stripePriceIdYearly: 'price_bb_starter_yearly',
 +    stripePriceIdMonthly: 'price_1T0nav52lqSgjCzezfeyYiwy',
 +    stripePriceIdYearly: 'price_1T0naw52lqSgjCzeZU9otXyg',
    },
    kaempfer: {
      name: 'Kaempfer',
-@@ -68,9 +67,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
+@@ -63,6 +65,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
      letterPrice: 0.99,
      tier: 2,
      badge: 'Beliebt',
--    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
--    stripePriceIdMonthly: 'price_bb_kaempfer_monthly',
--    stripePriceIdYearly: 'price_bb_kaempfer_yearly',
 +    stripePriceIdMonthly: 'price_1T0nax52lqSgjCzeELDbmrUQ',
 +    stripePriceIdYearly: 'price_1T0nax52lqSgjCzecXnrSRr0',
    },
    vollschutz: {
      name: 'Vollschutz',
-@@ -87,9 +85,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
+@@ -79,6 +83,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
      letterPrice: 0,
      tier: 3,
      badge: 'VIP',
--    // TODO: Replace with real Stripe Price IDs after running create-all-stripe-products.sh
--    stripePriceIdMonthly: 'price_bb_vollschutz_monthly',
--    stripePriceIdYearly: 'price_bb_vollschutz_yearly',
 +    stripePriceIdMonthly: 'price_1T0nay52lqSgjCzexKgGvJkS',
 +    stripePriceIdYearly: 'price_1T0nay52lqSgjCzeHLGLpsuu',
    },
  }
  
-@@ -105,10 +102,9 @@ export const CREDIT_COSTS = {
+@@ -94,9 +100,9 @@ export const CREDIT_COSTS = {
  }
  
  export const CREDIT_PACKAGES = [
--  // TODO: Replace stripePriceId with real Stripe Price IDs after running create-all-stripe-products.sh
--  { credits: 10, price: 4.99, label: '10 Credits', stripePriceId: 'price_bb_credits_10' },
--  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%', stripePriceId: 'price_bb_credits_25' },
--  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%', stripePriceId: 'price_bb_credits_50' },
+-  { credits: 10, price: 4.99, label: '10 Credits' },
+-  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%' },
+-  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%' },
 +  { credits: 10, price: 4.99, label: '10 Credits', stripePriceId: 'price_1T0naz52lqSgjCzeYuBqo0na' },
 +  { credits: 25, price: 9.99, label: '25 Credits', discount: '10%', stripePriceId: 'price_1T0naz52lqSgjCzeJUXiFb19' },
 +  { credits: 50, price: 17.99, label: '50 Credits', discount: '20%', stripePriceId: 'price_1T0nb052lqSgjCzeyUSt1hL6' },

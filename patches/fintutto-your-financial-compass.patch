@@ -1,35 +1,32 @@
-From 42f6d7015615a6fead5eb0871ba6387898b67db3 Mon Sep 17 00:00:00 2001
+From b84a36b9a23069aebffb2ee56d341398f6767e25 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
-Date: Sun, 15 Feb 2026 22:51:24 +0000
+Date: Fri, 20 Feb 2026 05:09:42 +0000
 Subject: [PATCH] Add yearly Stripe price IDs for Basic and Pro plans
 
-- Basic yearly: price_1T0nb052lqSgjCzeR8a7rmP1 (95.90 EUR)
-- Pro yearly: price_1T0nb152lqSgjCze1ae7RGdJ (191.90 EUR)
-- 20% yearly discount consistent across ecosystem
-
-https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
 ---
- src/hooks/useSubscription.ts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ src/hooks/useSubscription.ts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/src/hooks/useSubscription.ts b/src/hooks/useSubscription.ts
-index d238207..039fcf6 100644
+index 7bfa1d4..6776822 100644
 --- a/src/hooks/useSubscription.ts
 +++ b/src/hooks/useSubscription.ts
-@@ -30,7 +30,7 @@ export const PLAN_CONFIG = {
+@@ -26,7 +26,9 @@ export const PLAN_CONFIG = {
+   basic: {
+     name: 'Basic',
      price: 9.99,
-     yearlyPrice: 95.90, // 20% Rabatt
++    yearlyPrice: 95.90,
      priceId: 'price_1Szr9X52lqSgjCzeFZ88yFlw',
--    yearlyPriceId: null as string | null, // TODO: Replace after running create-all-stripe-products.sh
 +    yearlyPriceId: 'price_1T0nb052lqSgjCzeR8a7rmP1',
      productId: 'prod_TxmipPdak8JwmT',
      features: [
        'Unbegrenzte Firmen',
-@@ -46,7 +46,7 @@ export const PLAN_CONFIG = {
+@@ -40,7 +42,9 @@ export const PLAN_CONFIG = {
+   pro: {
+     name: 'Pro',
      price: 19.99,
-     yearlyPrice: 191.90, // 20% Rabatt
++    yearlyPrice: 191.90,
      priceId: 'price_1Szr9Z52lqSgjCzeY83WUERb',
--    yearlyPriceId: null as string | null, // TODO: Replace after running create-all-stripe-products.sh
 +    yearlyPriceId: 'price_1T0nb152lqSgjCze1ae7RGdJ',
      productId: 'prod_Txmjs0RZOVqFzS',
      features: [

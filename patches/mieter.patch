@@ -1,40 +1,40 @@
-From afecad0e6f45d311d455f40c68d6b362aa8ce5f7 Mon Sep 17 00:00:00 2001
+From dd1deab3576209c7704800f6ed2195829afeb3b3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
-Date: Sun, 15 Feb 2026 22:51:27 +0000
+Date: Fri, 20 Feb 2026 05:09:50 +0000
 Subject: [PATCH] Switch to EUR pricing with new Stripe IDs and yearly billing
 
-- Basic: 4.99 EUR/mo (from USD 9.99), yearly 47.90 EUR
-- Pro: 9.99 EUR/mo (from USD 19.99), yearly 95.90 EUR
-- Added product IDs and yearly price IDs
-- Consistent with Portal Mieter tier pricing
-
-https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
 ---
- src/hooks/useSubscription.ts | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ src/hooks/useSubscription.ts | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/src/hooks/useSubscription.ts b/src/hooks/useSubscription.ts
-index 08abceb..77580d9 100644
+index 85cb40d..5059cbe 100644
 --- a/src/hooks/useSubscription.ts
 +++ b/src/hooks/useSubscription.ts
-@@ -24,17 +24,17 @@ export const PLANS = {
+@@ -21,19 +21,19 @@ export const PLANS = {
+   },
+   basic: {
      name: "Basic",
-     price_monthly: 4.99, // gesenkt von 9.99, konsistent mit Portal Mieter
-     price_yearly: 47.90, // 20% Rabatt (einheitlich ueber alle Apps)
--    price_id_monthly: "price_1SsEqV52lqSgjCzeKuUQGBOE", // TODO: Update with new price after running create-all-stripe-products.sh
--    price_id_yearly: null as string | null, // TODO: Replace after running create-all-stripe-products.sh
--    product_id: null,
+-    price_monthly: 9.99,
+-    price_yearly: 95.88, // 20% Rabatt
+-    price_id_monthly: "price_1SsEqV52lqSgjCzeKuUQGBOE",
+-    price_id_yearly: null, // Kann später hinzugefügt werden
+-    product_id: null, // Will be determined from subscription
++    price_monthly: 4.99,
++    price_yearly: 47.90,
 +    price_id_monthly: "price_1T0nb152lqSgjCzePj9k35h4",
 +    price_id_yearly: "price_1T0nb252lqSgjCzeKthcl46U",
 +    product_id: "prod_Tyl7nP8RIZYiKg",
    },
    pro: {
      name: "Pro",
-     price_monthly: 9.99, // gesenkt von 19.99, angemessen fuer Privatperson
-     price_yearly: 95.90, // 20% Rabatt (einheitlich ueber alle Apps)
--    price_id_monthly: "price_1SsEr552lqSgjCzeBvWBTzKS", // TODO: Update with new price after running create-all-stripe-products.sh
--    price_id_yearly: null as string | null, // TODO: Replace after running create-all-stripe-products.sh
--    product_id: null,
+-    price_monthly: 19.99,
+-    price_yearly: 191.88,
+-    price_id_monthly: "price_1SsEr552lqSgjCzeBvWBTzKS",
+-    price_id_yearly: null,
+-    product_id: null, // Will be determined from subscription
++    price_monthly: 9.99,
++    price_yearly: 95.90,
 +    price_id_monthly: "price_1T0nb352lqSgjCzennX9j9dE",
 +    price_id_yearly: "price_1T0nb352lqSgjCzejpncsetw",
 +    product_id: "prod_Tyl7B6nLP9waBf",

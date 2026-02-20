@@ -1,13 +1,8 @@
-From 03799f3e769937f9cddefee5e13fca161483631d Mon Sep 17 00:00:00 2001
+From 05a965dff6522ffc66e11df3e1c40de6ffa2ce74 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
-Date: Sun, 15 Feb 2026 22:51:33 +0000
+Date: Fri, 20 Feb 2026 05:10:08 +0000
 Subject: [PATCH] Add yearly pricing fields and mark placeholder product IDs
 
-- Added priceIdYearly field to all plans
-- Marked prod_starter/prod_basic/prod_pro/prod_enterprise as TODOs
-- Yearly prices need Stripe creation (Basic 95.90, Pro 239.90, Enterprise 479.90)
-
-https://claude.ai/code/session_01LPiU4t1tKyqq3qgUgAypzB
 ---
  src/config/plans.ts | 12 ++++++++----
  1 file changed, 8 insertions(+), 4 deletions(-)
