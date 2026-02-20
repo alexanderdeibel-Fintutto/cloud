@@ -3,10 +3,7 @@
 # Apply all pricing patches to satellite repos
 # Usage: ./apply-all-patches.sh
 #
-# This script will:
-# 1. Clone any missing repos into ~/
-# 2. Apply the pricing patches
-# 3. Push changes to origin/main
+# Compatible with macOS bash 3.x and zsh
 # ============================================================
 
 set -e
@@ -16,21 +13,24 @@ PATCHES_DIR="$SCRIPT_DIR/patches"
 BASE_DIR="$HOME"
 ORG="alexanderdeibel-Fintutto"
 
-# Repos and their patch files
-declare -A REPOS=(
-  ["bescheidboxer"]="bescheidboxer.patch"
-  ["fintutto-your-financial-compass"]="fintutto-your-financial-compass.patch"
-  ["mieter"]="mieter.patch"
-  ["hausmeisterPro"]="hausmeisterPro.patch"
-  ["vermieter-freude"]="vermieter-freude.patch"
-)
+# Simple arrays instead of associative arrays (macOS bash 3.x compat)
+REPO_NAMES="bescheidboxer fintutto-your-financial-compass mieter hausmeisterPro vermieter-freude"
+PATCH_FILES="bescheidboxer.patch fintutto-your-financial-compass.patch mieter.patch hausmeisterPro.patch vermieter-freude.patch"
 
-SUCCESS=()
-FAILED=()
+SUCCESS_COUNT=0
+FAIL_COUNT=0
 
-for repo in "${!REPOS[@]}"; do
-  patch_file="${REPOS[$repo]}"
+# Convert to arrays
+set -- $REPO_NAMES
+REPOS=("$@")
+set -- $PATCH_FILES
+PATCHES=("$@")
+
+i=0
+for repo in "${REPOS[@]}"; do
+  patch_file="${PATCHES[$i]}"
   repo_dir="$BASE_DIR/$repo"
+  i=$((i + 1))
 
   echo ""
   echo "========================================="
@@ -40,11 +40,11 @@ for repo in "${!REPOS[@]}"; do
   # Clone if missing
   if [ ! -d "$repo_dir" ]; then
     echo "  Cloning $repo..."
-    git clone "https://github.com/$ORG/$repo.git" "$repo_dir" || {
+    if ! git clone "https://github.com/$ORG/$repo.git" "$repo_dir"; then
       echo "  ERROR: Failed to clone $repo"
-      FAILED+=("$repo (clone failed)")
+      FAIL_COUNT=$((FAIL_COUNT + 1))
       continue
-    }
+    fi
   fi
 
   cd "$repo_dir"
@@ -59,7 +59,7 @@ for repo in "${!REPOS[@]}"; do
 
   # Pull latest
   echo "  Pulling latest..."
-  git pull origin main --rebase 2>/dev/null || git pull origin main 2>/dev/null || true
+  git pull origin main --rebase 2>/dev/null || git pull origin main --ff-only 2>/dev/null || true
 
   # Apply patch
   echo "  Applying patch: $patch_file"
@@ -70,38 +70,21 @@ for repo in "${!REPOS[@]}"; do
     echo "  Pushing to origin/main..."
     if git push origin main; then
       echo "  SUCCESS: $repo updated and pushed!"
-      SUCCESS+=("$repo")
+      SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
     else
       echo "  WARNING: Patch applied but push failed. Try: cd ~/$repo && git push origin main"
-      FAILED+=("$repo (push failed)")
+      FAIL_COUNT=$((FAIL_COUNT + 1))
     fi
   else
     echo "  ERROR: Patch failed for $repo"
     git am --abort 2>/dev/null || true
-    FAILED+=("$repo (patch failed)")
+    FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
 done
 
 echo ""
 echo "========================================="
-echo "  SUMMARY"
+echo "  SUMMARY: $SUCCESS_COUNT succeeded, $FAIL_COUNT failed"
 echo "========================================="
-echo ""
-
-if [ ${#SUCCESS[@]} -gt 0 ]; then
-  echo "  Successful (${#SUCCESS[@]}):"
-  for s in "${SUCCESS[@]}"; do
-    echo "    - $s"
-  done
-fi
-
-if [ ${#FAILED[@]} -gt 0 ]; then
-  echo ""
-  echo "  Failed (${#FAILED[@]}):"
-  for f in "${FAILED[@]}"; do
-    echo "    - $f"
-  done
-fi
-
 echo ""
 echo "Done!"
