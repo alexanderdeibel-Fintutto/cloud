@@ -3,11 +3,13 @@ import { useState, useCallback } from 'react'
 import TranslationPanel from '@/components/translator/TranslationPanel'
 import TranslationHistory from '@/components/translator/TranslationHistory'
 import QuickPhrases from '@/components/translator/QuickPhrases'
+import { useTranslationHistory } from '@/hooks/useTranslationHistory'
 
 export default function TranslatorPage() {
   const [quickText, setQuickText] = useState('')
   const [sourceLang, setSourceLang] = useState('')
   const [targetLang, setTargetLang] = useState('')
+  const { history, addEntry, clearHistory, removeEntry } = useTranslationHistory()
 
   const handleConsumed = useCallback(() => {
     setQuickText('')
@@ -57,12 +59,18 @@ export default function TranslatorPage() {
         initialSourceLang={sourceLang}
         initialTargetLang={targetLang}
         onInitialTextConsumed={handleConsumed}
+        addEntry={addEntry}
       />
 
       {/* Quick Phrases & History */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <QuickPhrases onSelect={setQuickText} />
-        <TranslationHistory onSelect={handleHistorySelect} />
+        <TranslationHistory
+          history={history}
+          clearHistory={clearHistory}
+          removeEntry={removeEntry}
+          onSelect={handleHistorySelect}
+        />
       </div>
     </div>
   )
