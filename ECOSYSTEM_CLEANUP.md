@@ -1,8 +1,9 @@
 # Fintutto Ecosystem Cleanup & Konsolidierung
 
 > Erstellt: 2026-02-19
-> Status: In Bearbeitung
-> Ziel: 43 Repos → 11 aktive Kern-Repos + archivierte Backups
+> Aktualisiert: 2026-02-20
+> Status: Archivierung abgeschlossen, Feature-Integration ausstehend
+> Ziel: 43 Repos → 10 aktive Kern-Repos + archivierte Backups
 
 ---
 
@@ -18,7 +19,7 @@
 | 6 | **mieter** | Mieter-Portal und -Verwaltung | Aktiv |
 | 7 | **fintutto-command-center** | Zentrales Command Center | Aktiv |
 | 8 | **fintutto-your-financial-compass** | Finanz-Kompass / Übersicht | Aktiv |
-| 9 | **ft_admin-hub** | Admin-Hub → **Umbenennen zu `fintutto-admin-hub`** | Umbenennen |
+| 9 | **fintutto-admin-hub** | Admin-Hub (umbenannt am 20.02.2026) | Aktiv |
 | 10 | **a-docs** | Dokumentations-Hub (180+ Dokumente, Schemas, Prompts) | Aktiv |
 | 11 | **fintutto-command-center** | Command Center Dashboard | Aktiv |
 
@@ -105,57 +106,59 @@ Betriebskosten ist ein vollständiges Nebenkostenabrechnungs-System:
 
 ## 3. Archivierungs-Plan: 32 Repos
 
-### Sofort archivierbar (Leer/Skelett - 12 Repos)
+### ~~Sofort archivierbar (Leer/Skelett - 11 Repos)~~ — ERLEDIGT am 20.02.2026
 
-| Repo | Commits | Grund |
-|------|---------|-------|
-| `ft_hausmeister` | 1 | Nur .gitattributes |
-| `ft_ocr_zaehler` | 1 | Nur .gitattributes |
-| `vermietify` | 0 | Komplett leer |
-| `FT_CALC_RENDITE` | 0 | Komplett leer |
-| `ft_hausmeisterPro` | 1 | Skelett |
-| `ft_mieter` | 2 | Skelett |
-| `ft_vermietify` | 2 | Skelett |
-| `ft_fromulare_alle` | 2 | Skelett |
-| `ft_nebenkostenabrechnung` | 1 | Skelett |
-| `ft_calc_rendite-9bb37c94` | 1 | Skelett |
-| `Google-API-f-r-Fintutto` | 1 | Skelett |
-| `ft_admin-hub` | 1 | Leer (nach Umbenennung) |
+| Repo | Commits | Grund | Status |
+|------|---------|-------|--------|
+| `ft_hausmeister` | 1 | Nur .gitattributes | ✅ Archiviert |
+| `ft_ocr_zaehler` | 1 | Nur .gitattributes | ✅ Archiviert |
+| `vermietify` | 0 | Komplett leer | ✅ Archiviert |
+| `FT_CALC_RENDITE` | 0 | Komplett leer | ✅ Archiviert |
+| `ft_hausmeisterPro` | 1 | Skelett | ✅ Archiviert |
+| `ft_mieter` | 2 | Skelett | ✅ Archiviert |
+| `ft_vermietify` | 2 | Skelett | ✅ Archiviert |
+| `ft_fromulare_alle` | 2 | Skelett | ✅ Archiviert |
+| `ft_nebenkostenabrechnung` | 1 | Skelett | ✅ Archiviert |
+| `ft_calc_rendite-9bb37c94` | 1 | Skelett | ✅ Archiviert |
+| `Google-API-f-r-Fintutto` | 1 | Skelett | ✅ Archiviert |
 
-### Prototypen archivierbar (17 Repos)
+### ~~Prototypen archivierbar (17 Repos)~~ — ERLEDIGT am 20.02.2026
 
-| Repo | Commits | Grund |
-|------|---------|-------|
-| `miet-check-pro-87` | 3 | Duplikat |
-| `my-deposit-calculator` | 4 | Prototyp |
-| `mietkaution-klar` | 5 | Prototyp |
-| `property-calc-hub` | 5 | Prototyp |
-| `schoenheit-fintutto` | 6 | Prototyp |
-| `k-ndigungs-check-pro` | 6 | Prototyp |
-| `check-mieterhoehung2-fintutto` | 7 | Prototyp |
-| `grundsteuer-easy` | 12 | Prototyp |
-| `apps-fintutto-portal` | 12 | Alte Portal-Version |
-| `miet-check-pro` | 13 | Prototyp |
-| `deposit-check-pro` | 13 | Prototyp |
-| `property-equity-partner` | 13 | Prototyp |
-| `rent-check-buddy` | 14 | Prototyp |
-| `admin` | 17 | Alte Admin-Version |
-| `your-property-costs` | 17 | Prototyp |
-| `miet-check-pro-458b8dcf` | 19 | Duplikat |
-| `kaution-klar` | 21 | Prototyp |
+| Repo | Commits | Grund | Status |
+|------|---------|-------|--------|
+| `miet-check-pro-87` | 3 | Duplikat | ✅ Archiviert |
+| `my-deposit-calculator` | 4 | Prototyp | ✅ Archiviert |
+| `mietkaution-klar` | 5 | Prototyp | ✅ Archiviert |
+| `property-calc-hub` | 5 | Prototyp | ✅ Archiviert |
+| `schoenheit-fintutto` | 6 | Prototyp | ✅ Archiviert |
+| `k-ndigungs-check-pro` | 6 | Prototyp | ✅ Archiviert |
+| `check-mieterhoehung2-fintutto` | 7 | Prototyp | ✅ Archiviert |
+| `grundsteuer-easy` | 12 | Prototyp | ✅ Archiviert |
+| `apps-fintutto-portal` | 12 | Alte Portal-Version | ⚠️ Nicht gefunden |
+| `miet-check-pro` | 13 | Prototyp | ✅ Archiviert |
+| `deposit-check-pro` | 13 | Prototyp | ✅ Archiviert |
+| `property-equity-partner` | 13 | Prototyp | ✅ Archiviert |
+| `rent-check-buddy` | 14 | Prototyp | ✅ Archiviert |
+| `admin` | 17 | Alte Admin-Version | ✅ Archiviert |
+| `your-property-costs` | 17 | Prototyp | ✅ Archiviert |
+| `miet-check-pro-458b8dcf` | 19 | Duplikat | ✅ Archiviert |
+| `kaution-klar` | 21 | Prototyp | ✅ Archiviert |
 
-### Nach Feature-Audit archivierbar (6 Repos)
+### ~~Nach Feature-Audit archivierbar (6 Repos)~~ — ERLEDIGT am 20.02.2026
 
-| Repo | Commits | Grund |
-|------|---------|-------|
-| `mietenplus-rechner` | 37 | Features im Portal abgedeckt |
-| `fintutto-miet-recht` | 67 | Features im Portal abgedeckt |
-| `betriebskosten` | 71 | Nach Integration ins Portal archivieren |
-| `fintutto-rent-wizard` | 79 | Features im Portal abgedeckt |
-| `ft_ocr_zaehler-base44` | 754 | ablesung ist 85%+ komplett |
-| `vermietify-altausbase` | 2.525 | vermietify_final ist der Nachfolger |
+| Repo | Commits | Grund | Status |
+|------|---------|-------|--------|
+| `mietenplus-rechner` | 37 | Features im Portal abgedeckt | ✅ Archiviert |
+| `fintutto-miet-recht` | 67 | Features im Portal abgedeckt | ✅ Archiviert |
+| `betriebskosten` | 71 | Nach Integration ins Portal archivieren | ✅ Archiviert |
+| `fintutto-rent-wizard` | 79 | Features im Portal abgedeckt | ✅ Archiviert |
+| `ft_ocr_zaehler-base44` | 754 | ablesung ist 85%+ komplett | ✅ Archiviert |
+| `vermietify-altausbase` | 2.525 | vermietify_final ist der Nachfolger | ✅ Archiviert |
 
-**Hinweis:** Archivierung macht Repos read-only auf GitHub. Der Code bleibt dort jederzeit lesbar und klonbar!
+**Hinweis:** Archivierte Repos sind read-only auf GitHub. Der Code bleibt dort jederzeit lesbar und klonbar!
+
+### Zusätzlich erledigt:
+- ✅ `ft_admin-hub` umbenannt zu `fintutto-admin-hub` (20.02.2026)
 
 ---
 
@@ -191,32 +194,16 @@ Betriebskosten ist ein vollständiges Nebenkostenabrechnungs-System:
 - Symlinks müssen neu erstellt werden
 - `node_modules/` kann gelöscht und neu installiert werden (`npm install`)
 
-### Verschiebe-Befehle (auf deinem Mac)
+### Verschiebe-Skript (auf deinem Mac)
+
+Ein automatisches Skript ist verfügbar:
 
 ```bash
-# 1. Ziel-Ordner erstellen
-mkdir -p ~/fintutto-ecosystem
-
-# 2. Kern-Repos verschieben (Pfade anpassen!)
-mv ~/pfad/zu/portal ~/fintutto-ecosystem/
-mv ~/pfad/zu/ablesung ~/fintutto-ecosystem/
-mv ~/pfad/zu/vermietify_final ~/fintutto-ecosystem/
-mv ~/pfad/zu/bescheidboxer ~/fintutto-ecosystem/
-mv ~/pfad/zu/hausmeisterPro ~/fintutto-ecosystem/
-mv ~/pfad/zu/mieter ~/fintutto-ecosystem/
-mv ~/pfad/zu/fintutto-command-center ~/fintutto-ecosystem/
-mv ~/pfad/zu/fintutto-your-financial-compass ~/fintutto-ecosystem/
-mv ~/pfad/zu/fintutto-admin-hub ~/fintutto-ecosystem/
-mv ~/pfad/zu/a-docs ~/fintutto-ecosystem/
-
-# 3. Optional: Alte Repos ins Archiv
-mkdir -p ~/fintutto-ecosystem/_archiv
-mv ~/pfad/zu/alte-repos/* ~/fintutto-ecosystem/_archiv/
-
-# 4. Prüfen ob Git noch funktioniert
-cd ~/fintutto-ecosystem/portal && git status
-cd ~/fintutto-ecosystem/ablesung && git remote -v
+chmod +x scripts/organize-local.sh
+./scripts/organize-local.sh
 ```
+
+Das Skript findet automatisch deine lokalen Repos und verschiebt sie nach `~/fintutto-ecosystem/`.
 
 ---
 

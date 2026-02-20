@@ -189,7 +189,7 @@ Diese Repos stammen aus der Base44/GPT-Engineer-Ära (JavaScript). Sie dienen al
 | 2 | `ft_hausmeisterPro` | JavaScript | Hausmeister Pro | Referenz |
 | 3 | `ft_hausmeister` | JavaScript | Hausmeister (einfacher) | Referenz |
 | 4 | `ft_mieter` | JavaScript | Mieter-App | Referenz |
-| 5 | `ft_admin-hub` | JavaScript | Admin Dashboard | Referenz |
+| 5 | ~~`ft_admin-hub`~~ → `fintutto-admin-hub` | JavaScript | Admin Dashboard | Umbenannt + Aktiv |
 | 6 | `ft_nebenkostenabrechnung` | JavaScript | BK-Abrechnung | Referenz |
 | 7 | `ft_fromulare_alle` | JavaScript | Alle Formulare | **Wichtig: Formular-Referenz** |
 | 8 | `ft_ocr_zaehler` | JavaScript | OCR Zählerablesung | Referenz |
@@ -406,7 +406,7 @@ Siehe [VERCEL_ENV_GUIDE.md](./VERCEL_ENV_GUIDE.md) für Details.
 | 23 | `ft_hausmeisterPro` | Hausmeister-Referenz |
 | 24 | `ft_hausmeister` | Hausmeister-Referenz |
 | 25 | `ft_mieter` | Mieter-Referenz |
-| 26 | `ft_admin-hub` | Admin-Referenz |
+| 26 | ~~`ft_admin-hub`~~ → `fintutto-admin-hub` | Admin (umbenannt, aktiv) |
 | 27 | `ft_nebenkostenabrechnung` | BK-Referenz |
 | 28 | `ft_ocr_zaehler` | OCR-Referenz |
 | 29 | `ft_calc_rendite-9bb37c94` | Rendite-Referenz |

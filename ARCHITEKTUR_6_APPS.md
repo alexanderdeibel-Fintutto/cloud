@@ -102,7 +102,7 @@ Vermietify integriert (Aufgaben/Task-System).
 
 ### ADMIN-DASHBOARD - Vergleich
 
-| Feature | Lokal (apps/vermietify) | fintutto-admin-hub | ft_admin-hub |
+| Feature | Lokal (apps/vermietify) | fintutto-admin-hub | ~~ft_admin-hub~~ (umbenannt) |
 |---------|------------------------|-------------------|-------------|
 | **Seiten** | 11 Seiten | ~17 Commits, unklar | 1 Commit, LEER |
 | **Dashboard** | ✅ KPI-Cards, Stats | ? | ❌ |
@@ -314,7 +314,7 @@ Vermietify integriert (Aufgaben/Task-System).
 | System-Einstellungen | `apps/vermietify` ✅ | Logik übernehmen |
 
 **Zu archivieren nach Konsolidierung:**
-- `ft_admin-hub` (leer, 1 Commit)
+- ~~`ft_admin-hub`~~ (umbenannt zu `fintutto-admin-hub`, jetzt aktiv)
 - `fintutto-command-center` (nicht auffindbar)
 
 ---
@@ -355,7 +355,7 @@ vermietify              → Alte Version, ersetzen durch vermieter-freude
 **9 ft_* Repos als archived kennzeichnen:**
 ```
 ft_vermietify, ft_hausmeisterPro, ft_hausmeister, ft_mieter,
-ft_admin-hub, ft_nebenkostenabrechnung, ft_fromulare_alle,
+fintutto-admin-hub (ehem. ft_admin-hub), ft_nebenkostenabrechnung, ft_fromulare_alle,
 ft_ocr_zaehler, ft_calc_rendite-9bb37c94
 ```
 
