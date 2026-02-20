@@ -52,6 +52,10 @@ import {
   KeyRound,
   Send,
   PiggyBank,
+  HeartHandshake,
+  CalendarCheck,
+  BookOpenCheck,
+  ReceiptEuro,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -102,6 +106,10 @@ const navigation = [
   { name: 'Steuer-Ident', href: '/steuer-ident', icon: KeyRound },
   { name: 'ELSTER-Status', href: '/elster-status', icon: Send },
   { name: 'Finanzplanung', href: '/finanzplanung', icon: PiggyBank },
+  { name: 'Erbschaftsteuer', href: '/erbschaftsteuer', icon: HeartHandshake },
+  { name: 'Steuer-Termine', href: '/steuer-termine', icon: CalendarCheck },
+  { name: 'Kassenbuch', href: '/kassenbuch', icon: BookOpenCheck },
+  { name: 'Umsatzsteuer', href: '/umsatzsteuer', icon: ReceiptEuro },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

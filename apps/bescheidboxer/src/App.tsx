@@ -67,6 +67,10 @@ import PendelRechnerPage from './pages/PendelRechnerPage'
 import SteuerIdentPage from './pages/SteuerIdentPage'
 import ELSTERStatusPage from './pages/ELSTERStatusPage'
 import FinanzPlanungPage from './pages/FinanzPlanungPage'
+import ErbschaftSteuerRechnerPage from './pages/ErbschaftSteuerRechnerPage'
+import SteuerTerminPage from './pages/SteuerTerminPage'
+import KassenBuchPage from './pages/KassenBuchPage'
+import UmsatzsteuerPage from './pages/UmsatzsteuerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -153,6 +157,10 @@ function App() {
             <Route path="steuer-ident" element={<SteuerIdentPage />} />
             <Route path="elster-status" element={<ELSTERStatusPage />} />
             <Route path="finanzplanung" element={<FinanzPlanungPage />} />
+            <Route path="erbschaftsteuer" element={<ErbschaftSteuerRechnerPage />} />
+            <Route path="steuer-termine" element={<SteuerTerminPage />} />
+            <Route path="kassenbuch" element={<KassenBuchPage />} />
+            <Route path="umsatzsteuer" element={<UmsatzsteuerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

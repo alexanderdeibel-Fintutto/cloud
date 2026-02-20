@@ -59,6 +59,10 @@ import {
   KeyRound,
   Send,
   PiggyBank,
+  HeartHandshake,
+  CalendarCheck,
+  BookOpenCheck,
+  ReceiptEuro,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -154,6 +158,10 @@ export default function CommandPalette() {
     { id: 'nav-steuerident', label: 'Steuer-Ident', description: 'IDs & Steuernummern verwalten', icon: KeyRound, category: 'navigation', keywords: ['steuerid', 'steuernummer', 'identifikation', 'ust', 'idnr'], action: () => runAndClose(() => navigate('/steuer-ident')) },
     { id: 'nav-elster', label: 'ELSTER-Status', description: 'Übermittlungsstatus prüfen', icon: Send, category: 'navigation', keywords: ['elster', 'uebermittlung', 'status', 'transferticket', 'elektronisch'], action: () => runAndClose(() => navigate('/elster-status')) },
     { id: 'nav-finanzplanung', label: 'Finanzplanung', description: 'Steuer-Szenarien vergleichen', icon: PiggyBank, category: 'navigation', keywords: ['finanzplanung', 'szenario', 'netto', 'brutto', 'planung', 'vergleich'], action: () => runAndClose(() => navigate('/finanzplanung')) },
+    { id: 'nav-erbschaftsteuer', label: 'Erbschaftsteuer', description: 'Erbschaft-/Schenkungsteuer berechnen', icon: HeartHandshake, category: 'navigation', keywords: ['erbschaft', 'schenkung', 'erbschaftsteuer', 'freibetrag', 'steuerklasse'], action: () => runAndClose(() => navigate('/erbschaftsteuer')) },
+    { id: 'nav-steuertermine', label: 'Steuer-Termine', description: 'Beratungstermine verwalten', icon: CalendarCheck, category: 'navigation', keywords: ['termin', 'beratung', 'finanzamt', 'meeting', 'besprechung'], action: () => runAndClose(() => navigate('/steuer-termine')) },
+    { id: 'nav-kassenbuch', label: 'Kassenbuch', description: 'Einnahmen & Ausgaben erfassen', icon: BookOpenCheck, category: 'navigation', keywords: ['kassenbuch', 'euer', 'einnahme', 'ausgabe', 'buchung', 'freiberufler'], action: () => runAndClose(() => navigate('/kassenbuch')) },
+    { id: 'nav-umsatzsteuer', label: 'Umsatzsteuer', description: 'UStVA-Übersicht & Zahllast', icon: ReceiptEuro, category: 'navigation', keywords: ['umsatzsteuer', 'ust', 'voranmeldung', 'ustva', 'vorsteuer', 'zahllast', 'mehrwertsteuer'], action: () => runAndClose(() => navigate('/umsatzsteuer')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
