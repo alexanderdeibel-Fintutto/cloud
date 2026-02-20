@@ -157,3 +157,16 @@ export * from './hooks'
 
 // Re-export ecosystem bar helpers
 export { getEcosystemBarItems, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+
+// Re-export shared Supabase client factory
+export { createFintuttoClient } from './supabase'
+
+// Re-export deep link builders
+export {
+  kautionsRechnerLink,
+  mieterhoehungRechnerLink,
+  renditeRechnerLink,
+  mietvertragLink,
+  parseDeepLinkParams,
+  getPortalLinks,
+} from './deeplinks'

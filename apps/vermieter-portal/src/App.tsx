@@ -1,6 +1,14 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from './components/ui/toaster'
 import { CreditsProvider } from './contexts/CreditsContext'
+import { AuthProvider } from './contexts/AuthContext'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 5 * 60 * 1000, retry: 1 },
+  },
+})
 import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
 import RechnerPage from './pages/RechnerPage'
@@ -26,6 +34,8 @@ import BetriebskostenFormular from './pages/formulare/BetriebskostenFormular'
 
 function App() {
   return (
+    <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <CreditsProvider>
       <BrowserRouter>
         <Routes>
@@ -61,6 +71,8 @@ function App() {
         <Toaster />
       </BrowserRouter>
     </CreditsProvider>
+    </AuthProvider>
+    </QueryClientProvider>
   )
 }
 

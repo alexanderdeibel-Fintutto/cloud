@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Calculator, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
@@ -37,7 +37,13 @@ const bundeslaender = [
 ]
 
 export default function MieterhoehungsRechner() {
+  const [searchParams] = useSearchParams()
   const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')
+
+  useEffect(() => {
+    const rent = searchParams.get('rent')
+    if (rent) setAktuelleKaltmiete(rent)
+  }, [searchParams])
   const [gewuenschteKaltmiete, setGewuenschteKaltmiete] = useState<string>('')
   const [vergleichsmiete, setVergleichsmiete] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')

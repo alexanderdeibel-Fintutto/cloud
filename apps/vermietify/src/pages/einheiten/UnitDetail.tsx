@@ -31,6 +31,7 @@ import { UnitMetersTab } from "@/components/units/UnitMetersTab";
 import { UnitPaymentsTab } from "@/components/units/UnitPaymentsTab";
 import { UnitDocumentsTab } from "@/components/units/UnitDocumentsTab";
 import { formatCurrency } from "@/lib/utils";
+import { kautionsRechnerLink, mieterhoehungRechnerLink, mietvertragLink } from "@fintutto/shared";
 
 const STATUS_CONFIG = {
   rented: { label: "Vermietet", variant: "default" as const, color: "bg-green-500" },
@@ -345,6 +346,62 @@ export default function UnitDetail() {
                 </Card>
               )}
             </div>
+
+            {/* Portal Tools Quick Links */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Building2 className="h-5 w-5" />
+                  Portal-Tools für diese Einheit
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href={kautionsRechnerLink({ rent: unit.rent_amount / 100 })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Kaution berechnen
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href={mieterhoehungRechnerLink({
+                        rent: unit.rent_amount / 100,
+                        address: `${unit.building?.address}, ${unit.building?.city}`,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Mieterhöhung prüfen
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href={mietvertragLink({
+                        street: unit.building?.address?.replace(/\s+\S+$/, '') || '',
+                        houseNumber: unit.building?.address?.match(/\S+$/)?.[0] || '',
+                        postalCode: unit.building?.postal_code || '',
+                        city: unit.building?.city || '',
+                        area: unit.area,
+                        rooms: unit.rooms,
+                        rent: unit.rent_amount / 100,
+                        deposit: (unit.rent_amount / 100) * 3,
+                        tenantFirst: unit.tenant?.first_name,
+                        tenantLast: unit.tenant?.last_name,
+                        tenantEmail: unit.tenant?.email,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Mietvertrag erstellen
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* TAB 2: Contract */}

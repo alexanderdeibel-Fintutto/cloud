@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
@@ -16,9 +16,15 @@ interface RenditeResult {
 }
 
 export default function RenditeRechner() {
+  const [searchParams] = useSearchParams()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [monatsmiete, setMonatsmiete] = useState<string>('')
+
+  useEffect(() => {
+    const rent = searchParams.get('rent')
+    if (rent) setMonatsmiete(rent)
+  }, [searchParams])
   const [nichtUmlagefaehig, setNichtUmlagefaehig] = useState<string>('15')
   const [eigenkapital, setEigenkapital] = useState<string>('')
   const [zins, setZins] = useState<string>('3.5')

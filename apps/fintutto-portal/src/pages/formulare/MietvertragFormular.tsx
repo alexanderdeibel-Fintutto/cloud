@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { FileSignature, ArrowLeft, Building2, User, Euro, FileText, CheckCircle, ChevronLeft, ChevronRight, PawPrint, Home, Wrench, Paintbrush, Printer, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -67,11 +67,32 @@ const CLAUSES = [
 ]
 
 export default function MietvertragFormular() {
+  const [searchParams] = useSearchParams()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<MietvertragData>(INITIAL)
   const [propOpen, setPropOpen] = useState(false)
   const { user } = useAuth()
   const { properties, isLoading: propsLoading, hasProperties } = useProperties()
+
+  // Read deep link params from URL (e.g. from vermietify cross-link)
+  useEffect(() => {
+    const p = Object.fromEntries(searchParams.entries())
+    if (Object.keys(p).length === 0) return
+    setData(prev => ({
+      ...prev,
+      ...(p.street && { objektStrasse: p.street }),
+      ...(p.houseNr && { objektHausnummer: p.houseNr }),
+      ...(p.plz && { objektPlz: p.plz }),
+      ...(p.city && { objektOrt: p.city }),
+      ...(p.area && { objektFlaeche: p.area }),
+      ...(p.rooms && { objektZimmer: p.rooms }),
+      ...(p.rent && { kaltmiete: p.rent }),
+      ...(p.deposit && { kaution: p.deposit }),
+      ...(p.tenantFirst && { mieterVorname: p.tenantFirst }),
+      ...(p.tenantLast && { mieterNachname: p.tenantLast }),
+      ...(p.tenantEmail && { mieterEmail: p.tenantEmail }),
+    }))
+  }, [searchParams])
 
   const update = (field: keyof MietvertragData, value: string | boolean) => {
     setData(prev => ({ ...prev, [field]: value }))
