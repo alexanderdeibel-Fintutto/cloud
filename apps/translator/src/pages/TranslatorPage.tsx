@@ -1,0 +1,50 @@
+import { Languages, Mic, Globe, Zap } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import TranslationPanel from '@/components/translator/TranslationPanel'
+import QuickPhrases from '@/components/translator/QuickPhrases'
+
+export default function TranslatorPage() {
+  const [quickText, setQuickText] = useState('')
+
+  const handleConsumed = useCallback(() => {
+    setQuickText('')
+  }, [])
+
+  return (
+    <div className="container py-6 space-y-6">
+      {/* Hero Section */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+          <span className="gradient-text-translator">Übersetzer</span>
+        </h1>
+        <p className="text-muted-foreground max-w-lg mx-auto">
+          Texte kostenlos übersetzen, vorlesen lassen und per Spracheingabe diktieren. Über 20 Sprachen verfügbar.
+        </p>
+      </div>
+
+      {/* Features Pills */}
+      <div className="flex items-center justify-center gap-2 flex-wrap">
+        {[
+          { icon: Globe, label: '22 Sprachen' },
+          { icon: Mic, label: 'Spracheingabe' },
+          { icon: Languages, label: 'Sofort-Übersetzung' },
+          { icon: Zap, label: 'Kostenlos' },
+        ].map(f => (
+          <div
+            key={f.label}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground text-xs font-medium"
+          >
+            <f.icon className="h-3 w-3" />
+            {f.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Main Translation */}
+      <TranslationPanel initialText={quickText} onInitialTextConsumed={handleConsumed} />
+
+      {/* Quick Phrases */}
+      <QuickPhrases onSelect={setQuickText} />
+    </div>
+  )
+}
