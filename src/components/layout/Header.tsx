@@ -46,32 +46,61 @@ export default function Header() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
-          {user ? (
-            <div className="flex items-center gap-3">
-              <Link to="/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-                <User className="w-4 h-4" />
-                <span>{profile?.name || user.email}</span>
-              </Link>
-              {profile && (
-                <span className="text-xs bg-accent text-accent-foreground px-2 py-1 rounded-full">
-                  {profile.checksUsed}/{profile.checksLimit === -1 ? '∞' : profile.checksLimit}
-                </span>
-              )}
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/login">Anmelden</Link>
-              </Button>
-              <Button size="sm" className="gradient-portal text-white border-0" asChild>
-                <Link to="/register">Kostenlos starten</Link>
-              </Button>
-            </>
-          )}
+            <a
+              href="https://formulare.fintutto.cloud"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-fintutto-primary font-medium"
+            >
+              Formulare
+            </a>
+
+            <a
+              href="https://bescheidboxer.fintutto.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-fintutto-primary font-medium"
+            >
+              Bescheidboxer
+            </a>
+          </nav>
+
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <Link to="/dashboard" className="flex items-center space-x-2 text-gray-600 hover:text-fintutto-primary">
+                  <User className="w-5 h-5" />
+                  <span>{profile?.name || user.email}</span>
+                </Link>
+                {profile && (
+                  <span className="text-xs bg-fintutto-light text-fintutto-primary px-2 py-1 rounded-full">
+                    {profile.checksUsed}/{profile.checksLimit === -1 ? 'unbegrenzt' : profile.checksLimit} Checks
+                  </span>
+                )}
+                <Button variant="ghost" size="sm" onClick={signOut}>
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Anmelden</Link>
+                </Button>
+                <Button variant="fintutto" asChild>
+                  <Link to="/register">Kostenlos starten</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
         <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -99,13 +128,26 @@ export default function Header() {
                   )}
                 </div>
               </Link>
-            ))}
-            <div className="pt-4 space-y-2">
-              {user ? (
-                <div className="flex items-center justify-between p-3">
-                  <Link to="/dashboard" className="flex items-center gap-2 text-sm" onClick={() => setMobileMenuOpen(false)}>
-                    <User className="w-4 h-4" />
-                    {profile?.name || user.email}
+              <a
+                href="https://bescheidboxer.fintutto.de"
+                className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+              >
+                Bescheidboxer
+              </a>
+              <hr className="my-2" />
+              {!user && (
+                <>
+                  <Link
+                    to="/login"
+                    className="block px-4 py-2 text-gray-700 hover:bg-fintutto-light rounded-lg"
+                  >
+                    Anmelden
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="block px-4 py-2 bg-fintutto-primary text-white rounded-lg text-center"
+                  >
+                    Kostenlos starten
                   </Link>
                   <Button variant="ghost" size="sm" onClick={signOut}>
                     <LogOut className="w-4 h-4" />

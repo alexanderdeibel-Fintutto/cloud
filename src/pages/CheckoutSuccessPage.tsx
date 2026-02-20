@@ -24,8 +24,7 @@ export default function CheckoutSuccessPage() {
 
           // Simulate verification delay
           await new Promise(resolve => setTimeout(resolve, 1500))
-        } catch (error) {
-          console.error('Session verification error:', error)
+        } catch {
         }
       }
       setIsLoading(false)

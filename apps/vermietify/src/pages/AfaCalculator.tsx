@@ -7,7 +7,7 @@ import { Calculator, Euro, Building2, Calendar, Info, CheckCircle2, TrendingDown
 import { formatCurrency } from '@/lib/utils'
 import { berechneAfa, type AfaInput, type AfaResult, type Country, COUNTRY_LABELS } from '@/lib/tax'
 
-export function AfaCalculator() {
+export default function AfaCalculator() {
   const [country, setCountry] = useState<Country>('DE')
   const [anschaffungskosten, setAnschaffungskosten] = useState('')
   const [grundstuecksanteil, setGrundstuecksanteil] = useState('25')

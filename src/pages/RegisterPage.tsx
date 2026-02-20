@@ -39,8 +39,7 @@ export default function RegisterPage() {
         description: 'Bitte pruefen Sie Ihre E-Mail zur Bestaetigung.'
       })
       navigate('/dashboard')
-    } catch (error) {
-      console.error('Registration error:', error)
+    } catch {
       toast.error('Registrierung fehlgeschlagen', {
         description: 'Bitte versuchen Sie es erneut.'
       })

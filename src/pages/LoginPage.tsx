@@ -24,8 +24,7 @@ export default function LoginPage() {
       await signIn(email, password)
       toast.success('Erfolgreich angemeldet!')
       navigate('/dashboard')
-    } catch (error) {
-      console.error('Login error:', error)
+    } catch {
       toast.error('Anmeldung fehlgeschlagen', {
         description: 'Bitte pruefen Sie Ihre Zugangsdaten.'
       })

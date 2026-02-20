@@ -235,8 +235,7 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
 
       setAiAdvice((prev) => ({ ...prev, [cacheKey]: advice }))
       return advice
-    } catch (error) {
-      console.error('Error getting AI advice:', error)
+    } catch {
       return getDefaultAdvice(fieldKey)
     } finally {
       setIsLoadingAdvice(false)

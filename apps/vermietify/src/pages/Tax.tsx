@@ -22,7 +22,7 @@ const defaultAnlageV: AnlageV = {
   umlagenVereinnahmt: 0, umlagenBezahlt: 0,
 }
 
-export function Tax() {
+export default function Tax() {
   const [country, setCountry] = useState<Country>('DE')
   const [filingStatus, setFilingStatus] = useState<'single' | 'married_joint'>('single')
   const [taxableIncome, setTaxableIncome] = useState('')

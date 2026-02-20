@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { motion } from 'framer-motion'
+import { AffiliateCard, AdSlot, PremiumTeaser } from '@/components/monetization'
 
 interface CheckerResultProps {
   result: CheckerResultType
@@ -15,7 +16,7 @@ interface CheckerResultProps {
 
 export default function CheckerResult({
   result,
-  checkerType: _checkerType,
+  checkerType,
   onGoToForm,
   onDownloadPDF,
   onStartNew,
@@ -128,6 +129,12 @@ export default function CheckerResult({
         </CardContent>
       </Card>
 
+      {/* Kontextbezogene Partner-Empfehlungen */}
+      <AffiliateCard checkerType={checkerType} />
+
+      {/* Premium-Teaser für PDF-Export */}
+      <PremiumTeaser feature="pdf" />
+
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
         {result.status !== 'negative' && (
@@ -150,6 +157,9 @@ export default function CheckerResult({
           </Button>
         )}
       </div>
+
+      {/* Werbung (nur Free-User) */}
+      <AdSlot placement="result" />
 
       {/* Start New Check */}
       <div className="text-center pt-4">

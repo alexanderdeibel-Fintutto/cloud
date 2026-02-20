@@ -11,7 +11,7 @@ import { formatCurrency } from '@/lib/utils'
 import { berechneCapitalGains, type CapitalGainsResult, type PropertySale } from '@/lib/capitalGains'
 import { COUNTRY_LABELS, type Country } from '@/lib/tax'
 
-export function CapitalGains() {
+export default function CapitalGains() {
   const [country, setCountry] = useState<Country>('DE')
   const [purchasePrice, setPurchasePrice] = useState('')
   const [purchaseNK, setPurchaseNK] = useState('')

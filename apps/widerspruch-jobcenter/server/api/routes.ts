@@ -8,6 +8,7 @@ import { BotExecutor } from '../bot/executor'
 import {
   loadPersonas, savePersonas, loadSchedule, saveSchedule,
   loadActivityLog, getTodaysActions,
+  getScheduleByDate, getScheduleDates,
 } from '../db'
 import { generatePersonas, sanitizeForEmail } from '../personas/generator'
 import { summarizeSchedule } from '../bot/scheduler'
@@ -339,17 +340,44 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
   router.post('/personas/generate', (req, res) => {
     const count = parseInt(req.body?.count) || 500
     const seed = parseInt(req.body?.seed) || 42
-    const personas = generatePersonas({ count, seed })
-    savePersonas(personas)
+
+    // Bestehende Personas laden – manuelle und solche mit wp_user_id schützen
+    const existing = loadPersonas()
+    const manualPersonas = existing.filter(isManualPersona)
+    const wpIdMap = new Map<string, number>()
+    const statsMap = new Map<string, Persona['stats']>()
+    for (const p of existing) {
+      if (p.wp_user_id) wpIdMap.set(p.id, p.wp_user_id)
+      if (p.stats.last_action || p.stats.total_posts > 0 || p.stats.total_comments > 0) {
+        statsMap.set(p.id, p.stats)
+      }
+    }
+
+    // Neue Auto-Personas generieren
+    const generated = generatePersonas({ count, seed })
+
+    // wp_user_ids und Stats von bestehenden Personas übertragen
+    for (const p of generated) {
+      if (wpIdMap.has(p.id)) p.wp_user_id = wpIdMap.get(p.id)!
+      if (statsMap.has(p.id)) p.stats = statsMap.get(p.id)!
+    }
+
+    // Manuelle Personas anhängen (nicht überschreiben!)
+    const allPersonas = [...generated, ...manualPersonas]
+    savePersonas(allPersonas)
+
     res.json({
-      message: `${personas.length} Personas generiert`,
+      message: `${generated.length} Auto-Personas generiert, ${manualPersonas.length} manuelle beibehalten`,
       stats: {
-        total: personas.length,
-        by_situation: countBy(personas, p => p.profile.situation),
-        by_engagement: countBy(personas, p => p.activity.engagement_style),
-        by_frequency: countBy(personas, p => p.activity.posting_frequency),
-        by_time_profile: countBy(personas, p => p.activity.time_profile),
-        avg_bescheidboxer_affinity: average(personas.map(p => p.activity.bescheidboxer_affinity)),
+        total: allPersonas.length,
+        auto: generated.length,
+        manuell: manualPersonas.length,
+        wp_ids_preserved: wpIdMap.size,
+        by_situation: countBy(generated, p => p.profile.situation),
+        by_engagement: countBy(generated, p => p.activity.engagement_style),
+        by_frequency: countBy(generated, p => p.activity.posting_frequency),
+        by_time_profile: countBy(generated, p => p.activity.time_profile),
+        avg_bescheidboxer_affinity: average(generated.map(p => p.activity.bescheidboxer_affinity)),
       },
     })
   })
@@ -368,13 +396,48 @@ export function createApiRouter(config: BotConfig, executor: BotExecutor): Route
     res.json({ summary, actions })
   })
 
+  router.get('/schedule/history', (req, res) => {
+    const date = req.query.date as string
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.json({ summary: { total: 0, byType: {}, byHour: {}, personas: 0 }, actions: [] })
+    }
+    const actions = getScheduleByDate(date)
+    const summary = summarizeSchedule(actions)
+    res.json({ summary, actions })
+  })
+
+  router.get('/schedule/dates', (_req, res) => {
+    res.json(getScheduleDates())
+  })
+
   // ── Activity Log ──
 
   router.get('/activity', (req, res) => {
-    const log = loadActivityLog()
-    const limit = parseInt(req.query.limit as string) || 100
+    let log = loadActivityLog()
+    const limit = parseInt(req.query.limit as string) || 200
+    const persona = req.query.persona as string
+    const type = req.query.type as string
+    const date = req.query.date as string
+    const status = req.query.status as string
+    const q = (req.query.q as string || '').toLowerCase()
+
+    if (persona) log = log.filter(e => e.persona_id === persona)
+    if (type) {
+      const types = type.split(',')
+      log = log.filter(e => types.includes(e.action_type))
+    }
+    if (date) log = log.filter(e => e.timestamp.startsWith(date))
+    if (status === 'success') log = log.filter(e => e.success)
+    if (status === 'failed') log = log.filter(e => !e.success)
+    if (q) log = log.filter(e =>
+      e.persona_id.toLowerCase().includes(q) ||
+      e.action_type.toLowerCase().includes(q) ||
+      (e.details || '').toLowerCase().includes(q)
+    )
+
+    const total = log.length
     res.json({
-      total: log.length,
+      total,
       entries: log.slice(-limit).reverse(),
     })
   })

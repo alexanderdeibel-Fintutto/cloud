@@ -66,6 +66,12 @@
 }
 
 @layer components {
+  /* Firma-Hintergrund: SVG mit Gradient-Fallback */
+  .bg-firma {
+    background: url('/bg-firma.svg') center center / cover no-repeat,
+                linear-gradient(135deg, #13101e 0%, #2a1f50 25%, #6b3a80 50%, #c07888 75%, #e8a494 100%);
+  }
+
   /* Gamma-BG: Dark Navy → Indigo → Lila → Mauve/Rosé → Pfirsich */
   .gradient-portal {
     background: linear-gradient(135deg, #13101e 0%, #2a1f50 25%, #6b3a80 50%, #c07888 75%, #e8a494 100%);

@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 150 20% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 20% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 20% 10%;
+    --primary: 142 71% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 20% 65%;
+    --secondary-foreground: 150 20% 10%;
+    --muted: 150 10% 95%;
+    --muted-foreground: 150 10% 45%;
+    --accent: 142 40% 90%;
+    --accent-foreground: 142 71% 35%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --border: 150 10% 87%;
+    --input: 150 10% 87%;
+    --ring: 142 71% 45%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 150 20% 5%;
+    --foreground: 0 0% 95%;
+    --card: 150 20% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 150 20% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 15% 20%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 150 15% 15%;
+    --muted-foreground: 150 10% 60%;
+    --accent: 142 30% 20%;
+    --accent-foreground: 142 71% 65%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --border: 150 15% 18%;
+    --input: 150 15% 18%;
+    --ring: 142 71% 45%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .gradient-fitness {
+    background: linear-gradient(135deg, #052e16 0%, #16a34a 50%, #4ade80 100%);
+  }
+  .gradient-strength {
+    background: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+  }
+  .gradient-cardio {
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+  }
+  .gradient-mobility {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  }
+  .gradient-nutrition {
+    background: linear-gradient(135deg, #16a34a 0%, #84cc16 100%);
+  }
+  .gradient-text-fitness {
+    background: linear-gradient(135deg, #16a34a 0%, #4ade80 50%, #86efac 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .workout-card {
+    @apply bg-card rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  .exercise-card {
+    @apply bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors cursor-pointer;
+  }
+  .stat-card {
+    @apply bg-card rounded-xl border border-border p-4 text-center;
+  }
+  .stat-value {
+    @apply text-2xl font-bold text-foreground;
+  }
+  .stat-label {
+    @apply text-xs text-muted-foreground mt-1;
+  }
+  .streak-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold;
+  }
+  .muscle-tag {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-medium;
+  }
+  .nav-tab {
+    @apply flex flex-col items-center gap-1 px-3 py-2 text-muted-foreground transition-colors;
+  }
+  .nav-tab-active {
+    @apply text-primary font-semibold;
+  }
+
+  /* Progress ring animation */
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+  .progress-ring circle {
+    transition: stroke-dashoffset 0.5s ease-in-out;
+  }
+
+  /* Pulse animation for active workout */
+  .workout-active {
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: hsl(var(--primary) / 0.3); }
+    50% { border-color: hsl(var(--primary)); }
+  }
+}

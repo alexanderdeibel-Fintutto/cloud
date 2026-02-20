@@ -146,8 +146,7 @@ export default function NebenkostenChecker() {
       await incrementChecksUsed()
       setResult(checkerResult)
 
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)

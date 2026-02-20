@@ -10,7 +10,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "@fintutto/ai-chat": "workspace:*",
+    "@fintutto/ai-chat": "*",
     "@supabase/supabase-js": "^2.45.0",
     "@tanstack/react-query": "^5.50.0",
     "lucide-react": "^0.400.0",
