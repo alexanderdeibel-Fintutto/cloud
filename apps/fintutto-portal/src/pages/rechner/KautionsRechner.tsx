@@ -4,6 +4,7 @@ import { PiggyBank, Info, ArrowLeft, Calculator, CheckCircle2, AlertTriangle } f
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
 
 interface KautionResult {
   maxKaution: number
@@ -96,6 +97,13 @@ export default function KautionsRechner() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setKaltmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div>
                     <label className="text-sm font-medium mb-2 block">
                       Nettokaltmiete (monatlich) *

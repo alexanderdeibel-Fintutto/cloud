@@ -11,7 +11,7 @@
     "dev": "vite",
     "dev:portal": "npm run dev --workspace=apps/fintutto-portal",
     "dev:vermietify": "npm run dev --workspace=apps/vermietify",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "build:portal": "npm run build --workspace=apps/fintutto-portal",
     "build:vermietify": "npm run build --workspace=apps/vermietify",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

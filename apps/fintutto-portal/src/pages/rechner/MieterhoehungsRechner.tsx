@@ -4,6 +4,7 @@ import { TrendingUp, ArrowLeft, Calculator, Info, CheckCircle2, AlertTriangle } 
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -129,6 +130,13 @@ export default function MieterhoehungsRechner() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setAktuelleKaltmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Aktuelle Kaltmiete *</label>
