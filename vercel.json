@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd apps/fitness-training && npm install && npm run build",
-  "outputDirectory": "apps/fitness-training/dist",
+  "buildCommand": "cd apps/arbeitslos-portal && npm install && npm run build",
+  "outputDirectory": "apps/arbeitslos-portal/dist",
   "framework": "vite",
   "installCommand": "echo 'skip root install'",
   "rewrites": [
