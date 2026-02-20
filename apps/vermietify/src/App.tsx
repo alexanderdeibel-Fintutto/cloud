@@ -14,6 +14,9 @@ import {
   Calculators,
   Settings,
   Auth,
+  Tax,
+  AfaCalculator,
+  CapitalGains,
 } from '@/pages'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -125,6 +128,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tax"
+        element={
+          <ProtectedRoute>
+            <Tax />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/afa"
+        element={
+          <ProtectedRoute>
+            <AfaCalculator />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/capital-gains"
+        element={
+          <ProtectedRoute>
+            <CapitalGains />
           </ProtectedRoute>
         }
       />

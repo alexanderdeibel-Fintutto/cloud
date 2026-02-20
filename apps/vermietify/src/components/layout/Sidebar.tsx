@@ -15,6 +15,9 @@ import {
   Mail,
   Calculator,
   FolderOpen,
+  Receipt,
+  Euro,
+  TrendingUp,
 } from 'lucide-react'
 
 const navigation = [
@@ -27,6 +30,9 @@ const navigation = [
   { name: 'Dokumente', href: '/documents', icon: FolderOpen },
   { name: 'Kommunikation', href: '/communication', icon: Mail },
   { name: 'Rechner', href: '/calculators', icon: Calculator },
+  { name: 'Steuer', href: '/tax', icon: Receipt },
+  { name: 'AfA-Rechner', href: '/afa', icon: Euro },
+  { name: 'Capital Gains', href: '/capital-gains', icon: TrendingUp },
 ]
 
 export function Sidebar() {

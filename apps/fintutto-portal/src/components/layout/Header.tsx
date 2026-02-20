@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import ThemeToggle from '@/components/shared/ThemeToggle'
+import { initTheme } from '@/lib/darkMode'
 
 const navigation = [
   { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Für Vermieter' },
@@ -15,6 +17,8 @@ const navigation = [
 export default function Header() {
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => { initTheme() }, [])
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -45,6 +49,7 @@ export default function Header() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Anmelden</Link>
           </Button>
