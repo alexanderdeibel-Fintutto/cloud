@@ -4,6 +4,7 @@ import { Calculator, ArrowLeft, Info, TrendingUp, TrendingDown } from 'lucide-re
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -88,6 +89,13 @@ export default function RenditeRechner() {
                   <CardTitle>Immobilie & Kosten</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setMonatsmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Kaufpreis *</label>

@@ -154,3 +154,6 @@ export * from './types/database'
 
 // Re-export shared hooks
 export * from './hooks'
+
+// Re-export ecosystem bar helpers
+export { getEcosystemBarItems, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'

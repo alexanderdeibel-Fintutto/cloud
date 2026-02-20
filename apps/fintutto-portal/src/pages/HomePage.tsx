@@ -2,10 +2,13 @@ import { Link } from 'react-router-dom'
 import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Home, TrendingUp, Euro, PiggyBank, Receipt,
-  Scale, AlertTriangle, Wrench, Sparkles
+  Scale, AlertTriangle, Wrench, Sparkles, Building2
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/contexts/AuthContext'
+import { useProperties } from '@/hooks/useProperties'
+import { getOtherApps } from '@fintutto/shared'
 
 const categories = [
   {
@@ -47,7 +50,17 @@ const stats = [
   { value: '§0', label: 'Kostenlos starten' },
 ]
 
+const ecosystemApps = getOtherApps('portal')
+
 export default function HomePage() {
+  const { user } = useAuth()
+  const { properties, hasProperties } = useProperties()
+
+  const totalUnits = properties.reduce((sum, b) => sum + b.units.length, 0)
+  const rentedUnits = properties.reduce(
+    (sum, b) => sum + b.units.filter((u) => u.status === 'rented').length, 0
+  )
+
   return (
     <div>
       {/* Hero */}
@@ -145,37 +158,72 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Logged-in: Your Properties Summary */}
+      {user && hasProperties && (
+        <section className="py-12 bg-blue-50/50 border-y border-blue-100">
+          <div className="container">
+            <div className="flex items-center gap-3 mb-6">
+              <Building2 className="h-6 w-6 text-blue-600" />
+              <h2 className="text-xl font-bold">Deine Immobilien</h2>
+              <span className="text-sm text-muted-foreground">aus Vermietify</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-2xl font-bold text-blue-600">{properties.length}</p>
+                  <p className="text-xs text-muted-foreground">Gebaeude</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-2xl font-bold text-blue-600">{totalUnits}</p>
+                  <p className="text-xs text-muted-foreground">Einheiten</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-2xl font-bold text-green-600">{rentedUnits}</p>
+                  <p className="text-xs text-muted-foreground">Vermietet</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-2xl font-bold text-orange-600">{totalUnits - rentedUnits}</p>
+                  <p className="text-xs text-muted-foreground">Frei</p>
+                </CardContent>
+              </Card>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Deine Rechner werden automatisch mit deinen Vermietify-Daten vorbefuellt.
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Ecosystem Teaser */}
       <section className="py-16 bg-muted/30">
         <div className="container">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-4">
-              Das komplette Fintutto Ökosystem
+              Das komplette Fintutto Oekosystem
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              6 Apps für jeden Schritt im Mietalltag – alle verbunden, alle kostenlos starten.
+              {ecosystemApps.length} Apps fuer jeden Schritt im Mietalltag – alle verbunden, alle kostenlos starten.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto mb-8">
-            {[
-              { icon: '🏠', name: 'Vermietify', desc: 'Immobilienverwaltung', url: 'https://vermietify.vercel.app' },
-              { icon: '🔑', name: 'Mieter-App', desc: 'Mieter-Dashboard', url: 'https://mieter-kw8d.vercel.app' },
-              { icon: '🔧', name: 'HausmeisterPro', desc: 'Facility Management', url: 'https://hausmeister-pro.vercel.app' },
-              { icon: '📊', name: 'Ablesung', desc: 'Zählerstände', url: 'https://ablesung.vercel.app' },
-              { icon: '🥊', name: 'BescheidBoxer', desc: 'Bescheid-Analyse', url: 'https://bescheidboxer.vercel.app' },
-              { icon: '✨', name: 'Portal', desc: '28+ Tools', url: '/apps' },
-            ].map((app) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 max-w-5xl mx-auto mb-8">
+            {ecosystemApps.map((app) => (
               <a
-                key={app.name}
-                href={app.url.startsWith('/') ? undefined : app.url}
-                target={app.url.startsWith('/') ? undefined : '_blank'}
-                rel={app.url.startsWith('/') ? undefined : 'noopener noreferrer'}
+                key={app.key}
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/30 transition-all group"
               >
                 <span className="text-3xl mb-2">{app.icon}</span>
                 <span className="font-semibold text-sm">{app.name}</span>
-                <span className="text-xs text-muted-foreground">{app.desc}</span>
+                <span className="text-xs text-muted-foreground">{app.description}</span>
               </a>
             ))}
           </div>
