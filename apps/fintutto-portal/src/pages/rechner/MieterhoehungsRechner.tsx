@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
+import LoginPrompt from '../../components/shared/LoginPrompt'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -128,6 +129,7 @@ export default function MieterhoehungsRechner() {
         <div className="container">
           <div className="grid lg:grid-cols-[1fr_400px] gap-8">
             <div className="space-y-6">
+              <LoginPrompt />
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

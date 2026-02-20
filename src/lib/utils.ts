@@ -55,8 +55,21 @@ export function calculateMietpreisbremse(
 }
 
 export function getFormulareAppUrl(formType: string, prefillData?: Record<string, string>): string {
-  const baseUrl = import.meta.env.VITE_FORMULARE_APP_URL || 'https://formulare.fintutto.cloud'
+  const baseUrl = import.meta.env.VITE_FORMULARE_APP_URL || 'https://portal.fintutto.cloud'
   const url = new URL(`${baseUrl}/formulare/${formType}`)
+
+  if (prefillData) {
+    Object.entries(prefillData).forEach(([key, value]) => {
+      url.searchParams.set(key, value)
+    })
+  }
+
+  return url.toString()
+}
+
+export function getRechnerAppUrl(rechnerType: string, prefillData?: Record<string, string>): string {
+  const baseUrl = import.meta.env.VITE_FORMULARE_APP_URL || 'https://portal.fintutto.cloud'
+  const url = new URL(`${baseUrl}/rechner/${rechnerType}`)
 
   if (prefillData) {
     Object.entries(prefillData).forEach(([key, value]) => {
