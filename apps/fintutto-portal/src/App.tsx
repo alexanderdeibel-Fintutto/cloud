@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
-import { ErrorBoundary } from '@fintutto/shared'
+import { ErrorBoundary, PageSkeleton } from '@fintutto/shared'
 import Layout from '@/components/layout/Layout'
 
 // Eagerly loaded (always needed)
@@ -70,11 +70,7 @@ const WohnungsgeberbestaetigungFormular = lazy(() => import('@/pages/formulare/W
 const NebenkostenvorauszahlungFormular = lazy(() => import('@/pages/formulare/NebenkostenvorauszahlungFormular'))
 
 function PageLoader() {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-    </div>
-  )
+  return <PageSkeleton />
 }
 
 function App() {

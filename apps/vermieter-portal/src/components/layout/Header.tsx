@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Building2, Calculator, FileText, Menu, X, Search } from 'lucide-react'
 import { useState } from 'react'
+import { modKey } from '@fintutto/shared'
 import { Button } from '../ui/button'
 import { CreditsDisplay } from '../CreditsDisplay'
 
@@ -53,7 +54,7 @@ export default function Header() {
             <Search className="h-3.5 w-3.5" />
             <span>Suche</span>
             <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-muted rounded border">
-              Ctrl K
+              {modKey()} K
             </kbd>
           </button>
           <CreditsDisplay />
