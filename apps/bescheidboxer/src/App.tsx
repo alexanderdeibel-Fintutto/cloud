@@ -63,6 +63,10 @@ import VorauszahlungsPlanerPage from './pages/VorauszahlungsPlanerPage'
 import SteuerSparRechnerPage from './pages/SteuerSparRechnerPage'
 import BetriebspruefungPage from './pages/BetriebspruefungPage'
 import DokumentVorlagenPage from './pages/DokumentVorlagenPage'
+import PendelRechnerPage from './pages/PendelRechnerPage'
+import SteuerIdentPage from './pages/SteuerIdentPage'
+import ELSTERStatusPage from './pages/ELSTERStatusPage'
+import FinanzPlanungPage from './pages/FinanzPlanungPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -145,6 +149,10 @@ function App() {
             <Route path="steuerspar-rechner" element={<SteuerSparRechnerPage />} />
             <Route path="betriebspruefung" element={<BetriebspruefungPage />} />
             <Route path="dokument-vorlagen" element={<DokumentVorlagenPage />} />
+            <Route path="pendler-rechner" element={<PendelRechnerPage />} />
+            <Route path="steuer-ident" element={<SteuerIdentPage />} />
+            <Route path="elster-status" element={<ELSTERStatusPage />} />
+            <Route path="finanzplanung" element={<FinanzPlanungPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

@@ -48,6 +48,10 @@ import {
   BadgeDollarSign,
   ShieldCheck,
   FileSignature,
+  Navigation,
+  KeyRound,
+  Send,
+  PiggyBank,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -94,6 +98,10 @@ const navigation = [
   { name: 'Steuerspar-Rechner', href: '/steuerspar-rechner', icon: BadgeDollarSign },
   { name: 'Betriebsprüfung', href: '/betriebspruefung', icon: ShieldCheck },
   { name: 'Dokument-Vorlagen', href: '/dokument-vorlagen', icon: FileSignature },
+  { name: 'Pendler-Rechner', href: '/pendler-rechner', icon: Navigation },
+  { name: 'Steuer-Ident', href: '/steuer-ident', icon: KeyRound },
+  { name: 'ELSTER-Status', href: '/elster-status', icon: Send },
+  { name: 'Finanzplanung', href: '/finanzplanung', icon: PiggyBank },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

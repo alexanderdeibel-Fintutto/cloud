@@ -55,6 +55,10 @@ import {
   BadgeDollarSign,
   ShieldCheck,
   FileSignature,
+  Navigation,
+  KeyRound,
+  Send,
+  PiggyBank,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -146,6 +150,10 @@ export default function CommandPalette() {
     { id: 'nav-steuerspar', label: 'Steuerspar-Rechner', description: 'Sparmöglichkeiten finden', icon: BadgeDollarSign, category: 'navigation', keywords: ['sparen', 'optimierung', 'tipp', 'potential', 'absetzen', 'werbungskosten'], action: () => runAndClose(() => navigate('/steuerspar-rechner')) },
     { id: 'nav-betriebspruefung', label: 'Betriebsprüfung', description: 'Prüfungs-Vorbereitung', icon: ShieldCheck, category: 'navigation', keywords: ['betriebspruefung', 'pruefung', 'audit', 'checkliste', 'risiko', 'vorbereitung'], action: () => runAndClose(() => navigate('/betriebspruefung')) },
     { id: 'nav-vorlagen', label: 'Dokument-Vorlagen', description: 'Brief- und Antragsvorlagen', icon: FileSignature, category: 'navigation', keywords: ['vorlage', 'template', 'brief', 'antrag', 'formular', 'muster', 'schreiben'], action: () => runAndClose(() => navigate('/dokument-vorlagen')) },
+    { id: 'nav-pendler', label: 'Pendler-Rechner', description: 'Entfernungspauschale berechnen', icon: Navigation, category: 'navigation', keywords: ['pendler', 'fahrtkosten', 'entfernung', 'pauschale', 'kilometer', 'auto', 'oepnv'], action: () => runAndClose(() => navigate('/pendler-rechner')) },
+    { id: 'nav-steuerident', label: 'Steuer-Ident', description: 'IDs & Steuernummern verwalten', icon: KeyRound, category: 'navigation', keywords: ['steuerid', 'steuernummer', 'identifikation', 'ust', 'idnr'], action: () => runAndClose(() => navigate('/steuer-ident')) },
+    { id: 'nav-elster', label: 'ELSTER-Status', description: 'Übermittlungsstatus prüfen', icon: Send, category: 'navigation', keywords: ['elster', 'uebermittlung', 'status', 'transferticket', 'elektronisch'], action: () => runAndClose(() => navigate('/elster-status')) },
+    { id: 'nav-finanzplanung', label: 'Finanzplanung', description: 'Steuer-Szenarien vergleichen', icon: PiggyBank, category: 'navigation', keywords: ['finanzplanung', 'szenario', 'netto', 'brutto', 'planung', 'vergleich'], action: () => runAndClose(() => navigate('/finanzplanung')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
