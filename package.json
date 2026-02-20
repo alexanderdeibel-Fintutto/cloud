@@ -10,10 +10,13 @@
   "scripts": {
     "dev": "vite",
     "dev:portal": "npm run dev --workspace=apps/fintutto-portal",
+    "dev:vermieter": "npm run dev --workspace=apps/vermieter-portal",
     "dev:vermietify": "npm run dev --workspace=apps/vermietify",
     "build": "vite build",
     "build:portal": "npm run build --workspace=apps/fintutto-portal",
+    "build:vermieter": "npm run build --workspace=apps/vermieter-portal",
     "build:vermietify": "npm run build --workspace=apps/vermietify",
+    "build:all": "npm run build && npm run build:portal && npm run build:vermieter && npm run build:vermietify",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
