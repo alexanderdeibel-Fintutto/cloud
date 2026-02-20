@@ -1,9 +1,13 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { PiggyBank, Info, ArrowLeft, Calculator, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
+import LoginPrompt from '../../components/shared/LoginPrompt'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface KautionResult {
   maxKaution: number
@@ -14,9 +18,17 @@ interface KautionResult {
 }
 
 export default function KautionsRechner() {
+  useDocumentTitle('Kautions-Rechner', 'Fintutto Portal')
+  useTrackTool('Kautions-Rechner')
+  const [searchParams] = useSearchParams()
   const [kaltmiete, setKaltmiete] = useState<string>('')
   const [aktuelleKaution, setAktuelleKaution] = useState<string>('')
   const [result, setResult] = useState<KautionResult | null>(null)
+
+  useEffect(() => {
+    const rent = searchParams.get('rent')
+    if (rent) setKaltmiete(rent)
+  }, [searchParams])
 
   const berechneKaution = () => {
     const miete = parseFloat(kaltmiete) || 0
@@ -85,6 +97,7 @@ export default function KautionsRechner() {
           <div className="grid lg:grid-cols-[1fr_400px] gap-8">
             {/* Input */}
             <div className="space-y-6">
+              <LoginPrompt />
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -96,6 +109,13 @@ export default function KautionsRechner() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setKaltmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div>
                     <label className="text-sm font-medium mb-2 block">
                       Nettokaltmiete (monatlich) *

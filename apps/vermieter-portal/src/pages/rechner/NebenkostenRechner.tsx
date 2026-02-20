@@ -4,6 +4,7 @@ import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle } from '@fintutto/shared'
 
 const kostenarten = [
   'Grundsteuer', 'Wasserversorgung', 'Entwässerung', 'Heizung', 'Warmwasser',
@@ -12,6 +13,7 @@ const kostenarten = [
 ]
 
 export default function NebenkostenRechner() {
+  useDocumentTitle('Nebenkosten-Rechner', 'Fintutto Vermieter')
   const [wohnflaeche, setWohnflaeche] = useState<string>('')
   const [vorauszahlung, setVorauszahlung] = useState<string>('')
   const [zeitraum, setZeitraum] = useState<string>('12')

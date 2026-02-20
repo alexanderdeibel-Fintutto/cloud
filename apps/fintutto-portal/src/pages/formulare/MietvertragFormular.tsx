@@ -1,11 +1,15 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FileSignature, ArrowLeft, Building2, User, Euro, FileText, CheckCircle, ChevronLeft, ChevronRight, PawPrint, Home, Wrench, Paintbrush, Printer } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { FileSignature, ArrowLeft, Building2, User, Euro, FileText, CheckCircle, ChevronLeft, ChevronRight, PawPrint, Home, Wrench, Paintbrush, Printer, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
+import { useProperties } from '@/hooks/useProperties'
+import { useAuth } from '@/contexts/AuthContext'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface MietvertragData {
   objektStrasse: string
@@ -65,11 +69,59 @@ const CLAUSES = [
 ]
 
 export default function MietvertragFormular() {
+  useDocumentTitle('Mietvertrag erstellen', 'Fintutto Portal')
+  useTrackTool('Mietvertrag')
+  const [searchParams] = useSearchParams()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<MietvertragData>(INITIAL)
+  const [propOpen, setPropOpen] = useState(false)
+  const { user } = useAuth()
+  const { properties, isLoading: propsLoading, hasProperties } = useProperties()
+
+  // Read deep link params from URL (e.g. from vermietify cross-link)
+  useEffect(() => {
+    const p = Object.fromEntries(searchParams.entries())
+    if (Object.keys(p).length === 0) return
+    setData(prev => ({
+      ...prev,
+      ...(p.street && { objektStrasse: p.street }),
+      ...(p.houseNr && { objektHausnummer: p.houseNr }),
+      ...(p.plz && { objektPlz: p.plz }),
+      ...(p.city && { objektOrt: p.city }),
+      ...(p.area && { objektFlaeche: p.area }),
+      ...(p.rooms && { objektZimmer: p.rooms }),
+      ...(p.rent && { kaltmiete: p.rent }),
+      ...(p.deposit && { kaution: p.deposit }),
+      ...(p.tenantFirst && { mieterVorname: p.tenantFirst }),
+      ...(p.tenantLast && { mieterNachname: p.tenantLast }),
+      ...(p.tenantEmail && { mieterEmail: p.tenantEmail }),
+    }))
+  }, [searchParams])
 
   const update = (field: keyof MietvertragData, value: string | boolean) => {
     setData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handlePropertySelect = (buildingIdx: number, unitIdx: number) => {
+    const building = properties[buildingIdx]
+    const unit = building.units[unitIdx]
+    const addressParts = building.address.match(/^(.+?)\s+(\S+)$/)
+    const tenant = unit.leases?.[0]?.tenants
+
+    setData(prev => ({
+      ...prev,
+      objektStrasse: addressParts ? addressParts[1] : building.address,
+      objektHausnummer: addressParts ? addressParts[2] : '',
+      objektPlz: building.postal_code,
+      objektOrt: building.city,
+      objektFlaeche: unit.area ? String(unit.area) : prev.objektFlaeche,
+      kaltmiete: unit.rent_amount ? String(unit.rent_amount) : prev.kaltmiete,
+      ...(tenant ? {
+        mieterVorname: tenant.first_name,
+        mieterNachname: tenant.last_name,
+      } : {}),
+    }))
+    setPropOpen(false)
   }
 
   const kaltmiete = parseFloat(data.kaltmiete) || 0
@@ -132,7 +184,44 @@ export default function MietvertragFormular() {
           {/* Step 0: Mietobjekt */}
           {step === 0 && (
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Building2 className="h-5 w-5" /> Angaben zum Mietobjekt</CardTitle></CardHeader>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2"><Building2 className="h-5 w-5" /> Angaben zum Mietobjekt</CardTitle>
+                  {user && !propsLoading && hasProperties && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setPropOpen(!propOpen)}
+                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        <Building2 className="h-4 w-4" />
+                        Aus Vermietify laden
+                        <ChevronDown className={`h-3 w-3 transition-transform ${propOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {propOpen && (
+                        <div className="absolute right-0 z-10 mt-1 w-80 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                          {properties.map((building, bi) => (
+                            <div key={building.id}>
+                              <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">
+                                {building.name} &middot; {building.city}
+                              </div>
+                              {building.units.map((unit, ui) => (
+                                <button
+                                  key={unit.id}
+                                  className="w-full text-left px-3 py-2 hover:bg-blue-50 flex justify-between items-center"
+                                  onClick={() => handlePropertySelect(bi, ui)}
+                                >
+                                  <span className="text-sm">{unit.unit_number}</span>
+                                  <span className="text-sm font-medium">{unit.rent_amount.toFixed(2)} &euro;</span>
+                                </button>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="md:col-span-2 space-y-2">

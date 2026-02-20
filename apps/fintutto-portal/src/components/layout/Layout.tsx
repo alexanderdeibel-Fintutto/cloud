@@ -1,17 +1,38 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, useScrollToTop } from '@fintutto/shared'
 import Header from './Header'
 import Footer from './Footer'
+ claude/improve-app-integration-k7JF2
+import EcosystemBar from './EcosystemBar'
+
+const allTools = [...PORTAL_TOOLS, ...CHECKER_TOOLS]
+
 import AiAssistant from '@/components/shared/AiAssistant'
+ main
 
 export default function Layout() {
+  const navigate = useNavigate()
+  useScrollToTop()
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[9999] focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium">
+        Zum Inhalt springen
+      </a>
+      <EcosystemBar />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
       </main>
       <Footer />
+ claude/improve-app-integration-k7JF2
+      <CommandPalette
+        items={allTools}
+        onSelect={(item) => navigate(item.path)}
+      />
+
       <AiAssistant />
+ main
     </div>
   )
 }
