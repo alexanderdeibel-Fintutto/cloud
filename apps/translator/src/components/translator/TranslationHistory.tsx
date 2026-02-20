@@ -1,15 +1,17 @@
 import { Clock, Trash2, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { useTranslationHistory } from '@/hooks/useTranslationHistory'
+import type { HistoryEntry } from '@/hooks/useTranslationHistory'
 import { getLanguageByCode } from '@/lib/languages'
 
 interface TranslationHistoryProps {
+  history: HistoryEntry[]
+  clearHistory: () => void
+  removeEntry: (id: string) => void
   onSelect: (sourceText: string, sourceLang: string, targetLang: string) => void
 }
 
-export default function TranslationHistory({ onSelect }: TranslationHistoryProps) {
-  const { history, clearHistory, removeEntry } = useTranslationHistory()
+export default function TranslationHistory({ history, clearHistory, removeEntry, onSelect }: TranslationHistoryProps) {
 
   if (history.length === 0) return null
 

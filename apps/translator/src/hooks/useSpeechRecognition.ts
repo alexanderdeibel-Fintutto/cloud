@@ -32,13 +32,43 @@ declare global {
 export function useSpeechRecognition() {
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const shouldBeListeningRef = useRef(false)
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
 
+  const stopListening = useCallback(() => {
+    shouldBeListeningRef.current = false
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort()
+      } catch {
+        // ignore
+      }
+      recognitionRef.current = null
+    }
+    setIsListening(false)
+  }, [])
+
   const startListening = useCallback((lang: string, onResult: (text: string) => void) => {
-    if (!isSupported) return
+    if (!isSupported) {
+      setError('Spracheingabe wird von diesem Browser nicht unterstützt')
+      return
+    }
+
+    // Stop any existing instance first
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort()
+      } catch {
+        // ignore
+      }
+      recognitionRef.current = null
+    }
+
+    setError(null)
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new SpeechRecognition()
@@ -68,32 +98,53 @@ export function useSpeechRecognition() {
       }
     }
 
-    recognition.onerror = () => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (event.error === 'not-allowed') {
+        setError('Mikrofon-Zugriff verweigert. Bitte erlauben Sie den Zugriff in den Browser-Einstellungen.')
+      } else if (event.error === 'no-speech') {
+        // No speech detected - don't treat as fatal, recognition will auto-restart via onend
+        return
+      } else if (event.error !== 'aborted') {
+        setError(`Spracheingabe-Fehler: ${event.error}`)
+      }
+      shouldBeListeningRef.current = false
       setIsListening(false)
     }
 
     recognition.onend = () => {
+      // Auto-restart if we should still be listening (Chrome stops continuous mode sometimes)
+      if (shouldBeListeningRef.current && recognitionRef.current) {
+        try {
+          recognition.start()
+          return
+        } catch {
+          // Fall through to stop
+        }
+      }
+      shouldBeListeningRef.current = false
       setIsListening(false)
     }
 
     recognitionRef.current = recognition
-    recognition.start()
-    setIsListening(true)
-    setTranscript('')
-  }, [isSupported])
+    shouldBeListeningRef.current = true
 
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
+    try {
+      recognition.start()
+      setIsListening(true)
+      setTranscript('')
+    } catch (e) {
+      shouldBeListeningRef.current = false
+      setError('Spracheingabe konnte nicht gestartet werden')
+      setIsListening(false)
       recognitionRef.current = null
     }
-    setIsListening(false)
-  }, [])
+  }, [isSupported])
 
   return {
     isListening,
     transcript,
     isSupported,
+    error,
     startListening,
     stopListening,
   }
