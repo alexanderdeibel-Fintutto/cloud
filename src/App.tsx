@@ -4,13 +4,10 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
 import Layout from '@/components/layout/Layout'
- claude/review-repo-setup-0rnoo
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-
 import { ExitIntentPopup } from '@/components/monetization'
- main
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -18,6 +15,7 @@ import HomePage from '@/pages/HomePage'
 // Lazy: everything else loads on demand
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
 const PricingPage = lazy(() => import('@/pages/PricingPage'))
+const FitTuttoPricingPage = lazy(() => import('@/pages/FitTuttoPricingPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const CheckoutSuccessPage = lazy(() => import('@/pages/CheckoutSuccessPage'))
@@ -94,6 +92,9 @@ function App() {
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              {/* FitTutto Fitness */}
+              <Route path="/fittutto/preise" element={<FitTuttoPricingPage />} />
+
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
               <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
 
