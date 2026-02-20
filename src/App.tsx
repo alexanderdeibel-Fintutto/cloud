@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
+import { FitnessProvider } from '@/contexts/FitnessContext'
 import Layout from '@/components/layout/Layout'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
@@ -16,6 +17,11 @@ import HomePage from '@/pages/HomePage'
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
 const PricingPage = lazy(() => import('@/pages/PricingPage'))
 const FitTuttoPricingPage = lazy(() => import('@/pages/FitTuttoPricingPage'))
+const FitTuttoDashboardPage = lazy(() => import('@/pages/FitTuttoDashboardPage'))
+const FitTuttoProfilePage = lazy(() => import('@/pages/FitTuttoProfilePage'))
+const FitTuttoExercisesPage = lazy(() => import('@/pages/FitTuttoExercisesPage'))
+const FitTuttoWorkoutPage = lazy(() => import('@/pages/FitTuttoWorkoutPage'))
+const FitTuttoPlanPage = lazy(() => import('@/pages/FitTuttoPlanPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const CheckoutSuccessPage = lazy(() => import('@/pages/CheckoutSuccessPage'))
@@ -80,6 +86,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <FitnessProvider>
       <CheckerProvider>
         <ScrollToTop />
         <Layout>
@@ -93,6 +100,12 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               {/* FitTutto Fitness */}
+              <Route path="/fittutto" element={<FitTuttoDashboardPage />} />
+              <Route path="/fittutto/dashboard" element={<FitTuttoDashboardPage />} />
+              <Route path="/fittutto/profil" element={<FitTuttoProfilePage />} />
+              <Route path="/fittutto/uebungen" element={<FitTuttoExercisesPage />} />
+              <Route path="/fittutto/workout" element={<FitTuttoWorkoutPage />} />
+              <Route path="/fittutto/plan" element={<FitTuttoPlanPage />} />
               <Route path="/fittutto/preise" element={<FitTuttoPricingPage />} />
 
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
@@ -155,6 +168,7 @@ function App() {
         <Toaster position="top-right" richColors />
         <ExitIntentPopup />
       </CheckerProvider>
+      </FitnessProvider>
     </AuthProvider>
   )
 }
