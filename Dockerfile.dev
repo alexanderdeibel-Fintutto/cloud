@@ -1,0 +1,32 @@
+# =============================================================================
+# Fintutto Container — Development image
+# Runs all Vite dev servers with HMR support
+# =============================================================================
+
+FROM node:20-alpine
+
+RUN corepack enable && corepack prepare pnpm@9.1.0 --activate
+WORKDIR /app
+
+# Copy workspace configuration
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json turbo.json ./
+
+# Copy all package.json files
+COPY packages/core/package.json ./packages/core/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/pwa/package.json ./packages/pwa/
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/fintutto/package.json ./apps/fintutto/
+COPY apps/vermietify/package.json ./apps/vermietify/
+COPY apps/mieter-portal/package.json ./apps/mieter-portal/
+COPY apps/hausmeister-pro/package.json ./apps/hausmeister-pro/
+COPY apps/zaehler-app/package.json ./apps/zaehler-app/
+COPY apps/bescheid-boxer/package.json ./apps/bescheid-boxer/
+
+# Install all dependencies
+RUN pnpm install --frozen-lockfile || pnpm install
+
+# Source code is mounted as volume in docker-compose
+EXPOSE 3100 3101 3102 3103 3104 5173
+
+CMD ["pnpm", "run", "dev"]

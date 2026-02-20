@@ -1,13 +1,31 @@
 {
-  "name": "fintutto-mieter-checker",
+  "name": "fintutto-container",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "dev:fintutto": "turbo run dev --filter=@fintutto/app-fintutto",
+    "dev:vermietify": "turbo run dev --filter=vermietify",
+    "dev:mieter-portal": "turbo run dev --filter=@fintutto/app-mieter-portal",
+    "dev:hausmeister-pro": "turbo run dev --filter=@fintutto/app-hausmeister-pro",
+    "dev:zaehler-app": "turbo run dev --filter=@fintutto/app-zaehler",
+    "dev:bescheid-boxer": "turbo run dev --filter=@fintutto/app-bescheid-boxer",
+    "build:fintutto": "turbo run build --filter=@fintutto/app-fintutto",
+    "build:vermietify": "turbo run build --filter=vermietify",
+    "build:mieter-portal": "turbo run build --filter=@fintutto/app-mieter-portal",
+    "build:hausmeister-pro": "turbo run build --filter=@fintutto/app-hausmeister-pro",
+    "build:zaehler-app": "turbo run build --filter=@fintutto/app-zaehler",
+    "build:bescheid-boxer": "turbo run build --filter=@fintutto/app-bescheid-boxer",
+    "lint": "turbo run lint",
+    "preview": "turbo run preview",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "docker:dev": "docker compose up --build",
+    "docker:dev:down": "docker compose down",
+    "docker:prod": "docker compose -f docker-compose.prod.yml up --build -d",
+    "docker:prod:down": "docker compose -f docker-compose.prod.yml down"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -60,7 +78,12 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "turbo": "^2.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.6"
+  },
+  "packageManager": "pnpm@9.1.0",
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

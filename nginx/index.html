@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fintutto Container — App Hub</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      width: 100%;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--color, var(--accent));
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .card-role {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.7;
+    }
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .card-port {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+    .footer {
+      margin-top: 3rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Fintutto Container</h1>
+    <p>6 Apps &mdash; 1 Container &mdash; 1 Supabase</p>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="/fintutto" style="--color: #2563eb">
+      <div class="card-header">
+        <div class="card-icon" style="background: #2563eb22; color: #2563eb">&#9733;</div>
+        <div>
+          <div class="card-title">Fintutto Full</div>
+          <div class="card-role">Owner</div>
+        </div>
+      </div>
+      <div class="card-desc">Komplette Immobilienverwaltung &mdash; Dashboard, Objekte, Mieter, Zaehler, Dokumente, Zahlungen, Rechner, Bescheide.</div>
+      <div class="card-port">Port 3100</div>
+    </a>
+
+    <a class="card" href="/vermietify" style="--color: #0ea5e9">
+      <div class="card-header">
+        <div class="card-icon" style="background: #0ea5e922; color: #0ea5e9">&#9998;</div>
+        <div>
+          <div class="card-title">Vermietify</div>
+          <div class="card-role">Owner</div>
+        </div>
+      </div>
+      <div class="card-desc">Professionelle Vermietungssoftware mit 100+ Funktionen &mdash; Vertraege, Banking, Steuern, Automatisierung.</div>
+      <div class="card-port">Port 5173</div>
+    </a>
+
+    <a class="card" href="/mieter-portal" style="--color: #10b981">
+      <div class="card-header">
+        <div class="card-icon" style="background: #10b98122; color: #10b981">&#127968;</div>
+        <div>
+          <div class="card-title">Mieter-Portal</div>
+          <div class="card-role">Tenant</div>
+        </div>
+      </div>
+      <div class="card-desc">Mieter-App fuer Wohnungsdetails, Zaehlerstaende, Dokumente und Maengelmeldungen.</div>
+      <div class="card-port">Port 3101</div>
+    </a>
+
+    <a class="card" href="/hausmeister-pro" style="--color: #f97316">
+      <div class="card-header">
+        <div class="card-icon" style="background: #f9731622; color: #f97316">&#128295;</div>
+        <div>
+          <div class="card-title">HausmeisterPro</div>
+          <div class="card-role">Caretaker</div>
+        </div>
+      </div>
+      <div class="card-desc">Hausmeister-App fuer Rundgaenge, Aufgaben, Zaehlerablesen und Gebaeude-Management.</div>
+      <div class="card-port">Port 3102</div>
+    </a>
+
+    <a class="card" href="/zaehler-app" style="--color: #8b5cf6">
+      <div class="card-header">
+        <div class="card-icon" style="background: #8b5cf622; color: #8b5cf6">&#9889;</div>
+        <div>
+          <div class="card-title">ZaehlerApp</div>
+          <div class="card-role">Owner</div>
+        </div>
+      </div>
+      <div class="card-desc">Spezialisierte App fuer Zaehlererfassung, -historie und -auswertung ueber alle Objekte.</div>
+      <div class="card-port">Port 3103</div>
+    </a>
+
+    <a class="card" href="/bescheid-boxer" style="--color: #ef4444">
+      <div class="card-header">
+        <div class="card-icon" style="background: #ef444422; color: #ef4444">&#128196;</div>
+        <div>
+          <div class="card-title">BescheidBoxer</div>
+          <div class="card-role">Owner</div>
+        </div>
+      </div>
+      <div class="card-desc">KI-gestuetzte Analyse von Behoerdenbescheiden &mdash; Upload, Parsing, Widerspruch-Generator.</div>
+      <div class="card-port">Port 3104</div>
+    </a>
+  </div>
+
+  <div class="footer">
+    Fintutto Container v1.0.0 &mdash; Alle Apps teilen eine gemeinsame Supabase-Instanz
+  </div>
+</body>
+</html>

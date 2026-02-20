@@ -1,0 +1,29 @@
+# =============================================================================
+# Fintutto Container — Production Deployment
+# Builds all apps → serves via Nginx on port 80
+# Usage: docker compose -f docker-compose.prod.yml up --build -d
+# =============================================================================
+
+services:
+  fintutto-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+        - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+    container_name: fintutto-container
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "app.name=fintutto-container"
+      - "app.version=1.0.0"
+      - "app.description=Fintutto Container — 6 Apps in einem Container"

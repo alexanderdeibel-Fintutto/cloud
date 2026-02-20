@@ -1,0 +1,120 @@
+# =============================================================================
+# Fintutto Container — Local Development
+# Runs all 6 apps with Vite HMR on their respective ports
+# Usage: docker compose up --build
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Fintutto Full (Main Hub) — Port 3100
+  # ---------------------------------------------------------------------------
+  fintutto:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: fintutto-app
+    ports:
+      - "3100:3100"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/packages/core/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/pwa/node_modules
+      - /app/packages/shared/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+    command: pnpm run dev:fintutto
+
+  # ---------------------------------------------------------------------------
+  # Vermietify — Port 5173
+  # ---------------------------------------------------------------------------
+  vermietify:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: vermietify-app
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+    command: pnpm run dev:vermietify
+
+  # ---------------------------------------------------------------------------
+  # Mieter-Portal — Port 3101
+  # ---------------------------------------------------------------------------
+  mieter-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: mieter-portal-app
+    ports:
+      - "3101:3101"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    command: pnpm run dev:mieter-portal
+
+  # ---------------------------------------------------------------------------
+  # HausmeisterPro — Port 3102
+  # ---------------------------------------------------------------------------
+  hausmeister-pro:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: hausmeister-pro-app
+    ports:
+      - "3102:3102"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    command: pnpm run dev:hausmeister-pro
+
+  # ---------------------------------------------------------------------------
+  # ZählerApp — Port 3103
+  # ---------------------------------------------------------------------------
+  zaehler-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: zaehler-app
+    ports:
+      - "3103:3103"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    command: pnpm run dev:zaehler-app
+
+  # ---------------------------------------------------------------------------
+  # BescheidBoxer — Port 3104
+  # ---------------------------------------------------------------------------
+  bescheid-boxer:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bescheid-boxer-app
+    ports:
+      - "3104:3104"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    command: pnpm run dev:bescheid-boxer
