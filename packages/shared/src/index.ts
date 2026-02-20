@@ -164,6 +164,13 @@ export { ErrorBoundary } from './components/ErrorBoundary'
 // Re-export AnnouncementBanner
 export { AnnouncementBanner } from './components/AnnouncementBanner'
 
+// Re-export CommandPalette
+export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS } from './components/CommandPalette'
+export type { CommandItem } from './components/CommandPalette'
+
+// Re-export Breadcrumbs
+export { Breadcrumbs } from './components/Breadcrumbs'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 
