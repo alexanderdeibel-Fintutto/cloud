@@ -4,6 +4,10 @@ import Layout from '@/components/layout/Layout'
 import TranslatorPage from '@/pages/TranslatorPage'
 import InfoPage from '@/pages/InfoPage'
 
+if (import.meta.env.DEV) {
+  console.log('[Translator] Cloud TTS API Key:', import.meta.env.VITE_GOOGLE_TTS_API_KEY ? '✓ gesetzt' : '✗ fehlt')
+}
+
 function App() {
   return (
     <BrowserRouter>

@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 import { isCloudTTSAvailable, speakWithCloudTTS } from '@/lib/tts'
 
 export function useSpeechSynthesis() {
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [ttsEngine, setTtsEngine] = useState<'cloud' | 'browser' | null>(null)
   const voicesRef = useRef<SpeechSynthesisVoice[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const useCloudTTS = isCloudTTSAvailable()
@@ -24,10 +26,17 @@ export function useSpeechSynthesis() {
     }
   }, [])
 
-  const speakBrowser = useCallback((text: string, lang: string) => {
+  const speakBrowser = useCallback((text: string, lang: string, isFallback = false) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
 
     window.speechSynthesis.cancel()
+    setTtsEngine('browser')
+
+    if (isFallback) {
+      toast.warning('Google Cloud TTS nicht verfügbar – Browser-Stimme wird verwendet', {
+        duration: 4000,
+      })
+    }
 
     setTimeout(() => {
       const utterance = new SpeechSynthesisUtterance(text)
@@ -67,6 +76,7 @@ export function useSpeechSynthesis() {
 
     if (useCloudTTS) {
       setIsSpeaking(true)
+      setTtsEngine('cloud')
       speakWithCloudTTS(text, lang)
         .then(audio => {
           audioRef.current = audio
@@ -78,14 +88,15 @@ export function useSpeechSynthesis() {
             setIsSpeaking(false)
             audioRef.current = null
             // Fallback to browser TTS on error
-            speakBrowser(text, lang)
+            speakBrowser(text, lang, true)
           })
           audio.play()
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('[TTS] Cloud TTS failed:', err)
           // Fallback to browser TTS
           setIsSpeaking(false)
-          speakBrowser(text, lang)
+          speakBrowser(text, lang, true)
         })
     } else {
       speakBrowser(text, lang)
@@ -106,6 +117,7 @@ export function useSpeechSynthesis() {
   return {
     isSpeaking,
     isSupported,
+    ttsEngine,
     speak,
     stop,
   }

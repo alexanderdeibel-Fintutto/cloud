@@ -42,6 +42,9 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
   const sourceSpeech = useSpeechSynthesis()
   const targetSpeech = useSpeechSynthesis()
 
+  // Show which TTS engine was last used
+  const activeTtsEngine = sourceSpeech.ttsEngine || targetSpeech.ttsEngine
+
   // Handle initial text from quick phrases or history
   useEffect(() => {
     if (initialText) {
@@ -206,6 +209,11 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
                   >
                     {sourceSpeech.isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                   </Button>
+                )}
+                {activeTtsEngine && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${activeTtsEngine === 'cloud' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                    {activeTtsEngine === 'cloud' ? '☁ Cloud' : '🖥 Browser'}
+                  </span>
                 )}
                 {sourceText && (
                   <Button variant="ghost" size="icon" onClick={clearAll} title="Löschen">
