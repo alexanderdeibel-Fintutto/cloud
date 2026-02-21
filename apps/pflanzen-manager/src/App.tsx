@@ -22,6 +22,7 @@ import CalendarPage from '@/pages/care/CalendarPage';
 import VacationPlanPage from '@/pages/vacation/VacationPlanPage';
 import ShoppingPage from '@/pages/shopping/ShoppingPage';
 import SettingsPage from '@/pages/SettingsPage';
+import PlantScannerPage from '@/pages/scanner/PlantScannerPage';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ function App() {
                   <Route path="/calendar" element={<CalendarPage />} />
                   <Route path="/vacation" element={<VacationPlanPage />} />
                   <Route path="/shopping" element={<ShoppingPage />} />
+                  <Route path="/scanner" element={<PlantScannerPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                 </Route>
 

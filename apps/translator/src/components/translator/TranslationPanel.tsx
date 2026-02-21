@@ -17,14 +17,17 @@ import { translateText } from '@/lib/translate'
 import { getLanguageByCode } from '@/lib/languages'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis'
-import { useTranslationHistory } from '@/hooks/useTranslationHistory'
+import type { HistoryEntry } from '@/hooks/useTranslationHistory'
 
 interface TranslationPanelProps {
   initialText?: string
+  initialSourceLang?: string
+  initialTargetLang?: string
   onInitialTextConsumed?: () => void
+  addEntry: (entry: Omit<HistoryEntry, 'id' | 'timestamp'>) => void
 }
 
-export default function TranslationPanel({ initialText, onInitialTextConsumed }: TranslationPanelProps) {
+export default function TranslationPanel({ initialText, initialSourceLang, initialTargetLang, onInitialTextConsumed, addEntry }: TranslationPanelProps) {
   const [sourceLang, setSourceLang] = useState('de')
   const [targetLang, setTargetLang] = useState('en')
   const [sourceText, setSourceText] = useState('')
@@ -35,18 +38,19 @@ export default function TranslationPanel({ initialText, onInitialTextConsumed }:
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { isListening, isSupported: micSupported, startListening, stopListening } = useSpeechRecognition()
+  const { isListening, isSupported: micSupported, error: micError, startListening, stopListening } = useSpeechRecognition()
   const sourceSpeech = useSpeechSynthesis()
   const targetSpeech = useSpeechSynthesis()
-  const { addEntry } = useTranslationHistory()
 
-  // Handle initial text from quick phrases
+  // Handle initial text from quick phrases or history
   useEffect(() => {
     if (initialText) {
       setSourceText(initialText)
+      if (initialSourceLang) setSourceLang(initialSourceLang)
+      if (initialTargetLang) setTargetLang(initialTargetLang)
       onInitialTextConsumed?.()
     }
-  }, [initialText, onInitialTextConsumed])
+  }, [initialText, initialSourceLang, initialTargetLang, onInitialTextConsumed])
 
   const doTranslate = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -220,6 +224,9 @@ export default function TranslationPanel({ initialText, onInitialTextConsumed }:
                   <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
                   Aufnahme läuft...
                 </span>
+              )}
+              {micError && (
+                <span className="text-xs text-destructive">{micError}</span>
               )}
             </div>
           </div>
