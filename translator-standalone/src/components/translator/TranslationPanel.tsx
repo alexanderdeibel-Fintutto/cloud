@@ -35,6 +35,10 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
   const [isTranslating, setIsTranslating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [autoSpeak, setAutoSpeak] = useState(() => {
+    const saved = localStorage.getItem('translator-auto-speak')
+    return saved !== null ? saved === 'true' : true
+  })
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -69,6 +73,12 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
       const result = await translateText(text, sourceLang, targetLang)
       setTranslatedText(result.translatedText)
 
+      // Auto-speak the translated text
+      if (autoSpeak && result.translatedText) {
+        const lang = getLanguageByCode(targetLang)
+        targetSpeech.speak(result.translatedText, lang?.speechCode || targetLang)
+      }
+
       addEntry({
         sourceText: text,
         translatedText: result.translatedText,
@@ -80,7 +90,7 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     } finally {
       setIsTranslating(false)
     }
-  }, [sourceLang, targetLang, addEntry])
+  }, [sourceLang, targetLang, addEntry, autoSpeak, targetSpeech])
 
   useEffect(() => {
     if (debounceRef.current) {
@@ -155,6 +165,14 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     }
   }
 
+  const toggleAutoSpeak = () => {
+    setAutoSpeak(prev => {
+      const next = !prev
+      localStorage.setItem('translator-auto-speak', String(next))
+      return next
+    })
+  }
+
   const clearAll = () => {
     setSourceText('')
     setTranslatedText('')
@@ -179,6 +197,16 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
           <ArrowRightLeft className="h-4 w-4" />
         </Button>
         <LanguageSelector value={targetLang} onChange={setTargetLang} label="Nach" />
+        <Button
+          variant={autoSpeak ? 'default' : 'outline'}
+          size="sm"
+          onClick={toggleAutoSpeak}
+          className="mb-0.5 shrink-0 gap-1.5"
+          title={autoSpeak ? 'Auto-Vorlesen aktiv' : 'Auto-Vorlesen aus'}
+        >
+          {autoSpeak ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+          <span className="text-xs">Auto</span>
+        </Button>
       </div>
 
       {/* Translation Cards */}

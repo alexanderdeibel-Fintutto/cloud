@@ -1,7 +1,7 @@
 // Google Cloud Text-to-Speech API integration
 // Provides natural-sounding Neural2/WaveNet voices
 
-const API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY || 'AIzaSyD7rAgJwKIVwyAzQIhG8Dw3VqY2o7-Jr_8'
+const API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY || 'AIzaSyD0jpDgyihxFytR-jDIxEHj17kl4Oz9FGY'
 const API_URL = 'https://texttospeech.googleapis.com/v1/text:synthesize'
 
 // Best available voice per language (Neural2 > WaveNet > Standard)
