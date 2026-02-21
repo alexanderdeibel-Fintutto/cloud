@@ -1,5 +1,7 @@
-import { Languages, Mic, Globe, Zap } from 'lucide-react'
+import { Languages, Mic, Globe, Zap, Radio } from 'lucide-react'
 import { useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 import TranslationPanel from '@/components/translator/TranslationPanel'
 import TranslationHistory from '@/components/translator/TranslationHistory'
 import QuickPhrases from '@/components/translator/QuickPhrases'
@@ -51,6 +53,12 @@ export default function TranslatorPage() {
             {f.label}
           </div>
         ))}
+        <Link to="/live">
+          <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
+            <Radio className="h-3 w-3" />
+            Live-Session
+          </Button>
+        </Link>
       </div>
 
       {/* Main Translation */}
