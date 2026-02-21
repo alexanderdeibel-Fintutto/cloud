@@ -7,6 +7,7 @@ import type { PresenceState } from '@/lib/session'
 export function usePresence() {
   const [listeners, setListeners] = useState<PresenceState[]>([])
   const channelRef = useRef<RealtimeChannel | null>(null)
+  const myPresenceRef = useRef<PresenceState | null>(null)
 
   const join = useCallback((code: string, presenceData: PresenceState) => {
     // Clean up existing
@@ -15,6 +16,7 @@ export function usePresence() {
       channelRef.current = null
     }
 
+    myPresenceRef.current = presenceData
     const channel = supabase.channel(getChannelName(code) + '-presence')
 
     channel.on('presence', { event: 'sync' }, () => {
@@ -42,17 +44,10 @@ export function usePresence() {
   }, [])
 
   const updatePresence = useCallback(async (data: Partial<PresenceState>) => {
-    if (!channelRef.current) return
-    const current = channelRef.current.presenceState()
-    const myKey = Object.keys(current).find(k =>
-      current[k].some((p: Record<string, unknown>) => p.deviceName === data.deviceName)
-    )
-    if (myKey) {
-      const existing = current[myKey][0] as unknown as PresenceState
-      await channelRef.current.track({ ...existing, ...data })
-    } else {
-      await channelRef.current.track(data as unknown as PresenceState)
-    }
+    if (!channelRef.current || !myPresenceRef.current) return
+    const merged = { ...myPresenceRef.current, ...data }
+    myPresenceRef.current = merged
+    await channelRef.current.track(merged)
   }, [])
 
   const leave = useCallback(() => {
