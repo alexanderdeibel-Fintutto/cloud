@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { EcosystemBanner } from '@/components/EcosystemBanner';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -454,6 +455,9 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Cross-Marketing */}
+      <EcosystemBanner variant="inline" maxApps={4} />
     </div>
   );
 }

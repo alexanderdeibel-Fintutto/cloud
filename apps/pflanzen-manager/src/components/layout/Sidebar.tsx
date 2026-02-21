@@ -15,9 +15,13 @@ import {
   Leaf,
   ChevronLeft,
   Menu,
+  Gift,
+  Tag,
+  ExternalLink,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { FINTUTTO_APPS, buildCrossMarketingLink } from '@/lib/referral';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -25,10 +29,15 @@ const navItems = [
   { to: '/catalog', icon: Search, label: 'Pflanzenkatalog' },
   { to: '/scanner', icon: ScanLine, label: 'Pflanzen-Scanner' },
   { to: '/apartments', icon: Home, label: 'Wohnungen' },
-  { to: '/care', icon: Droplets, label: 'Pflege & Gießplan' },
+  { to: '/care', icon: Droplets, label: 'Pflege & Giessplan' },
   { to: '/vacation', icon: Plane, label: 'Urlaubsplan' },
   { to: '/shopping', icon: ShoppingCart, label: 'Einkaufsliste' },
   { to: '/calendar', icon: Calendar, label: 'Kalender' },
+];
+
+const extraItems = [
+  { to: '/referral', icon: Gift, label: 'Empfehlungen' },
+  { to: '/pricing', icon: Tag, label: 'Preise & Angebote' },
 ];
 
 export function Sidebar() {
@@ -104,6 +113,55 @@ export function Sidebar() {
               {!collapsed && <span>{item.label}</span>}
             </NavLink>
           ))}
+
+          {/* Separator */}
+          {!collapsed && (
+            <div className="pt-2 pb-1 px-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Fintutto
+              </p>
+            </div>
+          )}
+          {collapsed && <div className="border-t border-sidebar-border my-2" />}
+
+          {extraItems.map(item => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={() => window.innerWidth < 1024 && setCollapsed(true)}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                  collapsed && 'lg:justify-center lg:px-2'
+                )
+              }
+            >
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </NavLink>
+          ))}
+
+          {/* Ecosystem quick links */}
+          {!collapsed && (
+            <div className="pt-2 space-y-0.5">
+              {FINTUTTO_APPS.slice(0, 3).map(app => (
+                <a
+                  key={app.key}
+                  href={buildCrossMarketingLink(app.url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                >
+                  <span className="text-base w-5 text-center">{app.icon}</span>
+                  <span className="truncate">{app.name}</span>
+                  <ExternalLink className="h-3 w-3 ml-auto shrink-0 opacity-50" />
+                </a>
+              ))}
+            </div>
+          )}
         </nav>
 
         {/* Footer */}
@@ -134,6 +192,20 @@ export function Sidebar() {
               <LogOut className="h-5 w-5 flex-shrink-0" />
               {!collapsed && <span>Abmelden</span>}
             </button>
+          )}
+
+          {/* Fintutto branding */}
+          {!collapsed && (
+            <div className="px-3 py-2 mt-1">
+              <a
+                href="https://fintutto.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Ein Produkt von <span className="font-semibold">Fintutto</span>
+              </a>
+            </div>
           )}
         </div>
       </aside>

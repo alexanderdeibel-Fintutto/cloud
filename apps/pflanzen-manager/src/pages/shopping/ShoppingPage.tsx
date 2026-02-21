@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { PARTNER_SHOPS, generateSearchUrl, MATERIAL_SUGGESTIONS } from '@/lib/partner-shops';
+import { PARTNER_SHOPS, generateSearchUrl, MATERIAL_SUGGESTIONS, trackAffiliateClick } from '@/lib/partner-shops';
 import { toast } from 'sonner';
 import {
   ShoppingCart,
@@ -473,6 +473,7 @@ export default function ShoppingPage() {
                                     href={searchUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={() => trackAffiliateClick(shop.id, item.name)}
                                   >
                                     <ExternalLink className="h-3 w-3 mr-1" />
                                     {shop.name}
