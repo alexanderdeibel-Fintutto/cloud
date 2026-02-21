@@ -6,8 +6,8 @@ import { supabase } from "../lib/supabase";
 
 const PLAN_ICONS: Record<string, React.ElementType> = {
   free: Zap,
-  basis: Shield,
-  premium: Crown,
+  mieter_checker_basis: Shield,
+  mieter_checker_premium: Crown,
 };
 
 export default function Preise() {
@@ -42,7 +42,7 @@ export default function Preise() {
         priceId,
         user?.id || "",
         user?.email || "",
-        `mieter_checker_${plan.id}`
+        plan.id
       );
 
       if (url) {

@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { PLAN_CREDIT_LIMITS } from '../packages/shared/src/credits'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -10,26 +11,6 @@ const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
-// Credit limits per plan (aligned with credits.ts)
-const PLAN_CREDIT_LIMITS: Record<string, number> = {
-  // Portal plans
-  free: 3,
-  mieter_basic: 15,
-  vermieter_basic: 20,
-  kombi_pro: 50,
-  unlimited: -1,
-  // Legacy plan names (backwards compatibility)
-  basic: 3,
-  premium: -1,
-  // Vermietify plans
-  starter: 3,
-  pro: 30,
-  enterprise: -1,
-  // Mieter-Checker plans (mieterportal)
-  mieter_checker_basis: 5,
-  mieter_checker_premium: 15,
-}
 
 export const config = {
   api: {

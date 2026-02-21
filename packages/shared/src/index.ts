@@ -1,10 +1,6 @@
 // Shared utilities and components for Fintutto apps
 export const FINTUTTO_VERSION = '1.0.0'
 
-export const SUPABASE_CONFIG = {
-  url: 'https://aaefocdqgdgexkcrjhks.supabase.co',
-}
-
 // Shared constants
 export const COUNTRIES = ['Deutschland', 'Österreich', 'Schweiz'] as const
 export type Country = (typeof COUNTRIES)[number]
@@ -131,3 +127,12 @@ export const FINTUTTO_APPS = {
 
 // Re-export all database types
 export * from './types/database'
+
+// Credits system (canonical plan registry)
+export * from './credits'
+
+// Stripe utilities
+export * from './stripe'
+
+// Supabase factory
+export { createSupabaseClient, type CreateSupabaseClientOptions } from './supabase'
