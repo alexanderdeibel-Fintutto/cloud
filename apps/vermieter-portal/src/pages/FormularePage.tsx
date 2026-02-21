@@ -9,6 +9,7 @@ import {
   Download,
   Mail
 } from 'lucide-react'
+import { useDocumentTitle, Breadcrumbs } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const formulare = [
@@ -55,11 +56,19 @@ const formulare = [
 ]
 
 export default function FormularePage() {
+  useDocumentTitle('Formulare & Vorlagen', 'Fintutto Vermieter')
   return (
     <div>
       {/* Hero */}
       <section className="gradient-vermieter py-16">
         <div className="container">
+          <Breadcrumbs
+            items={[
+              { label: 'Startseite', href: '/' },
+              { label: 'Formulare' },
+            ]}
+            className="mb-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span[aria-current]]:text-white [&_span[aria-hidden]]:text-white/30"
+          />
           <div className="max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Formulare & Vorlagen

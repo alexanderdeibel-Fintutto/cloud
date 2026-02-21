@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
+ claude/improve-app-integration-k7JF2
+import { getOtherApps } from '@fintutto/shared'
+
+const ecosystemApps = getOtherApps('mieter-checker')
+
 import { Sparkles } from 'lucide-react'
 // import { NewsletterSignup } from '@/components/monetization'
+ main
 
 const footerLinks = {
   rechner: [
@@ -143,6 +149,28 @@ export default function Footer() {
           </div>
         </div>
 
+ claude/improve-app-integration-k7JF2
+        {/* Ecosystem */}
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <p className="text-xs text-gray-500 mb-3">Fintutto Oekosystem</p>
+          <div className="flex flex-wrap gap-3 mb-6">
+            {ecosystemApps.map((app) => (
+              <a
+                key={app.key}
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-400 hover:text-fintutto-accent"
+              >
+                {app.icon} {app.name}
+              </a>
+            ))}
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-gray-500">
+              {currentYear} Fintutto. Alle Rechte vorbehalten.
+            </p>
+
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500">
             {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
@@ -166,6 +194,7 @@ export default function Footer() {
             >
               Bescheidboxer
             </a>
+ main
           </div>
         </div>
 

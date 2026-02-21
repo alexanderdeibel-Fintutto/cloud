@@ -3,6 +3,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface Bewohner {
   name: string
@@ -35,6 +37,8 @@ const initial: FormData = {
 }
 
 export default function WohnungsgeberbestaetigungFormular() {
+  useDocumentTitle('Wohnungsgeberbestätigung', 'Fintutto Portal')
+  useTrackTool('Wohnungsgeberbestätigung')
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 

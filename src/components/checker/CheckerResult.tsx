@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, AlertCircle, ArrowRight, FileText, Download } from 'lucide-react'
+import { CheckCircle, XCircle, AlertCircle, ArrowRight, FileText, Download, Calculator } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
@@ -12,6 +12,7 @@ interface CheckerResultProps {
   onGoToForm: () => void
   onDownloadPDF?: () => void
   onStartNew: () => void
+  rechnerUrl?: string
 }
 
 export default function CheckerResult({
@@ -20,6 +21,7 @@ export default function CheckerResult({
   onGoToForm,
   onDownloadPDF,
   onStartNew,
+  rechnerUrl,
 }: CheckerResultProps) {
   const getStatusIcon = () => {
     switch (result.status) {
@@ -147,6 +149,18 @@ export default function CheckerResult({
             <FileText className="w-5 h-5 mr-2" />
             Zum passenden Formular
             <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        )}
+
+        {rechnerUrl && (
+          <Button
+            variant="outline"
+            size="xl"
+            className="flex-1"
+            onClick={() => window.open(rechnerUrl, '_blank')}
+          >
+            <Calculator className="w-5 h-5 mr-2" />
+            Zum Rechner
           </Button>
         )}
 

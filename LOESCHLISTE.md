@@ -1,44 +1,40 @@
 # Exakte Lösch- & Archivierungsliste
 
 *Stand: 11.02.2026*
+*Aktualisiert: 20.02.2026 — Archivierung abgeschlossen*
 
 ---
 
-## 1. GitHub Repos: ARCHIVIEREN (Duplikate) - 10 Repos
+## 1. GitHub Repos: ARCHIVIEREN (Duplikate) - 10 Repos — ✅ ERLEDIGT (20.02.2026)
 
-Diese Repos sind Duplikate und können auf GitHub archiviert werden.
-(Settings → Danger Zone → Archive this repository)
-
-| # | Repo-Name (exakt) | GitHub URL | Duplikat von | Aktion |
-|---|-------------------|-----------|-------------|--------|
-| 1 | `miet-check-pro` | github.com/alexanderdeibel-Fintutto/miet-check-pro | `miet-check-pro-458b8dcf` | Archivieren |
-| 2 | `miet-check-pro-87` | github.com/alexanderdeibel-Fintutto/miet-check-pro-87 | `miet-check-pro-458b8dcf` | Archivieren |
-| 3 | `rent-check-buddy` | github.com/alexanderdeibel-Fintutto/rent-check-buddy | `miet-check-pro-458b8dcf` | Archivieren |
-| 4 | `mietkaution-klar` | github.com/alexanderdeibel-Fintutto/mietkaution-klar | `kaution-klar` | Archivieren |
-| 5 | `my-deposit-calculator` | github.com/alexanderdeibel-Fintutto/my-deposit-calculator | `kaution-klar` | Archivieren |
-| 6 | `deposit-check-pro` | github.com/alexanderdeibel-Fintutto/deposit-check-pro | `kaution-klar` (Checker) | Archivieren |
-| 7 | `FT_CALC_RENDITE` | github.com/alexanderdeibel-Fintutto/FT_CALC_RENDITE | `ft_calc_rendite-9bb37c94` | Archivieren |
-| 8 | `vermietify` | github.com/alexanderdeibel-Fintutto/vermietify | `vermieter-freude` (alt) | Archivieren |
-| 9 | `property-calc-hub` | github.com/alexanderdeibel-Fintutto/property-calc-hub | Portal ersetzt dies | Archivieren |
-| 10 | `a-docs` | github.com/alexanderdeibel-Fintutto/a-docs | Veraltet | Prüfen/Archivieren |
+| # | Repo-Name (exakt) | Duplikat von | Status |
+|---|-------------------|-------------|--------|
+| 1 | `miet-check-pro` | `miet-check-pro-458b8dcf` | ✅ Archiviert |
+| 2 | `miet-check-pro-87` | `miet-check-pro-458b8dcf` | ✅ Archiviert |
+| 3 | `rent-check-buddy` | `miet-check-pro-458b8dcf` | ✅ Archiviert |
+| 4 | `mietkaution-klar` | `kaution-klar` | ✅ Archiviert |
+| 5 | `my-deposit-calculator` | `kaution-klar` | ✅ Archiviert |
+| 6 | `deposit-check-pro` | `kaution-klar` (Checker) | ✅ Archiviert |
+| 7 | `FT_CALC_RENDITE` | `ft_calc_rendite-9bb37c94` | ✅ Archiviert |
+| 8 | `vermietify` | `vermieter-freude` (alt) | ✅ Archiviert |
+| 9 | `property-calc-hub` | Portal ersetzt dies | ✅ Archiviert |
+| 10 | `a-docs` | Dokumentation | Aktiv (behalten) |
 
 ---
 
-## 2. GitHub Repos: ARCHIVIEREN (Legacy ft_*) - 9 Repos
+## 2. GitHub Repos: ARCHIVIEREN (Legacy ft_*) - 9 Repos — ✅ ERLEDIGT (20.02.2026)
 
-Diese JavaScript-Repos dienen nur noch als Referenz. Archivieren, NICHT löschen!
-
-| # | Repo-Name (exakt) | Referenz-Wert | Aktion |
+| # | Repo-Name (exakt) | Referenz-Wert | Status |
 |---|-------------------|---------------|--------|
-| 1 | `ft_vermietify` | Hoch (631 Seiten Feature-Referenz) | Archivieren |
-| 2 | `ft_fromulare_alle` | **SEHR HOCH** (Formular-Referenz!) | Archivieren |
-| 3 | `ft_mieter` | Mittel | Archivieren |
-| 4 | `ft_hausmeisterPro` | Mittel | Archivieren |
-| 5 | `ft_hausmeister` | Niedrig | Archivieren |
-| 6 | `ft_admin-hub` | Mittel | Archivieren |
-| 7 | `ft_nebenkostenabrechnung` | Niedrig | Archivieren |
-| 8 | `ft_ocr_zaehler` | Mittel (OCR-Logik) | Archivieren |
-| 9 | `ft_calc_rendite-9bb37c94` | Niedrig | Archivieren |
+| 1 | `ft_vermietify` | Hoch (631 Seiten Feature-Referenz) | ✅ Archiviert |
+| 2 | `ft_fromulare_alle` | **SEHR HOCH** (Formular-Referenz!) | ✅ Archiviert |
+| 3 | `ft_mieter` | Mittel | ✅ Archiviert |
+| 4 | `ft_hausmeisterPro` | Mittel | ✅ Archiviert |
+| 5 | `ft_hausmeister` | Niedrig | ✅ Archiviert |
+| 6 | `fintutto-admin-hub` | Mittel (umbenannt von ft_admin-hub) | ✅ Umbenannt + Aktiv |
+| 7 | `ft_nebenkostenabrechnung` | Niedrig | ✅ Archiviert |
+| 8 | `ft_ocr_zaehler` | Mittel (OCR-Logik) | ✅ Archiviert |
+| 9 | `ft_calc_rendite-9bb37c94` | Niedrig | ✅ Archiviert |
 
 ---
 
@@ -103,10 +99,11 @@ In Vercel unter Settings → Advanced → Delete Project
 
 ## Zusammenfassung
 
-| Aktion | Anzahl |
-|--------|--------|
-| **Behalten** | 21 Repos |
-| **GitHub archivieren (Duplikate)** | 10 Repos |
-| **GitHub archivieren (Legacy)** | 9 Repos |
-| **Vercel löschen** | 7 Projekte |
-| **Gesamt** | 40 Repos |
+| Aktion | Anzahl | Status |
+|--------|--------|--------|
+| **Behalten** | 10 Repos | ✅ Aktiv |
+| **GitHub archiviert (Duplikate)** | 9 Repos | ✅ Erledigt (20.02.2026) |
+| **GitHub archiviert (Legacy)** | 8 Repos | ✅ Erledigt (20.02.2026) |
+| **GitHub archiviert (Prototypen)** | 17 Repos | ✅ Erledigt (20.02.2026) |
+| **Vercel löschen** | 7 Projekte | ⏳ Ausstehend |
+| **Gesamt archiviert** | 34 Repos | ✅ |

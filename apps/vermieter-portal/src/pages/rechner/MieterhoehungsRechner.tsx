@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Calculator, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
+import { useDocumentTitle } from '@fintutto/shared'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -36,7 +38,14 @@ const bundeslaender = [
 ]
 
 export default function MieterhoehungsRechner() {
+  useDocumentTitle('Mieterhöhungs-Rechner', 'Fintutto Vermieter')
+  const [searchParams] = useSearchParams()
   const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')
+
+  useEffect(() => {
+    const rent = searchParams.get('rent')
+    if (rent) setAktuelleKaltmiete(rent)
+  }, [searchParams])
   const [gewuenschteKaltmiete, setGewuenschteKaltmiete] = useState<string>('')
   const [vergleichsmiete, setVergleichsmiete] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')
@@ -129,6 +138,13 @@ export default function MieterhoehungsRechner() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setAktuelleKaltmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Aktuelle Kaltmiete *</label>

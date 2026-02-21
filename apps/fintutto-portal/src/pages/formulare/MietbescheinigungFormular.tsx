@@ -3,6 +3,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useDocumentTitle } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface FormData {
   vermieterName: string
@@ -51,6 +53,8 @@ const ZAHLUNGSVERHALTEN = [
 ]
 
 export default function MietbescheinigungFormular() {
+  useDocumentTitle('Mietbescheinigung', 'Fintutto Portal')
+  useTrackTool('Mietbescheinigung')
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 

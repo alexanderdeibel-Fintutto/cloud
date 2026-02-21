@@ -3,8 +3,17 @@ import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Sparkles
 } from 'lucide-react'
+ claude/improve-app-integration-k7JF2
+import { useDocumentTitle, useMetaTags } from '@fintutto/shared'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { getOtherApps } from '@fintutto/shared'
+
+const ecosystemApps = getOtherApps('mieter-checker')
+
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+ main
 
 const categories = [
   {
@@ -47,6 +56,19 @@ const stats = [
 ]
 
 export default function HomePage() {
+ claude/improve-app-integration-k7JF2
+  useDocumentTitle('Mietrechts-Checker', 'Fintutto')
+  useMetaTags({
+    title: 'Fintutto Checker – Mietrecht pruefen',
+    description: '10 kostenlose Mietrechts-Checker: Mietpreisbremse, Mieterhoehung, Nebenkosten, Kuendigung und mehr – basierend auf aktuellem deutschem Recht.',
+    path: '/',
+    siteName: 'Fintutto Checker',
+  })
+  const popularCheckers = checkers.filter((c) => c.popular)
+  const otherCheckers = checkers.filter((c) => !c.popular)
+
+
+ main
   return (
     <div>
       {/* Hero */}
@@ -176,6 +198,52 @@ export default function HomePage() {
             ))}
           </div>
 
+ claude/improve-app-integration-k7JF2
+      {/* Ecosystem Teaser */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              Das Fintutto Oekosystem
+            </h2>
+            <p className="text-gray-600">
+              Noch mehr Tools fuer Mieter und Vermieter – alle verbunden.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+            {ecosystemApps.map((app) => (
+              <a
+                key={app.key}
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center p-4 rounded-xl border bg-white hover:shadow-lg hover:border-fintutto-primary/30 transition-all"
+              >
+                <span className="text-3xl mb-2">{app.icon}</span>
+                <span className="font-semibold text-sm text-gray-900">{app.name}</span>
+                <span className="text-xs text-gray-500 text-center">{app.description}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-fintutto-primary">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Bereit, Ihre Mietrechte zu pruefen?
+          </h2>
+          <p className="text-blue-100 mb-8 text-lg">
+            Starten Sie jetzt kostenlos und erhalten Sie sofort eine fundierte Einschaetzung.
+          </p>
+          <Button size="xl" className="bg-white text-fintutto-primary hover:bg-blue-50" asChild>
+            <Link to="/checker/mietpreisbremse">
+              Jetzt kostenlos pruefen
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </Button>
+
           <div className="text-center">
             <Button variant="outline" size="lg" asChild>
               <Link to="/apps">
@@ -183,6 +251,7 @@ export default function HomePage() {
               </Link>
             </Button>
           </div>
+main
         </div>
       </section>
     </div>
