@@ -3,17 +3,11 @@ import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Sparkles
 } from 'lucide-react'
- claude/improve-app-integration-k7JF2
-import { useDocumentTitle, useMetaTags } from '@fintutto/shared'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { getOtherApps } from '@fintutto/shared'
-
-const ecosystemApps = getOtherApps('mieter-checker')
-
+import { useDocumentTitle, useMetaTags, getOtherApps } from '@fintutto/shared'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
- main
+
+const ecosystemApps = getOtherApps('mieter-checker')
 
 const categories = [
   {
@@ -56,7 +50,6 @@ const stats = [
 ]
 
 export default function HomePage() {
- claude/improve-app-integration-k7JF2
   useDocumentTitle('Mietrechts-Checker', 'Fintutto')
   useMetaTags({
     title: 'Fintutto Checker – Mietrecht pruefen',
@@ -64,11 +57,7 @@ export default function HomePage() {
     path: '/',
     siteName: 'Fintutto Checker',
   })
-  const popularCheckers = checkers.filter((c) => c.popular)
-  const otherCheckers = checkers.filter((c) => !c.popular)
 
-
- main
   return (
     <div>
       {/* Hero */}
@@ -167,39 +156,6 @@ export default function HomePage() {
       </section>
 
       {/* Ecosystem Teaser */}
-      <section className="py-16 bg-muted/30">
-        <div className="container">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-4">
-              Das komplette Fintutto Ökosystem
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              6 Apps für jeden Schritt im Mietalltag – alle verbunden, alle kostenlos starten.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto mb-8">
-            {[
-              { icon: '🏠', name: 'Vermietify', desc: 'Immobilienverwaltung' },
-              { icon: '🔑', name: 'Mieter-App', desc: 'Mieter-Dashboard' },
-              { icon: '🔧', name: 'HausmeisterPro', desc: 'Facility Management' },
-              { icon: '📊', name: 'Ablesung', desc: 'Zählerstände' },
-              { icon: '🥊', name: 'BescheidBoxer', desc: 'Bescheid-Analyse' },
-              { icon: '✨', name: 'Portal', desc: '27 Tools' },
-            ].map((app) => (
-              <div
-                key={app.name}
-                className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/30 transition-all"
-              >
-                <span className="text-3xl mb-2">{app.icon}</span>
-                <span className="font-semibold text-sm">{app.name}</span>
-                <span className="text-xs text-muted-foreground">{app.desc}</span>
-              </div>
-            ))}
-          </div>
-
- claude/improve-app-integration-k7JF2
-      {/* Ecosystem Teaser */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
@@ -237,21 +193,19 @@ export default function HomePage() {
           <p className="text-blue-100 mb-8 text-lg">
             Starten Sie jetzt kostenlos und erhalten Sie sofort eine fundierte Einschaetzung.
           </p>
-          <Button size="xl" className="bg-white text-fintutto-primary hover:bg-blue-50" asChild>
-            <Link to="/checker/mietpreisbremse">
-              Jetzt kostenlos pruefen
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Link>
-          </Button>
-
-          <div className="text-center">
-            <Button variant="outline" size="lg" asChild>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-white text-fintutto-primary hover:bg-blue-50" asChild>
+              <Link to="/checker/mietpreisbremse">
+                Jetzt kostenlos pruefen
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10" asChild>
               <Link to="/apps">
                 Alle Apps entdecken <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </Button>
           </div>
-main
         </div>
       </section>
     </div>

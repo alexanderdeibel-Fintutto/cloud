@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -39,6 +39,19 @@ const bundeslaender = [
 
 export default function MieterhoehungsRechner() {
   useDocumentTitle('Mieterhöhungs-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Mieterhöhungs-Rechner – Vermieter Portal',
+    description: 'Berechne die zulässige Mieterhöhung nach §558 BGB',
+    path: '/rechner/mieterhoehung',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterhöhungs-Rechner',
+    description: 'Berechne die zulässige Mieterhöhung nach §558 BGB',
+    url: 'https://vermieter.fintutto.cloud/rechner/mieterhoehung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [searchParams] = useSearchParams()
   const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')
 

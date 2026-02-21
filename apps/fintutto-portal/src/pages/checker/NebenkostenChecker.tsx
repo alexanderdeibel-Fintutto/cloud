@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
 
 interface FormData {
   abrechnungsjahr: string
@@ -26,6 +27,22 @@ export default function NebenkostenChecker() {
   const navigate = useNavigate()
   const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Nebenkosten-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Nebenkosten-Checker – Stimmt deine Abrechnung?',
+    description: 'Prüfe deine Nebenkostenabrechnung auf Fehler. 17 Kostenarten, Fristenprüfung, Umlagefähigkeit.',
+    path: '/checker/nebenkosten',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Nebenkosten-Checker',
+    description: 'Prüfe deine Nebenkostenabrechnung auf mögliche Fehler',
+    url: 'https://portal.fintutto.cloud/checker/nebenkosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -68,6 +85,7 @@ export default function NebenkostenChecker() {
   const handleNext = () => {
     setStep(step + 1)
     setCurrentStep(step + 1)
+    setDirty()
   }
 
   const handlePrevious = () => {
@@ -143,6 +161,7 @@ export default function NebenkostenChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 

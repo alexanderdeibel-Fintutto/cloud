@@ -1,15 +1,16 @@
- claude/improve-app-integration-k7JF2
-import { Link } from 'react-router-dom'
-import { Menu, X, User, LogOut, Search } from 'lucide-react'
-
 import { Link, useLocation } from 'react-router-dom'
+ claude/fitness-training-app-nf0CN
  claude/fitness-training-app-nf0CN
 import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell } from 'lucide-react'
 
 import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut } from 'lucide-react'
  main
  main
+
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Search } from 'lucide-react'
+ main
 import { useState } from 'react'
+import { modKey } from '@fintutto/shared'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 
@@ -56,8 +57,18 @@ export default function Header() {
           ))}
         </div>
 
-        {/* Auth Section */}
+        {/* Search + Auth Section */}
         <div className="hidden md:flex items-center space-x-4">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 border rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Suche</span>
+            <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 rounded border">
+              {modKey()} K
+            </kbd>
+          </button>
           {user ? (
             <div className="flex items-center space-x-4">
               <Link to="/dashboard" className="flex items-center space-x-2 text-gray-600 hover:text-fintutto-primary">
@@ -85,22 +96,6 @@ export default function Header() {
           )}
         </div>
 
- claude/improve-app-integration-k7JF2
-          {/* Search + Auth Section */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 border rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <Search className="h-3.5 w-3.5" />
-              <span>Suche</span>
-              <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 rounded border">
-                Ctrl K
-              </kbd>
-            </button>
-          </div>
-          <div className="hidden md:flex items-center space-x-4">
-
         {/* Mobile Menu Button */}
         <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -110,6 +105,16 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="container py-4 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setTimeout(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true })), 100)
+              }}
+              className="flex items-center gap-2 w-full p-3 rounded-lg bg-muted/50 text-muted-foreground text-sm"
+            >
+              <Search className="h-4 w-4" />
+              Tool suchen...
+            </button>
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -129,7 +134,6 @@ export default function Header() {
               </Link>
             ))}
             <hr className="my-2" />
- main
             {user ? (
               <div className="space-y-2">
                 <Link

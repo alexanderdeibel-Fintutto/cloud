@@ -2,13 +2,9 @@ import { Link } from 'react-router-dom'
 import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Home, TrendingUp, Euro, PiggyBank, Receipt,
- claude/improve-app-integration-k7JF2
-  Scale, AlertTriangle, Wrench, Sparkles, Building2
-
   Scale, AlertTriangle, Wrench, Sparkles, ExternalLink,
   Building2, Key, Gauge, BarChart3, Zap, Users,
   Star, Gift, Lock, Globe, ChevronRight
- main
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -169,8 +165,6 @@ const stats = [
   { value: '100%', label: 'DSGVO-konform', icon: Lock },
 ]
 
-const ecosystemApps = getOtherApps('portal')
-
 export default function HomePage() {
   useDocumentTitle('Rechner, Checker & Formulare', 'Fintutto Portal')
   useMetaTags({
@@ -256,7 +250,6 @@ export default function HomePage() {
         </div>
       </section>
 
- claude/improve-app-integration-k7JF2
       {/* Recently Used */}
       {recentTools.length > 0 && (
         <section className="py-8 bg-muted/20">
@@ -280,12 +273,8 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Categories */}
-      <section className="py-16">
-
       {/* Portal-Tools: Rechner, Checker, Formulare */}
       <section className="py-20">
- main
         <div className="container">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 mb-4 text-sm font-medium">
@@ -339,7 +328,6 @@ export default function HomePage() {
         </div>
       </section>
 
- claude/improve-app-integration-k7JF2
       {/* Logged-in: Your Properties Summary */}
       {user && hasProperties && (
         <section className="py-12 bg-blue-50/50 border-y border-blue-100">
@@ -381,31 +369,6 @@ export default function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Ecosystem Teaser */}
-      <section className="py-16 bg-muted/30">
-        <div className="container">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-4">
-              Das komplette Fintutto Oekosystem
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              {ecosystemApps.length} Apps fuer jeden Schritt im Mietalltag – alle verbunden, alle kostenlos starten.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 max-w-5xl mx-auto mb-8">
-            {ecosystemApps.map((app) => (
-              <a
-                key={app.key}
-                href={app.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/30 transition-all group"
-              >
-                <span className="text-3xl mb-2">{app.icon}</span>
-                <span className="font-semibold text-sm">{app.name}</span>
-                <span className="text-xs text-muted-foreground">{app.description}</span>
 
       {/* Ökosystem – App-Vorschauen */}
       <section className="py-20 bg-muted/30">
@@ -452,7 +415,6 @@ export default function HomePage() {
                 ) : (
                   <AppPreviewCard app={app} />
                 )}
- main
               </a>
             ))}
           </div>

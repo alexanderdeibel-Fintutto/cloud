@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Building2, Calculator, FileText, Menu, X, Search } from 'lucide-react'
 import { useState } from 'react'
+import { modKey } from '@fintutto/shared'
 import { Button } from '../ui/button'
 import { CreditsDisplay } from '../CreditsDisplay'
 
@@ -53,7 +54,7 @@ export default function Header() {
             <Search className="h-3.5 w-3.5" />
             <span>Suche</span>
             <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-muted rounded border">
-              Ctrl K
+              {modKey()} K
             </kbd>
           </button>
           <CreditsDisplay />
@@ -82,6 +83,16 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="container py-4 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setTimeout(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true })), 100)
+              }}
+              className="flex items-center gap-2 w-full p-3 rounded-lg bg-muted/50 text-muted-foreground text-sm"
+            >
+              <Search className="h-4 w-4" />
+              Tool suchen...
+            </button>
             {navigation.map((item) => (
               <Link
                 key={item.name}

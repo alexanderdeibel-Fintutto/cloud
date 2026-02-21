@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ErrorBoundary } from '@fintutto/shared'
+import { ErrorBoundary, PageSkeleton } from '@fintutto/shared'
 import { Toaster } from './components/ui/toaster'
 import { CreditsProvider } from './contexts/CreditsContext'
 import { AuthProvider } from './contexts/AuthContext'
@@ -46,11 +46,7 @@ function App() {
     <AuthProvider>
     <CreditsProvider>
       <BrowserRouter>
-        <Suspense fallback={
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-          </div>
-        }>
+        <Suspense fallback={<PageSkeleton />}>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
