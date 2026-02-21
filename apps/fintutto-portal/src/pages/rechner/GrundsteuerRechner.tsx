@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 export default function GrundsteuerRechner() {
@@ -22,9 +22,19 @@ export default function GrundsteuerRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Grundsteuer-Rechner')
-  const [grundstueckswert, setGrundstueckswert] = useState<string>('')
-  const [gebaeudewert, setGebaeudewert] = useState<string>('')
-  const [hebesatz, setHebesatz] = useState<string>('400')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_grundsteuer_inputs', { grundstueckswert: '', gebaeudewert: '', hebesatz: '400' })
+  const [grundstueckswert, setGrundstueckswertRaw] = useState<string>(savedInputs.grundstueckswert)
+  const [gebaeudewert, setGebaeudewertRaw] = useState<string>(savedInputs.gebaeudewert)
+  const [hebesatz, setHebesatzRaw] = useState<string>(savedInputs.hebesatz)
+
+  const persist = (field: string, value: string) => { setDirty(); setSavedInputs(prev => ({ ...prev, [field]: value })) }
+
+  const setGrundstueckswert = (v: string) => { setGrundstueckswertRaw(v); persist('grundstueckswert', v) }
+  const setGebaeudewert = (v: string) => { setGebaeudewertRaw(v); persist('gebaeudewert', v) }
+  const setHebesatz = (v: string) => { setHebesatzRaw(v); persist('hebesatz', v) }
   const [result, setResult] = useState<any>(null)
 
   const berechnen = () => {
@@ -102,7 +112,7 @@ export default function GrundsteuerRechner() {
                   </div>
                   <div className="flex gap-3 pt-4">
                     <Button onClick={berechnen} disabled={!grundstueckswert && !gebaeudewert} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                    <Button variant="outline" onClick={() => { setGrundstueckswert(''); setGebaeudewert(''); setResult(null) }}>Zurücksetzen</Button>
+                    <Button variant="outline" onClick={() => { setGrundstueckswertRaw(''); setGebaeudewertRaw(''); setHebesatzRaw('400'); setResult(null); clearSaved(); resetDirty() }}>Zurücksetzen</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -123,7 +133,16 @@ export default function GrundsteuerRechner() {
             <div className="space-y-6">
               {result ? (
                 <Card>
-                  <CardHeader><CardTitle>Grundsteuer</CardTitle></CardHeader>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Grundsteuer</CardTitle>
+                      <ShareResultButton
+                        title="Grundsteuer-Rechner Ergebnis"
+                        text={`${formatCurrency(result.grundsteuerJahr)} pro Jahr`}
+                        url="/rechner/grundsteuer"
+                      />
+                    </div>
+                  </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="text-center py-4">
                       <p className="text-sm text-muted-foreground mb-1">Pro Jahr</p>

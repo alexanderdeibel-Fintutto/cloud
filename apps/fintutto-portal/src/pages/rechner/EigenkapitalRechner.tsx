@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 export default function EigenkapitalRechner() {
@@ -22,9 +22,19 @@ export default function EigenkapitalRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Eigenkapital-Rechner')
-  const [kaufpreis, setKaufpreis] = useState<string>('')
-  const [nebenkosten, setNebenkosten] = useState<string>('10')
-  const [eigenkapital, setEigenkapital] = useState<string>('')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_eigenkapital_inputs', { kaufpreis: '', nebenkosten: '10', eigenkapital: '' })
+  const [kaufpreis, setKaufpreisRaw] = useState<string>(savedInputs.kaufpreis)
+  const [nebenkosten, setNebenkostenRaw] = useState<string>(savedInputs.nebenkosten)
+  const [eigenkapital, setEigenkapitalRaw] = useState<string>(savedInputs.eigenkapital)
+
+  const persist = (field: string, value: string) => { setDirty(); setSavedInputs(prev => ({ ...prev, [field]: value })) }
+
+  const setKaufpreis = (v: string) => { setKaufpreisRaw(v); persist('kaufpreis', v) }
+  const setNebenkosten = (v: string) => { setNebenkostenRaw(v); persist('nebenkosten', v) }
+  const setEigenkapital = (v: string) => { setEigenkapitalRaw(v); persist('eigenkapital', v) }
   const [result, setResult] = useState<any>(null)
 
   const berechnen = () => {
@@ -110,7 +120,7 @@ export default function EigenkapitalRechner() {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button onClick={berechnen} disabled={!kaufpreis || !eigenkapital} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                  <Button variant="outline" onClick={() => { setKaufpreis(''); setEigenkapital(''); setResult(null) }}>Zurücksetzen</Button>
+                  <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setNebenkostenRaw('10'); setEigenkapitalRaw(''); setResult(null); clearSaved(); resetDirty() }}>Zurücksetzen</Button>
                 </div>
               </CardContent>
             </Card>
@@ -120,10 +130,17 @@ export default function EigenkapitalRechner() {
                 <>
                   <Card className={result.bewertung === 'kritisch' ? 'border-destructive/30' : result.bewertung === 'optimal' ? 'border-success/30' : ''}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        {result.bewertung === 'kritisch' ? <AlertTriangle className="h-5 w-5 text-destructive" /> : <CheckCircle2 className="h-5 w-5 text-success" />}
-                        Bewertung: {result.bewertung.charAt(0).toUpperCase() + result.bewertung.slice(1)}
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {result.bewertung === 'kritisch' ? <AlertTriangle className="h-5 w-5 text-destructive" /> : <CheckCircle2 className="h-5 w-5 text-success" />}
+                          Bewertung: {result.bewertung.charAt(0).toUpperCase() + result.bewertung.slice(1)}
+                        </CardTitle>
+                        <ShareResultButton
+                          title="Eigenkapital-Rechner Ergebnis"
+                          text={`${result.eigenkapitalQuote.toFixed(1)}% Eigenkapitalquote`}
+                          url="/rechner/eigenkapital"
+                        />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center py-4">

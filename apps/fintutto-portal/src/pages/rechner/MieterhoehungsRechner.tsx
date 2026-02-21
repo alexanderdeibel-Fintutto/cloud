@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Calculator, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface MieterhoehungResult {
@@ -54,15 +54,24 @@ export default function MieterhoehungsRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Mieterhöhungs-Rechner')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
-  const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_mieterhoehung_inputs', { aktuelleKaltmiete: '', gewuenschteKaltmiete: '' })
+  const [aktuelleKaltmiete, setAktuelleKaltmieteRaw] = useState<string>(savedInputs.aktuelleKaltmiete)
+  const [gewuenschteKaltmiete, setGewuenschteKaltmieteRaw] = useState<string>(savedInputs.gewuenschteKaltmiete)
+  const [vergleichsmiete, setVergleichsmiete] = useState<string>('')
+
+  const persist = (field: string, value: string) => { setDirty(); setSavedInputs(prev => ({ ...prev, [field]: value })) }
+
+  const setAktuelleKaltmiete = (v: string) => { setAktuelleKaltmieteRaw(v); persist('aktuelleKaltmiete', v) }
+  const setGewuenschteKaltmiete = (v: string) => { setGewuenschteKaltmieteRaw(v); persist('gewuenschteKaltmiete', v) }
 
   useEffect(() => {
     const rent = searchParams.get('rent')
     if (rent) setAktuelleKaltmiete(rent)
   }, [searchParams])
-  const [gewuenschteKaltmiete, setGewuenschteKaltmiete] = useState<string>('')
-  const [vergleichsmiete, setVergleichsmiete] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')
   const [angespannterMarkt, setAngespannterMarkt] = useState<boolean>(true)
   const [result, setResult] = useState<MieterhoehungResult | null>(null)
@@ -115,10 +124,12 @@ export default function MieterhoehungsRechner() {
   }
 
   const reset = () => {
-    setAktuelleKaltmiete('')
-    setGewuenschteKaltmiete('')
+    setAktuelleKaltmieteRaw('')
+    setGewuenschteKaltmieteRaw('')
     setVergleichsmiete('')
     setResult(null)
+    clearSaved()
+    resetDirty()
   }
 
   return (
@@ -279,14 +290,21 @@ export default function MieterhoehungsRechner() {
                 <>
                   <Card className={result.isZulaessig ? 'border-success/30' : 'border-destructive/30'}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        {result.isZulaessig ? (
-                          <CheckCircle2 className="h-5 w-5 text-success" />
-                        ) : (
-                          <AlertTriangle className="h-5 w-5 text-destructive" />
-                        )}
-                        {result.isZulaessig ? 'Zulässig' : 'Problematisch'}
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {result.isZulaessig ? (
+                            <CheckCircle2 className="h-5 w-5 text-success" />
+                          ) : (
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                          )}
+                          {result.isZulaessig ? 'Zulässig' : 'Problematisch'}
+                        </CardTitle>
+                        <ShareResultButton
+                          title="Mieterhöhungs-Rechner Ergebnis"
+                          text={result.isZulaessig ? 'Mieterhöhung: Zulässig' : 'Mieterhöhung: Nicht zulässig'}
+                          url="/rechner/mieterhoehung"
+                        />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center py-4">

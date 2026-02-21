@@ -177,6 +177,9 @@ export { PageSkeleton } from './components/PageSkeleton'
 // Re-export PrintStyles
 export { PrintStyles } from './components/PrintStyles'
 
+// Re-export ShareResultButton
+export { ShareResultButton } from './components/ShareResultButton'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 

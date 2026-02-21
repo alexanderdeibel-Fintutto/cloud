@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface RenditeResult {
@@ -33,6 +33,8 @@ export default function RenditeRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Rendite-Rechner')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
   const defaultInputs = { kaufpreis: '', nebenkosten: '10', monatsmiete: '', nichtUmlagefaehig: '15', eigenkapital: '', zins: '3.5', tilgung: '2' }
@@ -215,7 +217,14 @@ export default function RenditeRechner() {
                 <>
                   <Card>
                     <CardHeader>
-                      <CardTitle>Rendite-Übersicht</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Rendite-Übersicht</CardTitle>
+                        <ShareResultButton
+                          title="Rendite-Rechner Ergebnis"
+                          text={`Brutto-Rendite: ${result.bruttoRendite.toFixed(2)}%`}
+                          url="/rechner/rendite"
+                        />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">

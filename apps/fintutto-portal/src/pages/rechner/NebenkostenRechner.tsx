@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 const kostenarten = [
@@ -28,18 +28,26 @@ export default function NebenkostenRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   useTrackTool('Nebenkosten-Rechner')
-  const [wohnflaeche, setWohnflaeche] = useState<string>('')
-  const [vorauszahlung, setVorauszahlung] = useState<string>('')
-  const [zeitraum, setZeitraum] = useState<string>('12')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
+  const [wohnflaeche, setWohnflaecheRaw] = useState<string>('')
+  const [vorauszahlung, setVorauszahlungRaw] = useState<string>('')
+  const [zeitraum, setZeitraumRaw] = useState<string>('12')
   const [kosten, setKosten] = useState<{art: string, betrag: string}[]>([{ art: 'Grundsteuer', betrag: '' }])
   const [result, setResult] = useState<any>(null)
 
-  const addKosten = () => setKosten([...kosten, { art: 'Sonstiges', betrag: '' }])
-  const removeKosten = (i: number) => setKosten(kosten.filter((_, idx) => idx !== i))
+  const setWohnflaeche = (v: string) => { setWohnflaecheRaw(v); setDirty() }
+  const setVorauszahlung = (v: string) => { setVorauszahlungRaw(v); setDirty() }
+  const setZeitraum = (v: string) => { setZeitraumRaw(v); setDirty() }
+
+  const addKosten = () => { setKosten([...kosten, { art: 'Sonstiges', betrag: '' }]); setDirty() }
+  const removeKosten = (i: number) => { setKosten(kosten.filter((_, idx) => idx !== i)); setDirty() }
   const updateKosten = (i: number, field: string, value: string) => {
     const neu = [...kosten]
     neu[i] = { ...neu[i], [field]: value }
     setKosten(neu)
+    setDirty()
   }
 
   const berechnen = () => {
@@ -145,7 +153,16 @@ export default function NebenkostenRechner() {
             <div className="space-y-6">
               {result ? (
                 <Card>
-                  <CardHeader><CardTitle>Abrechnung</CardTitle></CardHeader>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Abrechnung</CardTitle>
+                      <ShareResultButton
+                        title="Nebenkosten-Rechner Ergebnis"
+                        text={`${result.differenz >= 0 ? 'Guthaben' : 'Nachzahlung'}: ${formatCurrency(Math.abs(result.differenz))}`}
+                        url="/rechner/nebenkosten"
+                      />
+                    </div>
+                  </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2 text-sm">
                       {result.einzelkosten.filter((k: any) => k.betrag > 0).map((k: any, i: number) => (
