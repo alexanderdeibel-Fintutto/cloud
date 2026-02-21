@@ -41,10 +41,18 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
   })
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const autoSpeakRef = useRef(autoSpeak)
+  const targetLangRef = useRef(targetLang)
+
+  // Keep refs in sync
+  autoSpeakRef.current = autoSpeak
+  targetLangRef.current = targetLang
 
   const { isListening, isSupported: micSupported, error: micError, startListening, stopListening } = useSpeechRecognition()
   const sourceSpeech = useSpeechSynthesis()
   const targetSpeech = useSpeechSynthesis()
+  const targetSpeakRef = useRef(targetSpeech.speak)
+  targetSpeakRef.current = targetSpeech.speak
 
   // Show which TTS engine was last used
   const activeTtsEngine = sourceSpeech.ttsEngine || targetSpeech.ttsEngine
@@ -73,10 +81,10 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
       const result = await translateText(text, sourceLang, targetLang)
       setTranslatedText(result.translatedText)
 
-      // Auto-speak the translated text
-      if (autoSpeak && result.translatedText) {
-        const lang = getLanguageByCode(targetLang)
-        targetSpeech.speak(result.translatedText, lang?.speechCode || targetLang)
+      // Auto-speak via refs to avoid re-render dependency loop
+      if (autoSpeakRef.current && result.translatedText) {
+        const lang = getLanguageByCode(targetLangRef.current)
+        targetSpeakRef.current(result.translatedText, lang?.speechCode || targetLangRef.current)
       }
 
       addEntry({
@@ -90,7 +98,7 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     } finally {
       setIsTranslating(false)
     }
-  }, [sourceLang, targetLang, addEntry, autoSpeak, targetSpeech])
+  }, [sourceLang, targetLang, addEntry])
 
   useEffect(() => {
     if (debounceRef.current) {
