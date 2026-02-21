@@ -8,7 +8,7 @@ import {
   Receipt,
   ArrowRight
 } from 'lucide-react'
-import { useDocumentTitle, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, Breadcrumbs } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const rechner = [
@@ -70,6 +70,19 @@ const rechner = [
 
 export default function RechnerPage() {
   useDocumentTitle('Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Rechner fuer Vermieter – Vermieter Portal',
+    description: 'Professionelle Rechner fuer Vermieter: Kaution, Mieterhoehung, Kaufnebenkosten, Rendite und mehr.',
+    path: '/rechner',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Rechner fuer Vermieter',
+    description: 'Professionelle Rechner fuer Vermieter: Kaution, Mieterhoehung, Kaufnebenkosten, Rendite und mehr.',
+    url: 'https://vermieter.fintutto.cloud/rechner',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   return (
     <div>
       {/* Hero */}
@@ -97,9 +110,9 @@ export default function RechnerPage() {
       {/* Rechner Grid */}
       <section className="py-12">
         <div className="container">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Verfügbare Rechner">
             {rechner.map((item) => (
-              <Link key={item.title} to={item.href}>
+              <Link key={item.title} to={item.href} aria-label={`${item.title} – ${item.description}`} role="listitem">
                 <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all group">
                   <CardHeader>
                     <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${item.bgColor} mb-3 group-hover:scale-110 transition-transform`}>

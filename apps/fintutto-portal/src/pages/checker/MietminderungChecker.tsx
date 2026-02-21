@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
 
 interface FormData {
   mangelart: string
@@ -36,6 +37,22 @@ export default function MietminderungChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Mietminderungs-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Mietminderungs-Checker – Darfst du die Miete mindern?',
+    description: 'Mängel in der Wohnung? Prüfe ob und wie viel du nach §536 BGB mindern darfst.',
+    path: '/checker/mietminderung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietminderungs-Checker',
+    description: 'Prüfe ob du die Miete bei Mängeln mindern darfst nach §536 BGB',
+    url: 'https://portal.fintutto.cloud/checker/mietminderung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -126,6 +143,7 @@ export default function MietminderungChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -163,7 +181,7 @@ export default function MietminderungChecker() {
       icon={<Wrench className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={!!formData.mangelart && formData.kaltmiete > 0} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={!!formData.mangelart && formData.kaltmiete > 0} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Art des Mangels</h2>
           <div className="space-y-4">
             <CheckerField

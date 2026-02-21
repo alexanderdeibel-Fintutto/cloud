@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -18,6 +18,19 @@ interface RenditeResult {
 
 export default function RenditeRechner() {
   useDocumentTitle('Rendite-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Rendite-Rechner – Vermieter Portal',
+    description: 'Berechne Brutto- und Netto-Rendite deiner Immobilie',
+    path: '/rechner/rendite',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Rendite-Rechner',
+    description: 'Berechne Brutto- und Netto-Rendite deiner Immobilie',
+    url: 'https://vermieter.fintutto.cloud/rechner/rendite',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [searchParams] = useSearchParams()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
