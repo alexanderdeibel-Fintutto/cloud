@@ -40,6 +40,7 @@ import { PlantSpecies } from '@/types';
 import { toast } from 'sonner';
 
 type ScanStep = 'capture' | 'identifying' | 'results' | 'protocol';
+const steps: ScanStep[] = ['capture', 'identifying', 'results', 'protocol'];
 
 const difficultyLabels: Record<string, { label: string; color: string }> = {
   easy: { label: 'Einfach', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
@@ -66,6 +67,7 @@ export default function PlantScannerPage() {
   const [careProtocol, setCareProtocol] = useState<CareProtocol | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -77,21 +79,41 @@ export default function PlantScannerPage() {
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
     };
   }, []);
 
+  // Attach stream to video element once both are available
+  useEffect(() => {
+    if (cameraActive && videoRef.current && streamRef.current) {
+      const video = videoRef.current;
+      video.srcObject = streamRef.current;
+      video.onloadedmetadata = () => {
+        video.play().then(() => {
+          setVideoReady(true);
+        }).catch(() => {
+          setCameraError('Video konnte nicht abgespielt werden.');
+          setCameraActive(false);
+        });
+      };
+    }
+  }, [cameraActive]);
+
   const startCamera = useCallback(async () => {
     setCameraError(null);
+    setVideoReady(false);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 960 },
+        },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      // Set cameraActive to render the <video> element,
+      // then the useEffect above will connect the stream
       setCameraActive(true);
     } catch (err) {
       setCameraError('Kamera konnte nicht aktiviert werden. Bitte erlaube den Kamerazugriff oder lade ein Foto hoch.');
@@ -108,20 +130,42 @@ export default function PlantScannerPage() {
       videoRef.current.srcObject = null;
     }
     setCameraActive(false);
+    setVideoReady(false);
   }, []);
 
   const captureFromCamera = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      toast.error('Kamera ist nicht bereit. Bitte versuche es erneut.');
+      return;
+    }
     const video = videoRef.current;
     const canvas = canvasRef.current;
+
+    // Ensure video actually has frames
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      toast.error('Kein Bild von der Kamera empfangen. Bitte warte einen Moment und versuche es erneut.');
+      return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.drawImage(video, 0, 0);
+    if (!ctx) {
+      toast.error('Canvas konnte nicht initialisiert werden.');
+      return;
+    }
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+    // Verify the captured image is not empty
+    if (dataUrl.length < 1000) {
+      toast.error('Das aufgenommene Bild ist leer. Bitte versuche es erneut.');
+      return;
+    }
+
     setImageUrl(dataUrl);
     stopCamera();
+    toast.success('Foto aufgenommen!');
   }, [stopCamera]);
 
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -290,18 +334,32 @@ export default function PlantScannerPage() {
                     autoPlay
                     playsInline
                     muted
-                    className="w-full max-h-[400px] object-contain rounded-lg bg-black"
+                    className="w-full max-h-[400px] object-cover rounded-lg bg-black"
+                    style={{ minHeight: '300px' }}
                   />
+                  {/* Loading indicator while video initializes */}
+                  {!videoReady && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-lg">
+                      <div className="w-12 h-12 rounded-full border-4 border-green-400 border-t-transparent animate-spin" />
+                      <p className="text-white text-sm mt-3">Kamera wird gestartet...</p>
+                    </div>
+                  )}
                   {/* Scan overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-48 h-48 border-2 border-green-400 rounded-2xl opacity-60 animate-pulse" />
-                  </div>
+                  {videoReady && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-48 h-48 border-2 border-green-400 rounded-2xl opacity-60 animate-pulse" />
+                    </div>
+                  )}
                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
-                    <Button onClick={captureFromCamera} className="bg-green-600 hover:bg-green-700 gap-2">
+                    <Button
+                      onClick={captureFromCamera}
+                      disabled={!videoReady}
+                      className="bg-green-600 hover:bg-green-700 gap-2 disabled:opacity-50"
+                    >
                       <Camera className="h-4 w-4" />
-                      Aufnehmen
+                      {videoReady ? 'Aufnehmen' : 'Wird geladen...'}
                     </Button>
-                    <Button variant="outline" onClick={stopCamera}>
+                    <Button variant="outline" onClick={stopCamera} className="bg-white/80 dark:bg-black/50">
                       Abbrechen
                     </Button>
                   </div>
@@ -705,5 +763,3 @@ export default function PlantScannerPage() {
     </div>
   );
 }
-
-const steps: ScanStep[] = ['capture', 'identifying', 'results', 'protocol'];
