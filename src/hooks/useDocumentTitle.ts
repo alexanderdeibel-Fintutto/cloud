@@ -21,6 +21,18 @@ const TITLES: Record<string, string> = {
   '/datenschutz': 'Datenschutzerklärung',
   '/agb': 'AGB',
   '/ueber-uns': 'Über uns',
+  // FitTutto
+  '/fittutto': 'FitTutto – Fitness Dashboard',
+  '/fittutto/dashboard': 'FitTutto – Fitness Dashboard',
+  '/fittutto/profil': 'FitTutto – Profil & Ziele',
+  '/fittutto/uebungen': 'FitTutto – Uebungsbibliothek',
+  '/fittutto/workout': 'FitTutto – Training',
+  '/fittutto/plan': 'FitTutto – Trainingsplaene',
+  '/fittutto/coach': 'FitTutto – KI-Coach',
+  '/fittutto/ernaehrung': 'FitTutto – Ernaehrungstracking',
+  '/fittutto/koerper': 'FitTutto – Koerper-Tracking',
+  '/fittutto/historie': 'FitTutto – Trainingshistorie',
+  '/fittutto/preise': 'FitTutto – Preise & Abos',
   // Rechner
   '/rechner/kaution': 'Kautionsrechner',
   '/rechner/mieterhoehung': 'Mieterhöhungsrechner',

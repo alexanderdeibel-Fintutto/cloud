@@ -1,5 +1,14 @@
 import { Link, useLocation } from 'react-router-dom'
+ claude/fitness-training-app-nf0CN
+ claude/fitness-training-app-nf0CN
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell } from 'lucide-react'
+
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut } from 'lucide-react'
+ main
+ main
+
 import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Search } from 'lucide-react'
+ main
 import { useState } from 'react'
 import { modKey } from '@fintutto/shared'
 import { useAuth } from '@/contexts/AuthContext'
@@ -9,6 +18,7 @@ const navigation = [
   { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Fuer Vermieter' },
   { name: 'Checker', href: '/checker', icon: Shield, description: 'Fuer Mieter' },
   { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Fuer alle' },
+  { name: 'FitTutto', href: '/fittutto', icon: Dumbbell, description: 'Fitness & Training' },
   { name: 'Preise', href: '/preise', icon: null, description: '' },
   { name: 'Apps', href: '/apps', icon: LayoutGrid, description: 'Alle Fintutto-Apps' },
   { name: 'Referral', href: '/referral', icon: Gift, description: 'Empfehlen & profitieren' },
