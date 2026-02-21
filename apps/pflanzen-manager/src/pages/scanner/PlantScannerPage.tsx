@@ -186,29 +186,49 @@ export default function PlantScannerPage() {
   const runIdentification = useCallback(() => {
     setStep('identifying');
 
-    // Simulate a short processing delay for UX
+    // Short delay for UX feedback
     setTimeout(() => {
       let colorHints: string[] = [];
+
+      const finalize = () => {
+        const scanResults = identifyPlant(textQuery || '', colorHints);
+        setResults(scanResults);
+        setStep('results');
+      };
 
       // If we have an image, analyze its colors
       if (imageUrl) {
         const img = new Image();
         img.onload = () => {
-          colorHints = analyzeImageColors(img);
-          const scanResults = identifyPlant(textQuery || '', colorHints);
-          setResults(scanResults);
-          setStep('results');
+          try {
+            colorHints = analyzeImageColors(img);
+          } catch (e) {
+            // Color analysis failed (e.g. tainted canvas) - continue without color hints
+          }
+          finalize();
         };
-        img.crossOrigin = 'anonymous';
+        img.onerror = () => {
+          // Image failed to load - fall back to text-only identification
+          finalize();
+        };
+        // Do NOT set crossOrigin for data URLs - it blocks loading on mobile browsers
+        if (!imageUrl.startsWith('data:')) {
+          img.crossOrigin = 'anonymous';
+        }
         img.src = imageUrl;
+
+        // Safety timeout: if image hasn't loaded in 5s, proceed anyway
+        setTimeout(() => {
+          if (step === 'identifying') {
+            finalize();
+          }
+        }, 5000);
       } else {
         // Text-only search
-        const scanResults = identifyPlant(textQuery, colorHints);
-        setResults(scanResults);
-        setStep('results');
+        finalize();
       }
-    }, 800);
-  }, [imageUrl, textQuery]);
+    }, 600);
+  }, [imageUrl, textQuery, step]);
 
   const selectPlant = useCallback((species: PlantSpecies) => {
     setSelectedSpecies(species);
