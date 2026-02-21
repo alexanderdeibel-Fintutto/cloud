@@ -1,4 +1,4 @@
-import { Volume2, VolumeX, LogOut } from 'lucide-react'
+import { Volume2, VolumeX, LogOut, Loader2, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import LanguageChips from './LanguageChips'
@@ -29,11 +29,20 @@ export default function ListenerView({ session }: ListenerViewProps) {
 
   return (
     <div className="space-y-4">
+      {/* Connection status bar */}
+      {!session.isConnected && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-lg text-sm">
+          <WifiOff className="h-4 w-4 shrink-0" />
+          <span>Verbindung unterbrochen — Versuche erneut zu verbinden...</span>
+          <Loader2 className="h-4 w-4 animate-spin ml-auto shrink-0" />
+        </div>
+      )}
+
       {/* Current translation - large display */}
       <Card className="p-6 min-h-[200px] flex items-center justify-center">
         {session.currentTranslation ? (
-          <div className="text-center space-y-2">
-            <p className="text-2xl md:text-3xl font-medium leading-relaxed">
+          <div className="text-center space-y-2 w-full">
+            <p className="text-2xl md:text-3xl font-medium leading-relaxed break-words">
               {session.currentTranslation}
             </p>
             {session.isSpeaking && (
@@ -44,10 +53,11 @@ export default function ListenerView({ session }: ListenerViewProps) {
             )}
           </div>
         ) : (
-          <div className="text-center text-muted-foreground space-y-2">
+          <div className="text-center text-muted-foreground space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto opacity-40" />
             <p className="text-lg">Warte auf Übersetzung...</p>
             <p className="text-sm">
-              Verbunden mit Session <span className="font-mono font-bold">{session.sessionCode}</span>
+              Session <span className="font-mono font-bold">{session.sessionCode}</span>
             </p>
             {session.isConnected && (
               <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600">

@@ -5,6 +5,14 @@ export interface TranslationResult {
   match: number
 }
 
+// In-memory cache to avoid duplicate API calls for same text+language pair
+const cache = new Map<string, { result: TranslationResult; timestamp: number }>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function getCacheKey(text: string, sourceLang: string, targetLang: string): string {
+  return `${sourceLang}|${targetLang}|${text.trim().toLowerCase()}`
+}
+
 export async function translateText(
   text: string,
   sourceLang: string,
@@ -12,6 +20,13 @@ export async function translateText(
 ): Promise<TranslationResult> {
   if (!text.trim()) {
     return { translatedText: '', match: 0 }
+  }
+
+  // Check cache
+  const cacheKey = getCacheKey(text, sourceLang, targetLang)
+  const cached = cache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.result
   }
 
   const langPair = `${sourceLang}|${targetLang}`
@@ -29,8 +44,21 @@ export async function translateText(
     throw new Error(data.responseDetails || 'Translation failed')
   }
 
-  return {
+  const result: TranslationResult = {
     translatedText: data.responseData.translatedText,
     match: data.responseData.match,
   }
+
+  // Store in cache
+  cache.set(cacheKey, { result, timestamp: Date.now() })
+
+  // Evict old entries if cache grows too large
+  if (cache.size > 500) {
+    const now = Date.now()
+    for (const [key, entry] of cache) {
+      if (now - entry.timestamp > CACHE_TTL) cache.delete(key)
+    }
+  }
+
+  return result
 }

@@ -1,4 +1,4 @@
-import { Mic, MicOff, StopCircle } from 'lucide-react'
+import { Mic, MicOff, StopCircle, WifiOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SessionQRCode from './SessionQRCode'
 import ListenerStatus from './ListenerStatus'
@@ -14,6 +14,15 @@ interface SpeakerViewProps {
 export default function SpeakerView({ session }: SpeakerViewProps) {
   return (
     <div className="space-y-4">
+      {/* Connection status bar */}
+      {!session.isConnected && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-lg text-sm">
+          <WifiOff className="h-4 w-4 shrink-0" />
+          <span>Verbindung unterbrochen — Versuche erneut zu verbinden...</span>
+          <Loader2 className="h-4 w-4 animate-spin ml-auto shrink-0" />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left: QR + Controls */}
         <div className="space-y-4">
@@ -33,6 +42,7 @@ export default function SpeakerView({ session }: SpeakerViewProps) {
               <Button
                 onClick={session.startRecording}
                 className="flex-1 gap-2"
+                disabled={!session.isConnected}
               >
                 <Mic className="h-4 w-4" />
                 Aufnahme starten
