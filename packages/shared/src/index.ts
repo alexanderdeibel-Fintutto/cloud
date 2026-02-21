@@ -180,6 +180,9 @@ export { PrintStyles } from './components/PrintStyles'
 // Re-export ShareResultButton
 export { ShareResultButton } from './components/ShareResultButton'
 
+// Re-export RecentToolsWidget
+export { RecentToolsWidget } from './components/RecentToolsWidget'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 

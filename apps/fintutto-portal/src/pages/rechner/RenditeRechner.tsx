@@ -8,6 +8,7 @@ import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
 import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -97,6 +98,7 @@ export default function RenditeRechner() {
       eigenkapitalRendite,
       faktorKaufpreis,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -204,7 +206,7 @@ export default function RenditeRechner() {
                     <Button onClick={berechnen} disabled={!kaufpreis || !monatsmiete} className="flex-1 gradient-vermieter text-white">
                       Berechnen
                     </Button>
-                    <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setMonatsmieteRaw(''); setNebenkostenRaw('10'); setNichtUmlagefaehigRaw('15'); setEigenkapitalRaw(''); setZinsRaw('3.5'); setTilgungRaw('2'); setResult(null); clearSaved(); resetDirty() }}>
+                    <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setMonatsmieteRaw(''); setNebenkostenRaw('10'); setNichtUmlagefaehigRaw('15'); setEigenkapitalRaw(''); setZinsRaw('3.5'); setTilgungRaw('2'); setResult(null); clearSaved(); resetDirty(); toast('Eingaben zurückgesetzt') }}>
                       Zurücksetzen
                     </Button>
                   </div>

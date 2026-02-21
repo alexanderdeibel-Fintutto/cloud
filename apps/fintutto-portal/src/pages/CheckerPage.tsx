@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Shield, ArrowRight, Scale, AlertTriangle, Wrench, Home, Euro, FileWarning, Ban, HardHat, Paintbrush, BookOpen } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useRecentTools, Breadcrumbs, RecentToolsWidget } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const checkers = [
@@ -98,6 +98,7 @@ const checkers = [
 
 export default function CheckerPage() {
   useDocumentTitle('Mietrechts-Checker', 'Fintutto Portal')
+  const { recentTools } = useRecentTools('portal')
   useMetaTags({
     title: 'Checker fuer Mieter – Fintutto Portal',
     description: '10 kostenlose Mietrechts-Checker: Mietpreisbremse, Mieterhoehung, Nebenkosten, Kuendigung und mehr.',
@@ -128,6 +129,11 @@ export default function CheckerPage() {
 
       <section className="py-12">
         <div className="container">
+          <RecentToolsWidget
+            tools={recentTools}
+            pathPrefix="/checker"
+            renderLink={({ href, children }) => <Link key={href} to={href}>{children}</Link>}
+          />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Verfügbare Checker">
             {checkers.map((item) => (
               <Link key={item.title} to={item.href} aria-label={`${item.title} – ${item.description}`} role="listitem">

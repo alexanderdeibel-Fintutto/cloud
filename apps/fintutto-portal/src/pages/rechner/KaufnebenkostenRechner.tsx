@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { formatCurrency } from '../../lib/utils'
 import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 const bundeslaender = [
   { name: 'Baden-Württemberg', grunderwerbsteuer: 5.0 },
@@ -81,6 +82,7 @@ export default function KaufnebenkostenRechner() {
       gesamtkosten,
       prozentVomKaufpreis,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -135,7 +137,7 @@ export default function KaufnebenkostenRechner() {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button onClick={berechnen} disabled={!kaufpreis} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                  <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setBundeslandRaw('Bayern'); setMaklerRaw('3.57'); setResult(null); clearSaved(); resetDirty() }}>Zurücksetzen</Button>
+                  <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setBundeslandRaw('Bayern'); setMaklerRaw('3.57'); setResult(null); clearSaved(); resetDirty(); toast('Eingaben zurückgesetzt') }}>Zurücksetzen</Button>
                 </div>
               </CardContent>
             </Card>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { formatCurrency } from '../../lib/utils'
 import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 export default function GrundsteuerRechner() {
   useDocumentTitle('Grundsteuer-Rechner', 'Fintutto Portal')
@@ -57,6 +58,7 @@ export default function GrundsteuerRechner() {
       grundsteuerJahr,
       grundsteuerMonat,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -112,7 +114,7 @@ export default function GrundsteuerRechner() {
                   </div>
                   <div className="flex gap-3 pt-4">
                     <Button onClick={berechnen} disabled={!grundstueckswert && !gebaeudewert} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                    <Button variant="outline" onClick={() => { setGrundstueckswertRaw(''); setGebaeudewertRaw(''); setHebesatzRaw('400'); setResult(null); clearSaved(); resetDirty() }}>Zurücksetzen</Button>
+                    <Button variant="outline" onClick={() => { setGrundstueckswertRaw(''); setGebaeudewertRaw(''); setHebesatzRaw('400'); setResult(null); clearSaved(); resetDirty(); toast('Eingaben zurückgesetzt') }}>Zurücksetzen</Button>
                   </div>
                 </CardContent>
               </Card>

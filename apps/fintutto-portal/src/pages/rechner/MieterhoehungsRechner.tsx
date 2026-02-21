@@ -8,6 +8,7 @@ import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
 import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -121,6 +122,7 @@ export default function MieterhoehungsRechner() {
       isZulaessig,
       hinweise,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   const reset = () => {
@@ -130,6 +132,7 @@ export default function MieterhoehungsRechner() {
     setResult(null)
     clearSaved()
     resetDirty()
+    toast('Eingaben zurückgesetzt')
   }
 
   return (

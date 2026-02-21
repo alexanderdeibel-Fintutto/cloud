@@ -8,6 +8,7 @@ import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
 import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 interface KautionResult {
   maxKaution: number
@@ -78,6 +79,7 @@ export default function KautionsRechner() {
       isValid,
       hinweise,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   const reset = () => {
@@ -86,6 +88,7 @@ export default function KautionsRechner() {
     setResult(null)
     clearSaved()
     resetDirty()
+    toast('Eingaben zurückgesetzt')
   }
 
   return (

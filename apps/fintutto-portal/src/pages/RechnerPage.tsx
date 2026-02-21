@@ -8,7 +8,7 @@ import {
   Receipt,
   ArrowRight
 } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useRecentTools, Breadcrumbs, RecentToolsWidget } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const rechner = [
@@ -70,6 +70,7 @@ const rechner = [
 
 export default function RechnerPage() {
   useDocumentTitle('Rechner', 'Fintutto Portal')
+  const { recentTools } = useRecentTools('portal')
   useMetaTags({
     title: 'Rechner fuer Vermieter – Fintutto Portal',
     description: '7 professionelle Rechner fuer Vermieter: Kaution, Mieterhoehung, Kaufnebenkosten, Rendite, Grundsteuer und mehr.',
@@ -102,6 +103,11 @@ export default function RechnerPage() {
       {/* Rechner Grid */}
       <section className="py-12">
         <div className="container">
+          <RecentToolsWidget
+            tools={recentTools}
+            pathPrefix="/rechner"
+            renderLink={({ href, children }) => <Link key={href} to={href}>{children}</Link>}
+          />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Verfügbare Rechner">
             {rechner.map((item) => (
               <Link key={item.title} to={item.href} aria-label={`${item.title} – ${item.description}`} role="listitem">

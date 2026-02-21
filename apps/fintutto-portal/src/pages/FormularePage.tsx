@@ -14,7 +14,7 @@ import {
   Home,
   Wallet
 } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useRecentTools, Breadcrumbs, RecentToolsWidget } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const formulare = [
@@ -102,6 +102,7 @@ const formulare = [
 
 export default function FormularePage() {
   useDocumentTitle('Formulare & Vorlagen', 'Fintutto Portal')
+  const { recentTools } = useRecentTools('portal')
   useMetaTags({
     title: 'Formulare & Vorlagen – Fintutto Portal',
     description: '10 rechtssichere Formulare: Mietvertrag, Uebergabeprotokoll, Betriebskostenabrechnung, Kuendigung und mehr.',
@@ -154,6 +155,11 @@ export default function FormularePage() {
       {/* Formulare Grid */}
       <section className="py-12">
         <div className="container">
+          <RecentToolsWidget
+            tools={recentTools}
+            pathPrefix="/formulare"
+            renderLink={({ href, children }) => <Link key={href} to={href}>{children}</Link>}
+          />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Verfügbare Formulare">
             {formulare.map((item) => (
               <Link key={item.title} to={item.href} aria-label={`${item.title} – ${item.description}`} role="listitem">

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { formatCurrency } from '../../lib/utils'
 import { useDocumentTitle, useMetaTags, useJsonLd, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 const kostenarten = [
   'Grundsteuer', 'Wasserversorgung', 'Entwässerung', 'Heizung', 'Warmwasser',
@@ -68,6 +69,7 @@ export default function NebenkostenRechner() {
       monate,
       einzelkosten: kosten.map(k => ({ ...k, betrag: parseFloat(k.betrag) || 0 })),
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
