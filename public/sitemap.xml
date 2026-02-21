@@ -50,8 +50,22 @@
   <url><loc>https://portal.fintutto.cloud/ratgeber/kaution-zurueckfordern-so-gehts</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://portal.fintutto.cloud/ratgeber/immobilie-als-kapitalanlage-rendite-berechnen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
+  <!-- Blog / Ratgeber (neue Artikel) -->
+  <url><loc>https://portal.fintutto.cloud/ratgeber/mieterhoehung-wann-ist-sie-unwirksam</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/mietminderung-recht-und-hoehe</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/schoenheitsreparaturen-wer-muss-renovieren</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/kaufnebenkosten-immobilie-bundesland</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/ratgeber/betriebskostenabrechnung-fristen-und-fehler</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
   <!-- SEO Landing Pages -->
   <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-berlin</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-muenchen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://portal.fintutto.cloud/l/nebenkosten-pruefen-hamburg</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-frankfurt</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-koeln</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-stuttgart</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/mietpreisbremse-duesseldorf</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/nebenkosten-pruefen-berlin</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/nebenkosten-pruefen-muenchen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portal.fintutto.cloud/l/kaution-pruefen-berlin</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

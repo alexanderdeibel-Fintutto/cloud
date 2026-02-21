@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/email-automation?action=process_welcome_series",
+      "schedule": "0 9 * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
