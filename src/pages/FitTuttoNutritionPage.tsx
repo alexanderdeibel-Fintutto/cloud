@@ -199,8 +199,15 @@ export default function FitTuttoNutritionPage() {
           </Button>
           <div className="text-center">
             <div className="font-semibold">{formatDateDE(selectedDate)}</div>
-            {toDateStr(selectedDate) === toDateStr(new Date()) && (
+            {toDateStr(selectedDate) === toDateStr(new Date()) ? (
               <span className="text-xs text-orange-500">Heute</span>
+            ) : (
+              <button
+                className="text-xs text-orange-500 hover:underline"
+                onClick={() => setSelectedDate(new Date())}
+              >
+                Zurueck zu Heute
+              </button>
             )}
           </div>
           <Button variant="ghost" size="sm" onClick={() => changeDate(1)}>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { FITTUTTO_PRICING_TIERS, FitTuttoPricingTier } from '@/lib/stripe-fittutto'
 import { useAuth } from '@/contexts/AuthContext'
+import { useFitness } from '@/contexts/FitnessContext'
 import { toast } from 'sonner'
 import { cn, formatCurrency } from '@/lib/utils'
 
@@ -18,7 +19,8 @@ const TIER_ICONS: Record<string, typeof Dumbbell> = {
 export default function FitTuttoPricingPage() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly')
   const [loadingTier, setLoadingTier] = useState<string | null>(null)
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
+  const { profile: fitnessProfile } = useFitness()
 
   const handleSubscribe = async (tier: FitTuttoPricingTier) => {
     if (tier.id === 'free') {
@@ -80,7 +82,7 @@ export default function FitTuttoPricingPage() {
   }
 
   const isCurrentPlan = (tier: FitTuttoPricingTier) => {
-    return profile?.tier === tier.id
+    return fitnessProfile?.subscriptionTier === tier.id
   }
 
   const getButtonText = (tier: FitTuttoPricingTier) => {
