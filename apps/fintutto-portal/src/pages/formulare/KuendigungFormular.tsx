@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer, FileText } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type KuendigungsTyp = 'ordentlich' | 'ausserordentlich'
@@ -76,10 +77,13 @@ export default function KuendigungFormular() {
     url: 'https://portal.fintutto.cloud/formulare/kuendigung',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initialData)
 
-  const update = (fields: Partial<FormData>) => setData((d) => ({ ...d, ...fields }))
+  const update = (fields: Partial<FormData>) => { setData((d) => ({ ...d, ...fields })); setDirty() }
 
   const kuendigungsfrist = data.absender === 'mieter' ? '3 Monate' :
     data.typ === 'ausserordentlich' ? 'fristlos' : '3-9 Monate (je nach Mietdauer)'
@@ -271,7 +275,7 @@ export default function KuendigungFormular() {
             <Button variant="outline" onClick={() => setStep(step - 1)} disabled={step === 0}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Zurück
             </Button>
-            <Button onClick={() => setStep(step + 1)} disabled={step === steps.length - 1}>
+            <Button onClick={() => { setStep(step + 1); if (step === steps.length - 2) toast.success('Dokument erstellt') }} disabled={step === steps.length - 1}>
               Weiter <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>

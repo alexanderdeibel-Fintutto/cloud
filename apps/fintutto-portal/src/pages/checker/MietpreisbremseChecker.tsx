@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { calculateMietpreisbremse, getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
 
 interface FormData {
   plz: string
@@ -54,6 +54,8 @@ export default function MietpreisbremseChecker() {
     url: 'https://portal.fintutto.cloud/checker/mietpreisbremse',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -94,6 +96,7 @@ export default function MietpreisbremseChecker() {
     const newStep = step + 1
     setStep(newStep)
     setCurrentStep(newStep)
+    setDirty()
   }
 
   const handlePrevious = () => {
@@ -157,6 +160,7 @@ export default function MietpreisbremseChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 

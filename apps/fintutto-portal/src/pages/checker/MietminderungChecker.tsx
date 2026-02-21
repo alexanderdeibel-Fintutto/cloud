@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
 
 interface FormData {
   mangelart: string
@@ -51,6 +51,8 @@ export default function MietminderungChecker() {
     url: 'https://portal.fintutto.cloud/checker/mietminderung',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -141,6 +143,7 @@ export default function MietminderungChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -178,7 +181,7 @@ export default function MietminderungChecker() {
       icon={<Wrench className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={!!formData.mangelart && formData.kaltmiete > 0} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={!!formData.mangelart && formData.kaltmiete > 0} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Art des Mangels</h2>
           <div className="space-y-4">
             <CheckerField

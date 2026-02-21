@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Receipt, ArrowLeft, Plus, Trash2, Printer } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type DistKey = 'flaeche' | 'personen' | 'einheiten' | 'verbrauch'
@@ -44,6 +45,9 @@ export default function BetriebskostenFormular() {
     url: 'https://portal.fintutto.cloud/formulare/betriebskosten',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState<'building' | 'costs' | 'units' | 'result'>('building')
   const [buildingName, setBuildingName] = useState('')
   const [buildingAddress, setBuildingAddress] = useState('')
@@ -109,7 +113,7 @@ export default function BetriebskostenFormular() {
                   <div className="space-y-2"><Label>Bis *</Label><Input type="date" value={periodTo} onChange={e => setPeriodTo(e.target.value)} /></div>
                   <div className="space-y-2"><Label>Gesamtflaeche (m2) *</Label><Input type="number" value={totalArea} onChange={e => setTotalArea(e.target.value)} placeholder="250" /></div>
                 </div>
-                <Button className="w-full" onClick={() => setStep('costs')} disabled={!periodFrom || !periodTo || !totalArea}>Weiter</Button>
+                <Button className="w-full" onClick={() => { setStep('costs'); setDirty() }} disabled={!periodFrom || !periodTo || !totalArea}>Weiter</Button>
               </CardContent>
             </Card>
           )}
@@ -151,7 +155,7 @@ export default function BetriebskostenFormular() {
                   </div>
                 ))}
                 <Button variant="outline" className="w-full" onClick={() => setUnits(prev => [...prev, { name: `Wohnung ${prev.length + 1}`, tenant: '', area: '', persons: '', prepayment: '' }])}><Plus className="h-4 w-4 mr-2" /> Einheit</Button>
-                <Button className="w-full" onClick={() => setStep('result')}>Berechnen</Button>
+                <Button className="w-full" onClick={() => { setStep('result'); toast.success('Dokument erstellt') }}>Berechnen</Button>
               </CardContent>
             </Card>
           )}

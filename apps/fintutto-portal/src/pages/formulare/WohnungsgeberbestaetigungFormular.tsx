@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface Bewohner {
@@ -51,10 +52,13 @@ export default function WohnungsgeberbestaetigungFormular() {
     url: 'https://portal.fintutto.cloud/formulare/wohnungsgeberbestaetigung',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 
-  const update = (fields: Partial<FormData>) => setData((d) => ({ ...d, ...fields }))
+  const update = (fields: Partial<FormData>) => { setData((d) => ({ ...d, ...fields })); setDirty() }
 
   const addBewohner = () => {
     setData((d) => ({ ...d, bewohner: [...d.bewohner, { name: '', geburtsdatum: '' }] }))
@@ -240,7 +244,7 @@ export default function WohnungsgeberbestaetigungFormular() {
             <Button variant="outline" onClick={() => setStep(step - 1)} disabled={step === 0}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Zurück
             </Button>
-            <Button onClick={() => setStep(step + 1)} disabled={step === steps.length - 1}>
+            <Button onClick={() => { setStep(step + 1); if (step === steps.length - 2) toast.success('Dokument erstellt') }} disabled={step === steps.length - 1}>
               Weiter <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>

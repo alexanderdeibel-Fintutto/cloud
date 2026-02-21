@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Printer, AlertTriangle, Info } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 type Begruendung = 'mietspiegel' | 'gutachten' | 'vergleichswohnungen' | 'modernisierung'
@@ -32,6 +33,9 @@ export default function MieterhoehungFormular() {
     url: 'https://portal.fintutto.cloud/formulare/mieterhoehung',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState<'input' | 'result' | 'letter'>('input')
   const [vermieterName, setVermieterName] = useState('')
   const [vermieterAdresse, setVermieterAdresse] = useState('')
@@ -113,7 +117,7 @@ export default function MieterhoehungFormular() {
                 </div>
                 {begruendung === 'mietspiegel' && <div className="space-y-2"><Label>Mietspiegel Jahr</Label><Input value={mietspiegelJahr} onChange={e => setMietspiegelJahr(e.target.value)} placeholder="2024" /></div>}
                 <div className="space-y-2"><Label>Stichtag</Label><Input type="date" value={stichtag} onChange={e => setStichtag(e.target.value)} /><p className="text-xs text-muted-foreground">Zustimmungsfrist: 2 Monate (Paragraph 558b BGB)</p></div>
-                <Button className="w-full" onClick={() => setStep('result')} disabled={!aktuell || !vergleich}>Berechnen</Button>
+                <Button className="w-full" onClick={() => { setStep('result'); setDirty() }} disabled={!aktuell || !vergleich}>Berechnen</Button>
               </CardContent></Card>
             </div>
           )}
@@ -136,7 +140,7 @@ export default function MieterhoehungFormular() {
                 <span className="text-muted-foreground font-semibold">Zulaessig:</span><span className="font-bold">{result.maxEuro.toFixed(2)} EUR ({result.maxProzent.toFixed(1)}%)</span>
                 <span className="text-muted-foreground font-semibold">Neue Miete:</span><span className="font-bold text-green-700">{result.neueMiete.toFixed(2)} EUR</span>
               </div></CardContent></Card>
-              <Button className="w-full" onClick={() => setStep('letter')}>Schreiben erstellen</Button>
+              <Button className="w-full" onClick={() => { setStep('letter'); toast.success('Dokument erstellt') }}>Schreiben erstellen</Button>
             </div>
           )}
 
