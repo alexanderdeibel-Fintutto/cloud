@@ -1,7 +1,8 @@
 import { Receipt } from 'lucide-react'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+import { getFormulareAppUrl } from '@/lib/checker-utils'
+import { formatCurrency } from '@/lib/utils'
 import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 

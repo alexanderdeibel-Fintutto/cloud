@@ -1,7 +1,7 @@
 import { AlertTriangle } from 'lucide-react'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl } from '@/lib/utils'
+import { getFormulareAppUrl } from '@/lib/checker-utils'
 import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 

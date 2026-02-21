@@ -1,7 +1,7 @@
 import { Home } from 'lucide-react'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { calculateMietpreisbremse, getFormulareAppUrl } from '@/lib/utils'
+import { calculateMietpreisbremse, getFormulareAppUrl } from '@/lib/checker-utils'
 import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 
