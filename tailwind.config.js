@@ -59,12 +59,7 @@ export default {
         fintutto: {
           primary: "#2563eb",
           secondary: "#1e40af",
-          accent: "#3b82f6",
-          success: "#22c55e",
-          warning: "#f59e0b",
-          danger: "#ef4444",
           light: "#f8fafc",
-          dark: "#0f172a",
         },
       },
       borderRadius: {
