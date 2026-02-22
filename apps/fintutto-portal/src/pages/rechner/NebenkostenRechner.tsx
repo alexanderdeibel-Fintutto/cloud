@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useUnsavedChanges, useKeyboardNav, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 import { toast } from 'sonner'
 
@@ -30,6 +30,7 @@ export default function NebenkostenRechner() {
   })
   useTrackTool('Nebenkosten-Rechner')
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [wohnflaeche, setWohnflaecheRaw] = useState<string>('')
@@ -198,6 +199,8 @@ export default function NebenkostenRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }

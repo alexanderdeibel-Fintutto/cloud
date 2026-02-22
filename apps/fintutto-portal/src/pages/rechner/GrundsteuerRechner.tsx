@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 import { toast } from 'sonner'
 
@@ -24,6 +24,7 @@ export default function GrundsteuerRechner() {
   })
   useTrackTool('Grundsteuer-Rechner')
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_grundsteuer_inputs', { grundstueckswert: '', gebaeudewert: '', hebesatz: '400' })
@@ -171,6 +172,8 @@ export default function GrundsteuerRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }

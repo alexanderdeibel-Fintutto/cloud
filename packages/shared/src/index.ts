@@ -270,6 +270,12 @@ export { RecentToolsWidget } from './components/RecentToolsWidget'
 // Re-export KeyboardShortcutsHelp
 export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
 
+// Re-export CrossAppRecommendations
+export { CrossAppRecommendations } from './components/CrossAppRecommendations'
+
+// Re-export EcosystemStatsBar
+export { EcosystemStatsBar } from './components/EcosystemStatsBar'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 
