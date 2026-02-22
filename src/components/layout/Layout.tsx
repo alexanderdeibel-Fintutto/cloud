@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CommandPalette, CHECKER_TOOLS, useScrollToTop, KeyboardShortcutsHelp } from '@fintutto/shared'
+import { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS, useScrollToTop, KeyboardShortcutsHelp } from '@fintutto/shared'
 import Header from './Header'
 import Footer from './Footer'
 import EcosystemBar from './EcosystemBar'
@@ -23,8 +23,8 @@ export default function Layout({ children }: LayoutProps) {
       <main id="main-content" className="flex-1" role="main">{children}</main>
       <Footer />
       <CommandPalette
-        items={CHECKER_TOOLS}
-        onSelect={(item) => navigate(item.path)}
+        items={[...CHECKER_TOOLS, ...ECOSYSTEM_TOOLS]}
+        onSelect={(item) => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
       />
       <KeyboardShortcutsHelp />
     </div>

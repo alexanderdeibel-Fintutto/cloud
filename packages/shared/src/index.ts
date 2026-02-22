@@ -249,7 +249,7 @@ export { ErrorBoundary } from './components/ErrorBoundary'
 export { AnnouncementBanner } from './components/AnnouncementBanner'
 
 // Re-export CommandPalette
-export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, modKey } from './components/CommandPalette'
+export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, ECOSYSTEM_TOOLS, modKey } from './components/CommandPalette'
 export type { CommandItem } from './components/CommandPalette'
 
 // Re-export Breadcrumbs
@@ -281,4 +281,11 @@ export {
   mietvertragLink,
   parseDeepLinkParams,
   getPortalLinks,
+  ablesungLink,
+  vermietifyBuildingLink,
+  vermietifyUnitLink,
+  nebenkostenCheckerLink,
+  mietpreisbremseCheckerLink,
+  vermieterRechnerLink,
+  getCrossAppLinks,
 } from './deeplinks'
