@@ -67,6 +67,10 @@ import {
   History,
   Wrench,
   FileSpreadsheet,
+  Building,
+  HeartPulse,
+  Umbrella,
+  ArrowDownUp,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -170,6 +174,10 @@ export default function CommandPalette() {
     { id: 'nav-historie', label: 'Steuer-Historie', description: 'Steuerjahre im Überblick', icon: History, category: 'navigation', keywords: ['historie', 'verlauf', 'jahresvergleich', 'steuerquote', 'timeline'], action: () => runAndClose(() => navigate('/steuer-historie')) },
     { id: 'nav-haushaltsnahe', label: 'Haushaltsnahe Dienste', description: '§ 35a Steuerermäßigung', icon: Wrench, category: 'navigation', keywords: ['haushaltsnahe', 'handwerker', 'dienstleistung', '35a', 'minijob', 'reinigung'], action: () => runAndClose(() => navigate('/haushaltsnahe')) },
     { id: 'nav-formulare', label: 'Steuer-Formulare', description: 'Anlagen & Vordrucke erklärt', icon: FileSpreadsheet, category: 'navigation', keywords: ['formular', 'anlage', 'vordruck', 'mantelbogen', 'anlage-n', 'anlage-v', 'elster'], action: () => runAndClose(() => navigate('/steuer-formulare')) },
+    { id: 'nav-doppelhaushalt', label: 'Doppelte Haushaltsführung', description: 'Zweithaushalt absetzen', icon: Building, category: 'navigation', keywords: ['doppelte', 'haushaltsfuehrung', 'zweitwohnung', 'miete', 'heimfahrt', 'werbungskosten'], action: () => runAndClose(() => navigate('/doppelte-haushaltsfuehrung')) },
+    { id: 'nav-spenden', label: 'Spenden-Rechner', description: 'Spendenabzug berechnen', icon: HeartPulse, category: 'navigation', keywords: ['spende', 'spenden', 'gemeinnuetzig', 'partei', 'stiftung', 'sonderausgabe'], action: () => runAndClose(() => navigate('/spenden-rechner')) },
+    { id: 'nav-riester', label: 'Riester-Rechner', description: 'Zulagen & Sonderausgabenabzug', icon: Umbrella, category: 'navigation', keywords: ['riester', 'rente', 'zulage', 'altersvorsorge', 'sonderausgabe', 'guenstigerpruefung'], action: () => runAndClose(() => navigate('/riester-rechner')) },
+    { id: 'nav-verlustverrechnung', label: 'Verlustverrechnung', description: 'Verlustvorträge verwalten', icon: ArrowDownUp, category: 'navigation', keywords: ['verlust', 'vortrag', 'verrechnung', 'ruecktrag', 'topf', 'aktien'], action: () => runAndClose(() => navigate('/verlustverrechnung')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

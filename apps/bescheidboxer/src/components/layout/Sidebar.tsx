@@ -60,6 +60,10 @@ import {
   History,
   Wrench,
   FileSpreadsheet,
+  Building,
+  HeartPulse,
+  Umbrella,
+  ArrowDownUp,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -118,6 +122,10 @@ const navigation = [
   { name: 'Steuer-Historie', href: '/steuer-historie', icon: History },
   { name: 'Haushaltsnahe', href: '/haushaltsnahe', icon: Wrench },
   { name: 'Steuer-Formulare', href: '/steuer-formulare', icon: FileSpreadsheet },
+  { name: 'Doppelte Haushalt.', href: '/doppelte-haushaltsfuehrung', icon: Building },
+  { name: 'Spenden-Rechner', href: '/spenden-rechner', icon: HeartPulse },
+  { name: 'Riester-Rechner', href: '/riester-rechner', icon: Umbrella },
+  { name: 'Verlustverrechnung', href: '/verlustverrechnung', icon: ArrowDownUp },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
