@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 export default function EigenkapitalRechner() {
   useDocumentTitle('Eigenkapital-Rechner', 'Fintutto Vermieter')
@@ -21,6 +22,9 @@ export default function EigenkapitalRechner() {
     url: 'https://vermieter.fintutto.cloud/rechner/eigenkapital',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [eigenkapital, setEigenkapital] = useState<string>('')
@@ -46,6 +50,7 @@ export default function EigenkapitalRechner() {
     else if (ek < empfohlenEK) bewertung = 'akzeptabel'
     else if (ek >= optimalEK) bewertung = 'optimal'
 
+    setDirty()
     setResult({
       gesamtkosten,
       fremdkapital,
@@ -56,6 +61,7 @@ export default function EigenkapitalRechner() {
       optimalEK,
       bewertung,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -109,7 +115,7 @@ export default function EigenkapitalRechner() {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button onClick={berechnen} disabled={!kaufpreis || !eigenkapital} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                  <Button variant="outline" onClick={() => { setKaufpreis(''); setEigenkapital(''); setResult(null) }}>Zurücksetzen</Button>
+                  <Button variant="outline" onClick={() => { setKaufpreis(''); setEigenkapital(''); setResult(null); toast('Eingaben zurückgesetzt') }}>Zurücksetzen</Button>
                 </div>
               </CardContent>
             </Card>
@@ -119,10 +125,13 @@ export default function EigenkapitalRechner() {
                 <>
                   <Card className={result.bewertung === 'kritisch' ? 'border-destructive/30' : result.bewertung === 'optimal' ? 'border-success/30' : ''}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        {result.bewertung === 'kritisch' ? <AlertTriangle className="h-5 w-5 text-destructive" /> : <CheckCircle2 className="h-5 w-5 text-success" />}
-                        Bewertung: {result.bewertung.charAt(0).toUpperCase() + result.bewertung.slice(1)}
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {result.bewertung === 'kritisch' ? <AlertTriangle className="h-5 w-5 text-destructive" /> : <CheckCircle2 className="h-5 w-5 text-success" />}
+                          Bewertung: {result.bewertung.charAt(0).toUpperCase() + result.bewertung.slice(1)}
+                        </CardTitle>
+                        <ShareResultButton title="Eigenkapital-Rechner Ergebnis" url="/rechner/eigenkapital" text={formatCurrency(result.fremdkapital)} />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center py-4">

@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 const kostenarten = [
   'Grundsteuer', 'Wasserversorgung', 'Entwässerung', 'Heizung', 'Warmwasser',
@@ -27,6 +28,9 @@ export default function NebenkostenRechner() {
     url: 'https://vermieter.fintutto.cloud/rechner/nebenkosten',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
   const [wohnflaeche, setWohnflaeche] = useState<string>('')
   const [vorauszahlung, setVorauszahlung] = useState<string>('')
   const [zeitraum, setZeitraum] = useState<string>('12')
@@ -51,6 +55,7 @@ export default function NebenkostenRechner() {
     const differenz = vorauszahlungGesamt - gesamtKosten
     const kostenProQm = gesamtKosten / wf
 
+    setDirty()
     setResult({
       gesamtKosten,
       vorauszahlungGesamt,
@@ -59,6 +64,7 @@ export default function NebenkostenRechner() {
       monate,
       einzelkosten: kosten.map(k => ({ ...k, betrag: parseFloat(k.betrag) || 0 })),
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -144,7 +150,12 @@ export default function NebenkostenRechner() {
             <div className="space-y-6">
               {result ? (
                 <Card>
-                  <CardHeader><CardTitle>Abrechnung</CardTitle></CardHeader>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Abrechnung</CardTitle>
+                      <ShareResultButton title="Nebenkosten-Rechner Ergebnis" url="/rechner/nebenkosten" text={formatCurrency(result.gesamtKosten)} />
+                    </div>
+                  </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2 text-sm">
                       {result.einzelkosten.filter((k: any) => k.betrag > 0).map((k: any, i: number) => (

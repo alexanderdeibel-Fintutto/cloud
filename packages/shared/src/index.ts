@@ -183,6 +183,9 @@ export { ShareResultButton } from './components/ShareResultButton'
 // Re-export RecentToolsWidget
 export { RecentToolsWidget } from './components/RecentToolsWidget'
 
+// Re-export KeyboardShortcutsHelp
+export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 
