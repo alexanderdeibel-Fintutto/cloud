@@ -77,14 +77,26 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   cancelled: 'Abgebrochen',
 }
 
+// App categories for ecosystem navigation
+export const APP_CATEGORIES = {
+  immobilien: 'Immobilien',
+  finanzen: 'Finanzen & Tools',
+  lifestyle: 'Lifestyle',
+  sales: 'Sales & B2B',
+} as const
+
+export type AppCategory = keyof typeof APP_CATEGORIES
+
 // Fintutto Ecosystem App Registry (with URLs for cross-app navigation)
 export const FINTUTTO_APPS = {
+  // --- Immobilien ---
   vermietify: {
     name: 'Vermietify',
     slug: 'vermietify',
     description: 'Immobilienverwaltung für Vermieter',
     icon: '🏠',
     url: 'https://vermietify.vercel.app',
+    category: 'immobilien' as AppCategory,
   },
   ablesung: {
     name: 'Ablesung',
@@ -92,6 +104,7 @@ export const FINTUTTO_APPS = {
     description: 'Zählerablesung & Verbrauchserfassung',
     icon: '📊',
     url: 'https://ablesung.vercel.app',
+    category: 'immobilien' as AppCategory,
   },
   hausmeisterPro: {
     name: 'HausmeisterPro',
@@ -99,6 +112,7 @@ export const FINTUTTO_APPS = {
     description: 'Hausmeister- & Gebäudeverwaltung',
     icon: '🔧',
     url: 'https://hausmeister-pro.vercel.app',
+    category: 'immobilien' as AppCategory,
   },
   mieter: {
     name: 'Mieter',
@@ -106,27 +120,24 @@ export const FINTUTTO_APPS = {
     description: 'Mieter-Portal & Tools',
     icon: '🏡',
     url: 'https://mieter-kw8d.vercel.app',
+    category: 'immobilien' as AppCategory,
   },
-  bescheidboxer: {
-    name: 'BescheidBoxer',
-    slug: 'bescheidboxer',
-    description: 'Steuerbescheid-Prüfer',
-    icon: '📋',
-    url: 'https://bescheidboxer.vercel.app',
+  vermieterPortal: {
+    name: 'Vermieter-Portal',
+    slug: 'vermieter-portal',
+    description: 'Rechner & Formulare für Vermieter',
+    icon: '🏢',
+    url: 'https://vermieter.fintutto.cloud',
+    category: 'immobilien' as AppCategory,
   },
+  // --- Finanzen & Tools ---
   portal: {
     name: 'Fintutto Portal',
     slug: 'portal',
     description: 'Rechner, Checker & Formulare',
     icon: '🧮',
     url: 'https://portal.fintutto.cloud',
-  },
-  adminHub: {
-    name: 'Admin-Hub',
-    slug: 'admin-hub',
-    description: 'Zentrale Verwaltung',
-    icon: '⚙️',
-    url: 'https://fintutto-admin-hub.vercel.app',
+    category: 'finanzen' as AppCategory,
   },
   financialCompass: {
     name: 'Financial Compass',
@@ -134,6 +145,73 @@ export const FINTUTTO_APPS = {
     description: 'Finanzübersicht & Buchhaltung',
     icon: '🧭',
     url: 'https://fintutto-your-financial-compass.vercel.app',
+    category: 'finanzen' as AppCategory,
+  },
+  bescheidboxer: {
+    name: 'BescheidBoxer',
+    slug: 'bescheidboxer',
+    description: 'Steuerbescheid-Prüfer',
+    icon: '📋',
+    url: 'https://bescheidboxer.vercel.app',
+    category: 'finanzen' as AppCategory,
+  },
+  adminHub: {
+    name: 'Admin-Hub',
+    slug: 'admin-hub',
+    description: 'Zentrale Verwaltung',
+    icon: '⚙️',
+    url: 'https://fintutto-admin-hub.vercel.app',
+    category: 'finanzen' as AppCategory,
+  },
+  // --- Lifestyle ---
+  translator: {
+    name: 'Übersetzer',
+    slug: 'translator',
+    description: 'Online-Übersetzer mit 22 Sprachen & TTS',
+    icon: '🌐',
+    url: 'https://translator-fintutto.vercel.app',
+    category: 'lifestyle' as AppCategory,
+  },
+  pflanzenManager: {
+    name: 'Pflanzen-Manager',
+    slug: 'pflanzen-manager',
+    description: 'Zimmerpflanzen-Pflege & Tracking',
+    icon: '🌱',
+    url: 'https://zimmerpflanze.vercel.app',
+    category: 'lifestyle' as AppCategory,
+  },
+  personaltrainer: {
+    name: 'Personaltrainer',
+    slug: 'personaltrainer',
+    description: 'Fitness-Coaching & Trainingspläne',
+    icon: '💪',
+    url: 'https://personaltrainer-murex.vercel.app',
+    category: 'lifestyle' as AppCategory,
+  },
+  luggageX: {
+    name: 'LuggageX',
+    slug: 'luggagex',
+    description: 'Gepäck-Tracking & Reise-Checklisten',
+    icon: '🧳',
+    url: 'https://luggagex-fintutto.vercel.app',
+    category: 'lifestyle' as AppCategory,
+  },
+  // --- Sales & B2B ---
+  guideTranslator: {
+    name: 'GuideTranslator',
+    slug: 'guidetranslator',
+    description: 'Übersetzer-Tool für Kreuzfahrtschiffe',
+    icon: '🚢',
+    url: 'https://app.guidetranslator.com',
+    category: 'sales' as AppCategory,
+  },
+  commandCenter: {
+    name: 'Command Center',
+    slug: 'command-center',
+    description: 'Fintutto Steuerungszentrale',
+    icon: '🎛️',
+    url: 'https://fintutto-command-center.vercel.app',
+    category: 'sales' as AppCategory,
   },
 } as const
 
@@ -142,6 +220,12 @@ export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
 // Get all apps except the current one (for cross-app navigation)
 export function getOtherApps(currentAppSlug: string) {
   return Object.values(FINTUTTO_APPS).filter((app) => app.slug !== currentAppSlug)
+}
+
+// Get apps by category
+export function getAppsByCategory(category: AppCategory, excludeSlug?: string) {
+  return Object.values(FINTUTTO_APPS)
+    .filter((app) => app.category === category && app.slug !== excludeSlug)
 }
 
 // Get app URL by key
@@ -156,7 +240,7 @@ export * from './types/database'
 export * from './hooks'
 
 // Re-export ecosystem bar helpers
-export { getEcosystemBarItems, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
 
 // Re-export ErrorBoundary
 export { ErrorBoundary } from './components/ErrorBoundary'
