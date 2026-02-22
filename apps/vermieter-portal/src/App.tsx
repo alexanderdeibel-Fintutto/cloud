@@ -22,6 +22,7 @@ const RechnerPage = lazy(() => import('./pages/RechnerPage'))
 const FormularePage = lazy(() => import('./pages/FormularePage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const AppsPage = lazy(() => import('./pages/AppsPage'))
 
 // Rechner
 const KautionsRechner = lazy(() => import('./pages/rechner/KautionsRechner'))
@@ -68,6 +69,9 @@ function App() {
             <Route path="formulare/mieterhoehung" element={<MieterhoehungFormular />} />
             <Route path="formulare/selbstauskunft" element={<SelbstauskunftFormular />} />
             <Route path="formulare/betriebskosten" element={<BetriebskostenFormular />} />
+
+            {/* Apps Ecosystem */}
+            <Route path="apps" element={<AppsPage />} />
 
             {/* Pricing */}
             <Route path="preise" element={<PricingPage />} />
