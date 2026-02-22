@@ -32,6 +32,8 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
   const [targetLang, setTargetLang] = useState('en')
   const [sourceText, setSourceText] = useState('')
   const [translatedText, setTranslatedText] = useState('')
+  const [matchScore, setMatchScore] = useState<number | null>(null)
+  const [provider, setProvider] = useState<string | undefined>(undefined)
   const [isTranslating, setIsTranslating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -80,6 +82,8 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     try {
       const result = await translateText(text, sourceLang, targetLang)
       setTranslatedText(result.translatedText)
+      setMatchScore(result.match)
+      setProvider(result.provider)
 
       // Auto-speak via refs to avoid re-render dependency loop
       if (autoSpeakRef.current && result.translatedText) {
@@ -333,6 +337,22 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
               <span className="text-xs text-muted-foreground">
                 {translatedText.length} Zeichen
               </span>
+              <div className="flex items-center gap-2">
+                {provider && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                    {provider === 'libre' ? 'LibreTranslate' : 'MyMemory'}
+                  </span>
+                )}
+                {matchScore !== null && matchScore > 0 && translatedText && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                    matchScore >= 0.8 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                    matchScore >= 0.5 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                    {Math.round(matchScore * 100)}%
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </Card>
