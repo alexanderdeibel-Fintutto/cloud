@@ -256,30 +256,21 @@ export function useBuildings() {
       source?: 'manual' | 'ocr' | 'api';
       confidence?: number;
     }) => {
-      console.log('Creating reading with data:', data);
-      console.log('User ID:', user?.id);
-      
       const insertData = {
         ...data,
         reading_date: data.reading_date || new Date().toISOString().split('T')[0],
         source: data.source || 'manual',
         submitted_by: user?.id,
       };
-      
-      console.log('Insert data:', insertData);
-      
+
       const { data: newReading, error } = await supabase
         .from('meter_readings')
         .insert(insertData)
         .select()
         .single();
 
-      if (error) {
-        console.error('Supabase error creating reading:', error);
-        throw error;
-      }
-      
-      console.log('Reading created:', newReading);
+      if (error) throw error;
+
       return newReading;
     },
     onSuccess: () => {
