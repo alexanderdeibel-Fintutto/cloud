@@ -1,9 +1,9 @@
 // Shared utilities and components for Fintutto apps
 export const FINTUTTO_VERSION = '1.0.0'
 
-export const SUPABASE_CONFIG = {
-  url: 'https://aaefocdqgdgexkcrjhks.supabase.co',
-}
+// Re-export central ecosystem registry (Single Source of Truth)
+export * from './ecosystem'
+export { ecosystem as ECOSYSTEM } from './ecosystem'
 
 // Shared constants
 export const COUNTRIES = ['Deutschland', 'Österreich', 'Schweiz'] as const
@@ -77,77 +77,23 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   cancelled: 'Abgebrochen',
 }
 
-// Fintutto Ecosystem App Registry (with URLs for cross-app navigation)
+// Legacy FINTUTTO_APPS – kept for backwards compatibility.
+// Prefer importing from './ecosystem' directly.
+// This derives from the ecosystem registry so URLs stay in sync.
+import { ecosystem } from './ecosystem'
+
 export const FINTUTTO_APPS = {
-  vermietify: {
-    name: 'Vermietify',
-    slug: 'vermietify',
-    description: 'Immobilienverwaltung für Vermieter',
-    icon: '🏠',
-    url: 'https://vermietify.vercel.app',
-  },
-  ablesung: {
-    name: 'Ablesung',
-    slug: 'ablesung',
-    description: 'Zählerablesung & Verbrauchserfassung',
-    icon: '📊',
-    url: 'https://ablesung.vercel.app',
-  },
-  hausmeisterPro: {
-    name: 'HausmeisterPro',
-    slug: 'hausmeister-pro',
-    description: 'Hausmeister- & Gebäudeverwaltung',
-    icon: '🔧',
-    url: 'https://hausmeister-pro.vercel.app',
-  },
-  mieter: {
-    name: 'Mieter',
-    slug: 'mieter',
-    description: 'Mieter-Portal & Tools',
-    icon: '🏡',
-    url: 'https://mieter-kw8d.vercel.app',
-  },
-  bescheidboxer: {
-    name: 'BescheidBoxer',
-    slug: 'bescheidboxer',
-    description: 'Steuerbescheid-Prüfer',
-    icon: '📋',
-    url: 'https://bescheidboxer.vercel.app',
-  },
-  portal: {
-    name: 'Fintutto Portal',
-    slug: 'portal',
-    description: 'Rechner, Checker & Formulare',
-    icon: '🧮',
-    url: 'https://portal.fintutto.cloud',
-  },
-  adminHub: {
-    name: 'Admin-Hub',
-    slug: 'admin-hub',
-    description: 'Zentrale Verwaltung',
-    icon: '⚙️',
-    url: 'https://fintutto-admin-hub.vercel.app',
-  },
-  financialCompass: {
-    name: 'Financial Compass',
-    slug: 'financial-compass',
-    description: 'Finanzübersicht & Buchhaltung',
-    icon: '🧭',
-    url: 'https://fintutto-your-financial-compass.vercel.app',
-  },
+  vermietify: { name: ecosystem.vermietify.name, slug: 'vermietify', description: ecosystem.vermietify.description, icon: ecosystem.vermietify.icon, url: ecosystem.vermietify.domain },
+  ablesung: { name: ecosystem.ablesung.name, slug: 'ablesung', description: ecosystem.ablesung.description, icon: ecosystem.ablesung.icon, url: ecosystem.ablesung.domain },
+  hausmeisterPro: { name: ecosystem.hausmeister.name, slug: 'hausmeister-pro', description: ecosystem.hausmeister.description, icon: ecosystem.hausmeister.icon, url: ecosystem.hausmeister.domain },
+  mieter: { name: ecosystem.mieter.name, slug: 'mieter', description: ecosystem.mieter.description, icon: ecosystem.mieter.icon, url: ecosystem.mieter.domain },
+  bescheidboxer: { name: ecosystem.bescheidboxer.name, slug: 'bescheidboxer', description: ecosystem.bescheidboxer.description, icon: ecosystem.bescheidboxer.icon, url: ecosystem.bescheidboxer.domain },
+  portal: { name: ecosystem.portal.name, slug: 'portal', description: ecosystem.portal.description, icon: ecosystem.portal.icon, url: ecosystem.portal.domain },
+  adminHub: { name: ecosystem.admin.name, slug: 'admin-hub', description: ecosystem.admin.description, icon: ecosystem.admin.icon, url: ecosystem.admin.domain },
+  financialCompass: { name: ecosystem['financial-compass'].name, slug: 'financial-compass', description: ecosystem['financial-compass'].description, icon: ecosystem['financial-compass'].icon, url: ecosystem['financial-compass'].domain },
 } as const
 
 export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
-
-// Get all apps except the current one (for cross-app navigation)
-export function getOtherApps(currentAppSlug: string) {
-  return Object.values(FINTUTTO_APPS).filter((app) => app.slug !== currentAppSlug)
-}
-
-// Get app URL by key
-export function getAppUrl(appKey: FintuttoAppKey): string {
-  return FINTUTTO_APPS[appKey].url
-}
 
 // Re-export all database types
 export * from './types/database'
