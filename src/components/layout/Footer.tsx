@@ -106,7 +106,6 @@ export default function Footer() {
           </div>
 
           <div>
- claude/fitness-training-app-nf0CN
             <h3 className="font-semibold mb-3">FitTutto</h3>
             <ul className="space-y-2">
               {footerLinks.fittutto.map((link) => (
@@ -120,10 +119,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-3">Ökosystem</h3>
-
             <h3 className="font-semibold mb-3">Oekosystem</h3>
- main
             <ul className="space-y-2">
               {footerLinks.oekosystem.map((link) => (
                 <li key={link.name}>

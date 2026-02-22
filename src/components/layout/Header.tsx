@@ -1,14 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
- claude/fitness-training-app-nf0CN
- claude/fitness-training-app-nf0CN
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell } from 'lucide-react'
-
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut } from 'lucide-react'
- main
- main
-
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Search } from 'lucide-react'
- main
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell, Search } from 'lucide-react'
 import { useState } from 'react'
 import { modKey } from '@fintutto/shared'
 import { useAuth } from '@/contexts/AuthContext'
