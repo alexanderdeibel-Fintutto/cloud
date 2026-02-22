@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -51,10 +50,6 @@ export default {
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
-        },
-        warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
         },
         fintutto: {
           primary: "#2563eb",
