@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { isCloudTTSAvailable, speakWithCloudTTS } from '@/lib/tts'
+import type { VoiceQuality } from '@/lib/tts'
 
 export function useSpeechSynthesis() {
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -9,6 +10,7 @@ export function useSpeechSynthesis() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const queueRef = useRef<Array<{ text: string; lang: string }>>([])
   const isProcessingRef = useRef(false)
+  const voiceQualityRef = useRef<VoiceQuality>('neural2')
   const useCloudTTS = isCloudTTSAvailable()
 
   const isSupported = useCloudTTS || (typeof window !== 'undefined' && 'speechSynthesis' in window)
@@ -39,7 +41,7 @@ export function useSpeechSynthesis() {
       if (useCloudTTS) {
         setIsSpeaking(true)
         setTtsEngine('cloud')
-        speakWithCloudTTS(text, lang)
+        speakWithCloudTTS(text, lang, voiceQualityRef.current)
           .then(audio => {
             audioRef.current = audio
             audio.addEventListener('ended', onFinished)
@@ -121,6 +123,10 @@ export function useSpeechSynthesis() {
     }
   }, [processQueue])
 
+  const setVoiceQuality = useCallback((quality: VoiceQuality) => {
+    voiceQualityRef.current = quality
+  }, [])
+
   const stop = useCallback(() => {
     // Clear queue
     queueRef.current = []
@@ -142,5 +148,6 @@ export function useSpeechSynthesis() {
     ttsEngine,
     speak,
     stop,
+    setVoiceQuality,
   }
 }

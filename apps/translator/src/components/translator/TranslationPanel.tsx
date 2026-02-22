@@ -41,6 +41,9 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     const saved = localStorage.getItem('translator-auto-speak')
     return saved !== null ? saved === 'true' : true
   })
+  const [hdVoice, setHdVoice] = useState(() => {
+    return localStorage.getItem('translator-hd-voice') === 'true'
+  })
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const autoSpeakRef = useRef(autoSpeak)
@@ -55,6 +58,13 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
   const targetSpeech = useSpeechSynthesis()
   const targetSpeakRef = useRef(targetSpeech.speak)
   targetSpeakRef.current = targetSpeech.speak
+
+  // Sync HD voice quality to both speech hooks
+  useEffect(() => {
+    const quality = hdVoice ? 'chirp3hd' as const : 'neural2' as const
+    sourceSpeech.setVoiceQuality(quality)
+    targetSpeech.setVoiceQuality(quality)
+  }, [hdVoice, sourceSpeech.setVoiceQuality, targetSpeech.setVoiceQuality])
 
   // Show which TTS engine was last used
   const activeTtsEngine = sourceSpeech.ttsEngine || targetSpeech.ttsEngine
@@ -185,6 +195,14 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     })
   }
 
+  const toggleHdVoice = () => {
+    setHdVoice(prev => {
+      const next = !prev
+      localStorage.setItem('translator-hd-voice', String(next))
+      return next
+    })
+  }
+
   const clearAll = () => {
     setSourceText('')
     setTranslatedText('')
@@ -218,6 +236,15 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
         >
           {autoSpeak ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
           <span className="text-xs">Auto</span>
+        </Button>
+        <Button
+          variant={hdVoice ? 'default' : 'outline'}
+          size="sm"
+          onClick={toggleHdVoice}
+          className="mb-0.5 shrink-0 gap-1.5"
+          title={hdVoice ? 'HD-Stimme aktiv (Chirp 3 HD)' : 'Standard-Stimme (Neural2)'}
+        >
+          <span className="text-xs">{hdVoice ? 'HD' : 'SD'}</span>
         </Button>
       </div>
 
@@ -339,8 +366,10 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
               </span>
               <div className="flex items-center gap-2">
                 {provider && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                    {provider === 'libre' ? 'LibreTranslate' : 'MyMemory'}
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    provider === 'google' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {provider === 'google' ? 'Google' : provider === 'libre' ? 'LibreTranslate' : 'MyMemory'}
                   </span>
                 )}
                 {matchScore !== null && matchScore > 0 && translatedText && (

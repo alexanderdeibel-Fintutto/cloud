@@ -1,11 +1,14 @@
 // Google Cloud Text-to-Speech API integration
-// Provides natural-sounding Neural2/WaveNet voices
+// Supports Neural2 (standard) and Chirp 3 HD (premium) voices
 
 const API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY || 'AIzaSyD0jpDgyihxFytR-jDIxEHj17kl4Oz9FGY'
 const API_URL = 'https://texttospeech.googleapis.com/v1/text:synthesize'
+const API_URL_BETA = 'https://texttospeech.googleapis.com/v1beta1/text:synthesize'
 
-// Best available voice per language (Neural2 > WaveNet > Standard)
-const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
+export type VoiceQuality = 'neural2' | 'chirp3hd'
+
+// Neural2/WaveNet/Standard voices (current default)
+const VOICE_MAP_NEURAL: Record<string, { languageCode: string; name: string }> = {
   'de-DE': { languageCode: 'de-DE', name: 'de-DE-Neural2-C' },
   'en-US': { languageCode: 'en-US', name: 'en-US-Neural2-C' },
   'fr-FR': { languageCode: 'fr-FR', name: 'fr-FR-Neural2-A' },
@@ -30,30 +33,63 @@ const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   'hu-HU': { languageCode: 'hu-HU', name: 'hu-HU-Standard-A' },
 }
 
+// Chirp 3 HD voices — multi-language, highest quality
+// Uses v1beta1 endpoint. Falls back to Neural2 if unavailable.
+const CHIRP_VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
+  'de-DE': { languageCode: 'de-DE', name: 'de-DE-Chirp3-HD-Achernar' },
+  'en-US': { languageCode: 'en-US', name: 'en-US-Chirp3-HD-Achernar' },
+  'fr-FR': { languageCode: 'fr-FR', name: 'fr-FR-Chirp3-HD-Achernar' },
+  'es-ES': { languageCode: 'es-ES', name: 'es-ES-Chirp3-HD-Achernar' },
+  'it-IT': { languageCode: 'it-IT', name: 'it-IT-Chirp3-HD-Achernar' },
+  'pt-PT': { languageCode: 'pt-PT', name: 'pt-PT-Chirp3-HD-Achernar' },
+  'ja-JP': { languageCode: 'ja-JP', name: 'ja-JP-Chirp3-HD-Achernar' },
+  'ko-KR': { languageCode: 'ko-KR', name: 'ko-KR-Chirp3-HD-Achernar' },
+  'zh-CN': { languageCode: 'cmn-CN', name: 'cmn-CN-Chirp3-HD-Achernar' },
+  'hi-IN': { languageCode: 'hi-IN', name: 'hi-IN-Chirp3-HD-Achernar' },
+  'ar-SA': { languageCode: 'ar-XA', name: 'ar-XA-Chirp3-HD-Achernar' },
+  'ru-RU': { languageCode: 'ru-RU', name: 'ru-RU-Chirp3-HD-Achernar' },
+  'tr-TR': { languageCode: 'tr-TR', name: 'tr-TR-Chirp3-HD-Achernar' },
+  'nl-NL': { languageCode: 'nl-NL', name: 'nl-NL-Chirp3-HD-Achernar' },
+  'pl-PL': { languageCode: 'pl-PL', name: 'pl-PL-Chirp3-HD-Achernar' },
+  'sv-SE': { languageCode: 'sv-SE', name: 'sv-SE-Chirp3-HD-Achernar' },
+}
+
 export function isCloudTTSAvailable(): boolean {
   return !!API_KEY
 }
 
-function getVoiceConfig(speechCode: string) {
+function getVoiceConfig(speechCode: string, quality: VoiceQuality = 'neural2') {
+  const map = quality === 'chirp3hd' ? CHIRP_VOICE_MAP : VOICE_MAP_NEURAL
+
   // Try exact match first, then prefix match
-  const exact = VOICE_MAP[speechCode]
-  if (exact) return exact
+  const exact = map[speechCode]
+  if (exact) return { config: exact, useBeta: quality === 'chirp3hd' }
 
   const prefix = speechCode.split('-')[0]
-  for (const [key, value] of Object.entries(VOICE_MAP)) {
-    if (key.startsWith(prefix)) return value
+  for (const [key, value] of Object.entries(map)) {
+    if (key.startsWith(prefix)) return { config: value, useBeta: quality === 'chirp3hd' }
   }
 
-  // Fallback: use the language code directly
-  return { languageCode: speechCode, name: '' }
+  // If Chirp not available for this language, fall back to Neural2
+  if (quality === 'chirp3hd') {
+    return getVoiceConfig(speechCode, 'neural2')
+  }
+
+  // Final fallback: use the language code directly
+  return { config: { languageCode: speechCode, name: '' }, useBeta: false }
 }
 
-export async function speakWithCloudTTS(text: string, speechCode: string): Promise<HTMLAudioElement> {
+export async function speakWithCloudTTS(
+  text: string,
+  speechCode: string,
+  quality: VoiceQuality = 'neural2',
+): Promise<HTMLAudioElement> {
   if (!API_KEY) {
     throw new Error('Google Cloud TTS API key not configured')
   }
 
-  const voiceConfig = getVoiceConfig(speechCode)
+  const { config: voiceConfig, useBeta } = getVoiceConfig(speechCode, quality)
+  const apiUrl = useBeta ? API_URL_BETA : API_URL
 
   const body: Record<string, unknown> = {
     input: { text },
@@ -68,13 +104,18 @@ export async function speakWithCloudTTS(text: string, speechCode: string): Promi
     },
   }
 
-  const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+  const response = await fetch(`${apiUrl}?key=${API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
 
   if (!response.ok) {
+    // If Chirp fails, auto-fallback to Neural2
+    if (quality === 'chirp3hd') {
+      console.warn('[TTS] Chirp 3 HD failed, falling back to Neural2')
+      return speakWithCloudTTS(text, speechCode, 'neural2')
+    }
     const error = await response.text()
     throw new Error(`Cloud TTS failed: ${error}`)
   }
