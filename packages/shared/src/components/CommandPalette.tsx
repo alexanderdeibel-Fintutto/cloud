@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 
 export interface CommandItem {
   id: string
@@ -13,6 +13,15 @@ interface CommandPaletteProps {
   items: CommandItem[]
   onSelect: (item: CommandItem) => void
   placeholder?: string
+}
+
+function isMac() {
+  return typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+}
+
+/** Returns "⌘" on Mac, "Ctrl" elsewhere */
+export function modKey() {
+  return isMac() ? '\u2318' : 'Ctrl'
 }
 
 /**

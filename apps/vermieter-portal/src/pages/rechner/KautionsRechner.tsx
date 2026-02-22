@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 interface KautionResult {
   maxKaution: number
@@ -17,6 +17,19 @@ interface KautionResult {
 
 export default function KautionsRechner() {
   useDocumentTitle('Kautions-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Kautions-Rechner – Vermieter Portal',
+    description: 'Berechne die maximale Mietkaution nach §551 BGB',
+    path: '/rechner/kaution',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kautions-Rechner',
+    description: 'Berechne die maximale Mietkaution nach §551 BGB',
+    url: 'https://vermieter.fintutto.cloud/rechner/kaution',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [searchParams] = useSearchParams()
   const [kaltmiete, setKaltmiete] = useState<string>('')
   const [aktuelleKaution, setAktuelleKaution] = useState<string>('')

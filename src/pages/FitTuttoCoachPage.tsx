@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils'
 import {
   FITNESS_GOAL_LABELS, FITNESS_GOAL_ICONS,
   MUSCLE_GROUP_LABELS, MuscleGroup,
-  CoachTip,
+  CoachTip, FitnessProfile, WorkoutSession, PersonalRecord,
+  WorkoutExercise,
 } from '@/lib/fitness-types'
 
 type TipCategory = 'training' | 'nutrition' | 'recovery' | 'motivation'
@@ -26,9 +27,9 @@ const CATEGORY_META: Record<TipCategory, { label: string; icon: typeof Brain; co
 }
 
 function generateCoachTips(
-  profile: any,
-  workoutHistory: any[],
-  personalRecords: any[],
+  profile: FitnessProfile | null,
+  workoutHistory: WorkoutSession[],
+  personalRecords: PersonalRecord[],
 ): CoachTip[] {
   const tips: CoachTip[] = []
   const goal = profile?.fitnessGoal
@@ -68,7 +69,7 @@ function generateCoachTips(
   })
   const muscleFreq: Record<string, number> = {}
   last30Days.forEach(w => {
-    (w.exercises || []).forEach((ex: any) => {
+    (w.exercises || []).forEach((ex: WorkoutExercise) => {
       if (ex.exercise?.primaryMuscles) {
         ex.exercise.primaryMuscles.forEach((m: string) => {
           muscleFreq[m] = (muscleFreq[m] || 0) + 1

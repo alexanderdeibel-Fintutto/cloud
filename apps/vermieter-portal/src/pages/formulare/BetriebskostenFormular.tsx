@@ -1,10 +1,23 @@
 import { Link } from 'react-router-dom'
 import { Receipt, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 export default function BetriebskostenFormular() {
   useDocumentTitle('Betriebskostenabrechnung', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Betriebskostenabrechnung erstellen – Vermieter Portal',
+    description: 'Erstelle eine korrekte Betriebskostenabrechnung',
+    path: '/formulare/betriebskosten',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Betriebskostenabrechnung erstellen',
+    description: 'Erstelle eine korrekte Betriebskostenabrechnung',
+    url: 'https://vermieter.fintutto.cloud/formulare/betriebskosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   return (
     <div>
       <section className="gradient-vermieter py-12">

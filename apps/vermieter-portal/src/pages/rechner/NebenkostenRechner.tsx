@@ -4,7 +4,7 @@ import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 const kostenarten = [
   'Grundsteuer', 'Wasserversorgung', 'Entwässerung', 'Heizung', 'Warmwasser',
@@ -14,6 +14,19 @@ const kostenarten = [
 
 export default function NebenkostenRechner() {
   useDocumentTitle('Nebenkosten-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Nebenkosten-Rechner – Vermieter Portal',
+    description: 'Erstelle eine korrekte Nebenkostenabrechnung',
+    path: '/rechner/nebenkosten',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Nebenkosten-Rechner',
+    description: 'Erstelle eine korrekte Nebenkostenabrechnung',
+    url: 'https://vermieter.fintutto.cloud/rechner/nebenkosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [wohnflaeche, setWohnflaeche] = useState<string>('')
   const [vorauszahlung, setVorauszahlung] = useState<string>('')
   const [zeitraum, setZeitraum] = useState<string>('12')

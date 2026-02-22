@@ -1,14 +1,11 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, useScrollToTop } from '@fintutto/shared'
+import { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, useScrollToTop, PrintStyles } from '@fintutto/shared'
 import Header from './Header'
 import Footer from './Footer'
- claude/improve-app-integration-k7JF2
 import EcosystemBar from './EcosystemBar'
+import AiAssistant from '@/components/shared/AiAssistant'
 
 const allTools = [...PORTAL_TOOLS, ...CHECKER_TOOLS]
-
-import AiAssistant from '@/components/shared/AiAssistant'
- main
 
 export default function Layout() {
   const navigate = useNavigate()
@@ -25,14 +22,12 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
- claude/improve-app-integration-k7JF2
       <CommandPalette
         items={allTools}
         onSelect={(item) => navigate(item.path)}
       />
-
       <AiAssistant />
- main
+      <PrintStyles />
     </div>
   )
 }

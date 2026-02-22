@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { CommandPalette, PORTAL_TOOLS, useScrollToTop } from '@fintutto/shared'
+import { CommandPalette, PORTAL_TOOLS, useScrollToTop, PrintStyles } from '@fintutto/shared'
 import Header from './Header'
 import Footer from './Footer'
 import EcosystemBar from './EcosystemBar'
@@ -23,6 +23,7 @@ export default function Layout() {
         items={PORTAL_TOOLS}
         onSelect={(item) => navigate(item.path)}
       />
+      <PrintStyles />
     </div>
   )
 }

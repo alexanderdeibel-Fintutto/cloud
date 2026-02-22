@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { FileSignature, ArrowLeft, Building2, User, Euro, FileText, CheckCircle, ChevronLeft, ChevronRight, PawPrint, Home, Wrench, Paintbrush, Printer, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -8,7 +8,8 @@ import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
 import { useProperties } from '@/hooks/useProperties'
 import { useAuth } from '@/contexts/AuthContext'
-import { useDocumentTitle } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface MietvertragData {
@@ -71,6 +72,21 @@ const CLAUSES = [
 export default function MietvertragFormular() {
   useDocumentTitle('Mietvertrag erstellen', 'Fintutto Portal')
   useTrackTool('Mietvertrag')
+  useMetaTags({
+    title: 'Mietvertrag erstellen – Rechtssicherer Wohnraummietvertrag',
+    description: 'Erstelle einen rechtssicheren Mietvertrag für Wohnraum. Mit Index- oder Staffelmiete und allen Pflichtangaben.',
+    path: '/formulare/mietvertrag',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietvertrag-Generator',
+    description: 'Erstelle einen rechtssicheren Wohnraummietvertrag online',
+    url: 'https://portal.fintutto.cloud/formulare/mietvertrag',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<MietvertragData>(INITIAL)
@@ -100,6 +116,7 @@ export default function MietvertragFormular() {
 
   const update = (field: keyof MietvertragData, value: string | boolean) => {
     setData(prev => ({ ...prev, [field]: value }))
+    setDirty()
   }
 
   const handlePropertySelect = (buildingIdx: number, unitIdx: number) => {
@@ -493,7 +510,7 @@ export default function MietvertragFormular() {
               <ChevronLeft className="h-4 w-4 mr-2" /> Zurueck
             </Button>
             {step < 4 ? (
-              <Button onClick={() => setStep(s => s + 1)} disabled={!canNext()}>
+              <Button onClick={() => { setStep(s => s + 1); if (step === 3) toast.success('Dokument erstellt') }} disabled={!canNext()}>
                 Weiter <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : null}

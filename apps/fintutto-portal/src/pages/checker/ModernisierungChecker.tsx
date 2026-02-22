@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
 
 interface FormData {
   aktuelleKaltmiete: number
@@ -21,6 +22,22 @@ export default function ModernisierungChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Modernisierungs-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Modernisierungs-Checker – Deine Rechte bei Modernisierung',
+    description: 'Modernisierung angekündigt? Prüfe Duldungspflicht und Mieterhöhung nach §559 BGB.',
+    path: '/checker/modernisierung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Modernisierungs-Checker',
+    description: 'Prüfe deine Rechte bei angekündigter Modernisierung nach §559 BGB',
+    url: 'https://portal.fintutto.cloud/checker/modernisierung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -106,6 +123,7 @@ export default function ModernisierungChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -144,7 +162,7 @@ export default function ModernisierungChecker() {
       icon={<Building className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={formData.wohnflaeche > 0} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={formData.wohnflaeche > 0} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Grunddaten</h2>
           <div className="space-y-4">
             <CheckerField name="wohnflaeche" label="Wohnflaeche" type="area" value={formData.wohnflaeche} onChange={(v) => updateField('wohnflaeche', v)} required />
