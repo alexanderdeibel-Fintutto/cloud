@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { Receipt, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
+import RechnerLayout from '@/components/rechner/RechnerLayout'
 
 const kostenarten = [
   'Grundsteuer', 'Wasserversorgung', 'Entwässerung', 'Heizung', 'Warmwasser',
@@ -61,29 +61,12 @@ export default function NebenkostenRechner() {
   }
 
   return (
-    <div>
-      <section className="gradient-vermieter py-12">
-        <div className="container">
-          <Link to="/rechner" className="inline-flex items-center gap-1 text-white/80 hover:text-white mb-4 text-sm">
-            <ArrowLeft className="h-4 w-4" />
-            Alle Rechner
-          </Link>
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
-              <Receipt className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Nebenkosten-Rechner</h1>
-              <p className="text-white/80">Nebenkostenabrechnung berechnen</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-8">
-        <div className="container">
-          <div className="grid lg:grid-cols-[1fr_400px] gap-8">
-            <div className="space-y-6">
+    <RechnerLayout
+      title="Nebenkosten-Rechner"
+      description="Nebenkostenabrechnung berechnen"
+      icon={<Receipt className="h-8 w-8 text-white" />}
+    >
+      <div className="space-y-6">
               <Card>
                 <CardHeader><CardTitle>Grunddaten</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
@@ -173,10 +156,7 @@ export default function NebenkostenRechner() {
                   </CardContent>
                 </Card>
               )}
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </RechnerLayout>
   )
 }
