@@ -216,13 +216,3 @@ export function buildAffiliateUrl(partner: AffiliatePartner, source: string): st
   return url.toString()
 }
 
-// Kategorie-Icons (für die AffiliateCard)
-export const CATEGORY_ICONS: Record<AffiliatePartner['category'], string> = {
-  rechtsschutz: 'Shield',
-  kaution: 'Banknote',
-  umzug: 'Truck',
-  finanzierung: 'Building2',
-  pruefung: 'Search',
-  handwerker: 'Wrench',
-  immobilien: 'Home',
-}

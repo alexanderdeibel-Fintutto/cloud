@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+
 import { Check, Zap, Shield, Users, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -76,11 +76,7 @@ export default function PricingPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="animate-fade-in">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Waehlen Sie Ihren Plan
             </h1>
@@ -88,15 +84,10 @@ export default function PricingPage() {
               Pruefen Sie Ihre Mieterrechte mit unseren leistungsstarken Checkern.
               Starten Sie kostenlos und upgraden Sie bei Bedarf.
             </p>
-          </motion.div>
+          </div>
 
           {/* Billing Toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-8 flex justify-center items-center gap-4"
-          >
+          <div className="animate-fade-in mt-8 flex justify-center items-center gap-4" style={{ animationDelay: '0.1s' }}>
             <button
               onClick={() => setBillingInterval('monthly')}
               className={cn(
@@ -122,17 +113,16 @@ export default function PricingPage() {
                 -17%
               </span>
             </button>
-          </motion.div>
+          </div>
         </div>
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {PRICING_TIERS.map((tier, index) => (
-            <motion.div
+            <div
               key={tier.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
+              className="animate-fade-in"
+              style={{ animationDelay: `${0.1 * (index + 1)}s` }}
             >
               <Card
                 className={cn(
@@ -211,16 +201,14 @@ export default function PricingPage() {
                   </Button>
                 </CardFooter>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* FAQ Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-16 text-center"
+        <div
+          className="animate-fade-in mt-16 text-center"
+          style={{ animationDelay: '0.6s' }}
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Haeufig gestellte Fragen
@@ -251,14 +239,12 @@ export default function PricingPage() {
               </CardContent>
             </Card>
           </div>
-        </motion.div>
+        </div>
 
         {/* Trust Badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="mt-12 text-center"
+        <div
+          className="animate-fade-in mt-12 text-center"
+          style={{ animationDelay: '0.7s' }}
         >
           <div className="flex flex-wrap justify-center gap-8 items-center text-gray-400">
             <div className="flex items-center gap-2">
@@ -274,7 +260,7 @@ export default function PricingPage() {
               <span className="text-sm">Sofortige Aktivierung</span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface CheckerStepProps {
   children: ReactNode
@@ -27,13 +26,7 @@ export default function CheckerStep({
   showNext = true,
 }: CheckerStepProps) {
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.2 }}
-      >
+    <div className="animate-slide-in-right">
         <div className="space-y-6">{children}</div>
 
         <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
@@ -66,7 +59,6 @@ export default function CheckerStep({
             </Button>
           )}
         </div>
-      </motion.div>
-    </AnimatePresence>
+    </div>
   )
 }

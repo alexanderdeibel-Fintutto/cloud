@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Building } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+import { getFormulareAppUrl } from '@/lib/checker-utils'
+import { formatCurrency } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -17,40 +16,22 @@ interface FormData {
   massnahmenBeschrieben: boolean
 }
 
+const initialFormData: FormData = {
+  aktuelleKaltmiete: 0,
+  wohnflaeche: 0,
+  modernisierungskosten: 0,
+  modernisierungsart: '',
+  ankuendigungErhalten: '',
+  ankuendigungsfrist: true,
+  massnahmenBeschrieben: true,
+}
+
 export default function ModernisierungChecker() {
-  const navigate = useNavigate()
-  const { startSession, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    aktuelleKaltmiete: 0,
-    wohnflaeche: 0,
-    modernisierungskosten: 0,
-    modernisierungsart: '',
-    ankuendigungErhalten: '',
-    ankuendigungsfrist: true,
-    massnahmenBeschrieben: true,
-  })
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
-      return
-    }
-    await startSession('modernisierung', 2)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'modernisierung', totalSteps: 2, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -105,28 +86,13 @@ export default function ModernisierungChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
-    } catch (error) {
+    } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => navigate(result?.formRedirectUrl ?? '/formulare')
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      aktuelleKaltmiete: 0, wohnflaeche: 0, modernisierungskosten: 0, modernisierungsart: '',
-      ankuendigungErhalten: '', ankuendigungsfrist: true, massnahmenBeschrieben: true,
-    })
-    initSession()
   }
 
   if (result) {

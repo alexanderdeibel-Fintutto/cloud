@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
 import { getOtherApps } from '@fintutto/shared'
 import { Sparkles } from 'lucide-react'
+ claude/review-repo-setup-0rnoo
+
 
 const ecosystemApps = getOtherApps('mieter-checker')
+ main
 
 const footerLinks = {
   rechner: [
@@ -26,6 +29,13 @@ const footerLinks = {
     { name: 'Selbstauskunft', href: '/formulare/selbstauskunft' },
     { name: 'Mieterhoehung', href: '/formulare/mieterhoehung' },
   ],
+  fittutto: [
+    { name: 'Dashboard', href: '/fittutto/dashboard' },
+    { name: 'Training', href: '/fittutto/workout' },
+    { name: 'Ernaehrung', href: '/fittutto/ernaehrung' },
+    { name: 'Koerper-Tracking', href: '/fittutto/koerper' },
+    { name: 'KI-Coach', href: '/fittutto/coach' },
+  ],
   oekosystem: [
     { name: 'Alle Apps', href: '/apps' },
     { name: 'Referral-Programm', href: '/referral' },
@@ -43,7 +53,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-12">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-portal">
@@ -99,6 +109,19 @@ export default function Footer() {
           </div>
 
           <div>
+            <h3 className="font-semibold mb-3">FitTutto</h3>
+            <ul className="space-y-2">
+              {footerLinks.fittutto.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
             <h3 className="font-semibold mb-3">Oekosystem</h3>
             <ul className="space-y-2">
               {footerLinks.oekosystem.map((link) => (
@@ -125,6 +148,8 @@ export default function Footer() {
           </div>
         </div>
 
+ claude/review-repo-setup-0rnoo
+
         {/* Ecosystem Apps */}
         <div className="border-t mt-8 pt-8">
           <p className="text-xs text-muted-foreground mb-3">Fintutto Oekosystem</p>
@@ -143,6 +168,7 @@ export default function Footer() {
           </div>
         </div>
 
+ main
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.

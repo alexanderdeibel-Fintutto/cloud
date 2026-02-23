@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Dumbbell, Save, Star, Crown } from 'lucide-react'
+import { Check, Dumbbell, Save, Star, Crown, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { FITTUTTO_PRICING_TIERS, FitTuttoPricingTier } from '@/lib/stripe-fittutto'
 import { useAuth } from '@/contexts/AuthContext'
+import { useFitness } from '@/contexts/FitnessContext'
 import { toast } from 'sonner'
 import { cn, formatCurrency } from '@/lib/utils'
 
@@ -15,10 +16,18 @@ const TIER_ICONS: Record<string, typeof Dumbbell> = {
   premium: Crown,
 }
 
+// Try multiple API base URLs: local first, then portal domain fallback
+const API_ENDPOINTS = [
+  '/api/create-checkout-session',
+  'https://portal.fintutto.cloud/api/create-checkout-session',
+]
+
 export default function FitTuttoPricingPage() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly')
   const [loadingTier, setLoadingTier] = useState<string | null>(null)
-  const { user, profile } = useAuth()
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  const { user } = useAuth()
+  const { profile: fitnessProfile } = useFitness()
 
   const handleSubscribe = async (tier: FitTuttoPricingTier) => {
     if (tier.id === 'free') {
@@ -38,6 +47,7 @@ export default function FitTuttoPricingPage() {
     }
 
     setLoadingTier(tier.id)
+    setCheckoutError(null)
 
     try {
       const priceId = billingInterval === 'monthly' ? tier.monthlyPriceId : tier.yearlyPriceId
@@ -46,33 +56,57 @@ export default function FitTuttoPricingPage() {
         throw new Error('Kein Preis fuer diesen Plan gefunden')
       }
 
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId,
-          userId: user.id,
-          userEmail: user.email,
-          tierId: tier.id,
-          app: 'fittutto',
-        }),
+      const body = JSON.stringify({
+        priceId,
+        userId: user.id,
+        userEmail: user.email,
+        tierId: tier.id,
+        app: 'fittutto',
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.details || 'Checkout fehlgeschlagen')
+      let lastError: Error | null = null
+
+      for (const endpoint of API_ENDPOINTS) {
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+          })
+
+          if (!response.ok) {
+            let errorMsg = `HTTP ${response.status}`
+            try {
+              const errorData = await response.json()
+              errorMsg = errorData.details || errorData.error || errorMsg
+            } catch {
+              // Response not JSON (e.g. HTML 404 page)
+            }
+            throw new Error(errorMsg)
+          }
+
+          const data = await response.json()
+
+          if (data.url) {
+            window.location.href = data.url
+            return
+          } else {
+            throw new Error('Keine Checkout-URL erhalten')
+          }
+        } catch (err) {
+          lastError = err instanceof Error ? err : new Error('Unbekannter Fehler')
+          // Try next endpoint
+          continue
+        }
       }
 
-      const { url } = await response.json()
-
-      if (url) {
-        window.location.href = url
-      } else {
-        throw new Error('Keine Checkout-URL erhalten')
-      }
+      throw lastError || new Error('Alle API-Endpunkte fehlgeschlagen')
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unbekannter Fehler'
+      setCheckoutError(errorMsg)
       toast.error('Fehler beim Starten der Zahlung.', {
-        description: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        description: errorMsg,
+        duration: 8000,
       })
     } finally {
       setLoadingTier(null)
@@ -80,13 +114,18 @@ export default function FitTuttoPricingPage() {
   }
 
   const isCurrentPlan = (tier: FitTuttoPricingTier) => {
-    return profile?.tier === tier.id
+    return fitnessProfile?.subscriptionTier === tier.id
   }
 
-  const getButtonText = (tier: FitTuttoPricingTier) => {
+  const getButtonContent = (tier: FitTuttoPricingTier) => {
     if (isCurrentPlan(tier)) return 'Aktueller Plan'
     if (tier.id === 'free') return 'Kostenlos starten'
-    if (loadingTier === tier.id) return 'Wird geladen...'
+    if (loadingTier === tier.id) return (
+      <span className="flex items-center gap-2">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Wird geladen...
+      </span>
+    )
     return 'Jetzt starten'
   }
 
@@ -225,7 +264,7 @@ export default function FitTuttoPricingPage() {
                     </ul>
                   </CardContent>
 
-                  <CardFooter>
+                  <CardFooter className="flex-col gap-2">
                     <Button
                       variant={tier.highlighted ? 'fintutto' : 'outline'}
                       className={cn(
@@ -233,11 +272,17 @@ export default function FitTuttoPricingPage() {
                         tier.highlighted && 'bg-orange-500 hover:bg-orange-600'
                       )}
                       size="lg"
-                      disabled={isCurrentPlan(tier) || loadingTier === tier.id}
+                      disabled={isCurrentPlan(tier) || !!loadingTier}
                       onClick={() => handleSubscribe(tier)}
                     >
-                      {getButtonText(tier)}
+                      {getButtonContent(tier)}
                     </Button>
+                    {checkoutError && loadingTier === null && tier.id !== 'free' && !isCurrentPlan(tier) && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                        Checkout derzeit nicht verfuegbar. Bitte versuche es spaeter erneut.
+                      </p>
+                    )}
                   </CardFooter>
                 </Card>
               </motion.div>

@@ -15,13 +15,14 @@ export default defineConfig({
     host: true,
   },
   build: {
+    target: 'es2022',
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-ui': ['lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge', 'sonner'],
           'vendor-supabase': ['@supabase/supabase-js'],
-          'vendor-query': ['@tanstack/react-query'],
         },
       },
     },

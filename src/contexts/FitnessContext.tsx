@@ -1,11 +1,107 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { supabase } from '@/integrations/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { toast } from 'sonner'
 import {
   FitnessProfile, FitnessGoal, FitnessLevel, TrainingLocation,
   Gender, WorkoutSession, PersonalRecord, TrainingPlan,
-  MealEntry, BodyMeasurement,
+  MealEntry, BodyMeasurement, MealType, WorkoutExercise,
+  Equipment,
 } from '@/lib/fitness-types'
+
+// --- Internal DB row interfaces (snake_case) ---
+
+interface FitnessProfileRow {
+  id: string
+  user_id: string
+  display_name: string | null
+  gender: string | null
+  age: number | null
+  height_cm: number | null
+  weight_kg: number | null
+  target_weight_kg: number | null
+  fitness_goal: string | null
+  fitness_level: string | null
+  training_location: string | null
+  available_equipment: string[]
+  training_days_per_week: number
+  training_minutes_per_session: number
+  onboarding_completed: boolean
+  subscription_tier: string
+}
+
+interface WorkoutSessionRow {
+  id: string
+  user_id: string
+  plan_id: string | null
+  name: string
+  started_at: string
+  completed_at: string | null
+  duration_minutes: number
+  exercises: string | WorkoutExercise[]
+  total_volume: number
+  total_calories_burned: number | null
+  rating: number | null
+  mood: string | null
+  notes: string | null
+}
+
+interface TrainingPlanRow {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  goal: string | null
+  level: string | null
+  location: string | null
+  duration_weeks: number
+  days_per_week: number
+  workouts: string | Record<string, unknown>[]
+  is_active: boolean
+  is_template: boolean
+  created_at: string
+  updated_at: string
+}
+
+interface PersonalRecordRow {
+  id: string
+  exercise_id: string
+  exercise_name: string
+  weight: number
+  reps: number
+  achieved_at: string
+}
+
+interface MealEntryRow {
+  id: string
+  user_id: string
+  date: string
+  meal_type: MealType
+  name: string
+  calories: number
+  protein_g: number
+  carbs_g: number
+  fat_g: number
+  fiber_g: number | null
+  notes: string | null
+  created_at: string
+}
+
+interface BodyMeasurementRow {
+  id: string
+  user_id: string
+  date: string
+  weight_kg: number | null
+  body_fat_percent: number | null
+  chest_cm: number | null
+  waist_cm: number | null
+  hips_cm: number | null
+  biceps_cm: number | null
+  thigh_cm: number | null
+  calf_cm: number | null
+  notes: string | null
+  created_at: string
+}
 
 interface FitnessContextType {
   profile: FitnessProfile | null
@@ -80,10 +176,10 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           .single()
 
         if (!insertError && newProfile) {
-          setProfile(mapDbToProfile(newProfile))
+          setProfile(mapDbToProfile(newProfile as FitnessProfileRow))
         }
       } else if (data) {
-        setProfile(mapDbToProfile(data))
+        setProfile(mapDbToProfile(data as FitnessProfileRow))
       }
     } catch {
       // Silently handle - profile will be null
@@ -91,7 +187,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
     setLoading(false)
   }
 
-  const mapDbToProfile = (data: any): FitnessProfile => ({
+  const mapDbToProfile = (data: FitnessProfileRow): FitnessProfile => ({
     id: data.id,
     userId: data.user_id,
     displayName: data.display_name,
@@ -103,7 +199,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
     fitnessGoal: data.fitness_goal as FitnessGoal | null,
     fitnessLevel: data.fitness_level as FitnessLevel | null,
     trainingLocation: data.training_location as TrainingLocation | null,
-    availableEquipment: data.available_equipment || [],
+    availableEquipment: (data.available_equipment || []) as Equipment[],
     trainingDaysPerWeek: data.training_days_per_week || 3,
     trainingMinutesPerSession: data.training_minutes_per_session || 45,
     onboardingCompleted: data.onboarding_completed || false,
@@ -113,7 +209,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   const saveProfile = async (data: Partial<FitnessProfile>) => {
     if (!user || !profile) return
 
-    const dbData: Record<string, any> = {}
+    const dbData: Record<string, string | number | boolean | string[] | null> = {}
     if (data.displayName !== undefined) dbData.display_name = data.displayName
     if (data.gender !== undefined) dbData.gender = data.gender
     if (data.age !== undefined) dbData.age = data.age
@@ -160,9 +256,13 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
         notes: workout.notes,
       })
 
-    if (!error) {
-      setWorkoutHistory(prev => [workout, ...prev])
+    if (error) {
+      toast.error('Fehler beim Speichern des Trainings.')
+      return
     }
+
+    toast.success('Training gespeichert!')
+    setWorkoutHistory(prev => [workout, ...prev])
   }
 
   const loadWorkoutHistory = useCallback(async () => {
@@ -175,7 +275,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       .limit(50)
 
     if (data) {
-      setWorkoutHistory(data.map((d: any) => ({
+      setWorkoutHistory(data.map((d: WorkoutSessionRow) => ({
         id: d.id,
         userId: d.user_id,
         planId: d.plan_id,
@@ -187,9 +287,9 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
         totalVolume: Number(d.total_volume) || 0,
         caloriesBurned: d.total_calories_burned,
         rating: d.rating,
-        mood: d.mood,
+        mood: d.mood as WorkoutSession['mood'],
         notes: d.notes,
-      })))
+      }) as WorkoutSession))
     }
   }, [user])
 
@@ -216,14 +316,22 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       .from('fitness_training_plans')
       .upsert(dbPlan)
 
-    if (!error) {
-      await loadPlans()
+    if (error) {
+      toast.error('Fehler beim Speichern des Plans.')
+      return
     }
+
+    toast.success('Plan gespeichert!')
+    await loadPlans()
   }
 
   const deletePlan = async (planId: string) => {
     if (!user) return
-    await supabase.from('fitness_training_plans').delete().eq('id', planId).eq('user_id', user.id)
+    const { error } = await supabase.from('fitness_training_plans').delete().eq('id', planId).eq('user_id', user.id)
+    if (error) {
+      toast.error('Fehler beim Loeschen des Plans.')
+      return
+    }
     setPlans(prev => prev.filter(p => p.id !== planId))
     if (activePlan?.id === planId) setActivePlanState(null)
   }
@@ -246,14 +354,14 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       .order('updated_at', { ascending: false })
 
     if (data) {
-      const mapped = data.map((d: any): TrainingPlan => ({
+      const mapped = data.map((d: TrainingPlanRow): TrainingPlan => ({
         id: d.id,
         userId: d.user_id,
         name: d.name,
         description: d.description,
-        goal: d.goal,
-        level: d.level,
-        location: d.location,
+        goal: d.goal as FitnessGoal | null,
+        level: d.level as FitnessLevel | null,
+        location: d.location as TrainingLocation | null,
         durationWeeks: d.duration_weeks,
         daysPerWeek: d.days_per_week,
         days: typeof d.workouts === 'string' ? JSON.parse(d.workouts) : d.workouts || [],
@@ -293,6 +401,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
         weight,
         reps,
       })
+      toast.success('Neuer persoenlicher Rekord!')
       await loadPersonalRecords()
     }
 
@@ -308,7 +417,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       .order('achieved_at', { ascending: false })
 
     if (data) {
-      setPersonalRecords(data.map((d: any) => ({
+      setPersonalRecords(data.map((d: PersonalRecordRow) => ({
         id: d.id,
         exerciseId: d.exercise_id,
         exerciseName: d.exercise_name,
@@ -335,18 +444,24 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       fiber_g: meal.fiberG,
       notes: meal.notes,
     })
-    if (!error) {
-      setMeals(prev => {
-        const exists = prev.find(m => m.id === meal.id)
-        if (exists) return prev.map(m => m.id === meal.id ? meal : m)
-        return [...prev, meal]
-      })
+    if (error) {
+      toast.error('Fehler beim Speichern der Mahlzeit.')
+      return
     }
+    setMeals(prev => {
+      const exists = prev.find(m => m.id === meal.id)
+      if (exists) return prev.map(m => m.id === meal.id ? meal : m)
+      return [...prev, meal]
+    })
   }
 
   const deleteMeal = async (mealId: string) => {
     if (!user) return
-    await supabase.from('fitness_meal_entries').delete().eq('id', mealId).eq('user_id', user.id)
+    const { error } = await supabase.from('fitness_meal_entries').delete().eq('id', mealId).eq('user_id', user.id)
+    if (error) {
+      toast.error('Fehler beim Loeschen.')
+      return
+    }
     setMeals(prev => prev.filter(m => m.id !== mealId))
   }
 
@@ -360,7 +475,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       .order('created_at', { ascending: true })
 
     if (data) {
-      setMeals(data.map((d: any): MealEntry => ({
+      setMeals(data.map((d: MealEntryRow): MealEntry => ({
         id: d.id,
         userId: d.user_id,
         date: d.date,
@@ -380,7 +495,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   // --- Body Measurements ---
   const saveBodyMeasurement = async (m: BodyMeasurement) => {
     if (!user) return
-    const { error } = await supabase.from('fitness_daily_progress').upsert({
+    const { error } = await supabase.from('fitness_body_measurements').upsert({
       id: m.id,
       user_id: user.id,
       date: m.date,
@@ -394,26 +509,29 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       calf_cm: m.calfCm,
       notes: m.notes,
     })
-    if (!error) {
-      setBodyMeasurements(prev => {
-        const exists = prev.find(x => x.id === m.id)
-        if (exists) return prev.map(x => x.id === m.id ? m : x)
-        return [...prev, m].sort((a, b) => a.date.localeCompare(b.date))
-      })
+    if (error) {
+      toast.error('Fehler beim Speichern der Messung.')
+      return
     }
+    toast.success('Messung gespeichert!')
+    setBodyMeasurements(prev => {
+      const exists = prev.find(x => x.id === m.id)
+      if (exists) return prev.map(x => x.id === m.id ? m : x)
+      return [...prev, m].sort((a, b) => a.date.localeCompare(b.date))
+    })
   }
 
   const loadBodyMeasurements = useCallback(async () => {
     if (!user) return
     const { data } = await supabase
-      .from('fitness_daily_progress')
+      .from('fitness_body_measurements')
       .select('*')
       .eq('user_id', user.id)
       .order('date', { ascending: true })
       .limit(365)
 
     if (data) {
-      setBodyMeasurements(data.map((d: any): BodyMeasurement => ({
+      setBodyMeasurements(data.map((d: BodyMeasurementRow): BodyMeasurement => ({
         id: d.id,
         userId: d.user_id,
         date: d.date,

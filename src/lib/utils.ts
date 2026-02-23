@@ -11,6 +11,8 @@ export function formatCurrency(amount: number): string {
     currency: 'EUR',
   }).format(amount)
 }
+ claude/review-repo-setup-0rnoo
+
 
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('de-DE', {
@@ -91,3 +93,4 @@ export function getRechnerAppUrl(rechnerType: string, prefillData?: Record<strin
 
   return url.toString()
 }
+ main

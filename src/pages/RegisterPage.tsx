@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+
 import { Mail, Lock, User, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,12 +50,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center py-12 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
+      <div className="animate-fade-in w-full max-w-md">
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Konto erstellen</CardTitle>
@@ -156,7 +151,7 @@ export default function RegisterPage() {
             </CardFooter>
           </form>
         </Card>
-      </motion.div>
+      </div>
     </div>
   )
 }

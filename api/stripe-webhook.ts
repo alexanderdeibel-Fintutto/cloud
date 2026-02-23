@@ -83,6 +83,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           if (error) {
             console.error('Error updating user:', error)
           }
+
+          // Update FitTutto fitness_profiles if this is a FitTutto subscription
+          if (app === 'fittutto' && tierId) {
+            const { error: fitnessError } = await supabase
+              .from('fitness_profiles')
+              .update({
+                subscription_tier: tierId,
+                stripe_customer_id: session.customer as string,
+                stripe_subscription_id: session.subscription as string,
+              })
+              .eq('user_id', userId)
+
+            if (fitnessError) {
+              console.error('Error updating fitness_profiles:', fitnessError)
+            }
+          }
         } else if (customerEmail) {
           // Try to find user by email and update
           const { data: existingUser } = await supabase
@@ -102,6 +118,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 stripe_subscription_id: session.subscription as string,
               })
               .eq('id', existingUser.id)
+
+            // Update FitTutto fitness_profiles if this is a FitTutto subscription
+            if (app === 'fittutto' && tierId) {
+              await supabase
+                .from('fitness_profiles')
+                .update({
+                  subscription_tier: tierId,
+                  stripe_customer_id: session.customer as string,
+                  stripe_subscription_id: session.subscription as string,
+                })
+                .eq('user_id', existingUser.id)
+            }
           }
         }
 
@@ -136,6 +164,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 checks_limit: 1,
               })
               .eq('id', user.id)
+
+            // Also downgrade FitTutto tier
+            await supabase
+              .from('fitness_profiles')
+              .update({ subscription_tier: 'free' })
+              .eq('stripe_customer_id', customerId)
           }
         }
         break
@@ -161,6 +195,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               stripe_subscription_id: null,
             })
             .eq('id', user.id)
+
+          // Also downgrade FitTutto tier
+          await supabase
+            .from('fitness_profiles')
+            .update({ subscription_tier: 'free' })
+            .eq('stripe_customer_id', customerId)
         }
         break
       }
