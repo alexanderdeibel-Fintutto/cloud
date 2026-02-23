@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Key } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
+ claude/review-repo-setup-0rnoo
+import { getFormulareAppUrl } from '@/lib/checker-utils'
+import { formatCurrency } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
+
 import { getFormulareAppUrl, getRechnerAppUrl, formatCurrency } from '@/lib/utils'
+ main
 import { toast } from 'sonner'
 
 interface FormData {
@@ -19,42 +22,17 @@ interface FormData {
   protokollVorhanden: boolean
 }
 
+const initialFormData: FormData = {
+  kautionHoehe: 0, kaltmiete: 0, mietende: '', kautionZurueck: false,
+  teilbetragZurueck: 0, abzuege: '', abzugHoehe: 0, wohnungUebergeben: '', protokollVorhanden: true,
+}
+
 export default function KautionChecker() {
-  const navigate = useNavigate()
-  const { startSession, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    kautionHoehe: 0,
-    kaltmiete: 0,
-    mietende: '',
-    kautionZurueck: false,
-    teilbetragZurueck: 0,
-    abzuege: '',
-    abzugHoehe: 0,
-    wohnungUebergeben: '',
-    protokollVorhanden: true,
-  })
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
-      return
-    }
-    await startSession('kaution', 3)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'kaution', totalSteps: 3, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -63,14 +41,12 @@ export default function KautionChecker() {
       const violations: string[] = []
       let potentialSavings = 0
 
-      // Kautionshoehe pruefen (max 3 Kaltmieten)
       const maxKaution = formData.kaltmiete * 3
       if (formData.kautionHoehe > maxKaution) {
         violations.push(`Die Kaution von ${formatCurrency(formData.kautionHoehe)} ueberschreitet das Maximum von 3 Kaltmieten (${formatCurrency(maxKaution)}).`)
         potentialSavings += formData.kautionHoehe - maxKaution
       }
 
-      // Rueckgabefrist pruefen
       const mietende = new Date(formData.mietende)
       const heute = new Date()
       const monateVerstrichen = Math.floor((heute.getTime() - mietende.getTime()) / (1000 * 60 * 60 * 24 * 30))
@@ -80,7 +56,6 @@ export default function KautionChecker() {
         potentialSavings += formData.kautionHoehe - formData.teilbetragZurueck
       }
 
-      // Abzuege pruefen
       if (formData.abzuege === 'schoenheitsreparaturen') {
         violations.push('Abzuege fuer Schoenheitsreparaturen sind oft unwirksam, wenn die Klauseln im Mietvertrag unwirksam sind.')
         potentialSavings += formData.abzugHoehe
@@ -115,28 +90,13 @@ export default function KautionChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
-    } catch (error) {
+    } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => navigate(result?.formRedirectUrl ?? '/formulare')
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      kautionHoehe: 0, kaltmiete: 0, mietende: '', kautionZurueck: false,
-      teilbetragZurueck: 0, abzuege: '', abzugHoehe: 0, wohnungUebergeben: '', protokollVorhanden: true,
-    })
-    initSession()
   }
 
   if (result) {

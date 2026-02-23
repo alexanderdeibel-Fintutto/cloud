@@ -37,7 +37,6 @@ interface CheckerContextType {
   aiAdvice: Record<string, string>
   isLoadingAdvice: boolean
   startSession: (checkerType: CheckerType, totalSteps: number) => Promise<string>
-  updateSessionData: (data: Record<string, unknown>) => void
   setCurrentStep: (step: number) => void
   completeSession: (result: CheckerResult) => Promise<string>
   getAIAdvice: (fieldKey: string, context: Record<string, unknown>) => Promise<string>
@@ -118,22 +117,6 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
     setCurrentSession(session)
     setAiAdvice({})
     return data.id
-  }
-
-  const updateSessionData = (data: Record<string, unknown>) => {
-    if (!currentSession) return
-
-    const updatedSession = {
-      ...currentSession,
-      data: { ...currentSession.data, ...data },
-    }
-    setCurrentSession(updatedSession)
-
-    // Persist to Supabase
-    supabase
-      .from('checker_sessions')
-      .update({ session_data: updatedSession.data as object })
-      .eq('id', currentSession.id)
   }
 
   const setCurrentStep = (step: number) => {
@@ -269,7 +252,6 @@ export function CheckerProvider({ children }: { children: ReactNode }) {
         aiAdvice,
         isLoadingAdvice,
         startSession,
-        updateSessionData,
         setCurrentStep,
         completeSession,
         getAIAdvice,

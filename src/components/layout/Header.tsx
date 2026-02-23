@@ -42,6 +42,7 @@ export default function Header() {
           </div>
         </Link>
 
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
           {navigation.map((item) => (
             <Link
@@ -56,6 +57,31 @@ export default function Header() {
             </Link>
           ))}
         </div>
+
+ claude/review-repo-setup-0rnoo
+        {/* Desktop Auth */}
+        <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <div className="flex items-center gap-3">
+              <Link to="/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+                <User className="h-4 w-4" />
+                <span className="text-sm">{profile?.name || user.email}</span>
+              </Link>
+              {profile && (
+                <span className="text-xs bg-accent text-accent-foreground px-2 py-1 rounded-full">
+                  {profile.checksUsed}/{profile.checksLimit === -1 ? '∞' : profile.checksLimit}
+                </span>
+              )}
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Anmelden</Link>
+              </Button>
+              <Button className="gradient-portal text-white border-0" size="sm" asChild>
 
         {/* Search + Auth Section */}
         <div className="hidden md:flex items-center space-x-4">
@@ -90,6 +116,7 @@ export default function Header() {
                 <Link to="/login">Anmelden</Link>
               </Button>
               <Button variant="fintutto" asChild>
+ main
                 <Link to="/register">Kostenlos starten</Link>
               </Button>
             </div>
@@ -102,6 +129,7 @@ export default function Header() {
         </button>
       </nav>
 
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="container py-4 space-y-2">
@@ -144,8 +172,13 @@ export default function Header() {
                   <User className="h-5 w-5" />
                   <span>{profile?.name || user.email}</span>
                 </Link>
+ claude/review-repo-setup-0rnoo
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setMobileMenuOpen(false) }}>
+                  <LogOut className="h-4 w-4 mr-2" />
+
                 <Button variant="ghost" size="sm" className="w-full" onClick={signOut}>
                   <LogOut className="w-4 h-4 mr-2" />
+ main
                   Abmelden
                 </Button>
               </div>

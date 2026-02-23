@@ -22,42 +22,12 @@
     --destructive-foreground: 0 0% 100%;
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 0%;
     --border: 220 13% 87%;
     --input: 220 13% 87%;
     --ring: 270 40% 45%;
     --radius: 0.625rem;
   }
 
-  .dark {
-    --background: 260 20% 8%;
-    --foreground: 0 0% 95%;
-    --card: 260 20% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 260 20% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 270 50% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 20% 25%;
-    --secondary-foreground: 0 0% 90%;
-    --muted: 260 15% 18%;
-    --muted-foreground: 220 10% 60%;
-    --accent: 270 30% 25%;
-    --accent-foreground: 270 50% 75%;
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 0%;
-    --border: 260 15% 20%;
-    --input: 260 15% 20%;
-    --ring: 270 50% 55%;
-  }
-}
-
-@layer base {
   * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
@@ -95,12 +65,9 @@
     background-clip: text;
   }
 
-  .rechner-card { @apply bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow; }
   .result-positive { @apply bg-success/10 border-success/30 text-success; }
   .result-negative { @apply bg-destructive/10 border-destructive/30 text-destructive; }
   .result-neutral { @apply bg-muted border-border text-muted-foreground; }
-  .form-section { @apply bg-card rounded-xl border border-border p-6 space-y-4; }
-  .form-section-title { @apply text-lg font-semibold text-foreground flex items-center gap-2; }
   .stat-value { @apply text-3xl font-bold text-foreground; }
   .stat-label { @apply text-sm text-muted-foreground; }
   .nav-link { @apply text-sm font-medium text-foreground/80 hover:text-foreground transition-colors; }
@@ -108,15 +75,6 @@
 }
 
 @layer utilities {
-  .checker-card {
-    @apply bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-all duration-300 hover:shadow-xl hover:border-primary/20;
-  }
-  .checker-input {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
-  }
-  .checker-button {
-    @apply px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors;
-  }
   .ai-hint {
     @apply bg-blue-50 border-l-4 border-primary p-4 rounded-r-lg text-sm text-gray-700;
   }
@@ -131,6 +89,5 @@
   button { display: none !important; }
   a { text-decoration: none; color: black; }
   h1, h2, h3 { page-break-after: avoid; }
-  .form-section { border: 1px solid #ccc; page-break-inside: avoid; box-shadow: none !important; }
   @page { margin: 2cm; }
 }

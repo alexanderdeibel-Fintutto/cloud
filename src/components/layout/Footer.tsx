@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
 import { getOtherApps } from '@fintutto/shared'
 import { Sparkles } from 'lucide-react'
+ claude/review-repo-setup-0rnoo
+
 
 const ecosystemApps = getOtherApps('mieter-checker')
+ main
 
 const footerLinks = {
   rechner: [
@@ -149,6 +152,8 @@ export default function Footer() {
           </div>
         </div>
 
+ claude/review-repo-setup-0rnoo
+
         {/* Ecosystem Apps */}
         <div className="border-t mt-8 pt-8">
           <p className="text-xs text-muted-foreground mb-3">Fintutto Oekosystem</p>
@@ -167,6 +172,7 @@ export default function Footer() {
           </div>
         </div>
 
+ main
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.

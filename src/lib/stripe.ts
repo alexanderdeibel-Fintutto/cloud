@@ -71,35 +71,3 @@ export const PRICING_TIERS: PricingTier[] = [
   },
 ]
 
-export function getTierByChecks(checksUsed: number): PricingTier {
-  const tier = PRICING_TIERS.find(t => {
-    if (t.checksPerMonth === 'unlimited') return true
-    return checksUsed < t.checksPerMonth
-  })
-  return tier || PRICING_TIERS[0]
-}
-
-export function getStripePublishableKey(): string {
-  return import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ''
-}
-
-export async function createCheckoutSession(priceId: string, successUrl: string, cancelUrl: string): Promise<string> {
-  const response = await fetch('/api/create-checkout-session', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      priceId,
-      successUrl,
-      cancelUrl,
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to create checkout session')
-  }
-
-  const { url } = await response.json()
-  return url
-}

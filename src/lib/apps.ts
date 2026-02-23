@@ -262,12 +262,3 @@ export const FINTUTTO_APPS: AppInfo[] = [
   },
 ]
 
-// Generate a referral URL for a specific app
-export function getReferralUrl(app: AppInfo, referralCode: string): string {
-  return `${app.registerUrl}?ref=${referralCode}`
-}
-
-// Get an app by ID
-export function getAppById(id: string): AppInfo | undefined {
-  return FINTUTTO_APPS.find((app) => app.id === id)
-}

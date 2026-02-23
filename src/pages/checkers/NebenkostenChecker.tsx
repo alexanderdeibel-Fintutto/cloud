@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Receipt } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
+ claude/review-repo-setup-0rnoo
+import { getFormulareAppUrl } from '@/lib/checker-utils'
+import { formatCurrency } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
+
 import { getFormulareAppUrl, getRechnerAppUrl, formatCurrency } from '@/lib/utils'
+ main
 import { toast } from 'sonner'
 
 interface FormData {
@@ -22,58 +25,27 @@ interface FormData {
   sonstigeKosten: number
 }
 
+const initialFormData: FormData = {
+  abrechnungsjahr: '',
+  abrechnungErhaltAm: '',
+  wohnflaeche: 0,
+  gesamtNebenkosten: 0,
+  vorauszahlungen: 0,
+  nachzahlung: 0,
+  heizkosten: 0,
+  wasserkosten: 0,
+  muellkosten: 0,
+  hausmeisterkosten: 0,
+  verwaltungskosten: 0,
+  sonstigeKosten: 0,
+}
+
 export default function NebenkostenChecker() {
-  const navigate = useNavigate()
-  const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    abrechnungsjahr: '',
-    abrechnungErhaltAm: '',
-    wohnflaeche: 0,
-    gesamtNebenkosten: 0,
-    vorauszahlungen: 0,
-    nachzahlung: 0,
-    heizkosten: 0,
-    wasserkosten: 0,
-    muellkosten: 0,
-    hausmeisterkosten: 0,
-    verwaltungskosten: 0,
-    sonstigeKosten: 0,
-  })
-
-  const totalSteps = 3
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Sie haben Ihr Limit erreicht.')
-      navigate('/')
-      return
-    }
-    await startSession('nebenkosten', totalSteps)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    updateSessionData({ [field]: value })
-  }
-
-  const handleNext = () => {
-    setStep(step + 1)
-    setCurrentStep(step + 1)
-  }
-
-  const handlePrevious = () => {
-    setStep(step - 1)
-    setCurrentStep(step - 1)
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'nebenkosten', totalSteps: 3, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -142,40 +114,13 @@ export default function NebenkostenChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
     } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => {
-    navigate(result?.formRedirectUrl ?? '/formulare')
-  }
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      abrechnungsjahr: '',
-      abrechnungErhaltAm: '',
-      wohnflaeche: 0,
-      gesamtNebenkosten: 0,
-      vorauszahlungen: 0,
-      nachzahlung: 0,
-      heizkosten: 0,
-      wasserkosten: 0,
-      muellkosten: 0,
-      hausmeisterkosten: 0,
-      verwaltungskosten: 0,
-      sonstigeKosten: 0,
-    })
-    initSession()
   }
 
   if (result) {
@@ -204,7 +149,7 @@ export default function NebenkostenChecker() {
     >
       {step === 1 && (
         <CheckerStep
-          onNext={handleNext}
+          onNext={() => setStep(2)}
           canProceed={!!formData.abrechnungsjahr && !!formData.abrechnungErhaltAm && formData.wohnflaeche > 0}
           showPrevious={false}
         >
@@ -248,7 +193,7 @@ export default function NebenkostenChecker() {
       )}
 
       {step === 2 && (
-        <CheckerStep onNext={handleNext} onPrevious={handlePrevious} canProceed={formData.gesamtNebenkosten > 0}>
+        <CheckerStep onNext={() => setStep(3)} onPrevious={() => setStep(1)} canProceed={formData.gesamtNebenkosten > 0}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Kosten</h2>
 
           <div className="space-y-4">
@@ -282,7 +227,7 @@ export default function NebenkostenChecker() {
       )}
 
       {step === 3 && (
-        <CheckerStep onPrevious={handlePrevious} onNext={analyzeResult} nextLabel="Jetzt pruefen" isLoading={isLoading}>
+        <CheckerStep onPrevious={() => setStep(2)} onNext={analyzeResult} nextLabel="Jetzt pruefen" isLoading={isLoading}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Einzelne Kostenpositionen</h2>
           <p className="text-gray-600 mb-6">Optional: Geben Sie die einzelnen Positionen ein fuer eine detailliertere Analyse.</p>
 
