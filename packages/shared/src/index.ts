@@ -276,6 +276,9 @@ export { CrossAppRecommendations } from './components/CrossAppRecommendations'
 // Re-export EcosystemStatsBar
 export { EcosystemStatsBar } from './components/EcosystemStatsBar'
 
+// Re-export AppSwitcher
+export { AppSwitcher } from './components/AppSwitcher'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 
