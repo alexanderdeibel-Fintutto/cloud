@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Edit2, TrendingDown, TrendingUp, BarChart3, Zap, Flame, Droplets, Thermometer, Loader2 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,37 +12,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useBuildings } from '@/hooks/useBuildings';
+import { useProfile } from '@/hooks/useProfile';
+import { useToast } from '@/hooks/use-toast';
 import { MeterType, METER_TYPE_LABELS, METER_TYPE_UNITS, METER_TYPE_PRICE_DEFAULTS, calculateAnnualConsumption, formatNumber, formatEuro } from '@/types/database';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-// Tariff data stored in localStorage
 interface Tariff {
   id: string;
+  organization_id: string;
   name: string;
   provider: string;
   meter_type: MeterType;
-  price_per_unit: number; // EUR per kWh/m³
-  base_price_monthly: number; // EUR/month
+  price_per_unit: number;
+  base_price_monthly: number;
   is_ht_nt: boolean;
-  ht_price?: number;
-  nt_price?: number;
+  ht_price?: number | null;
+  nt_price?: number | null;
   valid_from: string;
-  valid_to?: string;
+  valid_to?: string | null;
   is_active: boolean;
   created_at: string;
-}
-
-const STORAGE_KEY = 'fintutto_tariffs';
-
-function loadTariffs(): Tariff[] {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch { return []; }
-}
-
-function saveTariffs(tariffs: Tariff[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tariffs));
+  updated_at: string;
 }
 
 const typeIcons: Partial<Record<string, typeof Zap>> = {
@@ -52,7 +44,56 @@ const typeIcons: Partial<Record<string, typeof Zap>> = {
 export default function TariffManager() {
   const navigate = useNavigate();
   const { buildings } = useBuildings();
-  const [tariffs, setTariffs] = useState<Tariff[]>(loadTariffs);
+  const { profile } = useProfile();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const organizationId = profile?.organization_id;
+
+  // Fetch tariffs from Supabase
+  const { data: tariffs = [], isLoading } = useQuery({
+    queryKey: ['tariffs', organizationId],
+    queryFn: async (): Promise<Tariff[]> => {
+      if (!organizationId) return [];
+      const { data, error } = await supabase
+        .from('tariffs')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as Tariff[];
+    },
+    enabled: !!organizationId,
+  });
+
+  // Create tariff mutation
+  const createTariff = useMutation({
+    mutationFn: async (tariff: Omit<Tariff, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase.from('tariffs').insert(tariff).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tariffs'] }),
+  });
+
+  // Update tariff mutation
+  const updateTariff = useMutation({
+    mutationFn: async ({ id, ...data }: Partial<Tariff> & { id: string }) => {
+      const { error } = await supabase.from('tariffs').update(data).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tariffs'] }),
+  });
+
+  // Delete tariff mutation
+  const deleteTariff = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('tariffs').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tariffs'] }),
+  });
+
   const [showAdd, setShowAdd] = useState(false);
   const [editingTariff, setEditingTariff] = useState<Tariff | null>(null);
 
@@ -162,42 +203,63 @@ export default function TariffManager() {
     setShowAdd(true);
   };
 
-  const handleSave = () => {
-    const tariff: Tariff = {
-      id: editingTariff?.id || crypto.randomUUID(),
+  const handleSave = async () => {
+    if (!organizationId) return;
+
+    const tariffData = {
+      organization_id: organizationId,
       name: name.trim(),
       provider: provider.trim(),
       meter_type: meterType,
       price_per_unit: parseFloat(pricePerUnit) || 0,
       base_price_monthly: parseFloat(basePriceMonthly) || 0,
       is_ht_nt: isHtNt,
-      ht_price: isHtNt ? parseFloat(htPrice) || undefined : undefined,
-      nt_price: isHtNt ? parseFloat(ntPrice) || undefined : undefined,
+      ht_price: isHtNt ? parseFloat(htPrice) || null : null,
+      nt_price: isHtNt ? parseFloat(ntPrice) || null : null,
       valid_from: validFrom,
       is_active: editingTariff?.is_active ?? true,
-      created_at: editingTariff?.created_at || new Date().toISOString(),
     };
 
-    const updated = editingTariff
-      ? tariffs.map(t => t.id === editingTariff.id ? tariff : t)
-      : [...tariffs, tariff];
-    setTariffs(updated);
-    saveTariffs(updated);
-    setShowAdd(false);
-    resetForm();
+    try {
+      if (editingTariff) {
+        await updateTariff.mutateAsync({ id: editingTariff.id, ...tariffData });
+      } else {
+        await createTariff.mutateAsync(tariffData);
+      }
+      setShowAdd(false);
+      resetForm();
+    } catch {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Tarif konnte nicht gespeichert werden.' });
+    }
   };
 
-  const handleDelete = (id: string) => {
-    const updated = tariffs.filter(t => t.id !== id);
-    setTariffs(updated);
-    saveTariffs(updated);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTariff.mutateAsync(id);
+    } catch {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Tarif konnte nicht gelöscht werden.' });
+    }
   };
 
-  const toggleActive = (id: string) => {
-    const updated = tariffs.map(t => t.id === id ? { ...t, is_active: !t.is_active } : t);
-    setTariffs(updated);
-    saveTariffs(updated);
+  const toggleActive = async (id: string) => {
+    const tariff = tariffs.find(t => t.id === id);
+    if (!tariff) return;
+    try {
+      await updateTariff.mutateAsync({ id, is_active: !tariff.is_active });
+    } catch {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Status konnte nicht geändert werden.' });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -379,8 +441,12 @@ export default function TariffManager() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { resetForm(); setShowAdd(false); }}>Abbrechen</Button>
-            <Button onClick={handleSave} disabled={!name.trim() || !provider.trim()}>
-              {editingTariff ? 'Speichern' : 'Anlegen'}
+            <Button onClick={handleSave} disabled={!name.trim() || !provider.trim() || createTariff.isPending || updateTariff.isPending}>
+              {(createTariff.isPending || updateTariff.isPending) ? (
+                <><Loader2 className="w-4 h-4 mr-1 animate-spin" />Speichern...</>
+              ) : (
+                editingTariff ? 'Speichern' : 'Anlegen'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
