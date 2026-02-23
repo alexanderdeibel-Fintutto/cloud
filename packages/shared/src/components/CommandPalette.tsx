@@ -230,7 +230,14 @@ export function CommandPalette({ items, onSelect, placeholder = 'Tool suchen...'
                       }}
                     >
                       {item.icon && <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>}
-                      <span style={{ fontWeight: isSelected ? 600 : 400 }}>{item.title}</span>
+                      <span style={{ fontWeight: isSelected ? 600 : 400, flex: 1 }}>{item.title}</span>
+                      {item.external && (
+                        <span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <svg style={{ width: '0.75rem', height: '0.75rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </span>
+                      )}
                     </div>
                   )
                 })}
