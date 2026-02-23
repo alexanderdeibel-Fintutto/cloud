@@ -32,15 +32,42 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
   const [targetLang, setTargetLang] = useState('en')
   const [sourceText, setSourceText] = useState('')
   const [translatedText, setTranslatedText] = useState('')
+  const [matchScore, setMatchScore] = useState<number | null>(null)
+  const [provider, setProvider] = useState<string | undefined>(undefined)
   const [isTranslating, setIsTranslating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [autoSpeak, setAutoSpeak] = useState(() => {
+    const saved = localStorage.getItem('translator-auto-speak')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [hdVoice, setHdVoice] = useState(() => {
+    return localStorage.getItem('translator-hd-voice') === 'true'
+  })
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const autoSpeakRef = useRef(autoSpeak)
+  const targetLangRef = useRef(targetLang)
+
+  // Keep refs in sync
+  autoSpeakRef.current = autoSpeak
+  targetLangRef.current = targetLang
 
   const { isListening, isSupported: micSupported, error: micError, startListening, stopListening } = useSpeechRecognition()
   const sourceSpeech = useSpeechSynthesis()
   const targetSpeech = useSpeechSynthesis()
+  const targetSpeakRef = useRef(targetSpeech.speak)
+  targetSpeakRef.current = targetSpeech.speak
+
+  // Sync HD voice quality to both speech hooks
+  useEffect(() => {
+    const quality = hdVoice ? 'chirp3hd' as const : 'neural2' as const
+    sourceSpeech.setVoiceQuality(quality)
+    targetSpeech.setVoiceQuality(quality)
+  }, [hdVoice, sourceSpeech.setVoiceQuality, targetSpeech.setVoiceQuality])
+
+  // Show which TTS engine was last used
+  const activeTtsEngine = sourceSpeech.ttsEngine || targetSpeech.ttsEngine
 
   // Handle initial text from quick phrases or history
   useEffect(() => {
@@ -65,6 +92,14 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     try {
       const result = await translateText(text, sourceLang, targetLang)
       setTranslatedText(result.translatedText)
+      setMatchScore(result.match)
+      setProvider(result.provider)
+
+      // Auto-speak via refs to avoid re-render dependency loop
+      if (autoSpeakRef.current && result.translatedText) {
+        const lang = getLanguageByCode(targetLangRef.current)
+        targetSpeakRef.current(result.translatedText, lang?.speechCode || targetLangRef.current)
+      }
 
       addEntry({
         sourceText: text,
@@ -108,7 +143,15 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     setTranslatedText(sourceText)
   }
 
+  const [micWarning, setMicWarning] = useState<string | null>(null)
+
   const handleMicToggle = () => {
+    if (!micSupported) {
+      setMicWarning('Spracheingabe wird nur in Chrome und Edge unterstützt. Bitte wechseln Sie den Browser.')
+      setTimeout(() => setMicWarning(null), 5000)
+      return
+    }
+    setMicWarning(null)
     if (isListening) {
       stopListening()
     } else {
@@ -144,6 +187,22 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
     }
   }
 
+  const toggleAutoSpeak = () => {
+    setAutoSpeak(prev => {
+      const next = !prev
+      localStorage.setItem('translator-auto-speak', String(next))
+      return next
+    })
+  }
+
+  const toggleHdVoice = () => {
+    setHdVoice(prev => {
+      const next = !prev
+      localStorage.setItem('translator-hd-voice', String(next))
+      return next
+    })
+  }
+
   const clearAll = () => {
     setSourceText('')
     setTranslatedText('')
@@ -168,6 +227,25 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
           <ArrowRightLeft className="h-4 w-4" />
         </Button>
         <LanguageSelector value={targetLang} onChange={setTargetLang} label="Nach" />
+        <Button
+          variant={autoSpeak ? 'default' : 'outline'}
+          size="sm"
+          onClick={toggleAutoSpeak}
+          className="mb-0.5 shrink-0 gap-1.5"
+          title={autoSpeak ? 'Auto-Vorlesen aktiv' : 'Auto-Vorlesen aus'}
+        >
+          {autoSpeak ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+          <span className="text-xs">Auto</span>
+        </Button>
+        <Button
+          variant={hdVoice ? 'default' : 'outline'}
+          size="sm"
+          onClick={toggleHdVoice}
+          className="mb-0.5 shrink-0 gap-1.5"
+          title={hdVoice ? 'HD-Stimme aktiv (Chirp 3 HD)' : 'Standard-Stimme (Neural2)'}
+        >
+          <span className="text-xs">{hdVoice ? 'HD' : 'SD'}</span>
+        </Button>
       </div>
 
       {/* Translation Cards */}
@@ -180,17 +258,15 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
                 {sourceLangData?.flag} {sourceLangData?.name}
               </span>
               <div className="flex items-center gap-1">
-                {micSupported && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleMicToggle}
-                    className={isListening ? 'text-destructive pulse-mic' : ''}
-                    title={isListening ? 'Aufnahme stoppen' : 'Spracheingabe'}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleMicToggle}
+                  className={isListening ? 'text-destructive pulse-mic' : !micSupported ? 'opacity-50' : ''}
+                  title={!micSupported ? 'Spracheingabe (nur in Chrome/Edge verfügbar)' : isListening ? 'Aufnahme stoppen' : 'Spracheingabe'}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
                 {sourceSpeech.isSupported && sourceText && (
                   <Button
                     variant="ghost"
@@ -200,6 +276,11 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
                   >
                     {sourceSpeech.isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                   </Button>
+                )}
+                {activeTtsEngine && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${activeTtsEngine === 'cloud' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                    {activeTtsEngine === 'cloud' ? '☁ Cloud' : '🖥 Browser'}
+                  </span>
                 )}
                 {sourceText && (
                   <Button variant="ghost" size="icon" onClick={clearAll} title="Löschen">
@@ -225,8 +306,8 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
                   Aufnahme läuft...
                 </span>
               )}
-              {micError && (
-                <span className="text-xs text-destructive">{micError}</span>
+              {(micError || micWarning) && (
+                <span className="text-xs text-destructive">{micError || micWarning}</span>
               )}
             </div>
           </div>
@@ -283,6 +364,24 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
               <span className="text-xs text-muted-foreground">
                 {translatedText.length} Zeichen
               </span>
+              <div className="flex items-center gap-2">
+                {provider && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    provider === 'google' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {provider === 'google' ? 'Google' : provider === 'libre' ? 'LibreTranslate' : 'MyMemory'}
+                  </span>
+                )}
+                {matchScore !== null && matchScore > 0 && translatedText && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                    matchScore >= 0.8 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                    matchScore >= 0.5 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                    {Math.round(matchScore * 100)}%
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </Card>

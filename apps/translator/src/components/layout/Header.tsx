@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
   { label: 'Übersetzer', path: '/' },
+  { label: 'Live', path: '/live' },
   { label: 'Info', path: '/info' },
 ]
 
