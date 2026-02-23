@@ -367,9 +367,15 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
               <div className="flex items-center gap-2">
                 {provider && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    provider === 'google' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-muted text-muted-foreground'
+                    provider === 'google' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                    provider === 'offline' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' :
+                    provider === 'cache' ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400' :
+                    'bg-muted text-muted-foreground'
                   }`}>
-                    {provider === 'google' ? 'Google' : provider === 'libre' ? 'LibreTranslate' : 'MyMemory'}
+                    {provider === 'google' ? 'Google' :
+                     provider === 'offline' ? 'Offline' :
+                     provider === 'cache' ? 'Cache' :
+                     provider === 'libre' ? 'LibreTranslate' : 'MyMemory'}
                   </span>
                 )}
                 {matchScore !== null && matchScore > 0 && translatedText && (

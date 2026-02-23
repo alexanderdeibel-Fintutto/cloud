@@ -1,18 +1,31 @@
-import { MessageSquare } from 'lucide-react'
+import { useState } from 'react'
+import { MessageSquare, Ship, Globe, Mountain } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { getPhrasePacks, type PhrasePack } from '@/lib/offline/phrase-packs'
 
 interface QuickPhrasesProps {
   onSelect: (text: string) => void
 }
 
-const QUICK_PHRASES = [
-  { category: 'Begrüßung', phrases: ['Hallo, wie geht es Ihnen?', 'Guten Tag!', 'Vielen Dank!'] },
-  { category: 'Immobilien', phrases: ['Wann kann ich die Wohnung besichtigen?', 'Wie hoch ist die Kaltmiete?', 'Sind Haustiere erlaubt?'] },
-  { category: 'Behörden', phrases: ['Ich brauche einen Termin.', 'Wo muss ich unterschreiben?', 'Welche Unterlagen brauche ich?'] },
-  { category: 'Alltag', phrases: ['Wo ist der nächste Supermarkt?', 'Können Sie mir helfen?', 'Was kostet das?'] },
-]
+const PACK_ICONS: Record<string, typeof Globe> = {
+  common: Globe,
+  mediterranean: Ship,
+  nordic: Mountain,
+}
 
 export default function QuickPhrases({ onSelect }: QuickPhrasesProps) {
+  const packs = getPhrasePacks()
+  const [activePackId, setActivePackId] = useState(packs[0]?.id || 'common')
+
+  const activePack = packs.find(p => p.id === activePackId) || packs[0]
+
+  // Group phrases by category
+  const grouped = activePack?.phrases.reduce((acc, phrase) => {
+    if (!acc[phrase.category]) acc[phrase.category] = []
+    acc[phrase.category].push(phrase.text)
+    return acc
+  }, {} as Record<string, string[]>) ?? {}
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -20,14 +33,35 @@ export default function QuickPhrases({ onSelect }: QuickPhrasesProps) {
           <MessageSquare className="h-4 w-4" />
           Häufige Sätze
         </CardTitle>
+        {/* Pack selector tabs */}
+        <div className="flex gap-1 mt-2">
+          {packs.map(pack => {
+            const Icon = PACK_ICONS[pack.id] || Globe
+            return (
+              <button
+                key={pack.id}
+                onClick={() => setActivePackId(pack.id)}
+                className={`text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-colors ${
+                  activePackId === pack.id
+                    ? 'bg-accent text-accent-foreground font-medium'
+                    : 'text-muted-foreground hover:bg-accent/50'
+                }`}
+                title={pack.description}
+              >
+                <Icon className="h-3 w-3" />
+                {pack.name}
+              </button>
+            )
+          })}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {QUICK_PHRASES.map(group => (
-            <div key={group.category}>
-              <h4 className="text-xs font-medium text-muted-foreground mb-1.5">{group.category}</h4>
+          {Object.entries(grouped).map(([category, phrases]) => (
+            <div key={category}>
+              <h4 className="text-xs font-medium text-muted-foreground mb-1.5">{category}</h4>
               <div className="flex flex-wrap gap-1.5">
-                {group.phrases.map(phrase => (
+                {phrases.map(phrase => (
                   <button
                     key={phrase}
                     onClick={() => onSelect(phrase)}

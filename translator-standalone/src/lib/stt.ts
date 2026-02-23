@@ -32,7 +32,7 @@ declare global {
   }
 }
 
-export type STTProvider = 'web-speech' | 'apple-speech-analyzer' | 'google-cloud-stt'
+export type STTProvider = 'web-speech' | 'apple-speech-analyzer' | 'google-cloud-stt' | 'whisper'
 
 export interface STTResult {
   text: string
@@ -184,10 +184,36 @@ export function createAppleSpeechAnalyzerEngine(): STTEngine {
 // --- Engine selection ---
 
 export function getBestSTTEngine(): STTEngine {
-  // Prefer Apple SpeechAnalyzer when in native iOS wrapper
+  // 1. Prefer Apple SpeechAnalyzer when in native iOS wrapper
   const apple = createAppleSpeechAnalyzerEngine()
   if (apple.isSupported) return apple
 
-  // Default to Web Speech API
-  return createWebSpeechEngine()
+  // 2. Web Speech API (best for online Chrome/Edge — streaming, real-time)
+  const webSpeech = createWebSpeechEngine()
+  if (webSpeech.isSupported) return webSpeech
+
+  // 3. Whisper offline (fallback for Firefox, Safari, or offline mode)
+  // Lazy-imported to avoid loading Transformers.js unless needed
+  return {
+    provider: 'whisper',
+    isSupported: typeof WebAssembly !== 'undefined',
+    async start(lang, onResult, onError) {
+      try {
+        const { createWhisperSTTEngine } = await import('./offline/stt-engine')
+        const engine = createWhisperSTTEngine()
+        await engine.start(lang, onResult, onError)
+        // Store engine reference for stop()
+        ;(this as unknown as Record<string, STTEngine>)._activeEngine = engine
+      } catch {
+        onError('Offline-Spracherkennung nicht verfügbar. Bitte Whisper-Modell unter Einstellungen herunterladen.')
+      }
+    },
+    stop() {
+      const active = (this as unknown as Record<string, STTEngine>)._activeEngine
+      if (active) {
+        active.stop()
+        delete (this as unknown as Record<string, STTEngine>)._activeEngine
+      }
+    },
+  }
 }

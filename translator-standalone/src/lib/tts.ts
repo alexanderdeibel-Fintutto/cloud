@@ -1,5 +1,8 @@
 // Google Cloud Text-to-Speech API integration
 // Supports Neural2 (standard) and Chirp 3 HD (premium) voices
+// Audio responses are cached in IndexedDB for offline playback
+
+import { getCachedTTSAudio, cacheTTSAudio } from './offline/tts-cache'
 
 const API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY || 'AIzaSyD0jpDgyihxFytR-jDIxEHj17kl4Oz9FGY'
 const API_URL = 'https://texttospeech.googleapis.com/v1/text:synthesize'
@@ -84,6 +87,21 @@ export async function speakWithCloudTTS(
   speechCode: string,
   quality: VoiceQuality = 'neural2',
 ): Promise<HTMLAudioElement> {
+  // 1. Check IndexedDB cache first (for offline playback)
+  try {
+    const cachedBlob = await getCachedTTSAudio(text, speechCode, quality)
+    if (cachedBlob) {
+      console.log('[TTS] Playing from cache')
+      const url = URL.createObjectURL(cachedBlob)
+      const audio = new Audio(url)
+      audio.addEventListener('ended', () => URL.revokeObjectURL(url))
+      audio.addEventListener('error', () => URL.revokeObjectURL(url))
+      return audio
+    }
+  } catch {
+    // Cache read failed — continue to API
+  }
+
   if (!API_KEY) {
     throw new Error('Google Cloud TTS API key not configured')
   }
@@ -123,9 +141,13 @@ export async function speakWithCloudTTS(
   const data = await response.json()
   const audioContent = data.audioContent as string
 
-  // Convert base64 to audio and play
-  const audioBlob = Uint8Array.from(atob(audioContent), c => c.charCodeAt(0))
-  const blob = new Blob([audioBlob], { type: 'audio/mp3' })
+  // Convert base64 to audio
+  const audioBytes = Uint8Array.from(atob(audioContent), c => c.charCodeAt(0))
+  const blob = new Blob([audioBytes], { type: 'audio/mp3' })
+
+  // 2. Cache the audio blob for offline use
+  cacheTTSAudio(text, speechCode, quality, blob).catch(() => {})
+
   const url = URL.createObjectURL(blob)
   const audio = new Audio(url)
 

@@ -1,8 +1,9 @@
-import { Languages, Sun, Moon } from 'lucide-react'
+import { Languages, Sun, Moon, Settings, Wifi, WifiOff, Signal } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useOffline } from '@/context/OfflineContext'
 
 const NAV_ITEMS = [
   { label: 'Übersetzer', path: '/' },
@@ -12,6 +13,7 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const location = useLocation()
+  const { networkMode } = useOffline()
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === 'undefined') return false
     return document.documentElement.classList.contains('dark')
@@ -60,6 +62,45 @@ export default function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          {/* Network Status Indicator */}
+          <div
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors',
+              networkMode === 'online' ? 'text-emerald-700 dark:text-emerald-400' :
+              networkMode === 'degraded' ? 'text-amber-700 dark:text-amber-400' :
+              'text-destructive'
+            )}
+            title={
+              networkMode === 'online' ? 'Online — Cloud-Übersetzung aktiv' :
+              networkMode === 'degraded' ? 'Instabile Verbindung' :
+              'Offline — Nur heruntergeladene Sprachen'
+            }
+          >
+            {networkMode === 'online' ? <Wifi className="h-3.5 w-3.5" /> :
+             networkMode === 'degraded' ? <Signal className="h-3.5 w-3.5" /> :
+             <WifiOff className="h-3.5 w-3.5" />}
+            <span className="hidden sm:inline">
+              {networkMode === 'online' ? 'Online' :
+               networkMode === 'degraded' ? 'Instabil' :
+               'Offline'}
+            </span>
+          </div>
+
+          {/* Settings */}
+          <Link to="/settings">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Einstellungen"
+              className={cn(
+                location.pathname === '/settings' && 'bg-accent'
+              )}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          {/* Dark mode toggle */}
           <Button
             variant="ghost"
             size="icon"

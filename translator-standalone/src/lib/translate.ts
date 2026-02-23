@@ -1,4 +1,8 @@
-// Translation providers: Google Cloud (primary) → MyMemory (fallback) → LibreTranslate (fallback)
+// Translation providers: Google Cloud (primary) → MyMemory (fallback) → LibreTranslate (fallback) → Offline (Opus-MT)
+
+import { getCachedTranslation, cacheTranslation } from './offline/translation-cache'
+import { translateOffline, isLanguagePairAvailable } from './offline/translation-engine'
+import { getNetworkStatus } from './offline/network-status'
 
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY || 'AIzaSyD0jpDgyihxFytR-jDIxEHj17kl4Oz9FGY'
 const GOOGLE_TRANSLATE_URL = 'https://translation.googleapis.com/language/translate/v2'
@@ -8,7 +12,7 @@ const LIBRE_API = 'https://libretranslate.com/translate'
 export interface TranslationResult {
   translatedText: string
   match: number
-  provider?: 'google' | 'mymemory' | 'libre'
+  provider?: 'google' | 'mymemory' | 'libre' | 'offline' | 'cache'
 }
 
 // In-memory cache to avoid duplicate API calls for same text+language pair
@@ -178,43 +182,86 @@ export async function translateText(
     return { translatedText: '', match: 0 }
   }
 
-  // Check cache
   const cacheKey = getCacheKey(text, sourceLang, targetLang)
-  const cached = cache.get(cacheKey)
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.result
+
+  // 1. In-memory cache (fastest, 5min TTL)
+  const memCached = cache.get(cacheKey)
+  if (memCached && Date.now() - memCached.timestamp < CACHE_TTL) {
+    return memCached.result
   }
 
-  let lastError: Error | null = null
-
-  // Try each provider in order, respecting circuit breakers
-  for (const provider of providers) {
-    if (provider.circuitKey && !isHealthy(provider.circuitKey)) {
-      continue
-    }
-
-    try {
-      const result = await provider.fn(text, sourceLang, targetLang)
-      if (provider.circuitKey) recordSuccess(provider.circuitKey)
-
-      // Store in cache
+  // 2. IndexedDB persistent cache (30-day TTL)
+  try {
+    const idbCached = await getCachedTranslation(text, sourceLang, targetLang)
+    if (idbCached) {
+      const result = { ...idbCached, provider: 'cache' as const }
       cache.set(cacheKey, { result, timestamp: Date.now() })
+      return result
+    }
+  } catch {
+    // IndexedDB not available — continue
+  }
 
-      // Evict old entries if cache grows too large
-      if (cache.size > 500) {
-        const now = Date.now()
-        for (const [key, entry] of cache) {
-          if (now - entry.timestamp > CACHE_TTL) cache.delete(key)
-        }
+  const networkStatus = getNetworkStatus()
+
+  // 3-5. Online providers (only if network available)
+  if (networkStatus.isOnline) {
+    let lastError: Error | null = null
+
+    for (const provider of providers) {
+      if (provider.circuitKey && !isHealthy(provider.circuitKey)) {
+        continue
       }
 
-      return result
-    } catch (err) {
-      console.warn(`[Translate] ${provider.name} failed:`, err)
-      if (provider.circuitKey) recordFailure(provider.circuitKey)
-      lastError = err instanceof Error ? err : new Error(String(err))
+      try {
+        const result = await provider.fn(text, sourceLang, targetLang)
+        if (provider.circuitKey) recordSuccess(provider.circuitKey)
+
+        // Store in both caches
+        cache.set(cacheKey, { result, timestamp: Date.now() })
+        cacheTranslation(text, sourceLang, targetLang, result).catch(() => {})
+
+        // Evict old in-memory entries
+        if (cache.size > 500) {
+          const now = Date.now()
+          for (const [key, entry] of cache) {
+            if (now - entry.timestamp > CACHE_TTL) cache.delete(key)
+          }
+        }
+
+        return result
+      } catch (err) {
+        console.warn(`[Translate] ${provider.name} failed:`, err)
+        if (provider.circuitKey) recordFailure(provider.circuitKey)
+        lastError = err instanceof Error ? err : new Error(String(err))
+      }
+    }
+
+    // All online providers failed — log but continue to offline
+    if (lastError) {
+      console.warn('[Translate] All online providers failed, trying offline engine...')
     }
   }
 
-  throw lastError || new Error('Übersetzung fehlgeschlagen — bitte versuche es erneut')
+  // 6. Offline translation engine (Opus-MT via Transformers.js)
+  try {
+    const offlineAvailable = await isLanguagePairAvailable(sourceLang, targetLang)
+    if (offlineAvailable) {
+      const result = await translateOffline(text, sourceLang, targetLang)
+
+      // Store in both caches
+      cache.set(cacheKey, { result, timestamp: Date.now() })
+      cacheTranslation(text, sourceLang, targetLang, result).catch(() => {})
+
+      return result
+    }
+  } catch (err) {
+    console.warn('[Translate] Offline engine failed:', err)
+  }
+
+  throw new Error(
+    networkStatus.isOffline
+      ? 'Offline — kein Sprachmodell für dieses Sprachpaar heruntergeladen. Gehe zu Einstellungen → Offline-Sprachen.'
+      : 'Übersetzung fehlgeschlagen — bitte versuche es erneut'
+  )
 }
