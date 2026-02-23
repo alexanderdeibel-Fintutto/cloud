@@ -1,9 +1,13 @@
 import { TrendingUp } from 'lucide-react'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
+ claude/review-repo-setup-0rnoo
 import { getFormulareAppUrl } from '@/lib/checker-utils'
 import { formatCurrency } from '@/lib/utils'
 import { useCheckerForm } from '@/hooks/useCheckerForm'
+
+import { getFormulareAppUrl, getRechnerAppUrl, formatCurrency } from '@/lib/utils'
+ main
 import { toast } from 'sonner'
 
 interface FormData {
@@ -126,6 +130,7 @@ export default function MieterhoehungChecker() {
           checkerType="mieterhoehung"
           onGoToForm={handleGoToForm}
           onStartNew={handleStartNew}
+          rechnerUrl={getRechnerAppUrl('mieterhoehung', { rent: String(formData.aktuelleKaltmiete) })}
         />
       </CheckerLayout>
     )

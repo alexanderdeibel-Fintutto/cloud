@@ -8,6 +8,7 @@ import {
   Receipt,
   ArrowRight
 } from 'lucide-react'
+import { useDocumentTitle, useMetaTags, useRecentTools, Breadcrumbs, RecentToolsWidget } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const rechner = [
@@ -68,11 +69,25 @@ const rechner = [
 ]
 
 export default function RechnerPage() {
+  useDocumentTitle('Rechner', 'Fintutto Portal')
+  const { recentTools } = useRecentTools('portal')
+  useMetaTags({
+    title: 'Rechner fuer Vermieter – Fintutto Portal',
+    description: '7 professionelle Rechner fuer Vermieter: Kaution, Mieterhoehung, Kaufnebenkosten, Rendite, Grundsteuer und mehr.',
+    path: '/rechner',
+  })
   return (
     <div>
       {/* Hero */}
       <section className="gradient-vermieter py-16">
         <div className="container">
+          <Breadcrumbs
+            items={[
+              { label: 'Startseite', href: '/' },
+              { label: 'Rechner' },
+            ]}
+            className="mb-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span[aria-current]]:text-white [&_span[aria-hidden]]:text-white/30"
+          />
           <div className="max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Rechner für Vermieter
@@ -88,9 +103,14 @@ export default function RechnerPage() {
       {/* Rechner Grid */}
       <section className="py-12">
         <div className="container">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <RecentToolsWidget
+            tools={recentTools}
+            pathPrefix="/rechner"
+            renderLink={({ href, children }) => <Link key={href} to={href}>{children}</Link>}
+          />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Verfügbare Rechner">
             {rechner.map((item) => (
-              <Link key={item.title} to={item.href}>
+              <Link key={item.title} to={item.href} aria-label={`${item.title} – ${item.description}`} role="listitem">
                 <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all group">
                   <CardHeader>
                     <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${item.bgColor} mb-3 group-hover:scale-110 transition-transform`}>

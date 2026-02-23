@@ -4,8 +4,23 @@ import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 export default function EigenkapitalRechner() {
+  useDocumentTitle('Eigenkapital-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Eigenkapital-Rechner – Vermieter Portal',
+    description: 'Berechne wie viel Eigenkapital du für deinen Immobilienkauf benötigst',
+    path: '/rechner/eigenkapital',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Eigenkapital-Rechner',
+    description: 'Berechne wie viel Eigenkapital du für deinen Immobilienkauf benötigst',
+    url: 'https://vermieter.fintutto.cloud/rechner/eigenkapital',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [eigenkapital, setEigenkapital] = useState<string>('')

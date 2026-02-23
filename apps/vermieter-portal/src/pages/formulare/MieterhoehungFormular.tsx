@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 export default function MieterhoehungFormular() {
+  useDocumentTitle('Mieterhöhung', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Mieterhöhungsschreiben erstellen – Vermieter Portal',
+    description: 'Erstelle ein korrektes Mieterhöhungsschreiben nach §558 BGB',
+    path: '/formulare/mieterhoehung',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterhöhungsschreiben erstellen',
+    description: 'Erstelle ein korrektes Mieterhöhungsschreiben nach §558 BGB',
+    url: 'https://vermieter.fintutto.cloud/formulare/mieterhoehung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   return (
     <div>
       <section className="gradient-vermieter py-12">

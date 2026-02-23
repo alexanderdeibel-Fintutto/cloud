@@ -97,8 +97,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Mängel melden, Zähler ablesen, Dokumente anfordern und direkt mit der Hausverwaltung chatten. Mit 10 Rechts-Checkern für deine Mietrechte.',
     icon: '🔑',
     color: 'from-green-600 to-emerald-500',
-    url: 'https://mieter-kw8d.vercel.app',
-    registerUrl: 'https://mieter-kw8d.vercel.app/register',
+    url: 'https://mieter.fintutto.cloud',
+    registerUrl: 'https://mieter.fintutto.cloud/register',
     features: [
       'Mangel melden mit Foto-Upload',
       'Zählerstand digital ablesen',
@@ -278,6 +278,42 @@ export const FINTUTTO_APPS: AppInfo[] = [
       { label: 'Steuer', value: 'Auto' },
     ],
     targetAudience: 'Vermieter & Eigentümer',
+  },
+  {
+    id: 'fittutto',
+    name: 'FitTutto',
+    tagline: 'Dein KI-Personal Trainer',
+    description:
+      'Individuelle Trainingspläne, 500+ Übungen mit Anleitungen, Ernährungstracking, Fortschrittsanalyse und Gamification. Von Sportwissenschaftlern entwickelt.',
+    icon: '💪',
+    color: 'from-green-600 to-emerald-500',
+    url: 'https://fittutto.fintutto.cloud',
+    registerUrl: 'https://fittutto.fintutto.cloud/auth',
+    features: [
+      'KI-generierte Trainingspläne',
+      '500+ Übungen (Kraft, Cardio, Mobility)',
+      'Ernährungstracking mit Kalorienrechner',
+      'Makro-Tracking (Protein, Kohlenhydrate, Fett)',
+      'Fortschrittsstatistiken & Streaks',
+      'Persönliche Rekorde & Erfolge',
+      '300+ Mobility-Übungen (Premium)',
+      'KI-Ernährungsberater (Premium)',
+    ],
+    pricing: {
+      free: 'Trainingsplan erstellen kostenlos',
+      plans: [
+        { name: 'Speichern', price: '2,99', period: '/Monat' },
+        { name: 'Basic', price: '4,99', period: '/Monat', highlight: true },
+        { name: 'Premium', price: '9,99', period: '/Monat' },
+      ],
+    },
+    stats: [
+      { label: 'Übungen', value: '500+' },
+      { label: 'KI-Pläne', value: 'Ja' },
+      { label: 'Ernährung', value: 'Tracking' },
+    ],
+    targetAudience: 'Fitness-Enthusiasten',
+    badge: 'Neu',
   },
 ]
 

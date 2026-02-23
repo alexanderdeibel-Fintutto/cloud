@@ -47,6 +47,10 @@ import NebenkostenabrechnungPage from './pages/NebenkostenabrechnungPage'
 import DokumentScannerPage from './pages/DokumentScannerPage'
 import SteuerKalenderPage from './pages/SteuerKalenderPage'
 import VerwalterDashboardPage from './pages/VerwalterDashboardPage'
+import GrundsteuerSimulatorPage from './pages/GrundsteuerSimulatorPage'
+import WiderspruchTrackerPage from './pages/WiderspruchTrackerPage'
+import ZahlungsUebersichtPage from './pages/ZahlungsUebersichtPage'
+import BenchmarkPage from './pages/BenchmarkPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -113,6 +117,10 @@ function App() {
             <Route path="dokument-scanner" element={<DokumentScannerPage />} />
             <Route path="steuerkalender" element={<SteuerKalenderPage />} />
             <Route path="verwalter" element={<VerwalterDashboardPage />} />
+            <Route path="grundsteuer-simulator" element={<GrundsteuerSimulatorPage />} />
+            <Route path="widerspruch-tracker" element={<WiderspruchTrackerPage />} />
+            <Route path="zahlungen" element={<ZahlungsUebersichtPage />} />
+            <Route path="benchmark" element={<BenchmarkPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

@@ -96,17 +96,28 @@ function AppCard({ app }: { app: AppInfo }) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button className={`flex-1 bg-gradient-to-r ${app.color} text-white border-0 hover:opacity-90`} asChild>
-            <a href={app.registerUrl} target="_blank" rel="noopener noreferrer">
-              Kostenlos starten
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </a>
-          </Button>
-          <Button variant="outline" size="icon" asChild>
-            <a href={app.url} target="_blank" rel="noopener noreferrer" title="App öffnen">
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
+          {app.url.startsWith('/') ? (
+            <Button className={`flex-1 bg-gradient-to-r ${app.color} text-white border-0 hover:opacity-90`} asChild>
+              <Link to={app.url}>
+                App oeffnen
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Button className={`flex-1 bg-gradient-to-r ${app.color} text-white border-0 hover:opacity-90`} asChild>
+                <a href={app.registerUrl} target="_blank" rel="noopener noreferrer">
+                  Kostenlos starten
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </a>
+              </Button>
+              <Button variant="outline" size="icon" asChild>
+                <a href={app.url} target="_blank" rel="noopener noreferrer" title="App öffnen">
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -135,7 +146,7 @@ export default function AppsPage() {
             <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="h-4 w-4 text-yellow-300" />
               <span className="text-white/90 text-sm font-medium">
-                6 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
+                7 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">

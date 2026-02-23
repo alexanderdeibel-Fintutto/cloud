@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Loader2, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Loader2, Plus, TrendingUp, AlertTriangle, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useBuildings } from '@/hooks/useBuildings';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { useToast } from '@/hooks/use-toast';
 import { METER_TYPE_UNITS, METER_TYPE_PRICE_DEFAULTS, MeterType, MeterReading, formatNumber, formatEuro, calculateCost } from '@/types/database';
 
@@ -43,6 +44,7 @@ export function AddReadingDialog({
 }: AddReadingDialogProps) {
   const isMobile = useIsMobile();
   const { createReading } = useBuildings();
+  const { isOnline, addToQueue, pendingCount } = useOfflineQueue();
   const { toast } = useToast();
 
   const [readingValue, setReadingValue] = useState('');
@@ -94,6 +96,25 @@ export function AddReadingDialog({
 
     setIsSubmitting(true);
 
+    if (!isOnline) {
+      addToQueue({
+        meter_id: meterId,
+        reading_value: parsedValue,
+        reading_date: readingDate,
+        source: 'manual',
+      });
+      toast({
+        title: 'Offline gespeichert',
+        description: `Ablesung wird synchronisiert, sobald Sie wieder online sind. (${pendingCount + 1} in Warteschlange)`,
+      });
+      onOpenChange(false);
+      setReadingValue('');
+      setReadingDate(new Date().toISOString().split('T')[0]);
+      setAllowOverflow(false);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await createReading.mutateAsync({
         meter_id: meterId,
@@ -114,11 +135,22 @@ export function AddReadingDialog({
       setReadingDate(new Date().toISOString().split('T')[0]);
       setAllowOverflow(false);
     } catch (error) {
+      // If online submission fails, queue it for later
+      addToQueue({
+        meter_id: meterId,
+        reading_value: parsedValue,
+        reading_date: readingDate,
+        source: 'manual',
+      });
       toast({
         variant: 'destructive',
-        title: 'Fehler',
-        description: 'Der Zählerstand konnte nicht gespeichert werden.',
+        title: 'Netzwerkfehler',
+        description: 'Ablesung wurde in die Warteschlange aufgenommen und wird später synchronisiert.',
       });
+      onOpenChange(false);
+      setReadingValue('');
+      setReadingDate(new Date().toISOString().split('T')[0]);
+      setAllowOverflow(false);
     }
 
     setIsSubmitting(false);
@@ -126,6 +158,12 @@ export function AddReadingDialog({
 
   const FormContent = (
     <div className="space-y-4">
+      {!isOnline && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 flex items-center gap-2 text-sm text-amber-800">
+          <WifiOff className="w-4 h-4 shrink-0" />
+          Offline-Modus: Ablesung wird gespeichert und später synchronisiert.
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="readingDate">Datum</Label>
         <Input

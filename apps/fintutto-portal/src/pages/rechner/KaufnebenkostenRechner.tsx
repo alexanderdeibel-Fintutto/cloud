@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Euro, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 const bundeslaender = [
   { name: 'Baden-Württemberg', grunderwerbsteuer: 5.0 },
@@ -25,9 +28,33 @@ const bundeslaender = [
 ]
 
 export default function KaufnebenkostenRechner() {
-  const [kaufpreis, setKaufpreis] = useState<string>('')
-  const [bundesland, setBundesland] = useState<string>('Bayern')
-  const [makler, setMakler] = useState<string>('3.57')
+  useDocumentTitle('Kaufnebenkosten-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Kaufnebenkosten-Rechner – Alle Nebenkosten beim Immobilienkauf',
+    description: 'Berechne alle Nebenkosten beim Immobilienkauf: Grunderwerbsteuer, Notar, Grundbuch und Makler. Alle 16 Bundesländer.',
+    path: '/rechner/kaufnebenkosten',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kaufnebenkosten-Rechner',
+    description: 'Berechne alle Nebenkosten beim Immobilienkauf inkl. Grunderwerbsteuer',
+    url: 'https://portal.fintutto.cloud/rechner/kaufnebenkosten',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useTrackTool('Kaufnebenkosten-Rechner')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_kaufnebenkosten_inputs', { kaufpreis: '', bundesland: 'Bayern', makler: '3.57' })
+  const [kaufpreis, setKaufpreisRaw] = useState<string>(savedInputs.kaufpreis)
+  const [bundesland, setBundeslandRaw] = useState<string>(savedInputs.bundesland)
+  const [makler, setMaklerRaw] = useState<string>(savedInputs.makler)
+
+  const persist = (field: string, value: string) => { setDirty(); setSavedInputs(prev => ({ ...prev, [field]: value })) }
+
+  const setKaufpreis = (v: string) => { setKaufpreisRaw(v); persist('kaufpreis', v) }
+  const setBundesland = (v: string) => { setBundeslandRaw(v); persist('bundesland', v) }
+  const setMakler = (v: string) => { setMaklerRaw(v); persist('makler', v) }
   const [result, setResult] = useState<any>(null)
 
   const berechnen = () => {
@@ -55,6 +82,7 @@ export default function KaufnebenkostenRechner() {
       gesamtkosten,
       prozentVomKaufpreis,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -109,7 +137,7 @@ export default function KaufnebenkostenRechner() {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button onClick={berechnen} disabled={!kaufpreis} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                  <Button variant="outline" onClick={() => { setKaufpreis(''); setResult(null) }}>Zurücksetzen</Button>
+                  <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setBundeslandRaw('Bayern'); setMaklerRaw('3.57'); setResult(null); clearSaved(); resetDirty(); toast('Eingaben zurückgesetzt') }}>Zurücksetzen</Button>
                 </div>
               </CardContent>
             </Card>
@@ -117,7 +145,16 @@ export default function KaufnebenkostenRechner() {
             <div className="space-y-6">
               {result ? (
                 <Card>
-                  <CardHeader><CardTitle>Kostenübersicht</CardTitle></CardHeader>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Kostenübersicht</CardTitle>
+                      <ShareResultButton
+                        title="Kaufnebenkosten-Rechner Ergebnis"
+                        text={`${formatCurrency(result.gesamtNebenkosten)} Nebenkosten`}
+                        url="/rechner/kaufnebenkosten"
+                      />
+                    </div>
+                  </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between py-2 border-b">
                       <span>Kaufpreis</span>

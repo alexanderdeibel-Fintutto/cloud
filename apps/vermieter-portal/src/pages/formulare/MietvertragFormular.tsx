@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom'
 import { FileSignature, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 export default function MietvertragFormular() {
+  useDocumentTitle('Mietvertrag erstellen', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Mietvertrag erstellen – Vermieter Portal',
+    description: 'Erstelle einen rechtssicheren Wohnraummietvertrag',
+    path: '/formulare/mietvertrag',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mietvertrag erstellen',
+    description: 'Erstelle einen rechtssicheren Wohnraummietvertrag',
+    url: 'https://vermieter.fintutto.cloud/formulare/mietvertrag',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   return (
     <div>
       <section className="gradient-vermieter py-12">

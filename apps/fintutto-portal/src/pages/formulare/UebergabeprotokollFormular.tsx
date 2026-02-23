@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ClipboardList, ArrowLeft, Home, Gauge, Key, CheckCircle, AlertTriangle, Printer, Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { toast } from 'sonner'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 type ItemStatus = 'pending' | 'ok' | 'defect'
 
@@ -31,6 +34,23 @@ const DEFAULT_KEYS: KeyItem[] = [
 ]
 
 export default function UebergabeprotokollFormular() {
+  useDocumentTitle('Übergabeprotokoll', 'Fintutto Portal')
+  useTrackTool('Übergabeprotokoll')
+  useMetaTags({
+    title: 'Übergabeprotokoll erstellen – Wohnungsübergabe dokumentieren',
+    description: 'Dokumentiere den Zustand der Wohnung bei Ein- und Auszug. Raumweise Erfassung, Zählerstände, Schlüssel.',
+    path: '/formulare/uebergabeprotokoll',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Übergabeprotokoll-Generator',
+    description: 'Erstelle ein Übergabeprotokoll für die Wohnungsübergabe',
+    url: 'https://portal.fintutto.cloud/formulare/uebergabeprotokoll',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [section, setSection] = useState<'info' | 'rooms' | 'meters' | 'keys' | 'summary'>('info')
   const [protocolType, setProtocolType] = useState<'move_in' | 'move_out'>('move_in')
   const [date, setDate] = useState('')
@@ -55,6 +75,7 @@ export default function UebergabeprotokollFormular() {
     setRooms(prev => prev.map((r, ri) => ri === roomIdx ? {
       ...r, items: r.items.map((it, ii) => ii === itemIdx ? { ...it, status } : it)
     } : r))
+    setDirty()
   }
 
   const updateItemNote = (roomIdx: number, itemIdx: number, note: string) => {
@@ -203,7 +224,7 @@ export default function UebergabeprotokollFormular() {
                   </div>
                 ))}
                 <Button variant="outline" className="w-full" onClick={() => setKeys(prev => [...prev, { label: 'Sonstiger Schluessel', count: 1, handed: false }])}><Plus className="h-4 w-4 mr-2" /> Schluessel hinzufuegen</Button>
-                <Button className="w-full" onClick={() => setSection('summary')}>Zur Zusammenfassung</Button>
+                <Button className="w-full" onClick={() => { setSection('summary'); toast.success('Dokument erstellt') }}>Zur Zusammenfassung</Button>
               </CardContent>
             </Card>
           )}

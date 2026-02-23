@@ -48,25 +48,15 @@ export function useBuildings() {
 
       const unitIds = (unitsData || []).map(u => u.id);
 
-      // Fetch meters (both from units and directly from buildings)
-      const { data: metersFromUnits, error: metersUnitsError } = await supabase
-        .from('meters')
-        .select('*')
-        .in('unit_id', unitIds);
+      // Fetch meters via units
+      const { data: metersData, error: metersError } = unitIds.length > 0
+        ? await supabase
+            .from('meters')
+            .select('*')
+            .in('unit_id', unitIds)
+        : { data: [] as Meter[], error: null };
 
-      if (metersUnitsError) throw metersUnitsError;
-
-      const { data: metersFromBuildings, error: metersBuildingsError } = await supabase
-        .from('meters')
-        .select('*')
-        .in('building_id', buildingIds);
-
-      if (metersBuildingsError) throw metersBuildingsError;
-
-      // Combine all meters
-      const metersData = [...(metersFromUnits || []), ...(metersFromBuildings || [])].filter(
-        (m, i, arr) => arr.findIndex(x => x.id === m.id) === i // deduplicate
-      );
+      if (metersError) throw metersError;
 
       const meterIds = (metersData || []).map(m => m.id);
 
@@ -99,12 +89,7 @@ export function useBuildings() {
       // Combine data
       const result: BuildingWithUnits[] = (buildingsData as Building[]).map(building => {
         const buildingUnits = (unitsData as Unit[] || []).filter(u => u.building_id === building.id);
-        
-        // Get meters directly attached to building
-        const directBuildingMeters = (metersData as Meter[] || [])
-          .filter(m => m.building_id === building.id && !m.unit_id)
-          .map(addReadingsToMeter);
-        
+
         const unitsWithMeters: UnitWithMeters[] = buildingUnits.map(unit => {
           const unitMeters = (metersData as Meter[] || []).filter(m => m.unit_id === unit.id);
           const metersWithReadings: MeterWithReadings[] = unitMeters.map(addReadingsToMeter);
@@ -116,10 +101,13 @@ export function useBuildings() {
           };
         });
 
+        // Collect all meters from all units for building-level meter list
+        const allBuildingMeters = unitsWithMeters.flatMap(u => u.meters);
+
         return {
           ...building,
           units: unitsWithMeters,
-          meters: directBuildingMeters,
+          meters: allBuildingMeters,
         };
       });
 
@@ -220,20 +208,15 @@ export function useBuildings() {
     },
   });
 
-  // Create meter (can be attached to building directly or to a unit)
+  // Create meter (attached to a unit)
   const createMeter = useMutation({
-    mutationFn: async (data: { 
-      building_id?: string;
-      unit_id?: string; 
-      meter_number: string; 
+    mutationFn: async (data: {
+      unit_id: string;
+      meter_number: string;
       meter_type: MeterType;
       installation_date?: string;
       replaced_by?: string;
     }) => {
-      if (!data.building_id && !data.unit_id) {
-        throw new Error('Meter must be attached to a building or unit');
-      }
-      
       const { data: newMeter, error } = await supabase
         .from('meters')
         .insert(data)
@@ -273,30 +256,21 @@ export function useBuildings() {
       source?: 'manual' | 'ocr' | 'api';
       confidence?: number;
     }) => {
-      console.log('Creating reading with data:', data);
-      console.log('User ID:', user?.id);
-      
       const insertData = {
         ...data,
         reading_date: data.reading_date || new Date().toISOString().split('T')[0],
         source: data.source || 'manual',
         submitted_by: user?.id,
       };
-      
-      console.log('Insert data:', insertData);
-      
+
       const { data: newReading, error } = await supabase
         .from('meter_readings')
         .insert(insertData)
         .select()
         .single();
 
-      if (error) {
-        console.error('Supabase error creating reading:', error);
-        throw error;
-      }
-      
-      console.log('Reading created:', newReading);
+      if (error) throw error;
+
       return newReading;
     },
     onSuccess: () => {

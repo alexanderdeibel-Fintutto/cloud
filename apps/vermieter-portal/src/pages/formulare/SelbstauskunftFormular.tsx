@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom'
 import { Users, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 export default function SelbstauskunftFormular() {
+  useDocumentTitle('Selbstauskunft', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Mieterselbstauskunft erstellen – Vermieter Portal',
+    description: 'DSGVO-konforme Selbstauskunft für Mietinteressenten',
+    path: '/formulare/selbstauskunft',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterselbstauskunft erstellen',
+    description: 'DSGVO-konforme Selbstauskunft für Mietinteressenten',
+    url: 'https://vermieter.fintutto.cloud/formulare/selbstauskunft',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   return (
     <div>
       <section className="gradient-vermieter py-12">

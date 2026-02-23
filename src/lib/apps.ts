@@ -226,5 +226,39 @@ export const FINTUTTO_APPS: AppInfo[] = [
     targetAudience: 'Mieter & Eigentümer',
     badge: 'Neu',
   },
+  {
+    id: 'fittutto',
+    name: 'FitTutto',
+    tagline: 'Dein persoenlicher Fitness-Begleiter',
+    description:
+      'Trainingsplaene, Workout-Tracking, Ernaehrungstracking, Koerpermessungen und KI-Coaching. 250+ Uebungen, Set-by-Set Logging, Makro-Tracker und mehr.',
+    icon: '💪',
+    color: 'from-orange-500 to-red-500',
+    url: '/fittutto',
+    registerUrl: '/register',
+    features: [
+      'Individuelle Trainingsplaene erstellen & generieren',
+      'Workout-Tracking mit 250+ Uebungen',
+      'Ernaehrungstracking mit Makro-Zielen',
+      'Koerper-Tracking (Gewicht, Umfaenge, KFA)',
+      'KI-Fitness-Coach fuer personalisierte Tipps',
+      'Persoenliche Rekorde & Streak-Tracking',
+    ],
+    pricing: {
+      free: 'Grundfunktionen kostenlos',
+      plans: [
+        { name: 'Speichern', price: '2,99', period: '/Monat' },
+        { name: 'Basic', price: '4,99', period: '/Monat', highlight: true },
+        { name: 'Premium', price: '9,99', period: '/Monat' },
+      ],
+    },
+    stats: [
+      { label: 'Uebungen', value: '250+' },
+      { label: 'KI-Coach', value: 'Ja' },
+      { label: 'Tracking', value: '360°' },
+    ],
+    targetAudience: 'Fitness-Enthusiasten',
+    badge: 'Neu',
+  },
 ]
 

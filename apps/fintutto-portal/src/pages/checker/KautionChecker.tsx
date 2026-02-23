@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
 
 interface FormData {
   kautionHoehe: number
@@ -23,6 +24,22 @@ export default function KautionChecker() {
   const navigate = useNavigate()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Kautions-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Kautions-Checker – Rückzahlung und Fristen prüfen',
+    description: 'Probleme mit der Kaution? Prüfe Rückzahlungsanspruch, Verzinsung und Fristen nach §551 BGB.',
+    path: '/checker/kaution',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kautions-Checker',
+    description: 'Prüfe deinen Kautionsrückzahlungsanspruch nach §551 BGB',
+    url: 'https://portal.fintutto.cloud/checker/kaution',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -116,6 +133,7 @@ export default function KautionChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -154,7 +172,7 @@ export default function KautionChecker() {
       icon={<Key className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={formData.kautionHoehe > 0 && formData.kaltmiete > 0} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={formData.kautionHoehe > 0 && formData.kaltmiete > 0} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Kautionsdaten</h2>
           <div className="space-y-4">
             <CheckerField name="kautionHoehe" label="Gezahlte Kaution" type="currency" value={formData.kautionHoehe} onChange={(v) => updateField('kautionHoehe', v)} required />

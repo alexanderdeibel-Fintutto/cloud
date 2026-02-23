@@ -65,6 +65,11 @@ import CalendarPage from "./pages/calendar/CalendarPage";
  import BankTransactions from "./pages/banking/Transactions";
  import MatchingRules from "./pages/banking/MatchingRules";
 
+ // Custom Tax/AfA/Capital Gains Pages
+ import Tax from "./pages/Tax";
+ import AfaCalculator from "./pages/AfaCalculator";
+ import CapitalGainsPage from "./pages/CapitalGains";
+
  // Tax Pages
  import AnlageVWizard from "./pages/taxes/AnlageVWizard";
  import TaxDocuments from "./pages/taxes/TaxDocuments";
@@ -570,6 +575,23 @@ const App = () => (
                  <TenantUnit />
                </TenantProtectedRoute>
              } />
+
+            {/* Tax/AfA/Capital Gains Routes */}
+            <Route path="/tax" element={
+              <ProtectedRoute>
+                <Tax />
+              </ProtectedRoute>
+            } />
+            <Route path="/afa" element={
+              <ProtectedRoute>
+                <AfaCalculator />
+              </ProtectedRoute>
+            } />
+            <Route path="/capital-gains" element={
+              <ProtectedRoute>
+                <CapitalGainsPage />
+              </ProtectedRoute>
+            } />
 
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />

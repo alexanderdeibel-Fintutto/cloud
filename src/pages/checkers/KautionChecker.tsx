@@ -1,9 +1,13 @@
 import { Key } from 'lucide-react'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
+ claude/review-repo-setup-0rnoo
 import { getFormulareAppUrl } from '@/lib/checker-utils'
 import { formatCurrency } from '@/lib/utils'
 import { useCheckerForm } from '@/hooks/useCheckerForm'
+
+import { getFormulareAppUrl, getRechnerAppUrl, formatCurrency } from '@/lib/utils'
+ main
 import { toast } from 'sonner'
 
 interface FormData {
@@ -98,7 +102,7 @@ export default function KautionChecker() {
   if (result) {
     return (
       <CheckerLayout title="Kautions-Checker" description="Ihr Ergebnis" icon={<Key className="w-8 h-8" />}>
-        <CheckerResult result={result} checkerType="kaution" onGoToForm={handleGoToForm} onStartNew={handleStartNew} />
+        <CheckerResult result={result} checkerType="kaution" onGoToForm={handleGoToForm} onStartNew={handleStartNew} rechnerUrl={getRechnerAppUrl('kaution', { rent: String(formData.kaltmiete) })} />
       </CheckerLayout>
     )
   }

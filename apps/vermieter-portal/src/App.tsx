@@ -1,33 +1,52 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ErrorBoundary, PageSkeleton } from '@fintutto/shared'
 import { Toaster } from './components/ui/toaster'
 import { CreditsProvider } from './contexts/CreditsContext'
+import { AuthProvider } from './contexts/AuthContext'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 5 * 60 * 1000, retry: 1 },
+  },
+})
+
 import Layout from './components/layout/Layout'
+
+// Eagerly loaded
 import HomePage from './pages/HomePage'
-import RechnerPage from './pages/RechnerPage'
-import FormularePage from './pages/FormularePage'
-import PricingPage from './pages/PricingPage'
-import NotFoundPage from './pages/NotFoundPage'
+
+// Lazy-loaded pages
+const RechnerPage = lazy(() => import('./pages/RechnerPage'))
+const FormularePage = lazy(() => import('./pages/FormularePage'))
+const PricingPage = lazy(() => import('./pages/PricingPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 // Rechner
-import KautionsRechner from './pages/rechner/KautionsRechner'
-import MieterhoehungsRechner from './pages/rechner/MieterhoehungsRechner'
-import KaufnebenkostenRechner from './pages/rechner/KaufnebenkostenRechner'
-import EigenkapitalRechner from './pages/rechner/EigenkapitalRechner'
-import GrundsteuerRechner from './pages/rechner/GrundsteuerRechner'
-import RenditeRechner from './pages/rechner/RenditeRechner'
-import NebenkostenRechner from './pages/rechner/NebenkostenRechner'
+const KautionsRechner = lazy(() => import('./pages/rechner/KautionsRechner'))
+const MieterhoehungsRechner = lazy(() => import('./pages/rechner/MieterhoehungsRechner'))
+const KaufnebenkostenRechner = lazy(() => import('./pages/rechner/KaufnebenkostenRechner'))
+const EigenkapitalRechner = lazy(() => import('./pages/rechner/EigenkapitalRechner'))
+const GrundsteuerRechner = lazy(() => import('./pages/rechner/GrundsteuerRechner'))
+const RenditeRechner = lazy(() => import('./pages/rechner/RenditeRechner'))
+const NebenkostenRechner = lazy(() => import('./pages/rechner/NebenkostenRechner'))
 
 // Formulare
-import MietvertragFormular from './pages/formulare/MietvertragFormular'
-import UebergabeprotokollFormular from './pages/formulare/UebergabeprotokollFormular'
-import MieterhoehungFormular from './pages/formulare/MieterhoehungFormular'
-import SelbstauskunftFormular from './pages/formulare/SelbstauskunftFormular'
-import BetriebskostenFormular from './pages/formulare/BetriebskostenFormular'
+const MietvertragFormular = lazy(() => import('./pages/formulare/MietvertragFormular'))
+const UebergabeprotokollFormular = lazy(() => import('./pages/formulare/UebergabeprotokollFormular'))
+const MieterhoehungFormular = lazy(() => import('./pages/formulare/MieterhoehungFormular'))
+const SelbstauskunftFormular = lazy(() => import('./pages/formulare/SelbstauskunftFormular'))
+const BetriebskostenFormular = lazy(() => import('./pages/formulare/BetriebskostenFormular'))
 
 function App() {
   return (
+    <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <CreditsProvider>
       <BrowserRouter>
+        <Suspense fallback={<PageSkeleton />}>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
@@ -58,9 +77,13 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
+        </Suspense>
         <Toaster />
       </BrowserRouter>
     </CreditsProvider>
+    </AuthProvider>
+    </QueryClientProvider>
+    </ErrorBoundary>
   )
 }
 

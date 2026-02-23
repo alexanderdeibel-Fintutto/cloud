@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://portal.fintutto.cloud/sitemap.xml
+
+Crawl-delay: 1
+
+Disallow: /dashboard
+Disallow: /checkout/
+Disallow: /api/
+Disallow: /login
+Disallow: /register

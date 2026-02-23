@@ -57,6 +57,8 @@ export const api = {
   // Schedule
   getSchedule: () => apiFetch<any>('/schedule'),
   getScheduleToday: () => apiFetch<any>('/schedule/today'),
+  getScheduleByDate: (date: string) => apiFetch<any>(`/schedule/history?date=${date}`),
+  getScheduleDates: () => apiFetch<string[]>('/schedule/dates'),
   generateSchedule: () =>
     apiFetch<any>('/bot/generate-schedule', { method: 'POST' }),
 
@@ -83,7 +85,15 @@ export const api = {
     apiFetch<any>(`/wp/topics${forumId ? `?forum_id=${forumId}` : ''}`),
 
   // Activity
-  getActivity: (limit = 100) => apiFetch<any>(`/activity?limit=${limit}`),
+  getActivity: (limit = 200, opts?: { persona?: string; type?: string; date?: string; status?: string; q?: string }) => {
+    const params = new URLSearchParams({ limit: String(limit) })
+    if (opts?.persona) params.set('persona', opts.persona)
+    if (opts?.type) params.set('type', opts.type)
+    if (opts?.date) params.set('date', opts.date)
+    if (opts?.status) params.set('status', opts.status)
+    if (opts?.q) params.set('q', opts.q)
+    return apiFetch<any>(`/activity?${params}`)
+  },
 
   // WordPress Test
   testWp: () => apiFetch<any>('/wp/test'),

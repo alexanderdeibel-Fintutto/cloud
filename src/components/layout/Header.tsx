@@ -1,13 +1,24 @@
 import { Link, useLocation } from 'react-router-dom'
+ claude/fitness-training-app-nf0CN
+ claude/fitness-training-app-nf0CN
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell } from 'lucide-react'
+
 import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut } from 'lucide-react'
+ main
+ main
+
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Search } from 'lucide-react'
+ main
 import { useState } from 'react'
+import { modKey } from '@fintutto/shared'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 
 const navigation = [
-  { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Für Vermieter' },
-  { name: 'Checker', href: '/checker', icon: Shield, description: 'Für Mieter' },
-  { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Für alle' },
+  { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Fuer Vermieter' },
+  { name: 'Checker', href: '/checker', icon: Shield, description: 'Fuer Mieter' },
+  { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Fuer alle' },
+  { name: 'FitTutto', href: '/fittutto', icon: Dumbbell, description: 'Fitness & Training' },
   { name: 'Preise', href: '/preise', icon: null, description: '' },
   { name: 'Apps', href: '/apps', icon: LayoutGrid, description: 'Alle Fintutto-Apps' },
   { name: 'Referral', href: '/referral', icon: Gift, description: 'Empfehlen & profitieren' },
@@ -47,6 +58,7 @@ export default function Header() {
           ))}
         </div>
 
+ claude/review-repo-setup-0rnoo
         {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
@@ -70,6 +82,41 @@ export default function Header() {
                 <Link to="/login">Anmelden</Link>
               </Button>
               <Button className="gradient-portal text-white border-0" size="sm" asChild>
+
+        {/* Search + Auth Section */}
+        <div className="hidden md:flex items-center space-x-4">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 border rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Suche</span>
+            <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 rounded border">
+              {modKey()} K
+            </kbd>
+          </button>
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <Link to="/dashboard" className="flex items-center space-x-2 text-gray-600 hover:text-fintutto-primary">
+                <User className="w-5 h-5" />
+                <span>{profile?.name || user.email}</span>
+              </Link>
+              {profile && (
+                <span className="text-xs bg-fintutto-light text-fintutto-primary px-2 py-1 rounded-full">
+                  {profile.checksUsed}/{profile.checksLimit === -1 ? 'unbegrenzt' : profile.checksLimit} Checks
+                </span>
+              )}
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" asChild>
+                <Link to="/login">Anmelden</Link>
+              </Button>
+              <Button variant="fintutto" asChild>
+ main
                 <Link to="/register">Kostenlos starten</Link>
               </Button>
             </div>
@@ -86,6 +133,16 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="container py-4 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setTimeout(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true })), 100)
+              }}
+              className="flex items-center gap-2 w-full p-3 rounded-lg bg-muted/50 text-muted-foreground text-sm"
+            >
+              <Search className="h-4 w-4" />
+              Tool suchen...
+            </button>
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -115,8 +172,13 @@ export default function Header() {
                   <User className="h-5 w-5" />
                   <span>{profile?.name || user.email}</span>
                 </Link>
+ claude/review-repo-setup-0rnoo
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setMobileMenuOpen(false) }}>
                   <LogOut className="h-4 w-4 mr-2" />
+
+                <Button variant="ghost" size="sm" className="w-full" onClick={signOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+ main
                   Abmelden
                 </Button>
               </div>

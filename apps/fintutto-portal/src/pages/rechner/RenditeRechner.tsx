@@ -1,9 +1,14 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
+import LoginPrompt from '../../components/shared/LoginPrompt'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
+import { useTrackTool } from '@/hooks/useTrackTool'
+import { toast } from 'sonner'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -15,14 +20,50 @@ interface RenditeResult {
 }
 
 export default function RenditeRechner() {
-  const [kaufpreis, setKaufpreis] = useState<string>('')
-  const [nebenkosten, setNebenkosten] = useState<string>('10')
-  const [monatsmiete, setMonatsmiete] = useState<string>('')
-  const [nichtUmlagefaehig, setNichtUmlagefaehig] = useState<string>('15')
-  const [eigenkapital, setEigenkapital] = useState<string>('')
-  const [zins, setZins] = useState<string>('3.5')
-  const [tilgung, setTilgung] = useState<string>('2')
+  useDocumentTitle('Rendite-Rechner', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Rendite-Rechner – Immobilienrendite berechnen',
+    description: 'Berechne Brutto- und Netto-Rendite, Cashflow und Eigenkapitalrendite deiner Immobilie. Kostenlos und sofort.',
+    path: '/rechner/rendite',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Rendite-Rechner',
+    description: 'Berechne Brutto- und Netto-Rendite, Cashflow und Eigenkapitalrendite',
+    url: 'https://portal.fintutto.cloud/rechner/rendite',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useTrackTool('Rendite-Rechner')
+  const navigate = useNavigate()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty, reset: resetDirty } = useUnsavedChanges()
+  const [searchParams] = useSearchParams()
+  const defaultInputs = { kaufpreis: '', nebenkosten: '10', monatsmiete: '', nichtUmlagefaehig: '15', eigenkapital: '', zins: '3.5', tilgung: '2' }
+  const [savedInputs, setSavedInputs, clearSaved] = useLocalStorage('fintutto_rendite_inputs', defaultInputs)
+  const [kaufpreis, setKaufpreisRaw] = useState<string>(savedInputs.kaufpreis)
+  const [nebenkosten, setNebenkostenRaw] = useState<string>(savedInputs.nebenkosten)
+  const [monatsmiete, setMonatsmieteRaw] = useState<string>(savedInputs.monatsmiete)
+
+  const persist = (field: string, value: string) => { setDirty(); setSavedInputs(prev => ({ ...prev, [field]: value })) }
+
+  const setKaufpreis = (v: string) => { setKaufpreisRaw(v); persist('kaufpreis', v) }
+  const setNebenkosten = (v: string) => { setNebenkostenRaw(v); persist('nebenkosten', v) }
+  const setMonatsmiete = (v: string) => { setMonatsmieteRaw(v); persist('monatsmiete', v) }
+
+  useEffect(() => {
+    const rent = searchParams.get('rent')
+    if (rent) setMonatsmiete(rent)
+  }, [searchParams])
+  const [nichtUmlagefaehig, setNichtUmlagefaehigRaw] = useState<string>(savedInputs.nichtUmlagefaehig)
+  const [eigenkapital, setEigenkapitalRaw] = useState<string>(savedInputs.eigenkapital)
+  const [zins, setZinsRaw] = useState<string>(savedInputs.zins)
+  const [tilgung, setTilgungRaw] = useState<string>(savedInputs.tilgung)
   const [result, setResult] = useState<RenditeResult | null>(null)
+
+  const setNichtUmlagefaehig = (v: string) => { setNichtUmlagefaehigRaw(v); persist('nichtUmlagefaehig', v) }
+  const setEigenkapital = (v: string) => { setEigenkapitalRaw(v); persist('eigenkapital', v) }
+  const setZins = (v: string) => { setZinsRaw(v); persist('zins', v) }
+  const setTilgung = (v: string) => { setTilgungRaw(v); persist('tilgung', v) }
 
   const berechnen = () => {
     const kp = parseFloat(kaufpreis) || 0
@@ -57,6 +98,7 @@ export default function RenditeRechner() {
       eigenkapitalRendite,
       faktorKaufpreis,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -83,11 +125,19 @@ export default function RenditeRechner() {
         <div className="container">
           <div className="grid lg:grid-cols-[1fr_400px] gap-8">
             <div className="space-y-6">
+              <LoginPrompt />
               <Card>
                 <CardHeader>
                   <CardTitle>Immobilie & Kosten</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setMonatsmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Kaufpreis *</label>
@@ -156,7 +206,7 @@ export default function RenditeRechner() {
                     <Button onClick={berechnen} disabled={!kaufpreis || !monatsmiete} className="flex-1 gradient-vermieter text-white">
                       Berechnen
                     </Button>
-                    <Button variant="outline" onClick={() => { setKaufpreis(''); setMonatsmiete(''); setResult(null) }}>
+                    <Button variant="outline" onClick={() => { setKaufpreisRaw(''); setMonatsmieteRaw(''); setNebenkostenRaw('10'); setNichtUmlagefaehigRaw('15'); setEigenkapitalRaw(''); setZinsRaw('3.5'); setTilgungRaw('2'); setResult(null); clearSaved(); resetDirty(); toast('Eingaben zurückgesetzt') }}>
                       Zurücksetzen
                     </Button>
                   </div>
@@ -169,7 +219,14 @@ export default function RenditeRechner() {
                 <>
                   <Card>
                     <CardHeader>
-                      <CardTitle>Rendite-Übersicht</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Rendite-Übersicht</CardTitle>
+                        <ShareResultButton
+                          title="Rendite-Rechner Ergebnis"
+                          text={`Brutto-Rendite: ${result.bruttoRendite.toFixed(2)}%`}
+                          url="/rechner/rendite"
+                        />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">

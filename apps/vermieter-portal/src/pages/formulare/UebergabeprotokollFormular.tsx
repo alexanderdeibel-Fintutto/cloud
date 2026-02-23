@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom'
 import { ClipboardList, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
+import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
 
 export default function UebergabeprotokollFormular() {
+  useDocumentTitle('Übergabeprotokoll', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Übergabeprotokoll erstellen – Vermieter Portal',
+    description: 'Dokumentiere den Zustand der Wohnung bei Übergabe',
+    path: '/formulare/uebergabeprotokoll',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Übergabeprotokoll erstellen',
+    description: 'Dokumentiere den Zustand der Wohnung bei Übergabe',
+    url: 'https://vermieter.fintutto.cloud/formulare/uebergabeprotokoll',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
   return (
     <div>
       <section className="gradient-vermieter py-12">

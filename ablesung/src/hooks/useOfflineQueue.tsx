@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 interface QueuedReading {
   id: string;
@@ -28,6 +30,8 @@ export function useOfflineQueue() {
   const [queue, setQueue] = useState<QueuedReading[]>(loadQueue);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncing, setSyncing] = useState(false);
+  const { user } = useAuth();
+  const syncingRef = useRef(false);
 
   // Monitor online status
   useEffect(() => {
@@ -40,6 +44,71 @@ export function useOfflineQueue() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Auto-sync when coming back online
+  const syncQueue = useCallback(async () => {
+    if (syncingRef.current || !user) return;
+
+    const currentQueue = loadQueue();
+    const pending = currentQueue.filter(q => !q.synced && !q.error);
+    if (pending.length === 0) return;
+
+    syncingRef.current = true;
+    setSyncing(true);
+
+    const updatedQueue = [...currentQueue];
+
+    for (const entry of pending) {
+      try {
+        const { error } = await supabase
+          .from('meter_readings')
+          .insert({
+            meter_id: entry.meter_id,
+            reading_value: entry.reading_value,
+            reading_date: entry.reading_date,
+            source: entry.source,
+            submitted_by: user.id,
+          });
+
+        const idx = updatedQueue.findIndex(q => q.id === entry.id);
+        if (idx === -1) continue;
+
+        if (error) {
+          updatedQueue[idx] = { ...updatedQueue[idx], error: error.message };
+        } else {
+          updatedQueue[idx] = { ...updatedQueue[idx], synced: true };
+        }
+      } catch (err: any) {
+        const idx = updatedQueue.findIndex(q => q.id === entry.id);
+        if (idx !== -1) {
+          updatedQueue[idx] = { ...updatedQueue[idx], error: err.message || 'Sync failed' };
+        }
+      }
+    }
+
+    setQueue(updatedQueue);
+    saveQueue(updatedQueue);
+
+    // Clean up synced items after a short delay
+    setTimeout(() => {
+      const cleaned = updatedQueue.filter(q => !q.synced);
+      setQueue(cleaned);
+      saveQueue(cleaned);
+    }, 3000);
+
+    syncingRef.current = false;
+    setSyncing(false);
+  }, [user]);
+
+  // Trigger sync when coming back online
+  useEffect(() => {
+    if (isOnline && !syncingRef.current) {
+      const pending = queue.filter(q => !q.synced && !q.error);
+      if (pending.length > 0) {
+        syncQueue();
+      }
+    }
+  }, [isOnline, syncQueue, queue]);
 
   // Add reading to queue
   const addToQueue = useCallback((data: {
@@ -91,7 +160,7 @@ export function useOfflineQueue() {
     saveQueue(updated);
   }, [queue]);
 
-  const pendingCount = queue.filter(q => !q.synced).length;
+  const pendingCount = queue.filter(q => !q.synced && !q.error).length;
   const syncedCount = queue.filter(q => q.synced).length;
   const errorCount = queue.filter(q => q.error && !q.synced).length;
 
@@ -99,7 +168,7 @@ export function useOfflineQueue() {
     queue,
     isOnline,
     syncing,
-    setSyncing,
+    syncQueue,
     addToQueue,
     removeFromQueue,
     markSynced,
