@@ -71,6 +71,10 @@ import {
   HeartPulse,
   Umbrella,
   ArrowDownUp,
+  Bitcoin,
+  Coins,
+  Baby,
+  GitCompareArrows,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -178,6 +182,10 @@ export default function CommandPalette() {
     { id: 'nav-spenden', label: 'Spenden-Rechner', description: 'Spendenabzug berechnen', icon: HeartPulse, category: 'navigation', keywords: ['spende', 'spenden', 'gemeinnuetzig', 'partei', 'stiftung', 'sonderausgabe'], action: () => runAndClose(() => navigate('/spenden-rechner')) },
     { id: 'nav-riester', label: 'Riester-Rechner', description: 'Zulagen & Sonderausgabenabzug', icon: Umbrella, category: 'navigation', keywords: ['riester', 'rente', 'zulage', 'altersvorsorge', 'sonderausgabe', 'guenstigerpruefung'], action: () => runAndClose(() => navigate('/riester-rechner')) },
     { id: 'nav-verlustverrechnung', label: 'Verlustverrechnung', description: 'Verlustvorträge verwalten', icon: ArrowDownUp, category: 'navigation', keywords: ['verlust', 'vortrag', 'verrechnung', 'ruecktrag', 'topf', 'aktien'], action: () => runAndClose(() => navigate('/verlustverrechnung')) },
+    { id: 'nav-krypto', label: 'Krypto-Steuer', description: 'Haltefrist & Freigrenze', icon: Bitcoin, category: 'navigation', keywords: ['krypto', 'bitcoin', 'ethereum', 'haltefrist', 'freigrenze', 'coin', 'token'], action: () => runAndClose(() => navigate('/krypto-steuer')) },
+    { id: 'nav-minijob', label: 'Minijob-Rechner', description: 'Minijob & Midijob Abgaben', icon: Coins, category: 'navigation', keywords: ['minijob', 'midijob', '538', 'geringfuegig', 'gleitzone', 'uebergangsbereich'], action: () => runAndClose(() => navigate('/minijob-rechner')) },
+    { id: 'nav-elterngeld', label: 'Elterngeld', description: 'Basis, Plus & Partnerbonus', icon: Baby, category: 'navigation', keywords: ['elterngeld', 'elternzeit', 'baby', 'kind', 'geburt', 'zulage', 'partnerschaftsbonus'], action: () => runAndClose(() => navigate('/elterngeld-rechner')) },
+    { id: 'nav-bescheidvergleich', label: 'Bescheid-Vergleicher', description: 'Bescheide vergleichen', icon: GitCompareArrows, category: 'navigation', keywords: ['vergleich', 'bescheid', 'abweichung', 'differenz', 'aenderung', 'einspruch'], action: () => runAndClose(() => navigate('/bescheid-vergleicher')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

@@ -64,6 +64,10 @@ import {
   HeartPulse,
   Umbrella,
   ArrowDownUp,
+  Bitcoin,
+  Coins,
+  Baby,
+  GitCompareArrows,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -126,6 +130,10 @@ const navigation = [
   { name: 'Spenden-Rechner', href: '/spenden-rechner', icon: HeartPulse },
   { name: 'Riester-Rechner', href: '/riester-rechner', icon: Umbrella },
   { name: 'Verlustverrechnung', href: '/verlustverrechnung', icon: ArrowDownUp },
+  { name: 'Krypto-Steuer', href: '/krypto-steuer', icon: Bitcoin },
+  { name: 'Minijob-Rechner', href: '/minijob-rechner', icon: Coins },
+  { name: 'Elterngeld', href: '/elterngeld-rechner', icon: Baby },
+  { name: 'Bescheid-Vergleicher', href: '/bescheid-vergleicher', icon: GitCompareArrows },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

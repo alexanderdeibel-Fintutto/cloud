@@ -79,6 +79,10 @@ import DoppelteHaushaltsfuehrungPage from './pages/DoppelteHaushaltsfuehrungPage
 import SpendenRechnerPage from './pages/SpendenRechnerPage'
 import RiesterRechnerPage from './pages/RiesterRechnerPage'
 import VerlustverrechnungPage from './pages/VerlustverrechnungPage'
+import KryptoSteuerPage from './pages/KryptoSteuerPage'
+import MinijobRechnerPage from './pages/MinijobRechnerPage'
+import ElterngeldRechnerPage from './pages/ElterngeldRechnerPage'
+import BescheidVergleicherPage from './pages/BescheidVergleicherPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -177,6 +181,10 @@ function App() {
             <Route path="spenden-rechner" element={<SpendenRechnerPage />} />
             <Route path="riester-rechner" element={<RiesterRechnerPage />} />
             <Route path="verlustverrechnung" element={<VerlustverrechnungPage />} />
+            <Route path="krypto-steuer" element={<KryptoSteuerPage />} />
+            <Route path="minijob-rechner" element={<MinijobRechnerPage />} />
+            <Route path="elterngeld-rechner" element={<ElterngeldRechnerPage />} />
+            <Route path="bescheid-vergleicher" element={<BescheidVergleicherPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
