@@ -125,7 +125,7 @@ function AppCard({ app }: { app: AppInfo }) {
 }
 
 export default function AppsPage() {
-  const [filter, setFilter] = useState<'alle' | 'mieter' | 'vermieter' | 'alle-nutzer'>('alle')
+  const [filter, setFilter] = useState<'alle' | 'mieter' | 'vermieter' | 'immobilien' | 'finanzen' | 'lifestyle' | 'sales'>('alle')
 
   const filteredApps = FINTUTTO_APPS.filter((app) => {
     if (filter === 'alle') return true
@@ -133,6 +133,8 @@ export default function AppsPage() {
       return app.targetAudience.includes('Mieter')
     if (filter === 'vermieter')
       return app.targetAudience.includes('Vermieter') || app.targetAudience.includes('Hausverwaltung')
+    if (filter === 'immobilien' || filter === 'finanzen' || filter === 'lifestyle' || filter === 'sales')
+      return app.category === filter
     return true
   })
 
@@ -146,7 +148,11 @@ export default function AppsPage() {
             <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="h-4 w-4 text-yellow-300" />
               <span className="text-white/90 text-sm font-medium">
+ claude/improve-app-integration-k7JF2
+                15 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
+
                 7 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
+ main
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -185,8 +191,11 @@ export default function AppsPage() {
           <div className="flex flex-wrap items-center justify-center gap-2">
             {[
               { key: 'alle', label: 'Alle Apps', icon: '🌐' },
+              { key: 'immobilien', label: 'Immobilien', icon: '🏠' },
+              { key: 'finanzen', label: 'Finanzen & Tools', icon: '🧮' },
+              { key: 'lifestyle', label: 'Lifestyle', icon: '🌱' },
               { key: 'mieter', label: 'Für Mieter', icon: '🔑' },
-              { key: 'vermieter', label: 'Für Vermieter', icon: '🏠' },
+              { key: 'vermieter', label: 'Für Vermieter', icon: '🏢' },
             ].map((f) => (
               <button
                 key={f.key}

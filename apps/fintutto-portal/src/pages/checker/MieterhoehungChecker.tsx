@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { TrendingUp } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 
 interface FormData {
   plz: string
@@ -21,6 +21,7 @@ interface FormData {
 
 export default function MieterhoehungChecker() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
 
@@ -338,6 +339,7 @@ export default function MieterhoehungChecker() {
           </div>
         </CheckerStep>
       )}
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </CheckerLayout>
   )
 }

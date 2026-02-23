@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { PiggyBank, Info, ArrowLeft, Calculator, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 interface KautionResult {
   maxKaution: number
@@ -30,6 +31,10 @@ export default function KautionsRechner() {
     url: 'https://vermieter.fintutto.cloud/rechner/kaution',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
   const [kaltmiete, setKaltmiete] = useState<string>('')
   const [aktuelleKaution, setAktuelleKaution] = useState<string>('')
@@ -62,6 +67,7 @@ export default function KautionsRechner() {
     hinweise.push(`Der Mieter kann die Kaution in bis zu 3 Raten zu je ${formatCurrency(rateProMonat)} zahlen.`)
     hinweise.push('Die erste Rate ist zu Beginn des Mietverhältnisses fällig.')
 
+    setDirty()
     setResult({
       maxKaution,
       rateProMonat,
@@ -69,12 +75,14 @@ export default function KautionsRechner() {
       isValid,
       hinweise,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   const reset = () => {
     setKaltmiete('')
     setAktuelleKaution('')
     setResult(null)
+    toast('Eingaben zurückgesetzt')
   }
 
   return (
@@ -206,14 +214,17 @@ export default function KautionsRechner() {
                 <>
                   <Card className={result.isValid ? 'border-success/30' : 'border-destructive/30'}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        {result.isValid ? (
-                          <CheckCircle2 className="h-5 w-5 text-success" />
-                        ) : (
-                          <AlertTriangle className="h-5 w-5 text-destructive" />
-                        )}
-                        Ergebnis
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {result.isValid ? (
+                            <CheckCircle2 className="h-5 w-5 text-success" />
+                          ) : (
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                          )}
+                          Ergebnis
+                        </CardTitle>
+                        <ShareResultButton title="Kautions-Rechner Ergebnis" url="/rechner/kaution" text={formatCurrency(result.maxKaution)} />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center py-4">
@@ -276,6 +287,8 @@ export default function KautionsRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

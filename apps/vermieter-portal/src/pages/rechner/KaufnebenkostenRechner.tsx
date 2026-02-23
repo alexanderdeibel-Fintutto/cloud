@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Euro, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 const bundeslaender = [
   { name: 'Baden-Württemberg', grunderwerbsteuer: 5.0 },
@@ -40,6 +41,10 @@ export default function KaufnebenkostenRechner() {
     url: 'https://vermieter.fintutto.cloud/rechner/kaufnebenkosten',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')
   const [makler, setMakler] = useState<string>('3.57')
@@ -60,6 +65,7 @@ export default function KaufnebenkostenRechner() {
     const gesamtkosten = kp + gesamtNebenkosten
     const prozentVomKaufpreis = (gesamtNebenkosten / kp) * 100
 
+    setDirty()
     setResult({
       kaufpreis: kp,
       grunderwerbsteuer: { prozent: grunderwerbsteuer, betrag: grunderwerbsteuerBetrag },
@@ -70,6 +76,7 @@ export default function KaufnebenkostenRechner() {
       gesamtkosten,
       prozentVomKaufpreis,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -124,7 +131,7 @@ export default function KaufnebenkostenRechner() {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button onClick={berechnen} disabled={!kaufpreis} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                  <Button variant="outline" onClick={() => { setKaufpreis(''); setResult(null) }}>Zurücksetzen</Button>
+                  <Button variant="outline" onClick={() => { setKaufpreis(''); setResult(null); toast('Eingaben zurückgesetzt') }}>Zurücksetzen</Button>
                 </div>
               </CardContent>
             </Card>
@@ -132,7 +139,12 @@ export default function KaufnebenkostenRechner() {
             <div className="space-y-6">
               {result ? (
                 <Card>
-                  <CardHeader><CardTitle>Kostenübersicht</CardTitle></CardHeader>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Kostenübersicht</CardTitle>
+                      <ShareResultButton title="Kaufnebenkosten-Rechner Ergebnis" url="/rechner/kaufnebenkosten" text={formatCurrency(result.gesamtNebenkosten)} />
+                    </div>
+                  </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between py-2 border-b">
                       <span>Kaufpreis</span>
@@ -179,6 +191,8 @@ export default function KaufnebenkostenRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

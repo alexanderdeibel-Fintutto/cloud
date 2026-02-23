@@ -7,6 +7,7 @@ export interface CommandItem {
   path: string
   icon?: string
   keywords?: string[]
+  external?: boolean
 }
 
 interface CommandPaletteProps {
@@ -300,4 +301,20 @@ export const CHECKER_TOOLS: CommandItem[] = [
   { id: 'c-eigenbedarf', title: 'Eigenbedarf-Checker', category: 'Checker', path: '/checker/eigenbedarf', icon: '\uD83C\uDFE0', keywords: ['eigenbedarf'] },
   { id: 'c-modernisierung', title: 'Modernisierungs-Checker', category: 'Checker', path: '/checker/modernisierung', icon: '\uD83D\uDD28', keywords: ['modernisierung'] },
   { id: 'c-schoenheit', title: 'Schoenheitsreparaturen-Checker', category: 'Checker', path: '/checker/schoenheitsreparaturen', icon: '\uD83C\uDFA8', keywords: ['schoenheit', 'renovierung'] },
+]
+
+export const ECOSYSTEM_TOOLS: CommandItem[] = [
+  { id: 'e-vermietify', title: 'Vermietify', category: 'Ökosystem', path: 'https://vermietify.vercel.app', icon: '🏠', keywords: ['immobilien', 'verwaltung', 'vermieter'], external: true },
+  { id: 'e-ablesung', title: 'Ablesung', category: 'Ökosystem', path: 'https://ablesung.vercel.app', icon: '📊', keywords: ['zähler', 'strom', 'gas', 'wasser'], external: true },
+  { id: 'e-hausmeister', title: 'HausmeisterPro', category: 'Ökosystem', path: 'https://hausmeister-pro.vercel.app', icon: '🔧', keywords: ['hausmeister', 'facility'], external: true },
+  { id: 'e-mieter', title: 'Mieter-App', category: 'Ökosystem', path: 'https://mieter-kw8d.vercel.app', icon: '🏡', keywords: ['mieter', 'mängel', 'wohnung'], external: true },
+  { id: 'e-bescheidboxer', title: 'BescheidBoxer', category: 'Ökosystem', path: 'https://bescheidboxer.vercel.app', icon: '📋', keywords: ['bescheid', 'steuer', 'widerspruch'], external: true },
+  { id: 'e-portal', title: 'Fintutto Portal', category: 'Ökosystem', path: 'https://portal.fintutto.cloud', icon: '🧮', keywords: ['rechner', 'checker', 'formulare'], external: true },
+  { id: 'e-financial', title: 'Financial Compass', category: 'Ökosystem', path: 'https://fintutto-your-financial-compass.vercel.app', icon: '🧭', keywords: ['finanzen', 'buchhaltung', 'steuer'], external: true },
+  { id: 'e-admin', title: 'Admin-Hub', category: 'Ökosystem', path: 'https://fintutto-admin-hub.vercel.app', icon: '⚙️', keywords: ['admin', 'verwaltung'], external: true },
+  { id: 'e-translator', title: 'Übersetzer', category: 'Ökosystem', path: 'https://translator-fintutto.vercel.app', icon: '🌐', keywords: ['übersetzer', 'sprachen', 'translator'], external: true },
+  { id: 'e-pflanzen', title: 'Pflanzen-Manager', category: 'Ökosystem', path: 'https://zimmerpflanze.vercel.app', icon: '🌱', keywords: ['pflanzen', 'gießen', 'zimmerpflanze'], external: true },
+  { id: 'e-fitness', title: 'Personaltrainer', category: 'Ökosystem', path: 'https://personaltrainer-murex.vercel.app', icon: '💪', keywords: ['fitness', 'training', 'sport'], external: true },
+  { id: 'e-luggage', title: 'LuggageX', category: 'Ökosystem', path: 'https://luggagex-fintutto.vercel.app', icon: '🧳', keywords: ['gepäck', 'reise', 'koffer'], external: true },
+  { id: 'e-guide', title: 'GuideTranslator', category: 'Ökosystem', path: 'https://app.guidetranslator.com', icon: '🚢', keywords: ['kreuzfahrt', 'guide', 'übersetzer'], external: true },
 ]

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
-import { useDocumentTitle, useMetaTags, useJsonLd } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 interface RenditeResult {
   bruttoRendite: number
@@ -31,6 +32,10 @@ export default function RenditeRechner() {
     url: 'https://vermieter.fintutto.cloud/rechner/rendite',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
@@ -71,6 +76,7 @@ export default function RenditeRechner() {
     const eigenkapitalRendite = ek > 0 ? (cashflowJaehrlich / ek) * 100 : 0
     const faktorKaufpreis = jahresmiete > 0 ? kp / jahresmiete : 0
 
+    setDirty()
     setResult({
       bruttoRendite,
       nettoRendite,
@@ -79,6 +85,7 @@ export default function RenditeRechner() {
       eigenkapitalRendite,
       faktorKaufpreis,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -185,7 +192,7 @@ export default function RenditeRechner() {
                     <Button onClick={berechnen} disabled={!kaufpreis || !monatsmiete} className="flex-1 gradient-vermieter text-white">
                       Berechnen
                     </Button>
-                    <Button variant="outline" onClick={() => { setKaufpreis(''); setMonatsmiete(''); setResult(null) }}>
+                    <Button variant="outline" onClick={() => { setKaufpreis(''); setMonatsmiete(''); setResult(null); toast('Eingaben zurückgesetzt') }}>
                       Zurücksetzen
                     </Button>
                   </div>
@@ -198,7 +205,10 @@ export default function RenditeRechner() {
                 <>
                   <Card>
                     <CardHeader>
-                      <CardTitle>Rendite-Übersicht</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Rendite-Übersicht</CardTitle>
+                        <ShareResultButton title="Rendite-Rechner Ergebnis" url="/rechner/rendite" text={`${result.bruttoRendite.toFixed(2)}% Brutto-Rendite`} />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -260,6 +270,8 @@ export default function RenditeRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

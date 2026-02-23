@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Building2 } from 'lucide-react'
 import { getOtherApps } from '@fintutto/shared'
 
-const ecosystemApps = getOtherApps('portal')
+const ecosystemApps = getOtherApps('vermieter-portal')
 
 const footerLinks = {
   rechner: [
@@ -20,10 +20,10 @@ const footerLinks = {
     { name: 'Betriebskosten', href: '/formulare/betriebskosten' },
   ],
   unternehmen: [
+    { name: 'Alle Apps', href: '/apps' },
     { name: 'Über uns', href: '/ueber-uns' },
     { name: 'Preise', href: '/pricing' },
     { name: 'Kontakt', href: '/kontakt' },
-    { name: 'Blog', href: '/blog' },
   ],
   rechtliches: [
     { name: 'Impressum', href: '/impressum' },

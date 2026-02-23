@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProperties } from '@/hooks/useProperties'
-import { getOtherApps, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner, EcosystemStatsBar } from '@fintutto/shared'
 
 const ecosystemApps = [
   {
@@ -232,6 +232,13 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <EcosystemStatsBar
+        linkTo="/apps"
+        renderLink={({ to, children, className }) => (
+          <Link to={to} className={className}>{children}</Link>
+        )}
+      />
 
       {/* Stats */}
       <section className="py-6 border-b border-border bg-background">

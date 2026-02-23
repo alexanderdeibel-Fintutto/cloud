@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Building2, Calculator, FileText, Menu, X, Search } from 'lucide-react'
+import { Building2, Calculator, FileText, LayoutGrid, Menu, X, Search } from 'lucide-react'
 import { useState } from 'react'
 import { modKey } from '@fintutto/shared'
 import { Button } from '../ui/button'
@@ -8,6 +8,7 @@ import { CreditsDisplay } from '../CreditsDisplay'
 const navigation = [
   { name: 'Rechner', href: '/rechner', icon: Calculator },
   { name: 'Formulare', href: '/formulare', icon: FileText },
+  { name: 'Apps', href: '/apps', icon: LayoutGrid },
   { name: 'Preise', href: '/preise', icon: null },
 ]
 

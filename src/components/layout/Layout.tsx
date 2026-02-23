@@ -1,6 +1,11 @@
 import { ReactNode } from 'react'
+ claude/improve-app-integration-k7JF2
+import { useNavigate } from 'react-router-dom'
+import { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS, useScrollToTop, KeyboardShortcutsHelp } from '@fintutto/shared'
+
 import { useLocation, useNavigate } from 'react-router-dom'
 import { CommandPalette, CHECKER_TOOLS, useScrollToTop } from '@fintutto/shared'
+ main
 import Header from './Header'
 import Footer from './Footer'
 import FitTuttoNav from './FitTuttoNav'
@@ -29,9 +34,10 @@ export default function Layout({ children }: LayoutProps) {
       <main id="main-content" className={cn('flex-1', isFitTutto && 'pb-20 md:pb-0')} role="main">{children}</main>
       <Footer />
       <CommandPalette
-        items={CHECKER_TOOLS}
-        onSelect={(item) => navigate(item.path)}
+        items={[...CHECKER_TOOLS, ...ECOSYSTEM_TOOLS]}
+        onSelect={(item) => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
       />
+      <KeyboardShortcutsHelp />
     </div>
   )
 }

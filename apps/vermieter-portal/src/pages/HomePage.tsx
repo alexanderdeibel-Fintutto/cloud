@@ -20,7 +20,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { useAuth } from '../contexts/AuthContext'
 import { useProperties } from '../hooks/useProperties'
-import { getOtherApps, useDocumentTitle } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle, EcosystemStatsBar } from '@fintutto/shared'
 
 const ecosystemApps = getOtherApps('portal')
 
@@ -184,6 +184,13 @@ export default function HomePage() {
         <div className="absolute top-20 right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-1/4 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
       </section>
+
+      <EcosystemStatsBar
+        linkTo="/apps"
+        renderLink={({ to, children, className }) => (
+          <Link to={to} className={className}>{children}</Link>
+        )}
+      />
 
       {/* Features Bar */}
       <section className="border-b border-border bg-card">

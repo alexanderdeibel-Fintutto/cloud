@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { CommandPalette, PORTAL_TOOLS, useScrollToTop, PrintStyles } from '@fintutto/shared'
+import { CommandPalette, PORTAL_TOOLS, ECOSYSTEM_TOOLS, useScrollToTop, PrintStyles, KeyboardShortcutsHelp } from '@fintutto/shared'
 import Header from './Header'
 import Footer from './Footer'
 import EcosystemBar from './EcosystemBar'
@@ -20,10 +20,11 @@ export default function Layout() {
       </main>
       <Footer />
       <CommandPalette
-        items={PORTAL_TOOLS}
-        onSelect={(item) => navigate(item.path)}
+        items={[...PORTAL_TOOLS, ...ECOSYSTEM_TOOLS.filter(t => t.id !== 'e-portal')]}
+        onSelect={(item) => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
       />
       <PrintStyles />
+      <KeyboardShortcutsHelp />
     </div>
   )
 }

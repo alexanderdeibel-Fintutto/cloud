@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Calculator, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
 import LoginPrompt from '../../components/shared/LoginPrompt'
-import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useLocalStorage, useUnsavedChanges, useKeyboardNav, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
 import { useTrackTool } from '@/hooks/useTrackTool'
 import { toast } from 'sonner'
 
@@ -56,6 +56,7 @@ export default function MieterhoehungsRechner() {
   })
   useTrackTool('Mieterhöhungs-Rechner')
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty, reset: resetDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
@@ -361,6 +362,8 @@ export default function MieterhoehungsRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }

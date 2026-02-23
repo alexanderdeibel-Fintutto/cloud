@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer, FileText } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
@@ -78,6 +78,7 @@ export default function KuendigungFormular() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/formulare') })
   const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState(0)
@@ -281,6 +282,8 @@ export default function KuendigungFormular() {
           </div>
         </CardContent>
       </Card>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }
