@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Users, ArrowLeft, Printer, ChevronLeft, ChevronRight, User, Briefcase, Home, Shield, CheckCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
@@ -54,6 +54,7 @@ export default function SelbstauskunftFormular() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/formulare') })
   const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState(0)
@@ -172,6 +173,8 @@ export default function SelbstauskunftFormular() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }

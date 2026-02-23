@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import PropertySelector from '../../components/shared/PropertySelector'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 
 interface RenditeResult {
@@ -33,6 +33,7 @@ export default function RenditeRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty } = useUnsavedChanges()
   const [searchParams] = useSearchParams()
@@ -269,6 +270,8 @@ export default function RenditeRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

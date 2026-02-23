@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { ClipboardList, ArrowLeft, Home, Gauge, Key, CheckCircle, AlertTriangle, Printer, Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 import { useTrackTool } from '@/hooks/useTrackTool'
 
@@ -49,6 +49,7 @@ export default function UebergabeprotokollFormular() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/formulare') })
   const { setDirty } = useUnsavedChanges()
   const [section, setSection] = useState<'info' | 'rooms' | 'meters' | 'keys' | 'summary'>('info')
@@ -288,6 +289,8 @@ export default function UebergabeprotokollFormular() {
           )}
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }

@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 
 export default function GrundsteuerRechner() {
@@ -23,6 +23,7 @@ export default function GrundsteuerRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty } = useUnsavedChanges()
   const [grundstueckswert, setGrundstueckswert] = useState<string>('')
@@ -160,6 +161,8 @@ export default function GrundsteuerRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

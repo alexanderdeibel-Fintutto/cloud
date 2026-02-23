@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Receipt, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 
 const kostenarten = [
@@ -29,6 +29,7 @@ export default function NebenkostenRechner() {
     offers: { price: '0', priceCurrency: 'EUR' },
   })
   const navigate = useNavigate()
+  const location = useLocation()
   useKeyboardNav({ onEscape: () => navigate('/rechner') })
   const { setDirty } = useUnsavedChanges()
   const [wohnflaeche, setWohnflaeche] = useState<string>('')
@@ -189,6 +190,8 @@ export default function NebenkostenRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }
