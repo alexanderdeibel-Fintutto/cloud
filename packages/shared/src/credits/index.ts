@@ -55,10 +55,10 @@ export interface UserCredits {
 
 function getEnv(key: string, fallback: string = ''): string {
   if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env[key] || fallback
+    return (import.meta.env as Record<string, string>)[key] || fallback
   }
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key] || fallback
+  if (typeof globalThis !== 'undefined' && 'process' in globalThis) {
+    return ((globalThis as any).process.env as Record<string, string>)[key] || fallback
   }
   return fallback
 }
