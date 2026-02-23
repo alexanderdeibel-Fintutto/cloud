@@ -6,7 +6,7 @@ import {
   ArrowLeft, ArrowRight, Target, MapPin, Calendar, Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -23,11 +23,17 @@ import {
 
 function generateId() { return crypto.randomUUID() }
 
-// --- Plan generation based on parameters ---
-function generatePlanFromGoal(
-  goal: FitnessGoal, level: FitnessLevel, location: TrainingLocation, daysPerWeek: number
+// --- Plan generation supporting multiple goals & locations ---
+function generatePlanFromParams(
+  goals: FitnessGoal[],
+  level: FitnessLevel,
+  locations: TrainingLocation[],
+  daysPerWeek: number,
 ): PlanDay[] {
-  const gymExercises = EXERCISES.filter(e => e.locations.includes(location))
+  // Filter exercises available at ANY selected location
+  const gymExercises = EXERCISES.filter(e =>
+    e.locations.some(loc => locations.includes(loc))
+  )
 
   const splitConfigs: Record<number, { name: string; muscles: string[] }[]> = {
     2: [
@@ -62,9 +68,14 @@ function generatePlanFromGoal(
     ],
   }
 
-  const setsPerExercise = goal === 'gain_strength' ? 4 : goal === 'build_muscle' ? 3 : 3
-  const repsRange = goal === 'gain_strength' ? '3-5' : goal === 'build_muscle' ? '8-12' : '10-15'
-  const restSeconds = goal === 'gain_strength' ? 180 : goal === 'build_muscle' ? 90 : 60
+  // Use primary goal (first selected) for programming variables
+  const primaryGoal = goals[0]
+  const hasEndurance = goals.includes('improve_endurance')
+  const hasStrength = goals.includes('gain_strength')
+
+  const setsPerExercise = hasStrength ? 4 : primaryGoal === 'build_muscle' ? 3 : 3
+  const repsRange = hasStrength ? '3-5' : primaryGoal === 'build_muscle' ? '8-12' : hasEndurance ? '12-20' : '10-15'
+  const restSeconds = hasStrength ? 180 : primaryGoal === 'build_muscle' ? 90 : 60
   const exercisesPerDay = level === 'beginner' ? 4 : level === 'intermediate' ? 5 : 6
 
   const splits = splitConfigs[Math.min(daysPerWeek, 6)] || splitConfigs[3]
@@ -104,16 +115,16 @@ function generatePlanFromGoal(
 
 export default function FitTuttoPlanPage() {
   const { user } = useAuth()
-  const { profile, plans, savePlan, deletePlan, setActivePlan, loadPlans } = useFitness()
+  const { plans, savePlan, deletePlan, setActivePlan, loadPlans } = useFitness()
 
   const [view, setView] = useState<'list' | 'edit' | 'wizard'>('list')
   const [editingPlan, setEditingPlan] = useState<TrainingPlan | null>(null)
   const [wizardStep, setWizardStep] = useState(0)
 
-  // Generator state - starts empty so user MUST choose
-  const [genGoal, setGenGoal] = useState<FitnessGoal | ''>('')
+  // Generator state - ALWAYS starts empty so user MUST choose
+  const [genGoals, setGenGoals] = useState<FitnessGoal[]>([])
   const [genLevel, setGenLevel] = useState<FitnessLevel | ''>('')
-  const [genLocation, setGenLocation] = useState<TrainingLocation | ''>('')
+  const [genLocations, setGenLocations] = useState<TrainingLocation[]>([])
   const [genDays, setGenDays] = useState('')
   const [genName, setGenName] = useState('')
 
@@ -133,32 +144,50 @@ export default function FitTuttoPlanPage() {
 
   useEffect(() => { loadPlans() }, [loadPlans])
 
+  // ALWAYS start fresh - never pre-fill from profile
   const startWizard = () => {
-    // Pre-fill from profile if available, but user can change everything
-    setGenGoal(profile?.fitnessGoal || '')
-    setGenLevel(profile?.fitnessLevel || '')
-    setGenLocation(profile?.trainingLocation || '')
-    setGenDays(profile?.trainingDaysPerWeek?.toString() || '')
+    setGenGoals([])
+    setGenLevel('')
+    setGenLocations([])
+    setGenDays('')
     setGenName('')
     setWizardStep(0)
     setView('wizard')
   }
 
+  const toggleGoal = (goal: FitnessGoal) => {
+    setGenGoals(prev =>
+      prev.includes(goal)
+        ? prev.filter(g => g !== goal)
+        : [...prev, goal]
+    )
+  }
+
+  const toggleLocation = (loc: TrainingLocation) => {
+    setGenLocations(prev =>
+      prev.includes(loc)
+        ? prev.filter(l => l !== loc)
+        : [...prev, loc]
+    )
+  }
+
   const handleGenerate = () => {
-    if (!genGoal || !genLevel || !genLocation || !genDays) {
+    if (genGoals.length === 0 || !genLevel || genLocations.length === 0 || !genDays) {
       toast.error('Bitte fuelle alle Felder aus.')
       return
     }
-    const days = generatePlanFromGoal(genGoal as FitnessGoal, genLevel as FitnessLevel, genLocation as TrainingLocation, parseInt(genDays))
-    const planName = genName.trim() || `${FITNESS_GOAL_LABELS[genGoal as FitnessGoal]} - ${parseInt(genDays)}x/Woche`
+    const days = generatePlanFromParams(genGoals, genLevel as FitnessLevel, genLocations, parseInt(genDays))
+    const goalNames = genGoals.map(g => FITNESS_GOAL_LABELS[g]).join(' + ')
+    const locationNames = genLocations.map(l => LOCATION_LABELS[l]).join(' + ')
+    const planName = genName.trim() || `${goalNames} - ${parseInt(genDays)}x/Woche`
     const plan: TrainingPlan = {
       id: generateId(),
       userId: user?.id || '',
       name: planName,
-      description: `${FITNESS_LEVEL_LABELS[genLevel as FitnessLevel]} | ${LOCATION_LABELS[genLocation as TrainingLocation]}`,
-      goal: genGoal as FitnessGoal,
+      description: `${FITNESS_LEVEL_LABELS[genLevel as FitnessLevel]} | ${locationNames}`,
+      goal: genGoals[0], // primary goal stored in DB
       level: genLevel as FitnessLevel,
-      location: genLocation as TrainingLocation,
+      location: genLocations[0], // primary location stored in DB
       durationWeeks: 8,
       daysPerWeek: parseInt(genDays),
       days,
@@ -302,16 +331,16 @@ export default function FitTuttoPlanPage() {
   const pickerResults = pickerQuery ? searchExercises(pickerQuery) : EXERCISES.slice(0, 30)
 
   const wizardSteps = [
-    { key: 'goal', title: 'Was ist dein Ziel?', icon: <Target className="w-6 h-6" /> },
-    { key: 'level', title: 'Dein Fitness-Level?', icon: <Zap className="w-6 h-6" /> },
-    { key: 'location', title: 'Wo trainierst du?', icon: <MapPin className="w-6 h-6" /> },
-    { key: 'days', title: 'Wie oft pro Woche?', icon: <Calendar className="w-6 h-6" /> },
+    { key: 'goals', title: 'Was sind deine Ziele?', subtitle: 'Waehle ein oder mehrere Ziele', icon: <Target className="w-6 h-6" /> },
+    { key: 'level', title: 'Dein Fitness-Level?', subtitle: 'Waehle dein aktuelles Level', icon: <Zap className="w-6 h-6" /> },
+    { key: 'locations', title: 'Wo trainierst du?', subtitle: 'Waehle einen oder mehrere Orte', icon: <MapPin className="w-6 h-6" /> },
+    { key: 'days', title: 'Wie oft pro Woche?', subtitle: 'Waehle deine Trainingsfrequenz', icon: <Calendar className="w-6 h-6" /> },
   ]
 
   const canGoNext = (): boolean => {
-    if (wizardStep === 0) return !!genGoal
+    if (wizardStep === 0) return genGoals.length > 0
     if (wizardStep === 1) return !!genLevel
-    if (wizardStep === 2) return !!genLocation
+    if (wizardStep === 2) return genLocations.length > 0
     if (wizardStep === 3) return !!genDays
     return false
   }
@@ -322,7 +351,12 @@ export default function FitTuttoPlanPage() {
       toast.error('Bitte waehle Ziel, Level und Trainingsort.')
       return
     }
-    const days = generatePlanFromGoal(editingPlan.goal, editingPlan.level, editingPlan.location, editingPlan.daysPerWeek)
+    const days = generatePlanFromParams(
+      [editingPlan.goal],
+      editingPlan.level,
+      [editingPlan.location],
+      editingPlan.daysPerWeek,
+    )
     setEditingPlan({
       ...editingPlan,
       days,
@@ -360,7 +394,8 @@ export default function FitTuttoPlanPage() {
               {wizardSteps[wizardStep].icon}
             </div>
             <h1 className="text-2xl font-bold">{wizardSteps[wizardStep].title}</h1>
-            <p className="text-gray-500 mt-1">Schritt {wizardStep + 1} von {wizardSteps.length}</p>
+            <p className="text-gray-500 mt-1">{wizardSteps[wizardStep].subtitle}</p>
+            <p className="text-xs text-gray-400 mt-0.5">Schritt {wizardStep + 1} von {wizardSteps.length}</p>
           </div>
 
           {/* Step Content */}
@@ -372,28 +407,36 @@ export default function FitTuttoPlanPage() {
               exit={{ opacity: 0, x: -30 }}
               transition={{ duration: 0.2 }}
             >
-              {/* Step 0: Goal */}
+              {/* Step 0: Goals (MULTI-SELECT) */}
               {wizardStep === 0 && (
                 <div className="grid grid-cols-2 gap-3">
-                  {(Object.entries(FITNESS_GOAL_LABELS) as [FitnessGoal, string][]).map(([key, label]) => (
-                    <button
-                      key={key}
-                      onClick={() => setGenGoal(key)}
-                      className={cn(
-                        'p-5 rounded-2xl border-2 text-left transition-all',
-                        genGoal === key
-                          ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-100'
-                          : 'border-gray-200 hover:border-orange-300 bg-white'
-                      )}
-                    >
-                      <span className="text-3xl block mb-2">{FITNESS_GOAL_ICONS[key]}</span>
-                      <span className="font-semibold text-sm">{label}</span>
-                    </button>
-                  ))}
+                  {(Object.entries(FITNESS_GOAL_LABELS) as [FitnessGoal, string][]).map(([key, label]) => {
+                    const selected = genGoals.includes(key)
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => toggleGoal(key)}
+                        className={cn(
+                          'relative p-5 rounded-2xl border-2 text-left transition-all',
+                          selected
+                            ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-100'
+                            : 'border-gray-200 hover:border-orange-300 bg-white'
+                        )}
+                      >
+                        {selected && (
+                          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                            <Check className="w-3.5 h-3.5 text-white" />
+                          </div>
+                        )}
+                        <span className="text-3xl block mb-2">{FITNESS_GOAL_ICONS[key]}</span>
+                        <span className="font-semibold text-sm">{label}</span>
+                      </button>
+                    )
+                  })}
                 </div>
               )}
 
-              {/* Step 1: Level */}
+              {/* Step 1: Level (SINGLE-SELECT) */}
               {wizardStep === 1 && (
                 <div className="space-y-3">
                   {(Object.entries(FITNESS_LEVEL_LABELS) as [FitnessLevel, string][]).map(([key, label]) => {
@@ -433,35 +476,46 @@ export default function FitTuttoPlanPage() {
                 </div>
               )}
 
-              {/* Step 2: Location */}
+              {/* Step 2: Locations (MULTI-SELECT) */}
               {wizardStep === 2 && (
                 <div className="space-y-3">
                   {(Object.entries(LOCATION_LABELS) as [TrainingLocation, string][]).map(([key, label]) => {
-                    const icons: Record<string, string> = {
+                    const selected = genLocations.includes(key)
+                    const descriptions: Record<string, string> = {
                       gym: 'Alle Geraete verfuegbar',
                       home: 'Koerpergewicht, Hanteln, Baender',
                       outdoor: 'Laufen, Calisthenics, Koerpergewicht',
                     }
+                    const locationIcons: Record<string, string> = {
+                      gym: '🏋️',
+                      home: '🏠',
+                      outdoor: '🌳',
+                    }
                     return (
                       <button
                         key={key}
-                        onClick={() => setGenLocation(key)}
+                        onClick={() => toggleLocation(key)}
                         className={cn(
-                          'w-full p-5 rounded-2xl border-2 text-left transition-all flex items-center gap-4',
-                          genLocation === key
+                          'relative w-full p-5 rounded-2xl border-2 text-left transition-all flex items-center gap-4',
+                          selected
                             ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-100'
                             : 'border-gray-200 hover:border-orange-300 bg-white'
                         )}
                       >
+                        {selected && (
+                          <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                            <Check className="w-3.5 h-3.5 text-white" />
+                          </div>
+                        )}
                         <div className={cn(
-                          'w-12 h-12 rounded-xl flex items-center justify-center',
-                          genLocation === key ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-400'
+                          'w-12 h-12 rounded-xl flex items-center justify-center text-2xl',
+                          selected ? 'bg-orange-100' : 'bg-gray-100'
                         )}>
-                          <MapPin className="w-5 h-5" />
+                          {locationIcons[key]}
                         </div>
                         <div>
                           <div className="font-semibold">{label}</div>
-                          <div className="text-sm text-gray-500">{icons[key]}</div>
+                          <div className="text-sm text-gray-500">{descriptions[key]}</div>
                         </div>
                       </button>
                     )
@@ -494,7 +548,10 @@ export default function FitTuttoPlanPage() {
                     <Input
                       value={genName}
                       onChange={e => setGenName(e.target.value)}
-                      placeholder={genGoal ? `${FITNESS_GOAL_LABELS[genGoal as FitnessGoal]} - ${genDays}x/Woche` : 'Mein Trainingsplan'}
+                      placeholder={genGoals.length > 0
+                        ? `${genGoals.map(g => FITNESS_GOAL_LABELS[g]).join(' + ')} - ${genDays}x/Woche`
+                        : 'Mein Trainingsplan'
+                      }
                       className="mt-1"
                     />
                   </div>
@@ -536,21 +593,21 @@ export default function FitTuttoPlanPage() {
             <div className="mt-6 p-4 bg-gray-50 rounded-xl">
               <div className="text-xs font-medium text-gray-400 uppercase mb-2">Deine Auswahl</div>
               <div className="flex flex-wrap gap-2">
-                {genGoal && (
-                  <span className="px-3 py-1 bg-white rounded-full text-sm border border-orange-200 text-orange-700">
-                    {FITNESS_GOAL_ICONS[genGoal as FitnessGoal]} {FITNESS_GOAL_LABELS[genGoal as FitnessGoal]}
+                {genGoals.map(g => (
+                  <span key={g} className="px-3 py-1 bg-white rounded-full text-sm border border-orange-200 text-orange-700">
+                    {FITNESS_GOAL_ICONS[g]} {FITNESS_GOAL_LABELS[g]}
                   </span>
-                )}
+                ))}
                 {genLevel && (
                   <span className="px-3 py-1 bg-white rounded-full text-sm border border-orange-200 text-orange-700">
                     {FITNESS_LEVEL_LABELS[genLevel as FitnessLevel]}
                   </span>
                 )}
-                {genLocation && (
-                  <span className="px-3 py-1 bg-white rounded-full text-sm border border-orange-200 text-orange-700">
-                    {LOCATION_LABELS[genLocation as TrainingLocation]}
+                {genLocations.map(l => (
+                  <span key={l} className="px-3 py-1 bg-white rounded-full text-sm border border-orange-200 text-orange-700">
+                    {LOCATION_LABELS[l]}
                   </span>
-                )}
+                ))}
                 {genDays && (
                   <span className="px-3 py-1 bg-white rounded-full text-sm border border-orange-200 text-orange-700">
                     {genDays}x/Woche
@@ -599,7 +656,7 @@ export default function FitTuttoPlanPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Erstelle deinen ersten Plan</h3>
                 <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                  Waehle dein Ziel, Level und Trainingsort - wir erstellen dir einen massgeschneiderten Trainingsplan.
+                  Waehle deine Ziele, Level und Trainingsorte - wir erstellen dir einen massgeschneiderten Trainingsplan.
                 </p>
                 <Button
                   size="lg"
