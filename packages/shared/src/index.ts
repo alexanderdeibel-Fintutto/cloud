@@ -73,6 +73,15 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   cancelled: 'Abgebrochen',
 }
 
+// Platform detection helpers
+export function isMac() {
+  return typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform)
+}
+
+export function modKey() {
+  return isMac() ? '\u2318' : 'Ctrl'
+}
+
 // Fintutto Ecosystem App Registry
 export const FINTUTTO_APPS = {
   vermietify: {
