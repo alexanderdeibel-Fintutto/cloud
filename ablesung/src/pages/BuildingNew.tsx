@@ -143,7 +143,7 @@ export default function BuildingNew() {
                     placeholder="z.B. Hauptstraße 1"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="pl-11 h-12 rounded-xl border-border/50 bg-background/50 focus:bg-background transition-all"
+                    className="pl-11 h-12 rounded-xl border-border/50 bg-card/80 text-foreground focus:bg-card focus:ring-2 focus:ring-primary/30 transition-all"
                     required
                   />
                 </div>

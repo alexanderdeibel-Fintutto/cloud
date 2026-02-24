@@ -8,14 +8,60 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide Google Maps "Are you the owner of this website?" prompt */
+/* Google Maps Autocomplete dropdown styling */
+.pac-container {
+  background-color: hsl(234 16% 13%) !important;
+  border: 1px solid hsl(234 16% 20%) !important;
+  border-radius: 0.75rem !important;
+  margin-top: 4px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+  z-index: 9999 !important;
+}
+
+.pac-item {
+  padding: 8px 12px !important;
+  border-top: 1px solid hsl(234 16% 18%) !important;
+  color: hsl(0 0% 90%) !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+.pac-item:first-child {
+  border-top: none !important;
+}
+
+.pac-item:hover,
+.pac-item-selected {
+  background-color: hsl(239 84% 58% / 0.15) !important;
+}
+
+.pac-item-query {
+  color: hsl(0 0% 98%) !important;
+  font-weight: 500 !important;
+}
+
+.pac-matched {
+  color: hsl(239 84% 67%) !important;
+  font-weight: 600 !important;
+}
+
+.pac-icon {
+  filter: invert(0.8) !important;
+}
+
+/* Hide Google Maps branding in autocomplete */
 .pac-container .pac-item-query + .pac-item-query,
 .pac-container::after,
+.pac-logo::after {
+  display: none !important;
+}
+
+/* Hide Google Maps error overlays */
 .gm-err-container,
 .gm-err-title,
 .gm-err-message,
-.dismissButton,
-.pac-logo::after {
+.dismissButton {
   display: none !important;
 }
 

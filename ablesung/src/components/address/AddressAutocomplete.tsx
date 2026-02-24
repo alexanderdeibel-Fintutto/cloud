@@ -167,7 +167,7 @@ export function AddressAutocomplete({
           disabled={disabled || !ready}
           required={required}
           className={cn(
-            "pl-11 pr-11 h-12 rounded-xl border-border/50 bg-background/50 focus:bg-background transition-all",
+            "pl-11 pr-11 h-12 rounded-xl border-border/50 bg-card/80 text-foreground focus:bg-card focus:ring-2 focus:ring-primary/30 transition-all",
             isValidated && "border-success/50 bg-success/5",
             error && "border-destructive/50 bg-destructive/5"
           )}
