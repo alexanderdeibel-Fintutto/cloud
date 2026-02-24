@@ -34,7 +34,7 @@ export const productToPricingPlan = (p: {
   price_yearly: number;
   stripe_price_id_monthly: string | null;
   stripe_price_id_yearly: string | null;
-  features: any;
+  features: string[] | Record<string, unknown>;
   sort_order: number | null;
 }): PricingPlan => ({
   id: p.id,

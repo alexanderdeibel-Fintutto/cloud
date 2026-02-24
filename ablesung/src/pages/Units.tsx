@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CascadeDeleteDialog } from '@/components/ui/cascade-delete-dialog';
 import { useBuildings } from '@/hooks/useBuildings';
 import { useToast } from '@/hooks/use-toast';
-import { UnitWithMeters } from '@/types/database';
+import { UnitWithMeters, Building } from '@/types/database';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,7 +28,7 @@ export default function Units() {
   const [searchParams] = useSearchParams();
   const buildingId = searchParams.get('building');
   const { buildings, isLoading, deleteUnit } = useBuildings();
-  const [deleteUnitData, setDeleteUnitData] = useState<(UnitWithMeters & { building?: any }) | null>(null);
+  const [deleteUnitData, setDeleteUnitData] = useState<(UnitWithMeters & { building?: Building }) | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 

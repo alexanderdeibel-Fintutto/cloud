@@ -276,9 +276,9 @@ export default function ReadMeter() {
       setTimeout(() => {
         navigate(`/meters/${selectedMeterId}`);
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Save reading error:', error);
-      const errorMessage = error?.message || error?.toString() || 'Unbekannter Fehler';
+      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
       toast({
         variant: 'destructive',
         title: 'Fehler',

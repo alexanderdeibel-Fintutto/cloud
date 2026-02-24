@@ -26,37 +26,39 @@ export function useGoogleMapsApi() {
 
     isLoading = true;
 
-    loadPromise = new Promise(async (resolve, reject) => {
-      try {
-        // Fetch API key from edge function
-        const { data, error: fnError } = await supabase.functions.invoke('get-maps-key');
-        
-        if (fnError || !data?.apiKey) {
-          throw new Error(fnError?.message || 'Could not load Google Maps API key');
+    loadPromise = new Promise((resolve, reject) => {
+      (async () => {
+        try {
+          // Fetch API key from edge function
+          const { data, error: fnError } = await supabase.functions.invoke('get-maps-key');
+
+          if (fnError || !data?.apiKey) {
+            throw new Error(fnError?.message || 'Could not load Google Maps API key');
+          }
+
+          // Create script element
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places&language=de&region=DE`;
+          script.async = true;
+          script.defer = true;
+
+          script.onload = () => {
+            isLoaded = true;
+            isLoading = false;
+            resolve();
+          };
+
+          script.onerror = () => {
+            isLoading = false;
+            reject(new Error('Failed to load Google Maps script'));
+          };
+
+          document.head.appendChild(script);
+        } catch (err) {
+          isLoading = false;
+          reject(err);
         }
-
-        // Create script element
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places&language=de&region=DE`;
-        script.async = true;
-        script.defer = true;
-
-        script.onload = () => {
-          isLoaded = true;
-          isLoading = false;
-          resolve();
-        };
-
-        script.onerror = () => {
-          isLoading = false;
-          reject(new Error('Failed to load Google Maps script'));
-        };
-
-        document.head.appendChild(script);
-      } catch (err) {
-        isLoading = false;
-        reject(err);
-      }
+      })();
     });
 
     try {

@@ -78,10 +78,11 @@ export function useOfflineQueue() {
         } else {
           updatedQueue[idx] = { ...updatedQueue[idx], synced: true };
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         const idx = updatedQueue.findIndex(q => q.id === entry.id);
         if (idx !== -1) {
-          updatedQueue[idx] = { ...updatedQueue[idx], error: err.message || 'Sync failed' };
+          const message = err instanceof Error ? err.message : 'Sync failed';
+          updatedQueue[idx] = { ...updatedQueue[idx], error: message };
         }
       }
     }
