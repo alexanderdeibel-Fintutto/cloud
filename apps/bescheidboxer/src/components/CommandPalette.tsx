@@ -75,6 +75,10 @@ import {
   Coins,
   Baby,
   GitCompareArrows,
+  SunMedium,
+  Car,
+  UsersRound,
+  ArrowUpFromLine,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -186,6 +190,10 @@ export default function CommandPalette() {
     { id: 'nav-minijob', label: 'Minijob-Rechner', description: 'Minijob & Midijob Abgaben', icon: Coins, category: 'navigation', keywords: ['minijob', 'midijob', '538', 'geringfuegig', 'gleitzone', 'uebergangsbereich'], action: () => runAndClose(() => navigate('/minijob-rechner')) },
     { id: 'nav-elterngeld', label: 'Elterngeld', description: 'Basis, Plus & Partnerbonus', icon: Baby, category: 'navigation', keywords: ['elterngeld', 'elternzeit', 'baby', 'kind', 'geburt', 'zulage', 'partnerschaftsbonus'], action: () => runAndClose(() => navigate('/elterngeld-rechner')) },
     { id: 'nav-bescheidvergleich', label: 'Bescheid-Vergleicher', description: 'Bescheide vergleichen', icon: GitCompareArrows, category: 'navigation', keywords: ['vergleich', 'bescheid', 'abweichung', 'differenz', 'aenderung', 'einspruch'], action: () => runAndClose(() => navigate('/bescheid-vergleicher')) },
+    { id: 'nav-photovoltaik', label: 'Photovoltaik-Steuer', description: 'PV-Anlage steuerlich bewerten', icon: SunMedium, category: 'navigation', keywords: ['photovoltaik', 'pv', 'solar', 'einspeiseverguetung', 'eigenverbrauch', 'strom'], action: () => runAndClose(() => navigate('/photovoltaik')) },
+    { id: 'nav-firmenwagen', label: 'Firmenwagen-Rechner', description: '1%-Regelung & geldwerter Vorteil', icon: Car, category: 'navigation', keywords: ['firmenwagen', 'dienstwagen', '1prozent', 'geldwerter', 'vorteil', 'auto', 'elektro'], action: () => runAndClose(() => navigate('/firmenwagen-rechner')) },
+    { id: 'nav-steuerklassen', label: 'Steuerklassenwahl', description: 'Optimale Steuerklasse für Ehepaare', icon: UsersRound, category: 'navigation', keywords: ['steuerklasse', 'ehepaar', 'splitting', 'faktor', 'lohnsteuer', 'kombination'], action: () => runAndClose(() => navigate('/steuerklassenwahl')) },
+    { id: 'nav-progressionsvorbehalt', label: 'Progressionsvorbehalt', description: 'Steuersatz-Auswirkung § 32b', icon: ArrowUpFromLine, category: 'navigation', keywords: ['progression', 'vorbehalt', 'alg', 'kurzarbeit', 'elterngeld', 'krankengeld', 'steuersatz'], action: () => runAndClose(() => navigate('/progressionsvorbehalt')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

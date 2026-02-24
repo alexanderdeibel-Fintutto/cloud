@@ -68,6 +68,10 @@ import {
   Coins,
   Baby,
   GitCompareArrows,
+  SunMedium,
+  Car,
+  UsersRound,
+  ArrowUpFromLine,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -134,6 +138,10 @@ const navigation = [
   { name: 'Minijob-Rechner', href: '/minijob-rechner', icon: Coins },
   { name: 'Elterngeld', href: '/elterngeld-rechner', icon: Baby },
   { name: 'Bescheid-Vergleicher', href: '/bescheid-vergleicher', icon: GitCompareArrows },
+  { name: 'Photovoltaik-Steuer', href: '/photovoltaik', icon: SunMedium },
+  { name: 'Firmenwagen-Rechner', href: '/firmenwagen-rechner', icon: Car },
+  { name: 'Steuerklassenwahl', href: '/steuerklassenwahl', icon: UsersRound },
+  { name: 'Progressionsvorbeh.', href: '/progressionsvorbehalt', icon: ArrowUpFromLine },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

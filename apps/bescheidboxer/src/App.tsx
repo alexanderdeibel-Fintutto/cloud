@@ -83,6 +83,10 @@ import KryptoSteuerPage from './pages/KryptoSteuerPage'
 import MinijobRechnerPage from './pages/MinijobRechnerPage'
 import ElterngeldRechnerPage from './pages/ElterngeldRechnerPage'
 import BescheidVergleicherPage from './pages/BescheidVergleicherPage'
+import PhotovoltaikSteuerPage from './pages/PhotovoltaikSteuerPage'
+import FirmenwagenRechnerPage from './pages/FirmenwagenRechnerPage'
+import SteuerklassenwahlPage from './pages/SteuerklassenwahlPage'
+import ProgressionsvorbehaltPage from './pages/ProgressionsvorbehaltPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -185,6 +189,10 @@ function App() {
             <Route path="minijob-rechner" element={<MinijobRechnerPage />} />
             <Route path="elterngeld-rechner" element={<ElterngeldRechnerPage />} />
             <Route path="bescheid-vergleicher" element={<BescheidVergleicherPage />} />
+            <Route path="photovoltaik" element={<PhotovoltaikSteuerPage />} />
+            <Route path="firmenwagen-rechner" element={<FirmenwagenRechnerPage />} />
+            <Route path="steuerklassenwahl" element={<SteuerklassenwahlPage />} />
+            <Route path="progressionsvorbehalt" element={<ProgressionsvorbehaltPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
