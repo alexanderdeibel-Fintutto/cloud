@@ -145,6 +145,7 @@ import CalendarPage from "./pages/calendar/CalendarPage";
  import PortalHub from "./pages/portal/PortalHub";
 
  import { AIAssistant } from "./components/ai/AIAssistant";
+ import EcosystemBar from "./components/layout/EcosystemBar";
 
 const queryClient = new QueryClient();
 
@@ -155,6 +156,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+           <EcosystemBar />
            <AIAssistant />
           <Routes>
             {/* Public Routes */}

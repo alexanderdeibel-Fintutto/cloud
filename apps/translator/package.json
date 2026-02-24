@@ -31,7 +31,8 @@
     "sonner": "^1.4.3",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "@fintutto/shared": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",

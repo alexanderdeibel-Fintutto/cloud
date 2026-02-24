@@ -148,11 +148,7 @@ export default function AppsPage() {
             <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="h-4 w-4 text-yellow-300" />
               <span className="text-white/90 text-sm font-medium">
- claude/improve-app-integration-k7JF2
                 15 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
-
-                7 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
- main
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">

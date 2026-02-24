@@ -4,20 +4,12 @@ import { Toaster } from 'sonner'
 import { ErrorBoundary, PageSkeleton } from '@fintutto/shared'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CheckerProvider } from '@/contexts/CheckerContext'
- claude/review-repo-setup-0rnoo
+import { FitnessProvider } from '@/contexts/FitnessContext'
 import Layout from '@/components/layout/Layout'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScrollToTop } from '@/components/ScrollToTop'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 const ExitIntentPopup = lazy(() => import('@/components/monetization/ExitIntentPopup'))
-
-import { FitnessProvider } from '@/contexts/FitnessContext'
-import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { ScrollToTop } from '@/components/ScrollToTop'
-import { ExitIntentPopup } from '@/components/monetization'
-import Layout from '@/components/layout/Layout'
- main
 
 // Eager: HomePage loads instantly (landing page)
 import HomePage from '@/pages/HomePage'
@@ -87,18 +79,7 @@ const WohnungsgeberbestaetigungFormular = lazy(() => import('@/pages/formulare/W
 const NebenkostenvorauszahlungFormular = lazy(() => import('@/pages/formulare/NebenkostenvorauszahlungFormular'))
 
 function PageLoader() {
- claude/review-repo-setup-0rnoo
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">Lädt...</p>
-      </div>
-    </div>
-  )
-
   return <PageSkeleton />
- main
 }
 
 function App() {
