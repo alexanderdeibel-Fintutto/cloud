@@ -72,6 +72,10 @@ import {
   Car,
   UsersRound,
   ArrowUpFromLine,
+  Monitor,
+  GraduationCap,
+  HandCoins,
+  Truck,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -142,6 +146,10 @@ const navigation = [
   { name: 'Firmenwagen-Rechner', href: '/firmenwagen-rechner', icon: Car },
   { name: 'Steuerklassenwahl', href: '/steuerklassenwahl', icon: UsersRound },
   { name: 'Progressionsvorbeh.', href: '/progressionsvorbehalt', icon: ArrowUpFromLine },
+  { name: 'Arbeitszimmer', href: '/arbeitszimmer', icon: Monitor },
+  { name: 'Kinderfreibetrag', href: '/kinderfreibetrag', icon: GraduationCap },
+  { name: 'Solidaritätszuschlag', href: '/solidaritaetszuschlag', icon: HandCoins },
+  { name: 'Umzugskosten', href: '/umzugskosten', icon: Truck },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

@@ -79,6 +79,10 @@ import {
   Car,
   UsersRound,
   ArrowUpFromLine,
+  Monitor,
+  GraduationCap,
+  HandCoins,
+  Truck,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -194,6 +198,10 @@ export default function CommandPalette() {
     { id: 'nav-firmenwagen', label: 'Firmenwagen-Rechner', description: '1%-Regelung & geldwerter Vorteil', icon: Car, category: 'navigation', keywords: ['firmenwagen', 'dienstwagen', '1prozent', 'geldwerter', 'vorteil', 'auto', 'elektro'], action: () => runAndClose(() => navigate('/firmenwagen-rechner')) },
     { id: 'nav-steuerklassen', label: 'Steuerklassenwahl', description: 'Optimale Steuerklasse für Ehepaare', icon: UsersRound, category: 'navigation', keywords: ['steuerklasse', 'ehepaar', 'splitting', 'faktor', 'lohnsteuer', 'kombination'], action: () => runAndClose(() => navigate('/steuerklassenwahl')) },
     { id: 'nav-progressionsvorbehalt', label: 'Progressionsvorbehalt', description: 'Steuersatz-Auswirkung § 32b', icon: ArrowUpFromLine, category: 'navigation', keywords: ['progression', 'vorbehalt', 'alg', 'kurzarbeit', 'elterngeld', 'krankengeld', 'steuersatz'], action: () => runAndClose(() => navigate('/progressionsvorbehalt')) },
+    { id: 'nav-arbeitszimmer', label: 'Arbeitszimmer-Rechner', description: 'Homeoffice-Pauschale & Arbeitszimmer', icon: Monitor, category: 'navigation', keywords: ['arbeitszimmer', 'homeoffice', 'pauschale', 'buero', 'heimarbeit', 'werbungskosten'], action: () => runAndClose(() => navigate('/arbeitszimmer')) },
+    { id: 'nav-kinderfreibetrag', label: 'Kinderfreibetrag', description: 'Kindergeld vs. Freibetrag', icon: GraduationCap, category: 'navigation', keywords: ['kinderfreibetrag', 'kindergeld', 'kind', 'guenstiger', 'freibetrag', 'bea'], action: () => runAndClose(() => navigate('/kinderfreibetrag')) },
+    { id: 'nav-soli', label: 'Solidaritätszuschlag', description: 'Soli mit Freigrenze berechnen', icon: HandCoins, category: 'navigation', keywords: ['soli', 'solidaritaet', 'zuschlag', 'freigrenze', 'milderung', 'ergaenzungsabgabe'], action: () => runAndClose(() => navigate('/solidaritaetszuschlag')) },
+    { id: 'nav-umzugskosten', label: 'Umzugskosten', description: 'Berufsbedingten Umzug absetzen', icon: Truck, category: 'navigation', keywords: ['umzug', 'umzugskosten', 'pauschale', 'spedition', 'werbungskosten', 'beruflich'], action: () => runAndClose(() => navigate('/umzugskosten')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

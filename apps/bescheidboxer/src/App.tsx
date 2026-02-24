@@ -87,6 +87,10 @@ import PhotovoltaikSteuerPage from './pages/PhotovoltaikSteuerPage'
 import FirmenwagenRechnerPage from './pages/FirmenwagenRechnerPage'
 import SteuerklassenwahlPage from './pages/SteuerklassenwahlPage'
 import ProgressionsvorbehaltPage from './pages/ProgressionsvorbehaltPage'
+import ArbeitszimmerRechnerPage from './pages/ArbeitszimmerRechnerPage'
+import KinderFreibetragPage from './pages/KinderFreibetragPage'
+import SolidaritaetszuschlagPage from './pages/SolidaritaetszuschlagPage'
+import UmzugskostenRechnerPage from './pages/UmzugskostenRechnerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -193,6 +197,10 @@ function App() {
             <Route path="firmenwagen-rechner" element={<FirmenwagenRechnerPage />} />
             <Route path="steuerklassenwahl" element={<SteuerklassenwahlPage />} />
             <Route path="progressionsvorbehalt" element={<ProgressionsvorbehaltPage />} />
+            <Route path="arbeitszimmer" element={<ArbeitszimmerRechnerPage />} />
+            <Route path="kinderfreibetrag" element={<KinderFreibetragPage />} />
+            <Route path="solidaritaetszuschlag" element={<SolidaritaetszuschlagPage />} />
+            <Route path="umzugskosten" element={<UmzugskostenRechnerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
