@@ -76,6 +76,10 @@ import {
   GraduationCap,
   HandCoins,
   Truck,
+  Plane,
+  FileSearch,
+  ShieldPlus,
+  BookMarked,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -150,6 +154,10 @@ const navigation = [
   { name: 'Kinderfreibetrag', href: '/kinderfreibetrag', icon: GraduationCap },
   { name: 'Solidaritätszuschlag', href: '/solidaritaetszuschlag', icon: HandCoins },
   { name: 'Umzugskosten', href: '/umzugskosten', icon: Truck },
+  { name: 'Reisekosten', href: '/reisekosten', icon: Plane },
+  { name: 'Bewerbungskosten', href: '/bewerbungskosten', icon: FileSearch },
+  { name: 'Vorsorgeaufwend.', href: '/vorsorgeaufwendungen', icon: ShieldPlus },
+  { name: 'Fortbildungskosten', href: '/fortbildungskosten', icon: BookMarked },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

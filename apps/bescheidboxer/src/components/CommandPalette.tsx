@@ -83,6 +83,10 @@ import {
   GraduationCap,
   HandCoins,
   Truck,
+  Plane,
+  FileSearch,
+  ShieldPlus,
+  BookMarked,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -202,6 +206,10 @@ export default function CommandPalette() {
     { id: 'nav-kinderfreibetrag', label: 'Kinderfreibetrag', description: 'Kindergeld vs. Freibetrag', icon: GraduationCap, category: 'navigation', keywords: ['kinderfreibetrag', 'kindergeld', 'kind', 'guenstiger', 'freibetrag', 'bea'], action: () => runAndClose(() => navigate('/kinderfreibetrag')) },
     { id: 'nav-soli', label: 'Solidaritätszuschlag', description: 'Soli mit Freigrenze berechnen', icon: HandCoins, category: 'navigation', keywords: ['soli', 'solidaritaet', 'zuschlag', 'freigrenze', 'milderung', 'ergaenzungsabgabe'], action: () => runAndClose(() => navigate('/solidaritaetszuschlag')) },
     { id: 'nav-umzugskosten', label: 'Umzugskosten', description: 'Berufsbedingten Umzug absetzen', icon: Truck, category: 'navigation', keywords: ['umzug', 'umzugskosten', 'pauschale', 'spedition', 'werbungskosten', 'beruflich'], action: () => runAndClose(() => navigate('/umzugskosten')) },
+    { id: 'nav-reisekosten', label: 'Reisekosten', description: 'Dienstreisen steuerlich absetzen', icon: Plane, category: 'navigation', keywords: ['reisekosten', 'dienstreise', 'verpflegung', 'uebernachtung', 'fahrtkosten', 'vpma'], action: () => runAndClose(() => navigate('/reisekosten')) },
+    { id: 'nav-bewerbungskosten', label: 'Bewerbungskosten', description: 'Bewerbungen als WK absetzen', icon: FileSearch, category: 'navigation', keywords: ['bewerbung', 'bewerbungskosten', 'vorstellung', 'porto', 'werbungskosten'], action: () => runAndClose(() => navigate('/bewerbungskosten')) },
+    { id: 'nav-vorsorge', label: 'Vorsorgeaufwendungen', description: 'Rente, Kranken- & Pflegeversicherung', icon: ShieldPlus, category: 'navigation', keywords: ['vorsorge', 'rente', 'krankenversicherung', 'pflege', 'ruerup', 'sonderausgabe'], action: () => runAndClose(() => navigate('/vorsorgeaufwendungen')) },
+    { id: 'nav-fortbildung', label: 'Fortbildungskosten', description: 'Weiterbildung & Studium absetzen', icon: BookMarked, category: 'navigation', keywords: ['fortbildung', 'weiterbildung', 'studium', 'kurs', 'seminar', 'werbungskosten'], action: () => runAndClose(() => navigate('/fortbildungskosten')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

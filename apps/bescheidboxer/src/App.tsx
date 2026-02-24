@@ -91,6 +91,10 @@ import ArbeitszimmerRechnerPage from './pages/ArbeitszimmerRechnerPage'
 import KinderFreibetragPage from './pages/KinderFreibetragPage'
 import SolidaritaetszuschlagPage from './pages/SolidaritaetszuschlagPage'
 import UmzugskostenRechnerPage from './pages/UmzugskostenRechnerPage'
+import ReisekostenRechnerPage from './pages/ReisekostenRechnerPage'
+import BewerbungskostenPage from './pages/BewerbungskostenPage'
+import VorsorgeaufwendungenPage from './pages/VorsorgeaufwendungenPage'
+import FortbildungskostenPage from './pages/FortbildungskostenPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -201,6 +205,10 @@ function App() {
             <Route path="kinderfreibetrag" element={<KinderFreibetragPage />} />
             <Route path="solidaritaetszuschlag" element={<SolidaritaetszuschlagPage />} />
             <Route path="umzugskosten" element={<UmzugskostenRechnerPage />} />
+            <Route path="reisekosten" element={<ReisekostenRechnerPage />} />
+            <Route path="bewerbungskosten" element={<BewerbungskostenPage />} />
+            <Route path="vorsorgeaufwendungen" element={<VorsorgeaufwendungenPage />} />
+            <Route path="fortbildungskosten" element={<FortbildungskostenPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
