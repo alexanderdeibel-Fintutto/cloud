@@ -15,6 +15,7 @@ import { DashboardActivityFeed } from "@/components/dashboard/DashboardActivityF
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
 import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
+import { EcosystemStatsBar } from "@fintutto/shared";
 
 interface DashboardStats {
   totalRent: number;
@@ -410,6 +411,8 @@ export default function Dashboard() {
 
         {/* Fintutto Ecosystem Cross-Sell */}
         <EcosystemPromoCards />
+
+        <EcosystemStatsBar />
       </div>
     </MainLayout>
   );

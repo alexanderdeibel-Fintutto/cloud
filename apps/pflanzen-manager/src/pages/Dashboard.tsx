@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { EcosystemStatsBar } from '@fintutto/shared';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -454,6 +455,8 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      <EcosystemStatsBar />
     </div>
   );
 }

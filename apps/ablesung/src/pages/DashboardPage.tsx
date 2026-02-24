@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { EcosystemStatsBar } from '@fintutto/shared'
 import { ScanLine, FileText, Zap, Flame, Droplets, ThermometerSun, TrendingDown, BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -131,6 +132,12 @@ export default function DashboardPage() {
           </Card>
         </div>
       </section>
+
+      <EcosystemStatsBar
+        renderLink={({ to, children, className }) => (
+          <Link to={to} className={className}>{children}</Link>
+        )}
+      />
     </div>
   )
 }

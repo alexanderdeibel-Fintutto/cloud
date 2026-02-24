@@ -2,9 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { CommandPalette, ECOSYSTEM_TOOLS } from "@fintutto/shared";
+import type { CommandItem } from "@fintutto/shared";
 
 // Auth Pages
 import Login from "./pages/auth/Login";
@@ -147,6 +149,35 @@ import CalendarPage from "./pages/calendar/CalendarPage";
  import { AIAssistant } from "./components/ai/AIAssistant";
  import EcosystemBar from "./components/layout/EcosystemBar";
 
+const VERMIETIFY_TOOLS: CommandItem[] = [
+  { id: 'v-dashboard', title: 'Dashboard', category: 'Navigation', path: '/dashboard', icon: '📊', keywords: ['übersicht', 'start'] },
+  { id: 'v-properties', title: 'Immobilien', category: 'Navigation', path: '/properties', icon: '🏠', keywords: ['gebäude', 'wohnung', 'objekt'] },
+  { id: 'v-tenants', title: 'Mieter', category: 'Navigation', path: '/tenants', icon: '👥', keywords: ['bewohner', 'person'] },
+  { id: 'v-contracts', title: 'Verträge', category: 'Navigation', path: '/vertraege', icon: '📄', keywords: ['mietvertrag', 'kontrakt'] },
+  { id: 'v-payments', title: 'Zahlungen', category: 'Navigation', path: '/zahlungen', icon: '💳', keywords: ['miete', 'geld', 'überweisung'] },
+  { id: 'v-operating', title: 'Betriebskosten', category: 'Navigation', path: '/betriebskosten', icon: '📋', keywords: ['nebenkosten', 'abrechnung'] },
+  { id: 'v-meters', title: 'Zähler', category: 'Navigation', path: '/zaehler', icon: '⚡', keywords: ['strom', 'gas', 'wasser', 'ablesung'] },
+  { id: 'v-tasks', title: 'Aufgaben', category: 'Navigation', path: '/aufgaben', icon: '✅', keywords: ['todo', 'aufgabe'] },
+  { id: 'v-calendar', title: 'Kalender', category: 'Navigation', path: '/kalender', icon: '📅', keywords: ['termin', 'datum'] },
+  { id: 'v-documents', title: 'Dokumente', category: 'Navigation', path: '/documents', icon: '📁', keywords: ['datei', 'upload'] },
+  { id: 'v-banking', title: 'Banking', category: 'Finanzen', path: '/banking', icon: '🏦', keywords: ['bank', 'konto', 'transaktion'] },
+  { id: 'v-taxes', title: 'Steuern', category: 'Finanzen', path: '/taxes', icon: '🧾', keywords: ['steuer', 'finanzamt', 'anlage-v'] },
+  { id: 'v-communication', title: 'Kommunikation', category: 'Navigation', path: '/communication', icon: '💬', keywords: ['email', 'nachricht', 'brief'] },
+  { id: 'v-settings', title: 'Einstellungen', category: 'Navigation', path: '/settings', icon: '⚙️', keywords: ['profil', 'konto'] },
+]
+
+const allVermietifyTools = [...VERMIETIFY_TOOLS, ...ECOSYSTEM_TOOLS.filter(t => t.id !== 'e-vermietify')]
+
+function VermietifyCommandPalette() {
+  const navigate = useNavigate()
+  return (
+    <CommandPalette
+      items={allVermietifyTools}
+      onSelect={(item) => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
+    />
+  )
+}
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -157,6 +188,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
            <EcosystemBar />
+           <VermietifyCommandPalette />
            <AIAssistant />
           <Routes>
             {/* Public Routes */}

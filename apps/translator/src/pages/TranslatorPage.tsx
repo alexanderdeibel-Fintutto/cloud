@@ -1,6 +1,7 @@
 import { Languages, Mic, Globe, Zap, Radio } from 'lucide-react'
 import { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { EcosystemStatsBar } from '@fintutto/shared'
 import { Button } from '@/components/ui/button'
 import TranslationPanel from '@/components/translator/TranslationPanel'
 import TranslationHistory from '@/components/translator/TranslationHistory'
@@ -80,6 +81,12 @@ export default function TranslatorPage() {
           onSelect={handleHistorySelect}
         />
       </div>
+
+      <EcosystemStatsBar
+        renderLink={({ to, children, className }) => (
+          <Link to={to} className={className}>{children}</Link>
+        )}
+      />
     </div>
   )
 }
