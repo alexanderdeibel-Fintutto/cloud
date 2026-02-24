@@ -1,11 +1,15 @@
+// Vermietify Plans Configuration
+// Stripe Price IDs are configured via environment variables (VITE_STRIPE_PRICE_VERMIETIFY_*)
+// Run scripts/create-stripe-products.sh to create products in Stripe and get the IDs
+
 export interface Plan {
   id: string;
   name: string;
   description: string;
   priceMonthly: number;
   priceYearly: number;
-  priceId: string;
-  priceIdYearly?: string;
+  priceIdMonthly: string;
+  priceIdYearly: string;
   productId: string;
   features: string[];
   limits: {
@@ -16,15 +20,23 @@ export interface Plan {
   popular?: boolean;
 }
 
+function getEnv(key: string, fallback: string = ''): string {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[key] || fallback
+  }
+  return fallback
+}
+
 export const PLANS: Plan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    description: 'Für den Einstieg',
+    description: 'Fuer den Einstieg',
     priceMonthly: 0,
     priceYearly: 0,
-    priceId: 'price_1Sr55p52lqSgjCzeX6tlI5tv',
-    productId: 'prod_starter',
+    priceIdMonthly: '',
+    priceIdYearly: '',
+    productId: getEnv('VITE_STRIPE_PRODUCT_VERMIETIFY_STARTER'),
     features: [
       '1 Immobilie',
       '5 Einheiten',
@@ -41,11 +53,12 @@ export const PLANS: Plan[] = [
   {
     id: 'basic',
     name: 'Basic',
-    description: 'Perfekt für kleine Vermieter',
+    description: 'Perfekt fuer kleine Vermieter',
     priceMonthly: 9.99,
     priceYearly: 95.90,
-    priceId: 'price_1Sr56K52lqSgjCzeqfCfOudX',
-    productId: 'prod_basic',
+    priceIdMonthly: getEnv('VITE_STRIPE_PRICE_VERMIETIFY_BASIC_MONTHLY'),
+    priceIdYearly: getEnv('VITE_STRIPE_PRICE_VERMIETIFY_BASIC_YEARLY'),
+    productId: getEnv('VITE_STRIPE_PRODUCT_VERMIETIFY_BASIC'),
     features: [
       '3 Immobilien',
       '25 Einheiten',
@@ -63,18 +76,19 @@ export const PLANS: Plan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    description: 'Für professionelle Vermieter',
+    description: 'Fuer professionelle Vermieter',
     priceMonthly: 24.99,
     priceYearly: 239.90,
-    priceId: 'price_1Sr56o52lqSgjCzeRuGrant2',
-    productId: 'prod_pro',
+    priceIdMonthly: getEnv('VITE_STRIPE_PRICE_VERMIETIFY_PRO_MONTHLY'),
+    priceIdYearly: getEnv('VITE_STRIPE_PRICE_VERMIETIFY_PRO_YEARLY'),
+    productId: getEnv('VITE_STRIPE_PRODUCT_VERMIETIFY_PRO'),
     features: [
       '10 Immobilien',
       '100 Einheiten',
       'Alle Dashboards',
       'Dokumentenverwaltung',
       'Nebenkostenabrechnung',
-      'Prioritäts-Support',
+      'Prioritaets-Support',
       '30 Portal-Credits/Monat',
     ],
     limits: {
@@ -87,11 +101,12 @@ export const PLANS: Plan[] = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    description: 'Für große Portfolios',
+    description: 'Fuer grosse Portfolios',
     priceMonthly: 49.99,
     priceYearly: 479.90,
-    priceId: 'price_1Sr57E52lqSgjCze3iHixnBn',
-    productId: 'prod_enterprise',
+    priceIdMonthly: getEnv('VITE_STRIPE_PRICE_VERMIETIFY_ENTERPRISE_MONTHLY'),
+    priceIdYearly: getEnv('VITE_STRIPE_PRICE_VERMIETIFY_ENTERPRISE_YEARLY'),
+    productId: getEnv('VITE_STRIPE_PRODUCT_VERMIETIFY_ENTERPRISE'),
     features: [
       'Unbegrenzte Immobilien',
       'Unbegrenzte Einheiten',
@@ -115,4 +130,8 @@ export const getPlanById = (planId: string): Plan | undefined => {
 
 export const getPlanByProductId = (productId: string): Plan | undefined => {
   return PLANS.find((plan) => plan.productId === productId);
+};
+
+export const getPlanByPriceId = (priceId: string): Plan | undefined => {
+  return PLANS.find((plan) => plan.priceIdMonthly === priceId || plan.priceIdYearly === priceId);
 };

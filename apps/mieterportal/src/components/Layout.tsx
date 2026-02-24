@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Wrench, FileText, Calculator, Scale, User, Menu, X } from "lucide-react";
+import { Home, Wrench, FileText, Calculator, Scale, User, Menu, X, CreditCard } from "lucide-react";
 import { useState } from "react";
 
 interface LayoutProps {
@@ -14,6 +14,7 @@ const navigation = [
   { name: "Nebenkosten", href: "/nebenkosten", icon: Calculator },
   { name: "Mietrecht", href: "/mietrecht", icon: Scale },
   { name: "Rechner", href: "/rechner", icon: Calculator },
+  { name: "Preise", href: "/preise", icon: CreditCard },
   { name: "Profil", href: "/profil", icon: User },
 ];
 

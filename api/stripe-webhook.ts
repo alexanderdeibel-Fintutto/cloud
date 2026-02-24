@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { PLAN_CREDIT_LIMITS } from '../packages/shared/src/credits'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -10,14 +11,6 @@ const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
-// Map tier IDs to check limits (portal + fittutto)
-const TIER_LIMITS: Record<string, number> = {
-  basic: 3,
-  premium: -1, // unlimited
-  // FitTutto tiers
-  save_load: 0,
-}
 
 export const config = {
   api: {
@@ -59,12 +52,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const userId = session.metadata?.userId
         const tierId = session.metadata?.tierId
-        const app = session.metadata?.app || 'portal'
-        const checksLimit = parseInt(session.metadata?.checksLimit || '3', 10)
+        const creditsLimit = parseInt(session.metadata?.creditsLimit || '3', 10)
         const customerEmail = session.customer_email
         const referralCode = session.metadata?.referralCode
 
-        console.log('Checkout completed:', { userId, tierId, app, customerEmail, referralCode })
+        console.log('Checkout completed:', { userId, tierId, customerEmail, referralCode })
 
         let resolvedUserId = userId
 
@@ -74,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from('users')
             .update({
               tier: tierId,
-              checks_limit: checksLimit,
+              checks_limit: creditsLimit,
               stripe_customer_id: session.customer as string,
               stripe_subscription_id: session.subscription as string,
             })
@@ -82,22 +74,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           if (error) {
             console.error('Error updating user:', error)
-          }
-
-          // Update FitTutto fitness_profiles if this is a FitTutto subscription
-          if (app === 'fittutto' && tierId) {
-            const { error: fitnessError } = await supabase
-              .from('fitness_profiles')
-              .update({
-                subscription_tier: tierId,
-                stripe_customer_id: session.customer as string,
-                stripe_subscription_id: session.subscription as string,
-              })
-              .eq('user_id', userId)
-
-            if (fitnessError) {
-              console.error('Error updating fitness_profiles:', fitnessError)
-            }
           }
         } else if (customerEmail) {
           // Try to find user by email and update
@@ -113,23 +89,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .from('users')
               .update({
                 tier: tierId,
-                checks_limit: checksLimit,
+                checks_limit: creditsLimit,
                 stripe_customer_id: session.customer as string,
                 stripe_subscription_id: session.subscription as string,
               })
               .eq('id', existingUser.id)
-
-            // Update FitTutto fitness_profiles if this is a FitTutto subscription
-            if (app === 'fittutto' && tierId) {
-              await supabase
-                .from('fitness_profiles')
-                .update({
-                  subscription_tier: tierId,
-                  stripe_customer_id: session.customer as string,
-                  stripe_subscription_id: session.subscription as string,
-                })
-                .eq('user_id', existingUser.id)
-            }
           }
         }
 
@@ -161,15 +125,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               .from('users')
               .update({
                 tier: 'free',
-                checks_limit: 1,
+                checks_limit: PLAN_CREDIT_LIMITS.free,
               })
               .eq('id', user.id)
-
-            // Also downgrade FitTutto tier
-            await supabase
-              .from('fitness_profiles')
-              .update({ subscription_tier: 'free' })
-              .eq('stripe_customer_id', customerId)
           }
         }
         break
@@ -191,16 +149,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from('users')
             .update({
               tier: 'free',
-              checks_limit: 1,
+              checks_limit: PLAN_CREDIT_LIMITS.free,
               stripe_subscription_id: null,
             })
             .eq('id', user.id)
-
-          // Also downgrade FitTutto tier
-          await supabase
-            .from('fitness_profiles')
-            .update({ subscription_tier: 'free' })
-            .eq('stripe_customer_id', customerId)
         }
         break
       }

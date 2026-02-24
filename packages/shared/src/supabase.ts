@@ -1,28 +1,22 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+// Shared Supabase client factory for all Fintutto apps
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const DEFAULT_SUPABASE_URL = 'https://aaefocdqgdgexkcrjhks.supabase.co'
+export interface CreateSupabaseClientOptions {
+  url: string
+  anonKey: string
+  persistSession?: boolean
+  autoRefreshToken?: boolean
+}
 
-/**
- * Creates a Supabase client with standard Fintutto auth config.
- * Reads env vars automatically - works with both VITE_SUPABASE_ANON_KEY
- * (portal apps) and VITE_SUPABASE_PUBLISHABLE_KEY (vermietify/lovable).
- */
-export function createFintuttoClient(): SupabaseClient {
-  const url =
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) ||
-    DEFAULT_SUPABASE_URL
+export function createSupabaseClient<T = any>(options: CreateSupabaseClientOptions): SupabaseClient<T> {
+  if (!options.url || !options.anonKey) {
+    throw new Error('Missing Supabase environment variables (url or anonKey)')
+  }
 
-  const key =
-    (typeof import.meta !== 'undefined' &&
-      (import.meta.env?.VITE_SUPABASE_ANON_KEY ||
-        import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY)) ||
-    ''
-
-  return createClient(url, key, {
+  return createClient<T>(options.url, options.anonKey, {
     auth: {
-      storage: typeof localStorage !== 'undefined' ? localStorage : undefined,
-      persistSession: true,
-      autoRefreshToken: true,
+      persistSession: options.persistSession ?? true,
+      autoRefreshToken: options.autoRefreshToken ?? true,
     },
   })
 }

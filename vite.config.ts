@@ -7,7 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@fintutto/shared': path.resolve(__dirname, './packages/shared/src/index.ts'),
     },
   },
   server: {
@@ -15,14 +14,11 @@ export default defineConfig({
     host: true,
   },
   build: {
-    target: 'es2022',
-    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge', 'sonner'],
-          'vendor-supabase': ['@supabase/supabase-js'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          supabase: ['@supabase/supabase-js'],
         },
       },
     },
