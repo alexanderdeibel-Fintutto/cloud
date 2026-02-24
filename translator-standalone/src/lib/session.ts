@@ -12,7 +12,7 @@ export function generateSessionCode(): string {
 export function getSessionUrl(code: string): string {
   const base = typeof window !== 'undefined'
     ? window.location.origin
-    : 'https://translator.fintutto.cloud'
+    : 'https://app.guidetranslator.com'
   return `${base}/live/${code}`
 }
 

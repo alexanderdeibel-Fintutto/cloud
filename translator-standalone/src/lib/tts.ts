@@ -4,9 +4,8 @@
 
 import { getCachedTTSAudio, cacheTTSAudio } from './offline/tts-cache'
 
-const API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY || 'AIzaSyD0jpDgyihxFytR-jDIxEHj17kl4Oz9FGY'
-const API_URL = 'https://texttospeech.googleapis.com/v1/text:synthesize'
-const API_URL_BETA = 'https://texttospeech.googleapis.com/v1beta1/text:synthesize'
+// TTS via server-side proxy (API key stays on server)
+const TTS_PROXY_URL = '/api/tts'
 
 export type VoiceQuality = 'neural2' | 'chirp3hd'
 
@@ -58,7 +57,7 @@ const CHIRP_VOICE_MAP: Record<string, { languageCode: string; name: string }> = 
 }
 
 export function isCloudTTSAvailable(): boolean {
-  return !!API_KEY
+  return true // TTS is available via server-side proxy
 }
 
 function getVoiceConfig(speechCode: string, quality: VoiceQuality = 'neural2') {
@@ -102,12 +101,7 @@ export async function speakWithCloudTTS(
     // Cache read failed — continue to API
   }
 
-  if (!API_KEY) {
-    throw new Error('Google Cloud TTS API key not configured')
-  }
-
-  const { config: voiceConfig, useBeta } = getVoiceConfig(speechCode, quality)
-  const apiUrl = useBeta ? API_URL_BETA : API_URL
+  const { config: voiceConfig } = getVoiceConfig(speechCode, quality)
 
   const body: Record<string, unknown> = {
     input: { text },
@@ -122,7 +116,7 @@ export async function speakWithCloudTTS(
     },
   }
 
-  const response = await fetch(`${apiUrl}?key=${API_KEY}`, {
+  const response = await fetch(TTS_PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

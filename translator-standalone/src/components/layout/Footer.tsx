@@ -1,4 +1,5 @@
 import { Languages } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
@@ -11,7 +12,8 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>&copy; {new Date().getFullYear()} Fintutto</span>
-            <span>Powered by MyMemory API</span>
+            <Link to="/datenschutz" className="hover:text-foreground transition-colors">Datenschutz</Link>
+            <Link to="/impressum" className="hover:text-foreground transition-colors">Impressum</Link>
           </div>
         </div>
       </div>
