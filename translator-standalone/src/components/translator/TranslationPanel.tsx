@@ -127,7 +127,7 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
 
     debounceRef.current = setTimeout(() => {
       doTranslate(sourceText)
-    }, 600)
+    }, 400)
 
     return () => {
       if (debounceRef.current) {
@@ -291,14 +291,19 @@ export default function TranslationPanel({ initialText, initialSourceLang, initi
             </div>
             <textarea
               value={sourceText}
-              onChange={e => setSourceText(e.target.value)}
+              onChange={e => {
+                const val = e.target.value
+                if (val.length <= 5000) setSourceText(val)
+              }}
+              maxLength={5000}
               placeholder="Text eingeben oder einsprechen..."
               className="w-full min-h-[200px] bg-transparent resize-none focus:outline-none text-foreground placeholder:text-muted-foreground/60 text-base leading-relaxed"
               dir={sourceLang === 'ar' ? 'rtl' : 'ltr'}
             />
             <div className="flex items-center justify-between border-t border-border pt-2 mt-2">
-              <span className="text-xs text-muted-foreground">
-                {sourceText.length} Zeichen
+              <span className={`text-xs ${sourceText.length > 4500 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+                {sourceText.length}/5.000 Zeichen
+                {sourceText.length > 4500 && ' — Limit fast erreicht'}
               </span>
               {isListening && (
                 <span className="text-xs text-destructive flex items-center gap-1">

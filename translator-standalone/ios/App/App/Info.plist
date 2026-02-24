@@ -47,5 +47,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Die App benötigt Zugriff auf das Mikrofon für die Spracheingabe und Live-Übersetzung.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Die App nutzt Spracherkennung, um gesprochene Texte zu übersetzen.</string>
 </dict>
 </plist>
