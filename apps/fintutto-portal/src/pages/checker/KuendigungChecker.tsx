@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { FileWarning } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 
 interface FormData {
   kuendigungsgrund: string
@@ -20,8 +21,25 @@ interface FormData {
 
 export default function KuendigungChecker() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Kündigungs-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Kündigungs-Checker – Ist die Kündigung wirksam?',
+    description: 'Prüfe ob deine Kündigung wirksam ist. Formvorschriften, Fristen und §573 BGB.',
+    path: '/checker/kuendigung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Kündigungs-Checker',
+    description: 'Prüfe die Wirksamkeit einer Mietkündigung nach §573 BGB',
+    url: 'https://portal.fintutto.cloud/checker/kuendigung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -116,6 +134,7 @@ export default function KuendigungChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -154,7 +173,7 @@ export default function KuendigungChecker() {
       icon={<FileWarning className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={!!formData.kuendigungsgrund && !!formData.kuendigungErhalten} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={!!formData.kuendigungsgrund && !!formData.kuendigungErhalten} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Kuendigungsgrund</h2>
           <div className="space-y-4">
             <CheckerField
@@ -250,6 +269,7 @@ export default function KuendigungChecker() {
           </div>
         </CheckerStep>
       )}
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </CheckerLayout>
   )
 }

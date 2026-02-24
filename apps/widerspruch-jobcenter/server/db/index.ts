@@ -121,6 +121,44 @@ export function getTodaysActions(): ScheduledAction[] {
   return loadSchedule().filter(a => a.scheduled_at.startsWith(today))
 }
 
+// ── Schedule History ──
+
+export function loadScheduleHistory(): Record<string, ScheduledAction[]> {
+  return readJson<Record<string, ScheduledAction[]>>('schedule-history.json', {})
+}
+
+export function archiveSchedule(dateStr: string, actions: ScheduledAction[]): void {
+  if (actions.length === 0) return
+  const history = loadScheduleHistory()
+  history[dateStr] = actions
+
+  // Max 30 Tage aufbewahren
+  const dates = Object.keys(history).sort()
+  while (dates.length > 30) {
+    delete history[dates.shift()!]
+  }
+
+  writeJson('schedule-history.json', history)
+}
+
+export function getScheduleByDate(dateStr: string): ScheduledAction[] {
+  const today = new Date().toISOString().slice(0, 10)
+  if (dateStr === today) return getTodaysActions()
+  const history = loadScheduleHistory()
+  return history[dateStr] || []
+}
+
+export function getScheduleDates(): string[] {
+  const today = new Date().toISOString().slice(0, 10)
+  const history = loadScheduleHistory()
+  const dates = Object.keys(history)
+  if (!dates.includes(today)) {
+    const todaysActions = getTodaysActions()
+    if (todaysActions.length > 0) dates.push(today)
+  }
+  return dates.sort()
+}
+
 // ── Activity Log ──
 
 export function loadActivityLog(): ActivityLogEntry[] {
@@ -130,8 +168,8 @@ export function loadActivityLog(): ActivityLogEntry[] {
 export function logActivity(entry: ActivityLogEntry): void {
   const log = loadActivityLog()
   log.push(entry)
-  // Keep last 10000 entries
-  if (log.length > 10000) log.splice(0, log.length - 10000)
+  // Keep last 50000 entries
+  if (log.length > 50000) log.splice(0, log.length - 50000)
   writeJson('activity-log.json', log)
 }
 

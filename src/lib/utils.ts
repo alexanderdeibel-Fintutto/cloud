@@ -11,6 +11,8 @@ export function formatCurrency(amount: number): string {
     currency: 'EUR',
   }).format(amount)
 }
+ claude/review-repo-setup-0rnoo
+
 
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('de-DE', {
@@ -78,3 +80,17 @@ export function getFormulareAppUrl(formType: string, prefillData?: Record<string
 
   return route
 }
+
+export function getRechnerAppUrl(rechnerType: string, prefillData?: Record<string, string>): string {
+  const baseUrl = import.meta.env.VITE_FORMULARE_APP_URL || 'https://portal.fintutto.cloud'
+  const url = new URL(`${baseUrl}/rechner/${rechnerType}`)
+
+  if (prefillData) {
+    Object.entries(prefillData).forEach(([key, value]) => {
+      url.searchParams.set(key, value)
+    })
+  }
+
+  return url.toString()
+}
+ main

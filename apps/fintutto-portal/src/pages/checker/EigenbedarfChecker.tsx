@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 
 interface FormData {
   personAngegeben: string
@@ -18,8 +19,25 @@ interface FormData {
 
 export default function EigenbedarfChecker() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Eigenbedarf-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Eigenbedarf-Checker – Ist die Kündigung rechtmäßig?',
+    description: 'Eigenbedarfskündigung erhalten? Prüfe Begründung und Härtefallregelung nach §573 Abs. 2 BGB.',
+    path: '/checker/eigenbedarf',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Eigenbedarf-Checker',
+    description: 'Prüfe die Rechtmäßigkeit einer Eigenbedarfskündigung nach §573 Abs. 2 BGB',
+    url: 'https://portal.fintutto.cloud/checker/eigenbedarf',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -105,6 +123,7 @@ export default function EigenbedarfChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -143,7 +162,7 @@ export default function EigenbedarfChecker() {
       icon={<AlertTriangle className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={!!formData.personAngegeben} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={!!formData.personAngegeben} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Angaben im Kuendigungsschreiben</h2>
           <div className="space-y-4">
             <CheckerField
@@ -239,6 +258,7 @@ export default function EigenbedarfChecker() {
           </div>
         </CheckerStep>
       )}
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </CheckerLayout>
   )
 }

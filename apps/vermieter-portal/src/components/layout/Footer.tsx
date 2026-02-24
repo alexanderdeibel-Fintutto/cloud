@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Building2 } from 'lucide-react'
+import { getOtherApps } from '@fintutto/shared'
+
+const ecosystemApps = getOtherApps('vermieter-portal')
 
 const footerLinks = {
   rechner: [
@@ -17,10 +20,10 @@ const footerLinks = {
     { name: 'Betriebskosten', href: '/formulare/betriebskosten' },
   ],
   unternehmen: [
+    { name: 'Alle Apps', href: '/apps' },
     { name: 'Über uns', href: '/ueber-uns' },
     { name: 'Preise', href: '/pricing' },
     { name: 'Kontakt', href: '/kontakt' },
-    { name: 'Blog', href: '/blog' },
   ],
   rechtliches: [
     { name: 'Impressum', href: '/impressum' },
@@ -119,8 +122,26 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Ecosystem */}
+        <div className="mt-8 pt-6 border-t border-border">
+          <p className="text-xs text-muted-foreground mb-3 font-medium">Fintutto Oekosystem</p>
+          <div className="flex flex-wrap gap-3 mb-6">
+            {ecosystemApps.map((app) => (
+              <a
+                key={app.key}
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {app.icon} {app.name}
+              </a>
+            ))}
+          </div>
+        </div>
+
         {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-4 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
           </p>

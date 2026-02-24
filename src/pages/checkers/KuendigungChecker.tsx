@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { FileWarning } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl } from '@/lib/utils'
+import { getFormulareAppUrl } from '@/lib/checker-utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
 import { toast } from 'sonner'
 
 interface FormData {
@@ -18,41 +16,17 @@ interface FormData {
   sozialhaertefall: boolean
 }
 
+const initialFormData: FormData = {
+  kuendigungsgrund: '', kuendigungErhalten: '', mietdauer: '', schriftform: true,
+  unterschriftVermieter: true, kuendigungsfrist: '', befristetesArbeitsverhaeltnis: false, sozialhaertefall: false,
+}
+
 export default function KuendigungChecker() {
-  const navigate = useNavigate()
-  const { startSession, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    kuendigungsgrund: '',
-    kuendigungErhalten: '',
-    mietdauer: '',
-    schriftform: true,
-    unterschriftVermieter: true,
-    kuendigungsfrist: '',
-    befristetesArbeitsverhaeltnis: false,
-    sozialhaertefall: false,
-  })
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
-      return
-    }
-    await startSession('kuendigung', 3)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'kuendigung', totalSteps: 3, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -115,28 +89,13 @@ export default function KuendigungChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
-    } catch (error) {
+    } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoToForm = () => navigate(result?.formRedirectUrl ?? '/formulare')
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      kuendigungsgrund: '', kuendigungErhalten: '', mietdauer: '', schriftform: true,
-      unterschriftVermieter: true, kuendigungsfrist: '', befristetesArbeitsverhaeltnis: false, sozialhaertefall: false,
-    })
-    initSession()
   }
 
   if (result) {

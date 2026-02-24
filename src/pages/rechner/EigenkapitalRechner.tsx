@@ -1,15 +1,26 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Home, ArrowLeft, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { formatCurrency } from '../../lib/utils'
+import { Home, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/utils'
+import RechnerLayout from '@/components/rechner/RechnerLayout'
+
+interface EigenkapitalResult {
+  gesamtkosten: number
+  fremdkapital: number
+  eigenkapitalQuote: number
+  beleihungsauslauf: number
+  mindestEK: number
+  empfohlenEK: number
+  optimalEK: number
+  bewertung: string
+}
 
 export default function EigenkapitalRechner() {
   const [kaufpreis, setKaufpreis] = useState<string>('')
   const [nebenkosten, setNebenkosten] = useState<string>('10')
   const [eigenkapital, setEigenkapital] = useState<string>('')
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<EigenkapitalResult | null>(null)
 
   const berechnen = () => {
     const kp = parseFloat(kaufpreis) || 0
@@ -44,29 +55,12 @@ export default function EigenkapitalRechner() {
   }
 
   return (
-    <div>
-      <section className="gradient-vermieter py-12">
-        <div className="container">
-          <Link to="/rechner" className="inline-flex items-center gap-1 text-white/80 hover:text-white mb-4 text-sm">
-            <ArrowLeft className="h-4 w-4" />
-            Alle Rechner
-          </Link>
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
-              <Home className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Eigenkapital-Rechner</h1>
-              <p className="text-white/80">Wie viel Eigenkapital brauchst du?</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-8">
-        <div className="container">
-          <div className="grid lg:grid-cols-[1fr_400px] gap-8">
-            <Card>
+    <RechnerLayout
+      title="Eigenkapital-Rechner"
+      description="Wie viel Eigenkapital brauchst du?"
+      icon={<Home className="h-8 w-8 text-white" />}
+    >
+      <Card>
               <CardHeader><CardTitle>Eingaben</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -144,10 +138,7 @@ export default function EigenkapitalRechner() {
                   </CardContent>
                 </Card>
               )}
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </RechnerLayout>
   )
 }

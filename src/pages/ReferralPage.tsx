@@ -1,14 +1,13 @@
-import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import {
-  Gift, Copy, Check, Users, TrendingUp, ExternalLink,
-  Share2, Mail, QrCode, ArrowRight, Sparkles, Star,
-  UserPlus, CreditCard, Coins, CheckCircle2
+  Gift, Copy, Check, ExternalLink,
+  Share2, Mail, Star,
+  UserPlus, CreditCard, Coins
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { FINTUTTO_APPS, type AppInfo } from '@/lib/apps'
-import { REFERRAL_REWARDS, buildReferralLink, buildPrefilledRegisterLink } from '@/lib/referral'
+import { REFERRAL_REWARDS, buildReferralLink } from '@/lib/referral'
 
 // Demo data – in production this comes from Supabase
 const DEMO_CODE = 'FT-A1B2C3D4'

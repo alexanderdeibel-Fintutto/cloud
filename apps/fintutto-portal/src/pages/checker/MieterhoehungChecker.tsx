@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { TrendingUp } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 
 interface FormData {
   plz: string
@@ -20,8 +21,25 @@ interface FormData {
 
 export default function MieterhoehungChecker() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { startSession, updateSessionData, setCurrentStep, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Mieterhöhungs-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Mieterhöhungs-Checker – Ist die Erhöhung rechtmäßig?',
+    description: 'Prüfe ob die angekündigte Mieterhöhung rechtmäßig ist. Mit Kappungsgrenze und Widerspruchshilfe.',
+    path: '/checker/mieterhoehung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterhöhungs-Checker',
+    description: 'Prüfe die Rechtmäßigkeit einer Mieterhöhung nach §558 BGB',
+    url: 'https://portal.fintutto.cloud/checker/mieterhoehung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -61,6 +79,7 @@ export default function MieterhoehungChecker() {
     const newStep = step + 1
     setStep(newStep)
     setCurrentStep(newStep)
+    setDirty()
   }
 
   const handlePrevious = () => {
@@ -140,6 +159,7 @@ export default function MieterhoehungChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -319,6 +339,7 @@ export default function MieterhoehungChecker() {
           </div>
         </CheckerStep>
       )}
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </CheckerLayout>
   )
 }

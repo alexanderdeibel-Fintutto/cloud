@@ -1,5 +1,14 @@
 // All Fintutto Ecosystem Apps - definitions, features, pricing, and URLs
 
+const APP_URLS = {
+  portal: import.meta.env.VITE_APP_URL_PORTAL || 'https://portal.fintutto.cloud',
+  vermietify: import.meta.env.VITE_APP_URL_VERMIETIFY || 'https://vermietify.vercel.app',
+  mieter: import.meta.env.VITE_APP_URL_MIETER || 'https://mieter-kw8d.vercel.app',
+  hausmeister: import.meta.env.VITE_APP_URL_HAUSMEISTER || 'https://hausmeister-pro.vercel.app',
+  ablesung: import.meta.env.VITE_APP_URL_ABLESUNG || 'https://ablesung.vercel.app',
+  bescheidboxer: import.meta.env.VITE_APP_URL_BESCHEIDBOXER || 'https://bescheidboxer.vercel.app',
+}
+
 export interface AppInfo {
   id: string
   name: string
@@ -17,6 +26,7 @@ export interface AppInfo {
   stats: { label: string; value: string }[]
   targetAudience: string
   badge?: string
+  category: 'immobilien' | 'finanzen' | 'lifestyle' | 'sales'
 }
 
 export const FINTUTTO_APPS: AppInfo[] = [
@@ -25,11 +35,11 @@ export const FINTUTTO_APPS: AppInfo[] = [
     name: 'Fintutto Portal',
     tagline: 'Alle Mietrecht-Tools an einem Ort',
     description:
-      '28+ professionelle Tools: Rechner für Vermieter, Checker für Mieter und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.',
+      '27 professionelle Tools: Rechner für Vermieter, Checker für Mieter und rechtssichere Formulare für alle. Basierend auf aktuellem deutschen Mietrecht.',
     icon: '✨',
     color: 'from-purple-600 to-indigo-600',
-    url: 'https://portal.fintutto.cloud',
-    registerUrl: 'https://portal.fintutto.cloud/register',
+    url: APP_URLS.portal,
+    registerUrl: `${APP_URLS.portal}/register`,
     features: [
       '7 Vermieter-Rechner (Kaution, Rendite, Kaufnebenkosten...)',
       '10 Mieter-Checker (Mietpreisbremse, Kündigung, Nebenkosten...)',
@@ -48,12 +58,13 @@ export const FINTUTTO_APPS: AppInfo[] = [
       ],
     },
     stats: [
-      { label: 'Tools', value: '28+' },
+      { label: 'Tools', value: '27' },
       { label: 'Bundesländer', value: '16' },
       { label: 'DSGVO', value: '100%' },
     ],
     targetAudience: 'Mieter & Vermieter',
     badge: 'Neu',
+    category: 'finanzen',
   },
   {
     id: 'vermietify',
@@ -63,8 +74,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Gebäude, Mieter, Verträge, Zahlungen, Dokumente – alles in einer App. Mit 69 Formularen, automatischer Nebenkostenabrechnung und KI-Assistent.',
     icon: '🏠',
     color: 'from-blue-600 to-cyan-500',
-    url: 'https://vermietify.vercel.app',
-    registerUrl: 'https://vermietify.vercel.app/register',
+    url: APP_URLS.vermietify,
+    registerUrl: `${APP_URLS.vermietify}/register`,
     features: [
       'Gebäude- & Einheitenverwaltung',
       'Mieterverwaltung mit Vertragsdaten',
@@ -88,6 +99,7 @@ export const FINTUTTO_APPS: AppInfo[] = [
       { label: 'KI-Assistent', value: 'Ja' },
     ],
     targetAudience: 'Vermieter & Hausverwaltungen',
+    category: 'immobilien',
   },
   {
     id: 'mieter',
@@ -97,8 +109,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Mängel melden, Zähler ablesen, Dokumente anfordern und direkt mit der Hausverwaltung chatten. Mit 10 Rechts-Checkern für deine Mietrechte.',
     icon: '🔑',
     color: 'from-green-600 to-emerald-500',
-    url: 'https://mieter-kw8d.vercel.app',
-    registerUrl: 'https://mieter-kw8d.vercel.app/register',
+    url: APP_URLS.mieter,
+    registerUrl: `${APP_URLS.mieter}/register`,
     features: [
       'Mangel melden mit Foto-Upload',
       'Zählerstand digital ablesen',
@@ -121,6 +133,7 @@ export const FINTUTTO_APPS: AppInfo[] = [
       { label: 'KI', value: 'Ja' },
     ],
     targetAudience: 'Mieter',
+    category: 'immobilien',
   },
   {
     id: 'hausmeister',
@@ -130,8 +143,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Aufgaben verwalten, Belege fotografieren, mit Eigentümern kommunizieren. Die digitale Zentrale für Hausmeister und Facility Manager.',
     icon: '🔧',
     color: 'from-orange-500 to-amber-500',
-    url: 'https://hausmeister-pro.vercel.app',
-    registerUrl: 'https://hausmeister-pro.vercel.app/register',
+    url: APP_URLS.hausmeister,
+    registerUrl: `${APP_URLS.hausmeister}/register`,
     features: [
       'Aufgabenverwaltung (erstellen, zuweisen, tracken)',
       'Belegerfassung mit Foto-Upload',
@@ -152,6 +165,7 @@ export const FINTUTTO_APPS: AppInfo[] = [
       { label: 'Belege', value: 'Foto' },
     ],
     targetAudience: 'Hausmeister & Facility Manager',
+    category: 'immobilien',
   },
   {
     id: 'ablesung',
@@ -161,8 +175,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Strom, Gas, Wasser, Heizung – alle Zählerstände digital erfassen, tracken und analysieren. Mit Verbrauchsanalyse und CSV-Import.',
     icon: '📊',
     color: 'from-teal-500 to-cyan-500',
-    url: 'https://ablesung.vercel.app',
-    registerUrl: 'https://ablesung.vercel.app/register',
+    url: APP_URLS.ablesung,
+    registerUrl: `${APP_URLS.ablesung}/register`,
     features: [
       'Digitale Zählerstand-Erfassung',
       'Gebäude- & Einheitenverwaltung',
@@ -183,6 +197,7 @@ export const FINTUTTO_APPS: AppInfo[] = [
       { label: 'Import', value: 'CSV' },
     ],
     targetAudience: 'Vermieter & Hausverwaltungen',
+    category: 'immobilien',
   },
   {
     id: 'bescheidboxer',
@@ -192,8 +207,8 @@ export const FINTUTTO_APPS: AppInfo[] = [
       'Lade deinen Bescheid hoch und lass ihn analysieren. Grundsteuer, Nebenkosten, Betriebskostenabrechnungen – finde versteckte Fehler und spare Geld.',
     icon: '🥊',
     color: 'from-red-500 to-rose-500',
-    url: 'https://bescheidboxer.vercel.app',
-    registerUrl: 'https://bescheidboxer.vercel.app/register',
+    url: APP_URLS.bescheidboxer,
+    registerUrl: `${APP_URLS.bescheidboxer}/register`,
     features: [
       'Bescheid-Upload & KI-Analyse',
       'Grundsteuerbescheid prüfen',
@@ -216,15 +231,177 @@ export const FINTUTTO_APPS: AppInfo[] = [
     ],
     targetAudience: 'Mieter & Eigentümer',
     badge: 'Neu',
+    category: 'finanzen',
+  },
+  {
+    id: 'vermieter-portal',
+    name: 'Vermieter-Portal',
+    tagline: 'Rechner & Formulare für Vermieter',
+    description: 'Spezialisierte Tools für Vermieter: Mietrendite, Eigenkapital, Kaufnebenkosten-Rechner und rechtssichere Formulare.',
+    icon: '🏢',
+    color: 'from-indigo-600 to-blue-500',
+    url: 'https://vermieter.fintutto.cloud',
+    registerUrl: 'https://vermieter.fintutto.cloud/register',
+    features: ['7 Vermieter-Rechner', '5 rechtssichere Formulare', 'Mietrendite-Berechnung', 'Kaufnebenkosten-Kalkulation', 'Eigenkapital-Planung'],
+    pricing: { free: 'Alle Rechner kostenlos', plans: [{ name: 'Pro', price: '5,99', period: '/Monat', highlight: true }] },
+    stats: [{ label: 'Rechner', value: '7' }, { label: 'Formulare', value: '5' }, { label: 'Kostenlos', value: 'Ja' }],
+    targetAudience: 'Vermieter & Eigentümer',
+    category: 'immobilien',
+  },
+  {
+    id: 'admin-hub',
+    name: 'Admin-Hub',
+    tagline: 'Zentrale Verwaltung aller Fintutto Apps',
+    description: 'Benutzerverwaltung, Organisationen, App-übergreifende Einstellungen und Berechtigungen.',
+    icon: '⚙️',
+    color: 'from-slate-600 to-zinc-500',
+    url: 'https://fintutto-admin-hub.vercel.app',
+    registerUrl: 'https://fintutto-admin-hub.vercel.app/register',
+    features: ['Benutzerverwaltung & Rollen', 'Organisationsverwaltung', 'App-übergreifende Einstellungen', 'Lizenz- & Aboverwaltung', 'Audit-Log & Aktivitätsprotokoll'],
+    pricing: { free: 'Grundfunktionen inklusive', plans: [{ name: 'Team', price: '9,99', period: '/Monat', highlight: true }] },
+    stats: [{ label: 'Apps', value: '15' }, { label: 'Rollen', value: '∞' }, { label: 'SSO', value: 'Ja' }],
+    targetAudience: 'Hausverwaltungen & Teams',
+    category: 'finanzen',
+  },
+  {
+    id: 'financial-compass',
+    name: 'Financial Compass',
+    tagline: 'Deine Finanzübersicht auf einen Blick',
+    description: 'Einnahmen, Ausgaben, Steuern – alle Finanzdaten zusammengeführt. Mit automatischer Buchhaltung und Steuerreports.',
+    icon: '🧭',
+    color: 'from-violet-600 to-purple-500',
+    url: 'https://fintutto-your-financial-compass.vercel.app',
+    registerUrl: 'https://fintutto-your-financial-compass.vercel.app/register',
+    features: ['Einnahmen- & Ausgabenübersicht', 'Automatische Kategorisierung', 'Steuerreports (Anlage V)', 'Mieteinnahmen-Tracking', 'Export für Steuerberater'],
+    pricing: { free: 'Grundübersicht kostenlos', plans: [{ name: 'Plus', price: '4,99', period: '/Monat' }, { name: 'Pro', price: '9,99', period: '/Monat', highlight: true }] },
+    stats: [{ label: 'Reports', value: '10+' }, { label: 'Export', value: 'CSV/PDF' }, { label: 'Steuer', value: 'Auto' }],
+    targetAudience: 'Vermieter & Eigentümer',
+    category: 'finanzen',
+  },
+  {
+    id: 'fittutto',
+    name: 'FitTutto',
+    tagline: 'Dein KI-Personal Trainer',
+    description: 'Individuelle Trainingspläne, 500+ Übungen, Ernährungstracking und Gamification.',
+    icon: '💪',
+    color: 'from-green-600 to-emerald-500',
+    url: 'https://fittutto.fintutto.cloud',
+    registerUrl: 'https://fittutto.fintutto.cloud/auth',
+    features: ['KI-generierte Trainingspläne', '500+ Übungen', 'Ernährungstracking', 'Fortschrittsstatistiken', 'Persönliche Rekorde'],
+    pricing: { free: 'Trainingsplan erstellen kostenlos', plans: [{ name: 'Basic', price: '4,99', period: '/Monat', highlight: true }, { name: 'Premium', price: '9,99', period: '/Monat' }] },
+    stats: [{ label: 'Übungen', value: '500+' }, { label: 'KI-Pläne', value: 'Ja' }, { label: 'Ernährung', value: 'Tracking' }],
+    targetAudience: 'Fitness-Enthusiasten',
+    badge: 'Neu',
+    category: 'lifestyle',
+  },
+  {
+    id: 'translator',
+    name: 'Übersetzer',
+    tagline: 'Online-Übersetzer mit Text-to-Speech',
+    description: '22 Sprachen, Echtzeit-Übersetzung, Text-to-Speech und Verlauf.',
+    icon: '🌐',
+    color: 'from-sky-500 to-blue-500',
+    url: 'https://translator-fintutto.vercel.app',
+    registerUrl: 'https://translator-fintutto.vercel.app',
+    features: ['22 Sprachen unterstützt', 'Text-to-Speech Ausgabe', 'Übersetzungsverlauf', 'Echtzeit-Übersetzung', 'Clipboard-Integration'],
+    pricing: { free: 'Komplett kostenlos', plans: [{ name: 'Free', price: '0', period: 'für immer', highlight: true }] },
+    stats: [{ label: 'Sprachen', value: '22' }, { label: 'TTS', value: 'Ja' }, { label: 'Preis', value: 'Gratis' }],
+    targetAudience: 'Alle Nutzer',
+    category: 'lifestyle',
+  },
+  {
+    id: 'pflanzen-manager',
+    name: 'Pflanzen-Manager',
+    tagline: 'Zimmerpflanzen-Pflege leicht gemacht',
+    description: 'Gießerinnerungen, Pflanzenprofile, Standort-Tracking und Pflege-Tipps.',
+    icon: '🌱',
+    color: 'from-green-500 to-lime-500',
+    url: 'https://zimmerpflanze.vercel.app',
+    registerUrl: 'https://zimmerpflanze.vercel.app/register',
+    features: ['Pflanzenprofile mit Fotos', 'Gieß-Erinnerungen', 'Standort-Tracking', 'Pflege-Tipps & Anleitungen', 'Wachstums-Verlauf'],
+    pricing: { free: 'Bis 5 Pflanzen kostenlos', plans: [{ name: 'Unlimited', price: '1,99', period: '/Monat', highlight: true }] },
+    stats: [{ label: 'Pflanzen', value: '∞' }, { label: 'Tipps', value: '200+' }, { label: 'Erinnerung', value: 'Push' }],
+    targetAudience: 'Pflanzenliebhaber',
+    category: 'lifestyle',
+  },
+  {
+    id: 'luggagex',
+    name: 'LuggageX',
+    tagline: 'Gepäck-Tracking & Reise-Checklisten',
+    description: 'Reisegepäck digital verwalten: Packlisten, Gewichts-Tracker und Versicherungsübersicht.',
+    icon: '🧳',
+    color: 'from-amber-500 to-orange-500',
+    url: 'https://luggagex-fintutto.vercel.app',
+    registerUrl: 'https://luggagex-fintutto.vercel.app',
+    features: ['Digitale Packlisten', 'Gewichts-Tracker pro Koffer', 'Reise-Checklisten', 'Gepäck-Versicherung', 'Reise-Verlauf'],
+    pricing: { free: 'Grundfunktionen kostenlos', plans: [{ name: 'Pro', price: '1,99', period: '/Monat', highlight: true }] },
+    stats: [{ label: 'Listen', value: '∞' }, { label: 'Reisen', value: '∞' }, { label: 'Gewicht', value: 'Auto' }],
+    targetAudience: 'Reisende',
+    category: 'lifestyle',
+  },
+  {
+    id: 'guidetranslator',
+    name: 'GuideTranslator',
+    tagline: 'Übersetzer-Tool für Kreuzfahrtschiffe',
+    description: 'Spezialisiertes Übersetzungstool für Reiseleiter und Guides auf Kreuzfahrtschiffen.',
+    icon: '🚢',
+    color: 'from-cyan-600 to-teal-500',
+    url: 'https://app.guidetranslator.com',
+    registerUrl: 'https://app.guidetranslator.com/register',
+    features: ['Branchenspezifische Phrasen', 'Kreuzfahrt-Terminologie', 'Offline-Modus verfügbar', 'Mehrsprachige Durchsagen', 'Gäste-Kommunikation'],
+    pricing: { free: 'Demo verfügbar', plans: [{ name: 'Pro', price: '9,99', period: '/Monat', highlight: true }] },
+    stats: [{ label: 'Sprachen', value: '15+' }, { label: 'Phrasen', value: '1000+' }, { label: 'Offline', value: 'Ja' }],
+    targetAudience: 'Reiseleiter & Guides',
+    category: 'sales',
+  },
+  {
+    id: 'command-center',
+    name: 'Command Center',
+    tagline: 'Fintutto Steuerungszentrale',
+    description: 'Überblick über alle Fintutto-Apps, Nutzerstatistiken und System-Health.',
+    icon: '🎛️',
+    color: 'from-gray-700 to-slate-600',
+    url: 'https://fintutto-command-center.vercel.app',
+    registerUrl: 'https://fintutto-command-center.vercel.app',
+    features: ['App-Status Dashboard', 'Nutzerstatistiken', 'Deployment-Übersicht', 'System-Health Monitoring', 'Cross-App Analytics'],
+    pricing: { free: 'Nur für Admins', plans: [{ name: 'Admin', price: '0', period: 'inklusive', highlight: true }] },
+    stats: [{ label: 'Apps', value: '15' }, { label: 'Uptime', value: '99.9%' }, { label: 'Analytics', value: 'Echtzeit' }],
+    targetAudience: 'Administratoren',
+    category: 'sales',
+  },
+  {
+    id: 'fittutto',
+    name: 'FitTutto',
+    tagline: 'Dein persoenlicher Fitness-Begleiter',
+    description:
+      'Trainingsplaene, Workout-Tracking, Ernaehrungstracking, Koerpermessungen und KI-Coaching. 250+ Uebungen, Set-by-Set Logging, Makro-Tracker und mehr.',
+    icon: '💪',
+    color: 'from-orange-500 to-red-500',
+    url: '/fittutto',
+    registerUrl: '/register',
+    features: [
+      'Individuelle Trainingsplaene erstellen & generieren',
+      'Workout-Tracking mit 250+ Uebungen',
+      'Ernaehrungstracking mit Makro-Zielen',
+      'Koerper-Tracking (Gewicht, Umfaenge, KFA)',
+      'KI-Fitness-Coach fuer personalisierte Tipps',
+      'Persoenliche Rekorde & Streak-Tracking',
+    ],
+    pricing: {
+      free: 'Grundfunktionen kostenlos',
+      plans: [
+        { name: 'Speichern', price: '2,99', period: '/Monat' },
+        { name: 'Basic', price: '4,99', period: '/Monat', highlight: true },
+        { name: 'Premium', price: '9,99', period: '/Monat' },
+      ],
+    },
+    stats: [
+      { label: 'Uebungen', value: '250+' },
+      { label: 'KI-Coach', value: 'Ja' },
+      { label: 'Tracking', value: '360°' },
+    ],
+    targetAudience: 'Fitness-Enthusiasten',
+    badge: 'Neu',
   },
 ]
 
-// Generate a referral URL for a specific app
-export function getReferralUrl(app: AppInfo, referralCode: string): string {
-  return `${app.registerUrl}?ref=${referralCode}`
-}
-
-// Get an app by ID
-export function getAppById(id: string): AppInfo | undefined {
-  return FINTUTTO_APPS.find((app) => app.id === id)
-}

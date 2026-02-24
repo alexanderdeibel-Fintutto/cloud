@@ -1,9 +1,12 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { TrendingUp, ArrowLeft, Calculator, Info, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import PropertySelector from '../../components/shared/PropertySelector'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 interface MieterhoehungResult {
   neueMonatsmiete: number
@@ -36,7 +39,31 @@ const bundeslaender = [
 ]
 
 export default function MieterhoehungsRechner() {
+  useDocumentTitle('Mieterhöhungs-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Mieterhöhungs-Rechner – Vermieter Portal',
+    description: 'Berechne die zulässige Mieterhöhung nach §558 BGB',
+    path: '/rechner/mieterhoehung',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mieterhöhungs-Rechner',
+    description: 'Berechne die zulässige Mieterhöhung nach §558 BGB',
+    url: 'https://vermieter.fintutto.cloud/rechner/mieterhoehung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
+  const [searchParams] = useSearchParams()
   const [aktuelleKaltmiete, setAktuelleKaltmiete] = useState<string>('')
+
+  useEffect(() => {
+    const rent = searchParams.get('rent')
+    if (rent) setAktuelleKaltmiete(rent)
+  }, [searchParams])
   const [gewuenschteKaltmiete, setGewuenschteKaltmiete] = useState<string>('')
   const [vergleichsmiete, setVergleichsmiete] = useState<string>('')
   const [bundesland, setBundesland] = useState<string>('Bayern')
@@ -78,6 +105,7 @@ export default function MieterhoehungsRechner() {
 
     hinweise.push('Maximale Erhöhung: ' + formatCurrency(maxNeueMiete) + ' (Kappungsgrenze ' + kappungsgrenze + '%)')
 
+    setDirty()
     setResult({
       neueMonatsmiete: gewuenscht,
       neueJahresmiete: gewuenscht * 12,
@@ -88,6 +116,7 @@ export default function MieterhoehungsRechner() {
       isZulaessig,
       hinweise,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   const reset = () => {
@@ -95,6 +124,7 @@ export default function MieterhoehungsRechner() {
     setGewuenschteKaltmiete('')
     setVergleichsmiete('')
     setResult(null)
+    toast('Eingaben zurückgesetzt')
   }
 
   return (
@@ -129,6 +159,13 @@ export default function MieterhoehungsRechner() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <PropertySelector
+                    onSelect={({ rent }) => {
+                      setAktuelleKaltmiete(rent.toString())
+                      setResult(null)
+                    }}
+                    label="Miete aus Vermietify laden"
+                  />
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Aktuelle Kaltmiete *</label>
@@ -247,14 +284,17 @@ export default function MieterhoehungsRechner() {
                 <>
                   <Card className={result.isZulaessig ? 'border-success/30' : 'border-destructive/30'}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        {result.isZulaessig ? (
-                          <CheckCircle2 className="h-5 w-5 text-success" />
-                        ) : (
-                          <AlertTriangle className="h-5 w-5 text-destructive" />
-                        )}
-                        {result.isZulaessig ? 'Zulässig' : 'Problematisch'}
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {result.isZulaessig ? (
+                            <CheckCircle2 className="h-5 w-5 text-success" />
+                          ) : (
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                          )}
+                          {result.isZulaessig ? 'Zulässig' : 'Problematisch'}
+                        </CardTitle>
+                        <ShareResultButton title="Mieterhöhungs-Rechner Ergebnis" url="/rechner/mieterhoehung" text={formatCurrency(result.erhoehungAbsolut)} />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center py-4">
@@ -308,6 +348,8 @@ export default function MieterhoehungsRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

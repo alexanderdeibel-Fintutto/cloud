@@ -31,7 +31,7 @@ export default function AdSlot({ placement }: AdSlotProps) {
                 Werbefrei & unbegrenzt nutzen
               </h3>
               <p className="text-sm text-purple-700 mt-1">
-                Alle 28+ Tools ohne Werbung, mit PDF-Export und Speicher-Funktion.
+                Alle 27 Tools ohne Werbung, mit PDF-Export und Speicher-Funktion.
                 Ab nur 0,99 EUR/Monat.
               </p>
             </div>

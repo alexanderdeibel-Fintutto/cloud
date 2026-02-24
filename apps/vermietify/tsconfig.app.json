@@ -24,8 +24,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@fintutto/shared": ["../../packages/shared/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../../packages/shared/src"]
 }

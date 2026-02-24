@@ -1,10 +1,17 @@
+ claude/review-repo-setup-0rnoo
+import { lazy, Suspense } from 'react'
 import { CheckCircle, XCircle, AlertCircle, ArrowRight, FileText, Download } from 'lucide-react'
+
+import { CheckCircle, XCircle, AlertCircle, ArrowRight, FileText, Download, Calculator } from 'lucide-react'
+ main
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { motion } from 'framer-motion'
-import { AffiliateCard, AdSlot, PremiumTeaser } from '@/components/monetization'
+
+const AffiliateCard = lazy(() => import('@/components/monetization/AffiliateCard'))
+const PremiumTeaser = lazy(() => import('@/components/monetization/PremiumTeaser'))
+const AdSlot = lazy(() => import('@/components/monetization/AdSlot'))
 
 interface CheckerResultProps {
   result: CheckerResultType
@@ -12,6 +19,7 @@ interface CheckerResultProps {
   onGoToForm: () => void
   onDownloadPDF?: () => void
   onStartNew: () => void
+  rechnerUrl?: string
 }
 
 export default function CheckerResult({
@@ -20,6 +28,7 @@ export default function CheckerResult({
   onGoToForm,
   onDownloadPDF,
   onStartNew,
+  rechnerUrl,
 }: CheckerResultProps) {
   const getStatusIcon = () => {
     switch (result.status) {
@@ -55,12 +64,7 @@ export default function CheckerResult({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
+    <div className="animate-fade-scale-in space-y-6">
       {/* Main Result Card */}
       <Card className={`${getStatusColor()} border-2`}>
         <CardContent className="pt-8 pb-6">
@@ -130,10 +134,14 @@ export default function CheckerResult({
       </Card>
 
       {/* Kontextbezogene Partner-Empfehlungen */}
-      <AffiliateCard checkerType={checkerType} />
+      <Suspense fallback={null}>
+        <AffiliateCard checkerType={checkerType} />
+      </Suspense>
 
       {/* Premium-Teaser für PDF-Export */}
-      <PremiumTeaser feature="pdf" />
+      <Suspense fallback={null}>
+        <PremiumTeaser feature="pdf" />
+      </Suspense>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -150,6 +158,18 @@ export default function CheckerResult({
           </Button>
         )}
 
+        {rechnerUrl && (
+          <Button
+            variant="outline"
+            size="xl"
+            className="flex-1"
+            onClick={() => window.open(rechnerUrl, '_blank')}
+          >
+            <Calculator className="w-5 h-5 mr-2" />
+            Zum Rechner
+          </Button>
+        )}
+
         {onDownloadPDF && (
           <Button variant="outline" size="xl" onClick={onDownloadPDF}>
             <Download className="w-5 h-5 mr-2" />
@@ -159,7 +179,9 @@ export default function CheckerResult({
       </div>
 
       {/* Werbung (nur Free-User) */}
-      <AdSlot placement="result" />
+      <Suspense fallback={null}>
+        <AdSlot placement="result" />
+      </Suspense>
 
       {/* Start New Check */}
       <div className="text-center pt-4">
@@ -170,6 +192,6 @@ export default function CheckerResult({
           Neuen Check starten
         </button>
       </div>
-    </motion.div>
+    </div>
   )
 }

@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pflanzen-Manager Design System
+   Primary: Forest Green (#16a34a)
+   Accent: Warm Amber (#d97706)
+   Nature-inspired palette
+*/
+
+@layer base {
+  :root {
+    --background: 120 20% 97%;
+    --foreground: 120 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 120 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 10% 10%;
+
+    --primary: 142 72% 29%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 120 15% 94%;
+    --secondary-foreground: 120 10% 20%;
+
+    --muted: 120 10% 92%;
+    --muted-foreground: 120 5% 45%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 85% 97%;
+
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --border: 120 10% 85%;
+    --input: 120 10% 85%;
+    --ring: 142 72% 29%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 142 30% 97%;
+    --sidebar-foreground: 120 10% 10%;
+    --sidebar-primary: 142 72% 29%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 142 30% 92%;
+    --sidebar-accent-foreground: 142 72% 25%;
+    --sidebar-border: 120 10% 88%;
+    --sidebar-ring: 142 72% 29%;
+  }
+
+  .dark {
+    --background: 120 10% 8%;
+    --foreground: 120 5% 95%;
+
+    --card: 120 10% 12%;
+    --card-foreground: 120 5% 95%;
+
+    --popover: 120 10% 12%;
+    --popover-foreground: 120 5% 95%;
+
+    --primary: 142 72% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 120 10% 18%;
+    --secondary-foreground: 120 5% 85%;
+
+    --muted: 120 10% 20%;
+    --muted-foreground: 120 5% 60%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 85% 97%;
+
+    --success: 142 72% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --border: 120 10% 22%;
+    --input: 120 10% 22%;
+    --ring: 142 72% 40%;
+
+    --sidebar-background: 120 10% 10%;
+    --sidebar-foreground: 120 5% 95%;
+    --sidebar-primary: 142 72% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 120 10% 16%;
+    --sidebar-accent-foreground: 142 72% 50%;
+    --sidebar-border: 120 10% 18%;
+    --sidebar-ring: 142 72% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

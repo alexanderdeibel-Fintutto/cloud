@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 type MahnStufe = 'zahlungserinnerung' | 'erste_mahnung' | 'zweite_mahnung' | 'letzte_mahnung'
 
@@ -43,10 +46,28 @@ const initial: FormData = {
 }
 
 export default function MahnungFormular() {
+  useDocumentTitle('Mahnung', 'Fintutto Portal')
+  useTrackTool('Mahnung')
+  useMetaTags({
+    title: 'Mahnschreiben erstellen – Von Zahlungserinnerung bis letzte Mahnung',
+    description: 'Erstelle Mahnschreiben in 4 Stufen. Mit Mahngebühr, Fristsetzung und Bankverbindung.',
+    path: '/formulare/mahnung',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Mahnschreiben-Generator',
+    description: 'Erstelle Mahnschreiben für ausstehende Mietzahlungen',
+    url: 'https://portal.fintutto.cloud/formulare/mahnung',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>(initial)
 
-  const update = (fields: Partial<FormData>) => setData((d) => ({ ...d, ...fields }))
+  const update = (fields: Partial<FormData>) => { setData((d) => ({ ...d, ...fields })); setDirty() }
 
   const addForderung = () => {
     setData((d) => ({ ...d, forderungen: [...d.forderungen, { bezeichnung: '', betrag: '', faelligDatum: '' }] }))
@@ -252,12 +273,14 @@ export default function MahnungFormular() {
             <Button variant="outline" onClick={() => setStep(step - 1)} disabled={step === 0}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Zurück
             </Button>
-            <Button onClick={() => setStep(step + 1)} disabled={step === steps.length - 1}>
+            <Button onClick={() => { setStep(step + 1); if (step === steps.length - 2) toast.success('Dokument erstellt') }} disabled={step === steps.length - 1}>
               Weiter <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }

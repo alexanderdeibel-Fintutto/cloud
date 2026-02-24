@@ -1,11 +1,31 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Calculator, ArrowLeft, Info } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, ShareResultButton, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
 
 export default function GrundsteuerRechner() {
+  useDocumentTitle('Grundsteuer-Rechner', 'Fintutto Vermieter')
+  useMetaTags({
+    title: 'Grundsteuer-Rechner – Vermieter Portal',
+    description: 'Berechne die neue Grundsteuer nach dem Bundesmodell',
+    path: '/rechner/grundsteuer',
+    baseUrl: 'https://vermieter.fintutto.cloud',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Grundsteuer-Rechner',
+    description: 'Berechne die neue Grundsteuer nach dem Bundesmodell',
+    url: 'https://vermieter.fintutto.cloud/rechner/grundsteuer',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/rechner') })
+  const { setDirty } = useUnsavedChanges()
   const [grundstueckswert, setGrundstueckswert] = useState<string>('')
   const [gebaeudewert, setGebaeudewert] = useState<string>('')
   const [hebesatz, setHebesatz] = useState<string>('400')
@@ -23,6 +43,7 @@ export default function GrundsteuerRechner() {
     const grundsteuerJahr = grundsteuermessbetrag * (hs / 100)
     const grundsteuerMonat = grundsteuerJahr / 12
 
+    setDirty()
     setResult({
       grundsteuerwert,
       steuermesszahl: steuermesszahl * 100,
@@ -31,6 +52,7 @@ export default function GrundsteuerRechner() {
       grundsteuerJahr,
       grundsteuerMonat,
     })
+    toast.success('Berechnung abgeschlossen')
   }
 
   return (
@@ -86,7 +108,7 @@ export default function GrundsteuerRechner() {
                   </div>
                   <div className="flex gap-3 pt-4">
                     <Button onClick={berechnen} disabled={!grundstueckswert && !gebaeudewert} className="flex-1 gradient-vermieter text-white">Berechnen</Button>
-                    <Button variant="outline" onClick={() => { setGrundstueckswert(''); setGebaeudewert(''); setResult(null) }}>Zurücksetzen</Button>
+                    <Button variant="outline" onClick={() => { setGrundstueckswert(''); setGebaeudewert(''); setResult(null); toast('Eingaben zurückgesetzt') }}>Zurücksetzen</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -107,7 +129,12 @@ export default function GrundsteuerRechner() {
             <div className="space-y-6">
               {result ? (
                 <Card>
-                  <CardHeader><CardTitle>Grundsteuer</CardTitle></CardHeader>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Grundsteuer</CardTitle>
+                      <ShareResultButton title="Grundsteuer-Rechner Ergebnis" url="/rechner/grundsteuer" text={formatCurrency(result.grundsteuerJahr)} />
+                    </div>
+                  </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="text-center py-4">
                       <p className="text-sm text-muted-foreground mb-1">Pro Jahr</p>
@@ -134,6 +161,8 @@ export default function GrundsteuerRechner() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

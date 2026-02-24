@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
+
 import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -24,8 +24,7 @@ export default function CheckoutSuccessPage() {
 
           // Simulate verification delay
           await new Promise(resolve => setTimeout(resolve, 1500))
-        } catch (error) {
-          console.error('Session verification error:', error)
+        } catch {
         }
       }
       setIsLoading(false)
@@ -47,23 +46,14 @@ export default function CheckoutSuccessPage() {
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center py-12 px-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md w-full"
-      >
+      <div className="animate-fade-scale-in max-w-md w-full">
         <Card className="text-center">
           <CardContent className="pt-12 pb-8">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            >
+            <div className="animate-fade-scale-in" style={{ animationDelay: '0.2s' }}>
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
                 <CheckCircle className="w-12 h-12 text-green-500" />
               </div>
-            </motion.div>
+            </div>
 
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Zahlung erfolgreich!
@@ -92,7 +82,7 @@ export default function CheckoutSuccessPage() {
         <p className="text-center text-sm text-gray-500 mt-6">
           Sie erhalten in Kuerze eine Bestaetigung per E-Mail.
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }

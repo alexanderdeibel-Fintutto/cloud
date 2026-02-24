@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Wrench } from 'lucide-react'
-import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
-import { useAuth } from '@/contexts/AuthContext'
+import type { CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
-import { getFormulareAppUrl, formatCurrency } from '@/lib/utils'
+ claude/review-repo-setup-0rnoo
+import { getFormulareAppUrl } from '@/lib/checker-utils'
+import { formatCurrency } from '@/lib/utils'
+import { useCheckerForm } from '@/hooks/useCheckerForm'
+
+import { getFormulareAppUrl, getRechnerAppUrl, formatCurrency } from '@/lib/utils'
+ main
 import { toast } from 'sonner'
 
 interface FormData {
@@ -32,39 +35,16 @@ const MINDERUNGSQUOTEN: Record<string, { min: number; max: number; label: string
   elektrik_defekt: { min: 10, max: 30, label: 'Elektrik defekt' },
 }
 
+const initialFormData: FormData = {
+  mangelart: '', kaltmiete: 0, mangelBekannt: '', vermieterInformiert: false, informiertAm: '', beeintraechtigung: 'mittel',
+}
+
 export default function MietminderungChecker() {
-  const navigate = useNavigate()
-  const { startSession, completeSession, clearSession } = useChecker()
-  const { canUseChecker, incrementChecksUsed } = useAuth()
-
-  const [step, setStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<CheckerResultType | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    mangelart: '',
-    kaltmiete: 0,
-    mangelBekannt: '',
-    vermieterInformiert: false,
-    informiertAm: '',
-    beeintraechtigung: 'mittel',
-  })
-
-  useEffect(() => {
-    initSession()
-  }, [])
-
-  const initSession = async () => {
-    if (!canUseChecker()) {
-      toast.error('Limit erreicht.')
-      navigate('/')
-      return
-    }
-    await startSession('mietminderung', 2)
-  }
-
-  const updateField = (field: keyof FormData, value: string | number | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const {
+    step, setStep, isLoading, setIsLoading,
+    result, formData, updateField, submitResult,
+    handleGoToForm, handleStartNew,
+  } = useCheckerForm<FormData>({ checkerType: 'mietminderung', totalSteps: 2, initialFormData })
 
   const analyzeResult = async () => {
     setIsLoading(true)
@@ -125,33 +105,19 @@ export default function MietminderungChecker() {
         }
       }
 
-      await completeSession(checkerResult)
-      await incrementChecksUsed()
-      setResult(checkerResult)
+      await submitResult(checkerResult)
 
-    } catch (error) {
+    } catch {
       toast.error('Fehler bei der Analyse.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoToForm = () => navigate(result?.formRedirectUrl ?? '/formulare')
-
-  const handleStartNew = () => {
-    clearSession()
-    setResult(null)
-    setStep(1)
-    setFormData({
-      mangelart: '', kaltmiete: 0, mangelBekannt: '', vermieterInformiert: false, informiertAm: '', beeintraechtigung: 'mittel',
-    })
-    initSession()
-  }
-
   if (result) {
     return (
       <CheckerLayout title="Mietminderungs-Checker" description="Ihr Ergebnis" icon={<Wrench className="w-8 h-8" />}>
-        <CheckerResult result={result} checkerType="mietminderung" onGoToForm={handleGoToForm} onStartNew={handleStartNew} />
+        <CheckerResult result={result} checkerType="mietminderung" onGoToForm={handleGoToForm} onStartNew={handleStartNew} rechnerUrl={getRechnerAppUrl('kaution', { rent: String(formData.kaltmiete) })} />
       </CheckerLayout>
     )
   }

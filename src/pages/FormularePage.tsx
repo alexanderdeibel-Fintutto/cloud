@@ -150,8 +150,8 @@ export default function FormularePage() {
                     </div>
                   )}
                   <CardHeader>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl gradient-vermieter-subtle mb-3 group-hover:scale-110 transition-transform">
-                      <item.icon className="h-7 w-7 text-fintutto-purple-600" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 mb-3 group-hover:scale-110 transition-transform">
+                      <item.icon className="h-7 w-7 text-primary" />
                     </div>
                     <CardTitle className="text-xl">{item.title}</CardTitle>
                     <CardDescription className="text-base">{item.description}</CardDescription>

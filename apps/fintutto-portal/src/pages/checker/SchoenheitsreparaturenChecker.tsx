@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Paintbrush } from 'lucide-react'
 import { useChecker, CheckerResult as CheckerResultType } from '@/contexts/CheckerContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { CheckerLayout, CheckerField, CheckerStep, CheckerResult } from '@/components/checker'
 import { getFormulareAppUrl } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 
 interface FormData {
   mietvertragJahr: string
@@ -19,8 +20,25 @@ interface FormData {
 
 export default function SchoenheitsreparaturenChecker() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { startSession, completeSession, clearSession } = useChecker()
   const { canUseChecker, incrementChecksUsed } = useAuth()
+
+  useDocumentTitle('Schönheitsreparaturen-Checker', 'Fintutto Portal')
+  useMetaTags({
+    title: 'Schönheitsreparaturen-Checker – Musst du renovieren?',
+    description: 'Musst du beim Auszug renovieren? Prüfe ob die Klausel wirksam ist. Mit BGH-Rechtsprechung.',
+    path: '/checker/schoenheitsreparaturen',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Schönheitsreparaturen-Checker',
+    description: 'Prüfe ob Schönheitsreparaturklauseln in deinem Mietvertrag wirksam sind',
+    url: 'https://portal.fintutto.cloud/checker/schoenheitsreparaturen',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  useKeyboardNav({ onEscape: () => navigate('/checker') })
+  const { setDirty } = useUnsavedChanges()
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -113,6 +131,7 @@ export default function SchoenheitsreparaturenChecker() {
       }
 
       await completeSession(checkerResult)
+      toast.success('Analyse abgeschlossen')
       await incrementChecksUsed()
       setResult(checkerResult)
 
@@ -151,7 +170,7 @@ export default function SchoenheitsreparaturenChecker() {
       icon={<Paintbrush className="w-8 h-8" />}
     >
       {step === 1 && (
-        <CheckerStep onNext={() => setStep(2)} canProceed={!!formData.mietvertragJahr} showPrevious={false}>
+        <CheckerStep onNext={() => { setStep(2); setDirty() }} canProceed={!!formData.mietvertragJahr} showPrevious={false}>
           <h2 className="text-xl font-semibold mb-4">Mietvertrag</h2>
           <div className="space-y-4">
             <CheckerField
@@ -223,6 +242,7 @@ export default function SchoenheitsreparaturenChecker() {
           </div>
         </CheckerStep>
       )}
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </CheckerLayout>
   )
 }

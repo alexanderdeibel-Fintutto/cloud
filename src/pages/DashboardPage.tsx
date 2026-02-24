@@ -4,7 +4,15 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/integrations/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
+
+function formatDate(date: string | Date): string {
+  return new Intl.DateTimeFormat('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(new Date(date))
+}
 import {
   FileCheck,
   Clock,
@@ -56,9 +64,7 @@ export default function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(10)
 
-    if (error) {
-      console.error('Error fetching results:', error)
-    } else {
+    if (!error) {
       setResults(data as unknown as CheckerResultRecord[])
     }
     setLoadingResults(false)

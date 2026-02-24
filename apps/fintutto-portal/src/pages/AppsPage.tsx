@@ -72,7 +72,7 @@ function AppCard({ app }: { app: AppInfo }) {
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold">
-              ab {highlightedPlan.price}&euro;
+              ab {highlightedPlan.price}€
             </span>
             <span className="text-muted-foreground text-sm">{highlightedPlan.period}</span>
           </div>
@@ -87,7 +87,7 @@ function AppCard({ app }: { app: AppInfo }) {
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  {plan.name}: {plan.price}&euro;
+                  {plan.name}: {plan.price}€
                 </span>
               ))}
             </div>
@@ -114,7 +114,7 @@ function AppCard({ app }: { app: AppInfo }) {
 }
 
 export default function AppsPage() {
-  const [filter, setFilter] = useState<'alle' | 'mieter' | 'vermieter' | 'alle-nutzer'>('alle')
+  const [filter, setFilter] = useState<'alle' | 'mieter' | 'vermieter' | 'immobilien' | 'finanzen' | 'lifestyle' | 'sales'>('alle')
 
   const filteredApps = FINTUTTO_APPS.filter((app) => {
     if (filter === 'alle') return true
@@ -122,6 +122,8 @@ export default function AppsPage() {
       return app.targetAudience.includes('Mieter')
     if (filter === 'vermieter')
       return app.targetAudience.includes('Vermieter') || app.targetAudience.includes('Hausverwaltung')
+    if (filter === 'immobilien' || filter === 'finanzen' || filter === 'lifestyle' || filter === 'sales')
+      return app.category === filter
     return true
   })
 
@@ -135,14 +137,14 @@ export default function AppsPage() {
             <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="h-4 w-4 text-yellow-300" />
               <span className="text-white/90 text-sm font-medium">
-                6 Apps &middot; 1 &Ouml;kosystem &middot; Alles kostenlos starten
+                15 Apps · 1 Ökosystem · Alles kostenlos starten
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Das Fintutto &Ouml;kosystem
+              Das Fintutto Ökosystem
             </h1>
             <p className="text-lg text-white/70 mb-8">
-              Von der Wohnungssuche bis zur Nebenkostenabrechnung &ndash; f&uuml;r jeden Schritt die
+              Von der Wohnungssuche bis zur Nebenkostenabrechnung – für jeden Schritt die
               richtige App. Alle verbunden, alle mit Supabase & Stripe.
             </p>
 
@@ -174,8 +176,11 @@ export default function AppsPage() {
           <div className="flex flex-wrap items-center justify-center gap-2">
             {[
               { key: 'alle', label: 'Alle Apps', icon: '🌐' },
+              { key: 'immobilien', label: 'Immobilien', icon: '🏠' },
+              { key: 'finanzen', label: 'Finanzen & Tools', icon: '🧮' },
+              { key: 'lifestyle', label: 'Lifestyle', icon: '🌱' },
               { key: 'mieter', label: 'Für Mieter', icon: '🔑' },
-              { key: 'vermieter', label: 'Für Vermieter', icon: '🏠' },
+              { key: 'vermieter', label: 'Für Vermieter', icon: '🏢' },
             ].map((f) => (
               <button
                 key={f.key}
@@ -207,9 +212,9 @@ export default function AppsPage() {
       {/* Ecosystem Benefits */}
       <section className="py-16 bg-muted/30">
         <div className="container">
-          <h2 className="text-3xl font-bold text-center mb-4">Warum ein &Ouml;kosystem?</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">Warum ein Ökosystem?</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Alle Apps teilen eine gemeinsame Datenbasis. Einmal anmelden &ndash; &uuml;berall nutzen.
+            Alle Apps teilen eine gemeinsame Datenbasis. Einmal anmelden – überall nutzen.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
@@ -217,10 +222,10 @@ export default function AppsPage() {
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 mx-auto mb-4">
                 <Users className="h-7 w-7 text-blue-600" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Ein Konto &ndash; alle Apps</h3>
+              <h3 className="font-semibold text-lg mb-2">Ein Konto – alle Apps</h3>
               <p className="text-muted-foreground text-sm">
                 Melde dich einmal an und nutze alle Fintutto-Apps mit demselben Account.
-                Deine Daten sind &uuml;berall verf&uuml;gbar.
+                Deine Daten sind überall verfügbar.
               </p>
             </div>
 
@@ -241,7 +246,7 @@ export default function AppsPage() {
               </div>
               <h3 className="font-semibold text-lg mb-2">Empfehlen & sparen</h3>
               <p className="text-muted-foreground text-sm">
-                Mit dem Referral-Programm verdienst du Bonus-Credits f&uuml;r jede Empfehlung.
+                Mit dem Referral-Programm verdienst du Bonus-Credits für jede Empfehlung.
                 Je mehr Freunde, desto mehr sparst du.
               </p>
             </div>
@@ -254,8 +259,8 @@ export default function AppsPage() {
         <div className="container max-w-3xl text-center">
           <h2 className="text-3xl font-bold mb-4">Bereit loszulegen?</h2>
           <p className="text-muted-foreground mb-8">
-            W&auml;hle eine App und starte kostenlos. Alle deine Daten sind sofort in allen
-            anderen Fintutto-Apps verf&uuml;gbar.
+            Wähle eine App und starte kostenlos. Alle deine Daten sind sofort in allen
+            anderen Fintutto-Apps verfügbar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0" asChild>

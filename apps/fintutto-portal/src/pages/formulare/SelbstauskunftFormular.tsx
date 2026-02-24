@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Users, ArrowLeft, Printer, ChevronLeft, ChevronRight, User, Briefcase, Home, Shield, CheckCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Progress } from '../../components/ui/progress'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
+import { toast } from 'sonner'
+import { useTrackTool } from '@/hooks/useTrackTool'
 
 interface SelbstauskunftData {
   anrede: string; vorname: string; nachname: string; geburtsdatum: string; geburtsort: string; staatsangehoerigkeit: string
@@ -36,9 +39,27 @@ const STEPS = [
 ]
 
 export default function SelbstauskunftFormular() {
+  useDocumentTitle('Selbstauskunft', 'Fintutto Portal')
+  useTrackTool('Selbstauskunft')
+  useMetaTags({
+    title: 'Mieterselbstauskunft erstellen – DSGVO-konform',
+    description: 'DSGVO-konforme Mieterselbstauskunft für Wohnungsinteressenten. Mit Einkommensnachweis und Schufa-Klausel.',
+    path: '/formulare/selbstauskunft',
+  })
+  useJsonLd({
+    type: 'WebApplication',
+    name: 'Selbstauskunft-Generator',
+    description: 'Erstelle eine DSGVO-konforme Mieterselbstauskunft',
+    url: 'https://portal.fintutto.cloud/formulare/selbstauskunft',
+    offers: { price: '0', priceCurrency: 'EUR' },
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
+  useKeyboardNav({ onEscape: () => navigate('/formulare') })
+  const { setDirty } = useUnsavedChanges()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<SelbstauskunftData>(INITIAL)
-  const update = (field: keyof SelbstauskunftData, value: string | boolean) => setData(prev => ({ ...prev, [field]: value }))
+  const update = (field: keyof SelbstauskunftData, value: string | boolean) => { setData(prev => ({ ...prev, [field]: value })); setDirty() }
   const canNext = () => { switch (step) { case 0: return data.vorname && data.nachname && data.geburtsdatum; case 1: return data.beruf && data.nettoEinkommen; case 2: return true; case 3: return data.datenschutz; default: return true } }
 
   return (
@@ -148,10 +169,12 @@ export default function SelbstauskunftFormular() {
 
           <div className="flex justify-between mt-8 print:hidden">
             <Button variant="outline" onClick={() => setStep(s => s - 1)} disabled={step === 0}><ChevronLeft className="h-4 w-4 mr-2" /> Zurueck</Button>
-            {step < 4 ? <Button onClick={() => setStep(s => s + 1)} disabled={!canNext()}>Weiter <ChevronRight className="h-4 w-4 ml-2" /></Button> : null}
+            {step < 4 ? <Button onClick={() => { setStep(s => s + 1); if (step === 3) toast.success('Dokument erstellt') }} disabled={!canNext()}>Weiter <ChevronRight className="h-4 w-4 ml-2" /></Button> : null}
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={location.pathname} currentAppSlug="portal" />
     </div>
   )
 }
