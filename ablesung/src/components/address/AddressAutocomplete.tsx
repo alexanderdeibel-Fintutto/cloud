@@ -1,10 +1,9 @@
-/// <reference types="@types/google.maps" />
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { MapPin, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useGoogleMapsApi } from '@/hooks/useGoogleMapsApi';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AddressData {
   formattedAddress: string;
@@ -16,6 +15,15 @@ export interface AddressData {
   placeId: string;
   lat: number;
   lng: number;
+}
+
+interface Prediction {
+  place_id: string;
+  description: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
 }
 
 interface AddressAutocompleteProps {
@@ -31,141 +39,152 @@ export function AddressAutocomplete({
   required = false,
   disabled = false,
 }: AddressAutocompleteProps) {
-  const { ready, error: apiError } = useGoogleMapsApi();
   const [inputValue, setInputValue] = useState(initialValue);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-  const parseAddressComponents = useCallback((place: google.maps.places.PlaceResult): AddressData | null => {
-    if (!place.address_components || !place.geometry?.location || !place.place_id) {
-      return null;
-    }
+  const sessionTokenRef = useRef<string>(crypto.randomUUID());
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    const getComponent = (type: string): string => {
-      const component = place.address_components?.find(c => c.types.includes(type));
-      return component?.long_name || '';
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
     };
-
-    const getShortComponent = (type: string): string => {
-      const component = place.address_components?.find(c => c.types.includes(type));
-      return component?.short_name || '';
-    };
-
-    const street = getComponent('route');
-    const streetNumber = getComponent('street_number');
-    const city = getComponent('locality') || getComponent('sublocality') || getComponent('administrative_area_level_2');
-    const postalCode = getComponent('postal_code');
-    const country = getShortComponent('country');
-
-    // Require at least street and city for a valid address
-    if (!street || !city) {
-      return null;
-    }
-
-    return {
-      formattedAddress: place.formatted_address || '',
-      street,
-      streetNumber,
-      city,
-      postalCode,
-      country,
-      placeId: place.place_id,
-      lat: place.geometry.location.lat(),
-      lng: place.geometry.location.lng(),
-    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (!ready || !inputRef.current || autocompleteRef.current) return;
+  const fetchPredictions = useCallback(async (input: string) => {
+    if (input.length < 3) {
+      setPredictions([]);
+      setIsOpen(false);
+      return;
+    }
 
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ['address'],
-      componentRestrictions: { country: ['de', 'at', 'ch'] }, // DACH region
-      fields: ['address_components', 'formatted_address', 'geometry', 'place_id'],
-    });
+    setIsLoading(true);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('places-autocomplete', {
+        body: { input, sessionToken: sessionTokenRef.current },
+      });
 
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      
-      if (!place.address_components) {
-        setError('Bitte wählen Sie eine Adresse aus der Liste');
+      if (fnError) throw fnError;
+
+      setPredictions(data?.predictions || []);
+      setIsOpen((data?.predictions || []).length > 0);
+    } catch (err) {
+      console.error('Autocomplete error:', err);
+      setPredictions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleSelectPrediction = async (prediction: Prediction) => {
+    setInputValue(prediction.description);
+    setIsOpen(false);
+    setPredictions([]);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('places-details', {
+        body: { placeId: prediction.place_id, sessionToken: sessionTokenRef.current },
+      });
+
+      // Reset session token after place details request (Google billing optimization)
+      sessionTokenRef.current = crypto.randomUUID();
+
+      if (fnError) throw fnError;
+
+      const addressData = data as AddressData;
+
+      if (!addressData.street || !addressData.city) {
+        setError('Ungültige Adresse - bitte vollständige Straße und Stadt angeben');
         setIsValidated(false);
         onAddressSelect(null);
         return;
       }
 
-      const addressData = parseAddressComponents(place);
-      
-      if (addressData) {
-        setInputValue(addressData.formattedAddress);
-        setIsValidated(true);
-        setError(null);
-        onAddressSelect(addressData);
-      } else {
-        setError('Ungültige Adresse - bitte vollständige Straße und Stadt angeben');
-        setIsValidated(false);
-        onAddressSelect(null);
-      }
-    });
-
-    autocompleteRef.current = autocomplete;
-
-    return () => {
-      if (autocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
-    };
-  }, [ready, parseAddressComponents, onAddressSelect]);
+      setInputValue(addressData.formattedAddress);
+      setIsValidated(true);
+      onAddressSelect(addressData);
+    } catch (err) {
+      console.error('Place details error:', err);
+      setError('Adressdetails konnten nicht geladen werden');
+      setIsValidated(false);
+      onAddressSelect(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    // Reset validation when user types manually
+    const value = e.target.value;
+    setInputValue(value);
+    setHighlightedIndex(-1);
+
     if (isValidated) {
       setIsValidated(false);
       onAddressSelect(null);
     }
     setError(null);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchPredictions(value), 300);
   };
 
-  const handleBlur = () => {
-    if (inputValue && !isValidated) {
-      setError('Bitte wählen Sie eine Adresse aus der Vorschlagsliste');
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen || predictions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev < predictions.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : predictions.length - 1));
+    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+      e.preventDefault();
+      handleSelectPrediction(predictions[highlightedIndex]);
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
     }
   };
 
-  if (apiError) {
-    return (
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Adresse {required && '*'}
-        </Label>
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>Google Maps konnte nicht geladen werden</span>
-        </div>
-      </div>
-    );
-  }
+  const handleBlur = () => {
+    // Delay to allow click on prediction
+    setTimeout(() => {
+      if (inputValue && !isValidated) {
+        setError('Bitte wählen Sie eine Adresse aus der Vorschlagsliste');
+      }
+    }, 200);
+  };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" ref={containerRef}>
       <Label htmlFor="address-autocomplete" className="text-sm font-medium">
         Adresse suchen {required && '*'}
       </Label>
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
         <Input
-          ref={inputRef}
           id="address-autocomplete"
           type="text"
-          placeholder={ready ? "Straße und Hausnummer eingeben..." : "Lade Google Maps..."}
+          placeholder="Straße und Hausnummer eingeben..."
           value={inputValue}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          disabled={disabled || !ready}
+          disabled={disabled}
           required={required}
+          autoComplete="off"
           className={cn(
             "pl-11 pr-11 h-12 rounded-xl border-border/50 bg-card/80 text-foreground focus:bg-card focus:ring-2 focus:ring-primary/30 transition-all",
             isValidated && "border-success/50 bg-success/5",
@@ -173,10 +192,36 @@ export function AddressAutocomplete({
           )}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          {!ready && <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />}
-          {ready && isValidated && <CheckCircle2 className="w-5 h-5 text-success" />}
-          {ready && error && <AlertCircle className="w-5 h-5 text-destructive" />}
+          {isLoading && <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />}
+          {!isLoading && isValidated && <CheckCircle2 className="w-5 h-5 text-success" />}
+          {!isLoading && error && <AlertCircle className="w-5 h-5 text-destructive" />}
         </div>
+
+        {/* Dropdown */}
+        {isOpen && predictions.length > 0 && (
+          <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+            {predictions.map((prediction, index) => (
+              <button
+                key={prediction.place_id}
+                type="button"
+                className={cn(
+                  "w-full px-4 py-3 text-left text-sm hover:bg-accent/50 transition-colors flex flex-col gap-0.5",
+                  index === highlightedIndex && "bg-accent/50"
+                )}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => handleSelectPrediction(prediction)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+              >
+                <span className="font-medium text-foreground">
+                  {prediction.structured_formatting.main_text}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {prediction.structured_formatting.secondary_text}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {error && (
         <p className="text-xs text-destructive flex items-center gap-1">

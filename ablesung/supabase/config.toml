@@ -21,6 +21,12 @@ verify_jwt = false
 [functions.get-maps-key]
 verify_jwt = false
 
+[functions.places-autocomplete]
+verify_jwt = false
+
+[functions.places-details]
+verify_jwt = false
+
 [functions.process-referral]
 verify_jwt = false
 
