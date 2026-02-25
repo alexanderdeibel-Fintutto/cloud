@@ -95,6 +95,10 @@ import ReisekostenRechnerPage from './pages/ReisekostenRechnerPage'
 import BewerbungskostenPage from './pages/BewerbungskostenPage'
 import VorsorgeaufwendungenPage from './pages/VorsorgeaufwendungenPage'
 import FortbildungskostenPage from './pages/FortbildungskostenPage'
+import AbfindungsRechnerPage from './pages/AbfindungsRechnerPage'
+import SachbezuegePage from './pages/SachbezuegePage'
+import AussergewoehnlicheBelastungenPage from './pages/AussergewoehnlicheBelastungenPage'
+import KapitalertraegePage from './pages/KapitalertraegePage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -209,6 +213,10 @@ function App() {
             <Route path="bewerbungskosten" element={<BewerbungskostenPage />} />
             <Route path="vorsorgeaufwendungen" element={<VorsorgeaufwendungenPage />} />
             <Route path="fortbildungskosten" element={<FortbildungskostenPage />} />
+            <Route path="abfindungsrechner" element={<AbfindungsRechnerPage />} />
+            <Route path="sachbezuege" element={<SachbezuegePage />} />
+            <Route path="aussergewoehnliche-belastungen" element={<AussergewoehnlicheBelastungenPage />} />
+            <Route path="kapitalertraege" element={<KapitalertraegePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

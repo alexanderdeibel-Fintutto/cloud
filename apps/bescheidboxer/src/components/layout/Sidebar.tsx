@@ -80,6 +80,10 @@ import {
   FileSearch,
   ShieldPlus,
   BookMarked,
+  Banknote,
+  Gift,
+  HeartCrack,
+  TrendingDown,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -158,6 +162,10 @@ const navigation = [
   { name: 'Bewerbungskosten', href: '/bewerbungskosten', icon: FileSearch },
   { name: 'Vorsorgeaufwend.', href: '/vorsorgeaufwendungen', icon: ShieldPlus },
   { name: 'Fortbildungskosten', href: '/fortbildungskosten', icon: BookMarked },
+  { name: 'Abfindungsrechner', href: '/abfindungsrechner', icon: Banknote },
+  { name: 'Sachbezüge', href: '/sachbezuege', icon: Gift },
+  { name: 'Außergew. Belast.', href: '/aussergewoehnliche-belastungen', icon: HeartCrack },
+  { name: 'Kapitalerträge', href: '/kapitalertraege', icon: TrendingDown },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

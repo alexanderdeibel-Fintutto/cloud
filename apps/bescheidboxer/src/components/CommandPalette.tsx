@@ -87,6 +87,10 @@ import {
   FileSearch,
   ShieldPlus,
   BookMarked,
+  Banknote,
+  Gift,
+  HeartCrack,
+  TrendingDown,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -210,6 +214,10 @@ export default function CommandPalette() {
     { id: 'nav-bewerbungskosten', label: 'Bewerbungskosten', description: 'Bewerbungen als WK absetzen', icon: FileSearch, category: 'navigation', keywords: ['bewerbung', 'bewerbungskosten', 'vorstellung', 'porto', 'werbungskosten'], action: () => runAndClose(() => navigate('/bewerbungskosten')) },
     { id: 'nav-vorsorge', label: 'Vorsorgeaufwendungen', description: 'Rente, Kranken- & Pflegeversicherung', icon: ShieldPlus, category: 'navigation', keywords: ['vorsorge', 'rente', 'krankenversicherung', 'pflege', 'ruerup', 'sonderausgabe'], action: () => runAndClose(() => navigate('/vorsorgeaufwendungen')) },
     { id: 'nav-fortbildung', label: 'Fortbildungskosten', description: 'Weiterbildung & Studium absetzen', icon: BookMarked, category: 'navigation', keywords: ['fortbildung', 'weiterbildung', 'studium', 'kurs', 'seminar', 'werbungskosten'], action: () => runAndClose(() => navigate('/fortbildungskosten')) },
+    { id: 'nav-abfindung', label: 'Abfindungsrechner', description: 'Fünftelregelung § 34 EStG', icon: Banknote, category: 'navigation', keywords: ['abfindung', 'fuenftel', 'regelung', 'entlassung', 'entschaedigung', 'steuer'], action: () => runAndClose(() => navigate('/abfindungsrechner')) },
+    { id: 'nav-sachbezuege', label: 'Sachbezüge', description: 'Steuerfreie Benefits optimieren', icon: Gift, category: 'navigation', keywords: ['sachbezug', 'gutschein', 'jobticket', 'freigrenze', '50euro', 'benefit'], action: () => runAndClose(() => navigate('/sachbezuege')) },
+    { id: 'nav-agbelastungen', label: 'Außergew. Belastungen', description: 'Krankheit, Pflege, Bestattung', icon: HeartCrack, category: 'navigation', keywords: ['aussergewoehnlich', 'belastung', 'krankheit', 'zumutbar', 'pflege', 'bestattung'], action: () => runAndClose(() => navigate('/aussergewoehnliche-belastungen')) },
+    { id: 'nav-kapitalertraege', label: 'Kapitalerträge', description: 'Abgeltungsteuer & Günstigerprüfung', icon: TrendingDown, category: 'navigation', keywords: ['kapital', 'zinsen', 'dividende', 'abgeltung', 'sparerpauschbetrag', 'aktien'], action: () => runAndClose(() => navigate('/kapitalertraege')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
