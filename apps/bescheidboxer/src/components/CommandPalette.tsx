@@ -91,6 +91,10 @@ import {
   Gift,
   HeartCrack,
   TrendingDown,
+  Building2 as Building2Icon,
+  Accessibility,
+  RefreshCcw,
+  BadgeInfo,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -218,6 +222,10 @@ export default function CommandPalette() {
     { id: 'nav-sachbezuege', label: 'Sachbezüge', description: 'Steuerfreie Benefits optimieren', icon: Gift, category: 'navigation', keywords: ['sachbezug', 'gutschein', 'jobticket', 'freigrenze', '50euro', 'benefit'], action: () => runAndClose(() => navigate('/sachbezuege')) },
     { id: 'nav-agbelastungen', label: 'Außergew. Belastungen', description: 'Krankheit, Pflege, Bestattung', icon: HeartCrack, category: 'navigation', keywords: ['aussergewoehnlich', 'belastung', 'krankheit', 'zumutbar', 'pflege', 'bestattung'], action: () => runAndClose(() => navigate('/aussergewoehnliche-belastungen')) },
     { id: 'nav-kapitalertraege', label: 'Kapitalerträge', description: 'Abgeltungsteuer & Günstigerprüfung', icon: TrendingDown, category: 'navigation', keywords: ['kapital', 'zinsen', 'dividende', 'abgeltung', 'sparerpauschbetrag', 'aktien'], action: () => runAndClose(() => navigate('/kapitalertraege')) },
+    { id: 'nav-vermietung', label: 'Vermietungsrechner', description: 'V+V Überschussrechnung', icon: Building2Icon, category: 'navigation', keywords: ['vermietung', 'verpachtung', 'miete', 'werbungskosten', 'afa', 'zinsen', 'ueberschuss'], action: () => runAndClose(() => navigate('/vermietung')) },
+    { id: 'nav-behindertenpb', label: 'Behinderten-Pauschbetrag', description: 'GdB, Merkzeichen & Pflege', icon: Accessibility, category: 'navigation', keywords: ['behinderung', 'pauschbetrag', 'gdb', 'merkzeichen', 'pflege', 'schwerbehinderung'], action: () => runAndClose(() => navigate('/behindertenpauschbetrag')) },
+    { id: 'nav-lst-ausgleich', label: 'LSt-Jahresausgleich', description: 'Erstattung bei schwankendem Gehalt', icon: RefreshCcw, category: 'navigation', keywords: ['lohnsteuer', 'jahresausgleich', 'erstattung', 'nachzahlung', 'gehalt', 'bonus'], action: () => runAndClose(() => navigate('/lohnsteuer-jahresausgleich')) },
+    { id: 'nav-steuerklassen-info', label: 'Steuerklassen-Ratgeber', description: 'Alle 6 Steuerklassen erklärt', icon: BadgeInfo, category: 'navigation', keywords: ['steuerklasse', 'ratgeber', 'info', 'freibetrag', 'wechsel', 'uebersicht'], action: () => runAndClose(() => navigate('/steuerklassen-info')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

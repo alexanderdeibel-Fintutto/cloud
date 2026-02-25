@@ -84,6 +84,10 @@ import {
   Gift,
   HeartCrack,
   TrendingDown,
+  Building2 as Building2Icon,
+  Accessibility,
+  RefreshCcw,
+  BadgeInfo,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -166,6 +170,10 @@ const navigation = [
   { name: 'Sachbezüge', href: '/sachbezuege', icon: Gift },
   { name: 'Außergew. Belast.', href: '/aussergewoehnliche-belastungen', icon: HeartCrack },
   { name: 'Kapitalerträge', href: '/kapitalertraege', icon: TrendingDown },
+  { name: 'Vermietung', href: '/vermietung', icon: Building2Icon },
+  { name: 'Behinderten-PB', href: '/behindertenpauschbetrag', icon: Accessibility },
+  { name: 'LSt-Jahresausgleich', href: '/lohnsteuer-jahresausgleich', icon: RefreshCcw },
+  { name: 'Steuerklassen-Info', href: '/steuerklassen-info', icon: BadgeInfo },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
