@@ -8,6 +8,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CommandPalette, ECOSYSTEM_TOOLS } from "@fintutto/shared";
 import type { CommandItem } from "@fintutto/shared";
 
+import AppsPage from "./pages/apps/AppsPage";
+
 // Auth Pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -197,6 +199,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/apps" element={<AppsPage />} />
 
             {/* Protected Routes */}
             <Route path="/onboarding" element={

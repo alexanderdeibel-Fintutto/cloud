@@ -23,6 +23,7 @@ import VacationPlanPage from '@/pages/vacation/VacationPlanPage';
 import ShoppingPage from '@/pages/shopping/ShoppingPage';
 import SettingsPage from '@/pages/SettingsPage';
 import PlantScannerPage from '@/pages/scanner/PlantScannerPage';
+import AppsPage from '@/pages/AppsPage';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ function App() {
                   <Route path="/shopping" element={<ShoppingPage />} />
                   <Route path="/scanner" element={<PlantScannerPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/apps" element={<AppsPage />} />
                 </Route>
 
                 {/* 404 */}
