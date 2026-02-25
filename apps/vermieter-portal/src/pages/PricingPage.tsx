@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { CheckCircle2, XCircle, Coins, Calculator, FileText, Sparkles, Zap, MessageSquare } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { CrossAppRecommendations } from '@fintutto/shared'
 
 const plans = [
   {
@@ -85,6 +87,7 @@ const creditCosts = [
 ]
 
 export default function PricingPage() {
+  const { pathname } = useLocation()
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
 
   return (
@@ -313,6 +316,8 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

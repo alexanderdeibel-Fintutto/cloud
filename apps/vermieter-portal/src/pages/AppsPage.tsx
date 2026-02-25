@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   ExternalLink, ArrowRight, CheckCircle2, Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { FINTUTTO_APPS, APP_CATEGORIES, type AppCategory } from '@fintutto/shared'
+import { FINTUTTO_APPS, APP_CATEGORIES, type AppCategory, CrossAppRecommendations } from '@fintutto/shared'
 import { useMetaTags } from '@fintutto/shared'
 
 const apps = Object.values(FINTUTTO_APPS).filter(app => app.slug !== 'vermieter-portal')
@@ -19,6 +20,7 @@ export default function AppsPage() {
     baseUrl: 'https://vermieter.fintutto.cloud',
   })
 
+  const { pathname } = useLocation()
   const [filter, setFilter] = useState<FilterKey>('alle')
 
   const filteredApps = apps.filter((app) => {
@@ -109,6 +111,8 @@ export default function AppsPage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

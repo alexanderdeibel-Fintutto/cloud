@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   Calculator,
   TrendingUp,
@@ -8,7 +8,7 @@ import {
   Receipt,
   ArrowRight
 } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, useJsonLd, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, Breadcrumbs, CrossAppRecommendations } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const rechner = [
@@ -69,6 +69,7 @@ const rechner = [
 ]
 
 export default function RechnerPage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Rechner', 'Fintutto Vermieter')
   useMetaTags({
     title: 'Rechner fuer Vermieter – Vermieter Portal',
@@ -141,6 +142,8 @@ export default function RechnerPage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

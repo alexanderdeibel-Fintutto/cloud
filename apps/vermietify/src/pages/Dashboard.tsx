@@ -15,7 +15,8 @@ import { DashboardActivityFeed } from "@/components/dashboard/DashboardActivityF
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
 import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
-import { EcosystemStatsBar } from "@fintutto/shared";
+import { EcosystemStatsBar, CrossAppRecommendations } from "@fintutto/shared";
+import { useLocation } from "react-router-dom";
 
 interface DashboardStats {
   totalRent: number;
@@ -41,6 +42,7 @@ interface Task {
 }
 
 export default function Dashboard() {
+  const { pathname } = useLocation();
   const { profile } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenueData, setRevenueData] = useState<MonthlyRevenue[]>([]);
@@ -411,6 +413,8 @@ export default function Dashboard() {
 
         {/* Fintutto Ecosystem Cross-Sell */}
         <EcosystemPromoCards />
+
+        <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermietify" />
 
         <EcosystemStatsBar />
       </div>

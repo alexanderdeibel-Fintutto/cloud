@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { ClipboardList, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
-import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges, CrossAppRecommendations } from '@fintutto/shared'
 import { toast } from 'sonner'
 
 export default function UebergabeprotokollFormular() {
@@ -19,6 +19,7 @@ export default function UebergabeprotokollFormular() {
     url: 'https://vermieter.fintutto.cloud/formulare/uebergabeprotokoll',
     offers: { price: '0', priceCurrency: 'EUR' },
   })
+  const { pathname } = useLocation()
   const navigate = useNavigate()
   useKeyboardNav({ onEscape: () => navigate('/formulare') })
   const { setDirty } = useUnsavedChanges()
@@ -52,6 +53,8 @@ export default function UebergabeprotokollFormular() {
           </Card>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

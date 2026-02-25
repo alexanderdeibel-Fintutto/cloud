@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   Calculator,
   FileText,
@@ -20,7 +20,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { useAuth } from '../contexts/AuthContext'
 import { useProperties } from '../hooks/useProperties'
-import { getOtherApps, useDocumentTitle, EcosystemStatsBar } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle, EcosystemStatsBar, CrossAppRecommendations } from '@fintutto/shared'
 
 const ecosystemApps = getOtherApps('portal')
 
@@ -121,6 +121,7 @@ const features = [
 ]
 
 export default function HomePage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Vermieter-Tools', 'Fintutto')
   const { user } = useAuth()
   const { properties, hasProperties } = useProperties()
@@ -426,6 +427,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

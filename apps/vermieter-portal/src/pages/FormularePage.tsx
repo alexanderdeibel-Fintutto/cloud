@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   FileSignature,
   ClipboardList,
@@ -9,7 +9,7 @@ import {
   Download,
   Mail
 } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, useJsonLd, Breadcrumbs } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, useJsonLd, Breadcrumbs, CrossAppRecommendations } from '@fintutto/shared'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const formulare = [
@@ -56,6 +56,7 @@ const formulare = [
 ]
 
 export default function FormularePage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Formulare & Vorlagen', 'Fintutto Vermieter')
   useMetaTags({
     title: 'Formulare & Vorlagen – Vermieter Portal',
@@ -153,6 +154,8 @@ export default function FormularePage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="vermieter-portal" />
     </div>
   )
 }

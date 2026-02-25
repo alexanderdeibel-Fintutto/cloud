@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { EcosystemStatsBar } from '@fintutto/shared'
+import { Link, useLocation } from 'react-router-dom'
+import { EcosystemStatsBar, CrossAppRecommendations } from '@fintutto/shared'
 import { ScanLine, FileText, Zap, Flame, Droplets, ThermometerSun, TrendingDown, BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,8 @@ const energyTypes = [
 ]
 
 export default function DashboardPage() {
+  const { pathname } = useLocation()
+
   return (
     <div>
       {/* Hero */}
@@ -132,6 +134,8 @@ export default function DashboardPage() {
           </Card>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="ablesung" />
 
       <EcosystemStatsBar
         renderLink={({ to, children, className }) => (

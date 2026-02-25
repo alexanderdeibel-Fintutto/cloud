@@ -1,0 +1,10 @@
+{
+  "name": "Ablesung by Fintutto",
+  "short_name": "Ablesung",
+  "description": "Zählerablesung und Rechnungs-OCR. Ein Produkt des Fintutto-Ökosystems.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#f59e0b",
+  "background_color": "#ffffff",
+  "icons": []
+}

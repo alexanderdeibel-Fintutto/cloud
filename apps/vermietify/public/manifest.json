@@ -1,7 +1,7 @@
 {
   "name": "Vermietify - Immobilienverwaltung",
   "short_name": "Vermietify",
-  "description": "Die moderne Immobilienverwaltungs-Plattform für deutsche Vermieter",
+  "description": "Die moderne Immobilienverwaltungs-Plattform für deutsche Vermieter. Ein Produkt des Fintutto-Ökosystems",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -1,0 +1,10 @@
+{
+  "name": "Pflanzen-Manager by Fintutto",
+  "short_name": "Pflanzen",
+  "description": "Zimmerpflanzen verwalten, Gießpläne erstellen, Pflanzen bestimmen. Ein Produkt des Fintutto-Ökosystems.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#16a34a",
+  "background_color": "#ffffff",
+  "icons": []
+}
