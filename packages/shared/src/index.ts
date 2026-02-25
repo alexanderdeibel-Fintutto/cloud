@@ -285,6 +285,9 @@ export { EcosystemFooter } from './components/EcosystemFooter'
 // Re-export AppsDirectory
 export { AppsDirectory } from './components/AppsDirectory'
 
+// Re-export EcosystemNotFound
+export { EcosystemNotFound } from './components/EcosystemNotFound'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 
