@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { CommandPalette, ECOSYSTEM_TOOLS } from '@fintutto/shared'
+import { CommandPalette, ECOSYSTEM_TOOLS, EcosystemFooter } from '@fintutto/shared'
 import type { CommandItem } from '@fintutto/shared'
 import Header from './Header'
 import EcosystemBar from './EcosystemBar'
@@ -23,11 +23,12 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="border-t border-border py-6">
-        <div className="container text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Fintutto Ablesung. Alle Rechte vorbehalten.
-        </div>
-      </footer>
+      <EcosystemFooter
+        currentAppSlug="ablesung"
+        appName="Ablesung"
+        appIcon="⚡"
+        appDescription="Versorger-Rechnungen scannen, Verbrauch analysieren, Kosten sparen."
+      />
       <CommandPalette
         items={allAblesungTools}
         onSelect={(item) => item.external ? window.open(item.path, '_blank') : navigate(item.path)}

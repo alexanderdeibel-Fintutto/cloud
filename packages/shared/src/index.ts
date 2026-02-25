@@ -279,6 +279,9 @@ export { EcosystemStatsBar } from './components/EcosystemStatsBar'
 // Re-export AppSwitcher
 export { AppSwitcher } from './components/AppSwitcher'
 
+// Re-export EcosystemFooter
+export { EcosystemFooter } from './components/EcosystemFooter'
+
 // Re-export shared Supabase client factory
 export { createFintuttoClient } from './supabase'
 

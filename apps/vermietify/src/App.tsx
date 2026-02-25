@@ -148,6 +148,7 @@ import CalendarPage from "./pages/calendar/CalendarPage";
 
  import { AIAssistant } from "./components/ai/AIAssistant";
  import EcosystemBar from "./components/layout/EcosystemBar";
+ import { EcosystemFooterWrapper } from "./components/layout/EcosystemFooterWrapper";
 
 const VERMIETIFY_TOOLS: CommandItem[] = [
   { id: 'v-dashboard', title: 'Dashboard', category: 'Navigation', path: '/dashboard', icon: '📊', keywords: ['übersicht', 'start'] },
@@ -630,6 +631,7 @@ const App = () => (
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />
           </Routes>
+          <EcosystemFooterWrapper />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

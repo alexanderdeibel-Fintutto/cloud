@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { CommandPalette, ECOSYSTEM_TOOLS } from '@fintutto/shared';
+import { CommandPalette, ECOSYSTEM_TOOLS, EcosystemFooter } from '@fintutto/shared';
 import type { CommandItem } from '@fintutto/shared';
 import { Sidebar } from './Sidebar';
 import EcosystemBar from './EcosystemBar';
@@ -33,6 +33,12 @@ export function AppLayout() {
         </div>
       </main>
       </div>
+      <EcosystemFooter
+        currentAppSlug="pflanzen-manager"
+        appName="Pflanzen-Manager"
+        appIcon="🌿"
+        appDescription="Zimmerpflanzen verwalten, Gießpläne erstellen, Pflanzen bestimmen."
+      />
       <CommandPalette
         items={allPflanzenTools}
         onSelect={(item) => item.external ? window.open(item.path, '_blank') : navigate(item.path)}
