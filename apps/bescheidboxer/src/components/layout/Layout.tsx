@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
+import EcosystemBar from './EcosystemBar'
 import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
 import Onboarding from '../Onboarding'
@@ -17,6 +18,7 @@ export default function Layout() {
       >
         Zum Inhalt springen
       </a>
+      <EcosystemBar />
       <Header />
       <div className="flex flex-1">
         <Sidebar />

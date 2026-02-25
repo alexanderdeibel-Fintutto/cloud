@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Swords } from 'lucide-react'
+import { getOtherApps } from '@fintutto/shared'
+
+const ecosystemApps = getOtherApps('arbeitslos-portal')
 
 const footerLinks = {
   hilfe: [
@@ -176,6 +179,17 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-border/40">
+          <p className="text-xs text-muted-foreground/70 mb-3 font-medium">Fintutto Ökosystem</p>
+          <div className="flex flex-wrap gap-3">
+            {ecosystemApps.map((app) => (
+              <a key={app.slug} href={app.url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground/70 hover:text-foreground transition-colors">
+                {app.icon} {app.name}
+              </a>
+            ))}
           </div>
         </div>
 

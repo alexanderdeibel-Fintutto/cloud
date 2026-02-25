@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import EcosystemBar from './EcosystemBar'
 import CookieConsent from '@/components/CookieConsent'
 import BackToTop from '@/components/BackToTop'
 import SpotlightSearch from '@/components/SpotlightSearch'
@@ -14,6 +15,7 @@ export default function Layout() {
       <a href="#main-content" className="skip-to-content">
         Zum Inhalt springen
       </a>
+      <EcosystemBar />
       <Header />
       <main id="main-content" className="flex-1 pb-16 md:pb-0" role="main">
         <PageTransition>

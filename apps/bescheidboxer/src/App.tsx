@@ -51,6 +51,7 @@ import GrundsteuerSimulatorPage from './pages/GrundsteuerSimulatorPage'
 import WiderspruchTrackerPage from './pages/WiderspruchTrackerPage'
 import ZahlungsUebersichtPage from './pages/ZahlungsUebersichtPage'
 import BenchmarkPage from './pages/BenchmarkPage'
+import AppsPage from './pages/AppsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -121,6 +122,7 @@ function App() {
             <Route path="widerspruch-tracker" element={<WiderspruchTrackerPage />} />
             <Route path="zahlungen" element={<ZahlungsUebersichtPage />} />
             <Route path="benchmark" element={<BenchmarkPage />} />
+            <Route path="apps" element={<AppsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

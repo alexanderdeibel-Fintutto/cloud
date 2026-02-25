@@ -71,6 +71,7 @@ const SanktionsTracker = lazy(() => import('@/pages/SanktionsTracker'))
 const BescheidArchivPage = lazy(() => import('@/pages/BescheidArchivPage'))
 const KostenUebersichtPage = lazy(() => import('@/pages/KostenUebersichtPage'))
 const ErinnerungenPage = lazy(() => import('@/pages/ErinnerungenPage'))
+const AppsPage = lazy(() => import('@/pages/AppsPage'))
 
 import PageSkeleton from '@/components/PageSkeleton'
 
@@ -172,6 +173,9 @@ function App() {
                 <Route path="impressum" element={<ImpressumPage />} />
                 <Route path="datenschutz" element={<DatenschutzPage />} />
                 <Route path="agb" element={<AgbPage />} />
+
+                {/* Apps */}
+                <Route path="apps" element={<AppsPage />} />
 
                 {/* 404 */}
                 <Route path="*" element={<NotFoundPage />} />
