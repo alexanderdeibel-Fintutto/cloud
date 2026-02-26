@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   FileText,
   Search,
@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Upload,
 } from 'lucide-react'
+import { CrossAppRecommendations, EcosystemStatsBar } from '@fintutto/shared'
 import {
   BarChart,
   Bar,
@@ -43,6 +44,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function DashboardPage() {
+  const { pathname } = useLocation()
   const { bescheide, fristen, stats, loading } = useBescheidContext()
 
   if (loading) return <DashboardSkeleton />
@@ -422,6 +424,10 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="bescheidboxer" />
+
+      <EcosystemStatsBar />
     </div>
   )
 }

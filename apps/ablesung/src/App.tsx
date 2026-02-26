@@ -7,6 +7,7 @@ import RechnungenPage from '@/pages/RechnungenPage'
 import EinstellungenPage from '@/pages/EinstellungenPage'
 import AdminDashboardPage from '@/pages/AdminDashboardPage'
 import AppsPage from '@/pages/AppsPage'
+import NotFoundPage from '@/pages/NotFoundPage'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="einstellungen" element={<EinstellungenPage />} />
           <Route path="admin" element={<AdminDashboardPage />} />
           <Route path="apps" element={<AppsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
       <Toaster position="top-right" richColors />

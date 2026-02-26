@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Home, TrendingUp, Euro, PiggyBank, Receipt,
@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProperties } from '@/hooks/useProperties'
-import { getOtherApps, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner, EcosystemStatsBar } from '@fintutto/shared'
+import { getOtherApps, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner, EcosystemStatsBar, CrossAppRecommendations } from '@fintutto/shared'
 
 const ecosystemApps = [
   {
@@ -166,6 +166,7 @@ const stats = [
 ]
 
 export default function HomePage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Rechner, Checker & Formulare', 'Fintutto Portal')
   useMetaTags({
     title: 'Fintutto Portal – Rechner, Checker & Formulare',
@@ -551,6 +552,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="portal" />
     </div>
   )
 }

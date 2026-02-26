@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Sparkles
 } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, getOtherApps, EcosystemStatsBar } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, getOtherApps, EcosystemStatsBar, CrossAppRecommendations } from '@fintutto/shared'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -50,6 +50,7 @@ const stats = [
 ]
 
 export default function HomePage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Mietrechts-Checker', 'Fintutto')
   useMetaTags({
     title: 'Fintutto Checker – Mietrecht pruefen',
@@ -215,6 +216,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="mieter-checker" />
     </div>
   )
 }

@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import useDocumentTitle from '@/hooks/useDocumentTitle'
+import { CrossAppRecommendations, EcosystemStatsBar } from '@fintutto/shared'
 import {
   LayoutDashboard,
   MessageCircle,
@@ -339,6 +340,7 @@ function TrackerPreview() {
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Dashboard')
   const { credits } = useCreditsContext()
 
@@ -1035,6 +1037,10 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="arbeitslos-portal" />
+
+      <EcosystemStatsBar />
     </div>
   )
 }

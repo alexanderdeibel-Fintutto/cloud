@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import useDocumentTitle from '@/hooks/useDocumentTitle'
+import { CrossAppRecommendations, EcosystemStatsBar } from '@fintutto/shared'
 import {
   ScanSearch,
   MessageCircle,
@@ -105,6 +106,7 @@ function formatPlanLimit(value: number, unit: string): string {
 }
 
 export default function HomePage() {
+  const { pathname } = useLocation()
   useDocumentTitle('Dein KI-Assistent gegen falsche Bescheide')
   return (
     <div>
@@ -781,6 +783,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="arbeitslos-portal" />
+
+      <EcosystemStatsBar />
     </div>
   )
 }

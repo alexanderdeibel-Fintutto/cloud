@@ -1,7 +1,7 @@
 import { Languages, Mic, Globe, Zap, Radio } from 'lucide-react'
 import { useState, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import { EcosystemStatsBar } from '@fintutto/shared'
+import { Link, useLocation } from 'react-router-dom'
+import { EcosystemStatsBar, CrossAppRecommendations } from '@fintutto/shared'
 import { Button } from '@/components/ui/button'
 import TranslationPanel from '@/components/translator/TranslationPanel'
 import TranslationHistory from '@/components/translator/TranslationHistory'
@@ -9,6 +9,7 @@ import QuickPhrases from '@/components/translator/QuickPhrases'
 import { useTranslationHistory } from '@/hooks/useTranslationHistory'
 
 export default function TranslatorPage() {
+  const { pathname } = useLocation()
   const [quickText, setQuickText] = useState('')
   const [sourceLang, setSourceLang] = useState('')
   const [targetLang, setTargetLang] = useState('')
@@ -81,6 +82,8 @@ export default function TranslatorPage() {
           onSelect={handleHistorySelect}
         />
       </div>
+
+      <CrossAppRecommendations currentPath={pathname} currentAppSlug="translator" />
 
       <EcosystemStatsBar
         renderLink={({ to, children, className }) => (
