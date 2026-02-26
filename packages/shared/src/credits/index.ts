@@ -16,6 +16,14 @@ export type PlanId =
   // Mieter-Checker plans (mieterportal)
   | 'mieter_checker_basis'
   | 'mieter_checker_premium'
+  // FinTech Universe plans
+  | 'finance_coach_premium'
+  | 'biz_pro'
+  | 'biz_ai_cfo'
+  | 'learn_premium'
+  | 'api_startup'
+  | 'api_pro'
+  | 'universe_bundle'
 
 export interface Plan {
   id: PlanId
@@ -238,6 +246,14 @@ export const PLAN_CREDIT_LIMITS: Record<string, number> = {
   starter: 3,
   pro: 30,
   enterprise: -1,
+  // FinTech Universe plans (credits = AI messages per month)
+  finance_coach_premium: 30,
+  biz_pro: 20,
+  biz_ai_cfo: -1,
+  learn_premium: 20,
+  api_startup: 0,
+  api_pro: 0,
+  universe_bundle: -1,
 }
 
 // ─── App-Scoped Plan Subsets ─────────────────────────────────────────────────
