@@ -46,8 +46,43 @@ export function useBusiness() {
     fetchBusiness();
   }, [fetchBusiness]);
 
-  const createBusiness = async (name: string, businessType: string, taxId?: string, vatId?: string) => {
-    if (!user) return null;
+  const ensureUserRow = async (): Promise<boolean> => {
+    if (!user) return false;
+
+    // Check if user row exists in public.users
+    const { data } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+
+    if (data) return true;
+
+    // Create minimal public.users row if missing (FK target for biz_businesses)
+    const { error: insertErr } = await supabase
+      .from("users")
+      .insert({
+        id: user.id,
+        email: user.email ?? "",
+        name: user.user_metadata?.name || user.email?.split("@")[0] || "",
+        tier: "free",
+        checks_used: 0,
+        checks_limit: 3,
+      });
+
+    return !insertErr;
+  };
+
+  const createBusiness = async (
+    name: string,
+    businessType: string,
+    taxId?: string,
+    vatId?: string,
+  ): Promise<{ data: Business | null; error: string | null }> => {
+    if (!user) return { data: null, error: "Nicht angemeldet." };
+
+    // Ensure user row exists in public.users (FK target)
+    await ensureUserRow();
 
     const { data, error } = await supabase
       .from("biz_businesses")
@@ -61,11 +96,13 @@ export function useBusiness() {
       .select()
       .single();
 
-    if (!error && data) {
-      setBusiness(data as Business);
-      return data as Business;
+    if (error) {
+      console.error("createBusiness error:", error);
+      return { data: null, error: error.message };
     }
-    return null;
+
+    setBusiness(data as Business);
+    return { data: data as Business, error: null };
   };
 
   return { business, loading, createBusiness, refetch: fetchBusiness };
