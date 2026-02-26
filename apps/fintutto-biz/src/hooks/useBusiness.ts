@@ -61,7 +61,13 @@ export function useBusiness() {
       .select()
       .single();
 
-    if (!error && data) {
+    if (error) {
+      console.error("Failed to create business:", error.message, error.details);
+      alert(`Fehler beim Erstellen: ${error.message}`);
+      return null;
+    }
+
+    if (data) {
       setBusiness(data as Business);
       return data as Business;
     }
