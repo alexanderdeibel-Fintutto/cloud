@@ -1,9 +1,0 @@
-node_modules/
-dist/
-.env
-data/personas.json
-data/activity-log.json
-data/schedule-state.json
-
-# pm2 logs
-logs/*.log
