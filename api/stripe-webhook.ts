@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { PLAN_CREDIT_LIMITS } from '../packages/shared/src/credits'
+import { STRIPE_PRODUCT_ENTITLEMENTS } from '../packages/shared/src/entitlements'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -102,6 +103,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           await processReferralSubscription(resolvedUserId)
         }
 
+        // Process entitlements for FinTech Universe products
+        const productKey = session.metadata?.productKey
+        if (resolvedUserId && productKey) {
+          await syncEntitlements(resolvedUserId, productKey, 'grant')
+        }
+
         break
       }
 
@@ -153,6 +160,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               stripe_subscription_id: null,
             })
             .eq('id', user.id)
+
+          // Revoke entitlements from Stripe source
+          const deletedProductKey = subscription.metadata?.productKey
+          if (deletedProductKey) {
+            await syncEntitlements(user.id, deletedProductKey, 'revoke')
+          }
         }
         break
       }
@@ -162,6 +175,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error('Webhook handler error:', error)
     return res.status(500).json({ error: 'Webhook handler failed' })
+  }
+}
+
+// Sync entitlements based on Stripe product key
+async function syncEntitlements(userId: string, productKey: string, action: 'grant' | 'revoke') {
+  try {
+    const features = STRIPE_PRODUCT_ENTITLEMENTS[productKey]
+    if (!features || features.length === 0) return
+
+    if (action === 'grant') {
+      const rows = features.map((key) => ({
+        user_id: userId,
+        feature_key: key,
+        source: 'stripe',
+        expires_at: null,
+      }))
+      await supabase
+        .from('entitlements')
+        .upsert(rows, { onConflict: 'user_id,feature_key' })
+    } else {
+      for (const key of features) {
+        await supabase
+          .from('entitlements')
+          .delete()
+          .eq('user_id', userId)
+          .eq('feature_key', key)
+          .eq('source', 'stripe')
+      }
+    }
+
+    console.log(`Entitlements ${action}ed for user ${userId}:`, features)
+  } catch (err) {
+    console.error('Error syncing entitlements:', err)
   }
 }
 

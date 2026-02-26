@@ -132,6 +132,31 @@ export const FINTUTTO_APPS = {
     description: 'Finanzübersicht & Buchhaltung',
     icon: '🧭',
   },
+  // ─── NEW: FinTech Universe Apps ──────────────────────────────
+  financeCoach: {
+    name: 'Finance Coach',
+    slug: 'finance-coach',
+    description: 'KI-Finanzberatung & Budgetierung',
+    icon: '💰',
+  },
+  fintuttoBiz: {
+    name: 'Fintutto Biz',
+    slug: 'fintutto-biz',
+    description: 'Freelancer Finance OS',
+    icon: '💼',
+  },
+  financeMentor: {
+    name: 'Finance Mentor',
+    slug: 'finance-mentor',
+    description: 'Finanz-Education & Zertifikate',
+    icon: '📚',
+  },
+  fintuttoApi: {
+    name: 'Fintutto API',
+    slug: 'fintutto-api',
+    description: 'B2B Finance Intelligence API',
+    icon: '🔌',
+  },
 } as const
 
 // Re-export all database types
@@ -145,3 +170,6 @@ export * from './stripe'
 
 // Supabase factory
 export { createSupabaseClient, type CreateSupabaseClientOptions } from './supabase'
+
+// Entitlements engine (FinTech Universe)
+export * from './entitlements'
