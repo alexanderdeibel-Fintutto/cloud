@@ -41,10 +41,10 @@ export default function TaxOverview() {
         .lte("issue_date", `${year}-12-31`),
       supabase
         .from("biz_expenses")
-        .select("amount, expense_date")
+        .select("amount, vat_amount, occurred_at")
         .eq("business_id", business.id)
-        .gte("expense_date", `${year}-01-01`)
-        .lte("expense_date", `${year}-12-31`),
+        .gte("occurred_at", `${year}-01-01`)
+        .lte("occurred_at", `${year}-12-31`),
     ]);
 
     const quarterNames = ["Q1 (Jan-Mrz)", "Q2 (Apr-Jun)", "Q3 (Jul-Sep)", "Q4 (Okt-Dez)"];
@@ -58,15 +58,16 @@ export default function TaxOverview() {
       });
 
       const qExpenses = (expenses || []).filter((exp) => {
-        const month = new Date(exp.expense_date).getMonth();
+        const month = new Date(exp.occurred_at).getMonth();
         return month >= startMonth && month <= endMonth;
       });
 
       const revenue = qInvoices.reduce((sum, i) => sum + Number(i.subtotal || 0), 0);
       const vatCollected = qInvoices.reduce((sum, i) => sum + Number(i.tax_amount || 0), 0);
       const totalExpenses = qExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
-      // Estimate: assume 19% input VAT on expenses
-      const vatPaid = Math.round(totalExpenses * 0.19 / 1.19 * 100) / 100;
+      // Use actual vat_amount from expenses if available, otherwise estimate
+      const vatPaid = qExpenses.reduce((sum, e) => sum + Number(e.vat_amount || 0), 0) ||
+        Math.round(totalExpenses * 0.19 / 1.19 * 100) / 100;
 
       return {
         quarter: name,

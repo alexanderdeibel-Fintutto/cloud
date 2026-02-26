@@ -52,16 +52,25 @@ export default function Dashboard() {
   const fetchStats = async () => {
     if (!business) return;
 
+    // Fetch last 6 months of data
+    const now = new Date();
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    const dateFrom = sixMonthsAgo.toISOString().split("T")[0];
+
     const [
       { data: paidInvoices },
       { data: openInv },
       { data: overdueInv },
       { data: expenses },
+      { data: chartInvoices },
+      { data: chartExpenses },
     ] = await Promise.all([
       supabase.from("biz_invoices").select("total").eq("business_id", business.id).eq("status", "paid"),
       supabase.from("biz_invoices").select("id").eq("business_id", business.id).eq("status", "sent"),
       supabase.from("biz_invoices").select("id").eq("business_id", business.id).eq("status", "overdue"),
       supabase.from("biz_expenses").select("amount").eq("business_id", business.id),
+      supabase.from("biz_invoices").select("total, issue_date").eq("business_id", business.id).eq("status", "paid").gte("issue_date", dateFrom),
+      supabase.from("biz_expenses").select("amount, occurred_at").eq("business_id", business.id).gte("occurred_at", dateFrom),
     ]);
 
     const totalRevenue = (paidInvoices || []).reduce((sum, i) => sum + Number(i.total), 0);
@@ -75,15 +84,31 @@ export default function Dashboard() {
       overdueInvoices: overdueInv?.length || 0,
     });
 
-    // Build monthly data for chart (last 6 months placeholder)
-    const months = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun"];
-    setMonthlyData(
-      months.map((m) => ({
-        month: m,
-        revenue: Math.round(totalRevenue / 6 + (Math.random() - 0.5) * totalRevenue * 0.3),
-        expenses: Math.round(totalExpenses / 6 + (Math.random() - 0.5) * totalExpenses * 0.3),
-      }))
-    );
+    // Build monthly data for chart from actual data (last 6 months)
+    const monthNames = ["Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+    const monthly: MonthlyData[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthIdx = d.getMonth();
+      const yearVal = d.getFullYear();
+
+      const rev = (chartInvoices || [])
+        .filter((inv) => {
+          const invDate = new Date(inv.issue_date);
+          return invDate.getMonth() === monthIdx && invDate.getFullYear() === yearVal;
+        })
+        .reduce((sum, inv) => sum + Number(inv.total), 0);
+
+      const exp = (chartExpenses || [])
+        .filter((e) => {
+          const eDate = new Date(e.occurred_at);
+          return eDate.getMonth() === monthIdx && eDate.getFullYear() === yearVal;
+        })
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      monthly.push({ month: monthNames[monthIdx], revenue: Math.round(rev), expenses: Math.round(exp) });
+    }
+    setMonthlyData(monthly);
 
     setLoading(false);
   };

@@ -10,7 +10,10 @@ interface Expense {
   amount: number;
   category: string;
   description: string;
-  expense_date: string;
+  occurred_at: string;
+  tax_deductible: boolean;
+  vat_rate: number;
+  vat_amount: number;
   created_at: string;
 }
 
@@ -47,7 +50,9 @@ export default function Expenses() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Sonstiges");
   const [description, setDescription] = useState("");
-  const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split("T")[0]);
+  const [occurredAt, setOccurredAt] = useState(new Date().toISOString().split("T")[0]);
+  const [vatRate, setVatRate] = useState(19);
+  const [taxDeductible, setTaxDeductible] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -70,7 +75,7 @@ export default function Expenses() {
       .from("biz_expenses")
       .select("*")
       .eq("business_id", business.id)
-      .order("expense_date", { ascending: false });
+      .order("occurred_at", { ascending: false });
 
     if (data) setExpenses(data);
     setLoading(false);
@@ -80,18 +85,26 @@ export default function Expenses() {
     if (!business || !amount || !description) return;
 
     setSaving(true);
+    const numAmount = Number(amount);
+    const vatAmount = Math.round(numAmount * (vatRate / (100 + vatRate)) * 100) / 100;
+
     const { error } = await supabase.from("biz_expenses").insert({
       business_id: business.id,
-      amount: Number(amount),
+      amount: numAmount,
       category,
       description,
-      expense_date: expenseDate,
+      occurred_at: occurredAt,
+      vat_rate: vatRate,
+      vat_amount: vatAmount,
+      tax_deductible: taxDeductible,
     });
 
     if (!error) {
       setAmount("");
       setDescription("");
       setCategory("Sonstiges");
+      setVatRate(19);
+      setTaxDeductible(true);
       setShowForm(false);
       fetchExpenses();
     }
@@ -166,12 +179,22 @@ export default function Expenses() {
                         {expense.category}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {formatDateDE(expense.expense_date)}
+                        {formatDateDE(expense.occurred_at)}
                       </span>
+                      {expense.tax_deductible && (
+                        <span className="text-xs text-green-400">absetzbar</span>
+                      )}
                     </div>
                   </div>
                 </div>
-                <p className="font-semibold text-white">{formatEuro(expense.amount)}</p>
+                <div className="text-right">
+                  <p className="font-semibold text-white">{formatEuro(expense.amount)}</p>
+                  {expense.vat_amount > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      davon {formatEuro(expense.vat_amount)} USt
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -186,7 +209,7 @@ export default function Expenses() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white">Betrag (EUR)</label>
+                <label className="text-sm font-medium text-white">Betrag brutto (EUR)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -197,17 +220,31 @@ export default function Expenses() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white">Kategorie</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white">Kategorie</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white">USt-Satz (%)</label>
+                  <select
+                    value={vatRate}
+                    onChange={(e) => setVatRate(Number(e.target.value))}
+                    className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value={19}>19%</option>
+                    <option value={7}>7%</option>
+                    <option value={0}>0% (umsatzsteuerfrei)</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -225,11 +262,21 @@ export default function Expenses() {
                 <label className="text-sm font-medium text-white">Datum</label>
                 <input
                   type="date"
-                  value={expenseDate}
-                  onChange={(e) => setExpenseDate(e.target.value)}
+                  value={occurredAt}
+                  onChange={(e) => setOccurredAt(e.target.value)}
                   className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={taxDeductible}
+                  onChange={(e) => setTaxDeductible(e.target.checked)}
+                  className="h-4 w-4 rounded border-white/10 bg-white/5 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-white">Steuerlich absetzbar</span>
+              </label>
 
               <div className="flex gap-3 pt-2">
                 <button
