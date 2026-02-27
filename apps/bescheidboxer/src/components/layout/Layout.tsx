@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -6,8 +7,11 @@ import Onboarding from '../Onboarding'
 import CommandPalette from '../CommandPalette'
 import KeyboardShortcuts from '../KeyboardShortcuts'
 import PageTransition from '../PageTransition'
+import BescheidBoxerChat, { AIChatButton } from '../ai/BescheidBoxerChat'
 
 export default function Layout() {
+  const [chatOpen, setChatOpen] = useState(false)
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Skip to content link for keyboard/screen reader users */}
@@ -30,6 +34,8 @@ export default function Layout() {
       <Onboarding />
       <CommandPalette />
       <KeyboardShortcuts />
+      <AIChatButton onClick={() => setChatOpen(true)} isOpen={chatOpen} />
+      <BescheidBoxerChat isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   )
 }

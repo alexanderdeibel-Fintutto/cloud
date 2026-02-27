@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   Search,
@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   FileText,
   BarChart3,
+  Loader2,
 } from 'lucide-react'
 import {
   BarChart,
@@ -49,12 +50,30 @@ const KATEGORIE_COLORS: Record<string, string> = {
 
 export default function AnalysePage() {
   const { id } = useParams()
-  const { bescheide } = useBescheidContext()
+  const { bescheide, runAnalyse } = useBescheidContext()
   const [selectedBescheid, setSelectedBescheid] = useState(
     id ? bescheide.find(b => b.id === id) : bescheide.find(b => b.pruefungsergebnis && b.pruefungsergebnis.abweichungen.length > 0)
   )
+  const [analysing, setAnalysing] = useState(false)
 
-  if (!selectedBescheid) {
+  // Keep selectedBescheid in sync when bescheide updates (after analysis)
+  const currentBescheid = selectedBescheid
+    ? bescheide.find(b => b.id === selectedBescheid.id) || selectedBescheid
+    : selectedBescheid
+
+  const handleStartAnalyse = useCallback(async () => {
+    if (!currentBescheid || analysing) return
+    setAnalysing(true)
+    try {
+      await runAnalyse(currentBescheid.id)
+      // Update selectedBescheid to the refreshed version
+      setSelectedBescheid(prev => prev ? bescheide.find(b => b.id === prev.id) || prev : prev)
+    } finally {
+      setAnalysing(false)
+    }
+  }, [currentBescheid, analysing, runAnalyse, bescheide])
+
+  if (!currentBescheid) {
     return (
       <div className="space-y-6">
         <div>
@@ -97,7 +116,7 @@ export default function AnalysePage() {
     )
   }
 
-  const pruefung = selectedBescheid.pruefungsergebnis
+  const pruefung = currentBescheid.pruefungsergebnis
 
   return (
     <div className="space-y-6">
@@ -108,18 +127,18 @@ export default function AnalysePage() {
             variant="ghost"
             size="sm"
             className="gap-1 mb-2 -ml-2"
-            onClick={() => setSelectedBescheid(undefined)}
+            onClick={() => { setSelectedBescheid(undefined); setAnalysing(false) }}
           >
             <ArrowLeft className="h-3 w-3" />
             Zurueck zur Auswahl
           </Button>
-          <h1 className="text-3xl font-bold">{selectedBescheid.titel}</h1>
+          <h1 className="text-3xl font-bold">{currentBescheid.titel}</h1>
           <p className="text-muted-foreground mt-1">
-            {selectedBescheid.finanzamt} &middot; Aktenzeichen: {selectedBescheid.aktenzeichen}
+            {currentBescheid.finanzamt} &middot; Aktenzeichen: {currentBescheid.aktenzeichen}
           </p>
         </div>
         {pruefung?.empfehlung === 'einspruch' && (
-          <Link to={`/einspruch/neu/${selectedBescheid.id}`}>
+          <Link to={`/einspruch/neu/${currentBescheid.id}`}>
             <Button className="gap-2" variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               Einspruch einlegen
@@ -138,7 +157,7 @@ export default function AnalysePage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Festgesetzt</p>
-                <p className="text-xl font-bold">{formatCurrency(selectedBescheid.festgesetzteSteuer)}</p>
+                <p className="text-xl font-bold">{formatCurrency(currentBescheid.festgesetzteSteuer)}</p>
               </div>
             </div>
           </CardContent>
@@ -153,7 +172,7 @@ export default function AnalysePage() {
               <div>
                 <p className="text-sm text-muted-foreground">Erwartet</p>
                 <p className="text-xl font-bold">
-                  {selectedBescheid.erwarteteSteuer ? formatCurrency(selectedBescheid.erwarteteSteuer) : '-'}
+                  {currentBescheid.erwarteteSteuer ? formatCurrency(currentBescheid.erwarteteSteuer) : '-'}
                 </p>
               </div>
             </div>
@@ -169,7 +188,7 @@ export default function AnalysePage() {
               <div>
                 <p className="text-sm text-muted-foreground">Abweichung</p>
                 <p className="text-xl font-bold text-destructive">
-                  {selectedBescheid.abweichung ? `+${formatCurrency(selectedBescheid.abweichung)}` : '-'}
+                  {currentBescheid.abweichung ? `+${formatCurrency(currentBescheid.abweichung)}` : '-'}
                 </p>
               </div>
             </div>
@@ -322,15 +341,27 @@ export default function AnalysePage() {
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Search className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-1">Analyse ausstehend</h3>
-            <p className="text-muted-foreground mb-4">
-              Dieser Bescheid wurde noch nicht analysiert.
-            </p>
-            <Button className="gap-2">
-              <Search className="h-4 w-4" />
-              Analyse starten
-            </Button>
+            {analysing ? (
+              <>
+                <Loader2 className="h-12 w-12 text-primary mb-4 animate-spin" />
+                <h3 className="text-lg font-semibold mb-1">Analyse laeuft...</h3>
+                <p className="text-muted-foreground mb-4">
+                  Die KI analysiert Ihren Bescheid. Bitte warten.
+                </p>
+              </>
+            ) : (
+              <>
+                <Search className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-1">Analyse ausstehend</h3>
+                <p className="text-muted-foreground mb-4">
+                  Dieser Bescheid wurde noch nicht analysiert.
+                </p>
+                <Button className="gap-2" onClick={handleStartAnalyse}>
+                  <Search className="h-4 w-4" />
+                  Analyse starten
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
