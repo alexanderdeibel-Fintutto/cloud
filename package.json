@@ -16,11 +16,8 @@
     "build:portal": "npm run build --workspace=apps/fintutto-portal",
     "build:vermieter": "npm run build --workspace=apps/vermieter-portal",
     "build:vermietify": "npm run build --workspace=apps/vermietify",
- claude/improve-app-integration-k7JF2
-
     "dev:translator": "npm run dev --workspace=apps/translator",
     "build:translator": "npm run build --workspace=apps/translator",
- main
     "build:all": "npm run build && npm run build:portal && npm run build:vermieter && npm run build:vermietify",
     "dev:pflanzen": "npm run dev --workspace=apps/pflanzen-manager",
     "build:pflanzen": "npm run build --workspace=apps/pflanzen-manager",
