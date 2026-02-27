@@ -95,6 +95,7 @@ import {
   Accessibility,
   RefreshCcw,
   BadgeInfo,
+  Church,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -226,6 +227,10 @@ export default function CommandPalette() {
     { id: 'nav-behindertenpb', label: 'Behinderten-Pauschbetrag', description: 'GdB, Merkzeichen & Pflege', icon: Accessibility, category: 'navigation', keywords: ['behinderung', 'pauschbetrag', 'gdb', 'merkzeichen', 'pflege', 'schwerbehinderung'], action: () => runAndClose(() => navigate('/behindertenpauschbetrag')) },
     { id: 'nav-lst-ausgleich', label: 'LSt-Jahresausgleich', description: 'Erstattung bei schwankendem Gehalt', icon: RefreshCcw, category: 'navigation', keywords: ['lohnsteuer', 'jahresausgleich', 'erstattung', 'nachzahlung', 'gehalt', 'bonus'], action: () => runAndClose(() => navigate('/lohnsteuer-jahresausgleich')) },
     { id: 'nav-steuerklassen-info', label: 'Steuerklassen-Ratgeber', description: 'Alle 6 Steuerklassen erklärt', icon: BadgeInfo, category: 'navigation', keywords: ['steuerklasse', 'ratgeber', 'info', 'freibetrag', 'wechsel', 'uebersicht'], action: () => runAndClose(() => navigate('/steuerklassen-info')) },
+    { id: 'nav-grunderwerbsteuer', label: 'Grunderwerbsteuer', description: 'Kaufnebenkosten nach Bundesland', icon: Landmark, category: 'navigation', keywords: ['grunderwerbsteuer', 'kaufnebenkosten', 'immobilie', 'kauf', 'bundesland', 'notar', 'makler'], action: () => runAndClose(() => navigate('/grunderwerbsteuer')) },
+    { id: 'nav-entfernungspauschale', label: 'Entfernungspauschale', description: 'Pendlerpauschale berechnen', icon: Car, category: 'navigation', keywords: ['entfernungspauschale', 'pendlerpauschale', 'fahrtkosten', 'pendler', 'kilometer', 'homeoffice'], action: () => runAndClose(() => navigate('/entfernungspauschale')) },
+    { id: 'nav-kirchensteuer', label: 'Kirchensteuer', description: 'Kirchensteuer & Kappung berechnen', icon: Church, category: 'navigation', keywords: ['kirchensteuer', 'kirche', 'kappung', 'sonderausgaben', 'austritt'], action: () => runAndClose(() => navigate('/kirchensteuer')) },
+    { id: 'nav-steuererstattung', label: 'Steuererstattung', description: 'Erstattung oder Nachzahlung schätzen', icon: Receipt, category: 'navigation', keywords: ['steuererstattung', 'erstattung', 'nachzahlung', 'lohnsteuer', 'steuererklaerung', 'refund'], action: () => runAndClose(() => navigate('/steuererstattung')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

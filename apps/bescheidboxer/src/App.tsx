@@ -103,6 +103,10 @@ import VermietungsRechnerPage from './pages/VermietungsRechnerPage'
 import BehindertenpauschbetragPage from './pages/BehindertenpauschbetragPage'
 import LohnsteuerJahresausgleichPage from './pages/LohnsteuerJahresausgleichPage'
 import SteuerklassenInfoPage from './pages/SteuerklassenInfoPage'
+import GrunderwerbsteuerRechnerPage from './pages/GrunderwerbsteuerRechnerPage'
+import EntfernungspauschaleRechnerPage from './pages/EntfernungspauschaleRechnerPage'
+import KirchensteuerRechnerPage from './pages/KirchensteuerRechnerPage'
+import SteuererstattungsRechnerPage from './pages/SteuererstattungsRechnerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -225,6 +229,10 @@ function App() {
             <Route path="behindertenpauschbetrag" element={<BehindertenpauschbetragPage />} />
             <Route path="lohnsteuer-jahresausgleich" element={<LohnsteuerJahresausgleichPage />} />
             <Route path="steuerklassen-info" element={<SteuerklassenInfoPage />} />
+            <Route path="grunderwerbsteuer" element={<GrunderwerbsteuerRechnerPage />} />
+            <Route path="entfernungspauschale" element={<EntfernungspauschaleRechnerPage />} />
+            <Route path="kirchensteuer" element={<KirchensteuerRechnerPage />} />
+            <Route path="steuererstattung" element={<SteuererstattungsRechnerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

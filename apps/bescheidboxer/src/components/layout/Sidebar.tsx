@@ -88,6 +88,7 @@ import {
   Accessibility,
   RefreshCcw,
   BadgeInfo,
+  Church,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -174,6 +175,10 @@ const navigation = [
   { name: 'Behinderten-PB', href: '/behindertenpauschbetrag', icon: Accessibility },
   { name: 'LSt-Jahresausgleich', href: '/lohnsteuer-jahresausgleich', icon: RefreshCcw },
   { name: 'Steuerklassen-Info', href: '/steuerklassen-info', icon: BadgeInfo },
+  { name: 'Grunderwerbsteuer', href: '/grunderwerbsteuer', icon: Landmark },
+  { name: 'Entfernungspauschale', href: '/entfernungspauschale', icon: Car },
+  { name: 'Kirchensteuer', href: '/kirchensteuer', icon: Church },
+  { name: 'Steuererstattung', href: '/steuererstattung', icon: Receipt },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
