@@ -46,33 +46,6 @@ export function useBusiness() {
     fetchBusiness();
   }, [fetchBusiness]);
 
-  const ensureUserRow = async (): Promise<boolean> => {
-    if (!user) return false;
-
-    // Check if user row exists in public.users
-    const { data } = await supabase
-      .from("users")
-      .select("id")
-      .eq("id", user.id)
-      .single();
-
-    if (data) return true;
-
-    // Create minimal public.users row if missing (FK target for biz_businesses)
-    const { error: insertErr } = await supabase
-      .from("users")
-      .insert({
-        id: user.id,
-        email: user.email ?? "",
-        name: user.user_metadata?.name || user.email?.split("@")[0] || "",
-        tier: "free",
-        checks_used: 0,
-        checks_limit: 3,
-      });
-
-    return !insertErr;
-  };
-
   const createBusiness = async (
     name: string,
     businessType: string,
@@ -81,28 +54,70 @@ export function useBusiness() {
   ): Promise<{ data: Business | null; error: string | null }> => {
     if (!user) return { data: null, error: "Nicht angemeldet." };
 
-    // Ensure user row exists in public.users (FK target)
-    await ensureUserRow();
+    // Strategy 1: Use RPC function (SECURITY DEFINER, bypasses RLS)
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "create_biz_business",
+      {
+        p_name: name,
+        p_business_type: businessType,
+        p_tax_id: taxId || null,
+        p_vat_id: vatId || null,
+      },
+    );
 
-    const { data, error } = await supabase
-      .from("biz_businesses")
-      .insert({
-        owner_id: user.id,
-        name,
-        business_type: businessType,
-        tax_id: taxId || null,
-        vat_id: vatId || null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("createBusiness error:", error);
-      return { data: null, error: error.message };
+    if (!rpcError && rpcData) {
+      // RPC returns JSONB - check for error key
+      if (rpcData.error) {
+        return { data: null, error: rpcData.error };
+      }
+      setBusiness(rpcData as Business);
+      return { data: rpcData as Business, error: null };
     }
 
-    setBusiness(data as Business);
-    return { data: data as Business, error: null };
+    // Strategy 2: Fallback to direct insert if RPC doesn't exist yet
+    // (migration 026 not yet applied)
+    if (rpcError) {
+      console.warn("RPC fallback:", rpcError.message);
+
+      // Try to ensure public.users row exists first
+      await supabase
+        .from("users")
+        .insert({
+          id: user.id,
+          email: user.email ?? "",
+          name: user.user_metadata?.name || user.email?.split("@")[0] || "",
+          tier: "free",
+          checks_used: 0,
+          checks_limit: 3,
+        })
+        .select()
+        .single();
+
+      const { data, error } = await supabase
+        .from("biz_businesses")
+        .insert({
+          owner_id: user.id,
+          name,
+          business_type: businessType,
+          tax_id: taxId || null,
+          vat_id: vatId || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("createBusiness error:", error);
+        return {
+          data: null,
+          error: `Geschaeft konnte nicht erstellt werden: ${error.message}`,
+        };
+      }
+
+      setBusiness(data as Business);
+      return { data: data as Business, error: null };
+    }
+
+    return { data: null, error: "Unbekannter Fehler beim Erstellen." };
   };
 
   return { business, loading, createBusiness, refetch: fetchBusiness };
