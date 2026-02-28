@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, Search } from 'lucide-react'
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, Search, Building2, Key } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { modKey } from '@fintutto/shared'
 import { Button } from '@/components/ui/button'
@@ -7,12 +7,12 @@ import ThemeToggle from '@/components/shared/ThemeToggle'
 import { initTheme } from '@/lib/darkMode'
 
 const navigation = [
-  { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Für Vermieter' },
-  { name: 'Checker', href: '/checker', icon: Shield, description: 'Für Mieter' },
-  { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Für alle' },
-  { name: 'Preise', href: '/preise', icon: null, description: '' },
+  { name: 'Vermieter', href: '/vermieter', icon: Building2, description: 'Vermieter-Dashboard' },
+  { name: 'Mieter', href: '/mieter', icon: Key, description: 'Mieter-Dashboard' },
+  { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Fuer Vermieter' },
+  { name: 'Checker', href: '/checker', icon: Shield, description: 'Fuer Mieter' },
+  { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Fuer alle' },
   { name: 'Apps', href: '/apps', icon: LayoutGrid, description: 'Alle Fintutto-Apps' },
-  { name: 'Referral', href: '/referral', icon: Gift, description: 'Empfehlen & profitieren' },
 ]
 
 export default function Header() {

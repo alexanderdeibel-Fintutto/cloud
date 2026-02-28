@@ -26,6 +26,10 @@ const AGBPage = lazy(() => import('@/pages/legal/AGBPage'))
 const BetriebskostenModulPage = lazy(() => import('@/pages/BetriebskostenModulPage'))
 const ImmobilienPage = lazy(() => import('@/pages/ImmobilienPage'))
 
+// Dashboards (konsolidiert aus portal-vermieter + portal-mieter)
+const VermieterDashboard = lazy(() => import('@/pages/VermieterDashboard'))
+const MieterDashboard = lazy(() => import('@/pages/MieterDashboard'))
+
 // Rechner (7 Vermieter-Tools)
 const KautionsRechner = lazy(() => import('@/pages/rechner/KautionsRechner'))
 const MieterhoehungsRechner = lazy(() => import('@/pages/rechner/MieterhoehungsRechner'))
@@ -107,6 +111,10 @@ function App() {
             <Route path="formulare/mietbescheinigung" element={<MietbescheinigungFormular />} />
             <Route path="formulare/wohnungsgeberbestaetigung" element={<WohnungsgeberbestaetigungFormular />} />
             <Route path="formulare/nebenkostenvorauszahlung" element={<NebenkostenvorauszahlungFormular />} />
+
+            {/* === DASHBOARDS (ersetzt portal-vermieter + portal-mieter) === */}
+            <Route path="vermieter" element={<VermieterDashboard />} />
+            <Route path="mieter" element={<MieterDashboard />} />
 
             {/* === META === */}
             <Route path="preise" element={<PricingPage />} />

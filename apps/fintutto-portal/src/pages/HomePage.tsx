@@ -185,10 +185,10 @@ export default function HomePage() {
   return (
     <div>
       <AnnouncementBanner
-        id="vermieter-portal-launch"
-        message="Neu: Vermieter-Portal mit allen Rechner-Tools!"
-        linkText="Zum Vermieter-Portal"
-        linkHref="https://vermieter-portal.vercel.app"
+        id="dashboard-launch"
+        message="Neu: Vermieter- & Mieter-Dashboard direkt im Portal!"
+        linkText="Dashboard waehlen"
+        linkHref="/vermieter"
       />
 
       {/* Hero */}

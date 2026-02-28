@@ -79,11 +79,11 @@
 ### 1.6 Unified Portal: `fintutto-portal` *(NEU - im Monorepo)*
 | Eigenschaft | Wert |
 |-------------|------|
-| **Zweck** | Alle Rechner (7) + Checker (10) + Formulare (5) in EINER App |
+| **Zweck** | Alle Rechner (7) + Checker (10) + Formulare (10) in EINER App |
 | **GitHub** | fintutto-ecosystem/apps/fintutto-portal |
 | **Vercel** | portal.fintutto.cloud (geplant) |
 | **Plattform** | Lokal/Claude |
-| **Status** | Gebaut, 22+ Tools, noch nicht deployed |
+| **Status** | Gebaut, 27 Tools (7 Rechner + 10 Checker + 10 Formulare), Deployment vorbereitet |
 | **Letztes Update** | 10.02.2026 |
 | **Lokale Kopie?** | JA - apps/fintutto-portal |
 
@@ -441,14 +441,17 @@ Siehe [VERCEL_ENV_GUIDE.md](./VERCEL_ENV_GUIDE.md) für Details.
 - [x] GitHub Repos umbenannt (vermietify, mieter, hausmeisterPro, ablesung, betriebskosten)
 - [x] Alle Lovable-Apps auf Vercel deployed
 
-### Nächste Schritte:
-1. **Sofort:** `VITE_SUPABASE_URL` und `VITE_SUPABASE_ANON_KEY` als Vercel Team-Variablen setzen
-2. **Sofort:** 5 Legacy-Vercel-Projekte löschen (siehe Abschnitt 10)
-3. **Diese Woche:** fintutto-portal auf Vercel deployen (portal.fintutto.cloud)
-4. **Diese Woche:** 8 Duplikat-Repos auf GitHub archivieren
-5. **Dann:** Formulare im Portal ausbauen (aktuell Stubs)
-6. **Dann:** portal-vermieter + portal-mieter in fintutto-portal konsolidieren
-7. **Dann:** Phase-weise Konsolidierung gemäß KONSOLIDIERUNGSPLAN_VERMIETIFY.md
+### Erledigt (28.02.2026):
+- [x] Formulare voll ausgebaut: 10 rechtssichere Formulare mit Multi-Step-Wizard, Validierung, Druckfunktion
+- [x] portal-vermieter + portal-mieter in fintutto-portal konsolidiert (Vermieter-Dashboard + Mieter-Dashboard integriert)
+- [x] Scripts erstellt: `scripts/setup-vercel-env.sh`, `scripts/delete-legacy-vercel.sh`, `scripts/deploy-portal.sh`
+
+### Naechste Schritte (Scripts ausfuehren):
+1. **Sofort:** `bash scripts/setup-vercel-env.sh` - Vercel Team-Variablen setzen
+2. **Sofort:** `bash scripts/delete-legacy-vercel.sh` - 7 Legacy-Vercel-Projekte loeschen
+3. **Sofort:** `bash scripts/deploy-portal.sh` - fintutto-portal auf Vercel deployen
+4. **Sofort:** `bash scripts/archive-repos.sh` - Duplikat- und Legacy-Repos archivieren
+5. **Dann:** Phase-weise Konsolidierung gemaess KONSOLIDIERUNGSPLAN_VERMIETIFY.md
 
 ---
 

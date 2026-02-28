@@ -148,5 +148,5 @@ mode === "development" && componentTagger()
 | `ft-formulare-alle` | Legacy |
 | `x_mieter` | Duplikat |
 | `betriebskosten` | In Portal integriert |
-| `portal-vermieter` | Durch Vermietify ersetzt |
-| `portal-mieter` | Durch Mieter-App ersetzt |
+| `portal-vermieter` | In fintutto-portal konsolidiert (/vermieter) |
+| `portal-mieter` | In fintutto-portal konsolidiert (/mieter) |
