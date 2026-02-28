@@ -147,6 +147,10 @@ import SteuerschuldRechnerPage from './pages/SteuerschuldRechnerPage'
 import SteuerlicheGestaltungPage from './pages/SteuerlicheGestaltungPage'
 import DividendenRechnerPage from './pages/DividendenRechnerPage'
 import MehrwertsteuerRechnerPage from './pages/MehrwertsteuerRechnerPage'
+import GrundstuecksgewinnPage from './pages/GrundstuecksgewinnPage'
+import SteuerlicheVerlustePage from './pages/SteuerlicheVerlustePage'
+import BetrieblicheAltersvorsorgePage from './pages/BetrieblicheAltersvorsorgePage'
+import EntlastungsbetragPage from './pages/EntlastungsbetragPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -313,6 +317,10 @@ function App() {
             <Route path="steuerliche-gestaltung" element={<SteuerlicheGestaltungPage />} />
             <Route path="dividenden-rechner" element={<DividendenRechnerPage />} />
             <Route path="mehrwertsteuer-rechner" element={<MehrwertsteuerRechnerPage />} />
+            <Route path="grundstuecksgewinn" element={<GrundstuecksgewinnPage />} />
+            <Route path="steuerliche-verluste" element={<SteuerlicheVerlustePage />} />
+            <Route path="betriebliche-altersvorsorge" element={<BetrieblicheAltersvorsorgePage />} />
+            <Route path="entlastungsbetrag" element={<EntlastungsbetragPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
