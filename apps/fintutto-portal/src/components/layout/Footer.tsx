@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, ArrowUpRight, Brain } from 'lucide-react'
 import { getOtherApps } from '@fintutto/shared'
 
 const ecosystemApps = getOtherApps('portal')
@@ -7,147 +7,121 @@ const ecosystemApps = getOtherApps('portal')
 const footerLinks = {
   rechner: [
     { name: 'Kautions-Rechner', href: '/rechner/kaution' },
-    { name: 'Mieterhöhungs-Rechner', href: '/rechner/mieterhoehung' },
+    { name: 'Mieterhoehungs-Rechner', href: '/rechner/mieterhoehung' },
     { name: 'Kaufnebenkosten-Rechner', href: '/rechner/kaufnebenkosten' },
     { name: 'Rendite-Rechner', href: '/rechner/rendite' },
     { name: 'Grundsteuer-Rechner', href: '/rechner/grundsteuer' },
+    { name: 'Nebenkosten-Rechner', href: '/rechner/nebenkosten' },
   ],
   checker: [
     { name: 'Mietpreisbremse', href: '/checker/mietpreisbremse' },
-    { name: 'Mieterhöhung', href: '/checker/mieterhoehung' },
+    { name: 'Mieterhoehung', href: '/checker/mieterhoehung' },
     { name: 'Nebenkosten', href: '/checker/nebenkosten' },
-    { name: 'Kündigung', href: '/checker/kuendigung' },
+    { name: 'Kuendigung', href: '/checker/kuendigung' },
     { name: 'Kaution', href: '/checker/kaution' },
+    { name: 'Mietminderung', href: '/checker/mietminderung' },
   ],
   formulare: [
     { name: 'Mietvertrag', href: '/formulare/mietvertrag' },
-    { name: 'Übergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
+    { name: 'Uebergabeprotokoll', href: '/formulare/uebergabeprotokoll' },
     { name: 'Betriebskosten', href: '/formulare/betriebskosten' },
+    { name: 'Kuendigung', href: '/formulare/kuendigung' },
     { name: 'Selbstauskunft', href: '/formulare/selbstauskunft' },
-    { name: 'Mieterhöhung', href: '/formulare/mieterhoehung' },
+    { name: 'Mietbescheinigung', href: '/formulare/mietbescheinigung' },
   ],
   oekosystem: [
     { name: 'Alle Apps', href: '/apps' },
-    { name: 'Preise', href: '/preise' },
+    { name: 'FinTech-Module', href: '/fintech' },
+    { name: 'Preise & Credits', href: '/preise' },
+    { name: 'Referral-Programm', href: '/referral' },
   ],
   rechtliches: [
     { name: 'Impressum', href: '/impressum' },
     { name: 'Datenschutz', href: '/datenschutz' },
     { name: 'AGB', href: '/agb' },
-    { name: 'Über uns', href: '/ueber-uns' },
   ],
+}
+
+function FooterSection({ title, links }: { title: string; links: { name: string; href: string }[] }) {
+  return (
+    <div>
+      <h3 className="font-bold text-sm mb-4 text-foreground">{title}</h3>
+      <ul className="space-y-2.5">
+        {links.map((link) => (
+          <li key={link.name}>
+            <Link
+              to={link.href}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 group"
+            >
+              {link.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-muted/30">
-      <div className="container py-12">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+    <footer className="border-t border-border bg-muted/20">
+      <div className="container py-16">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-10">
+          {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-portal">
+            <Link to="/" className="flex items-center gap-2.5 mb-5 group">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl gradient-portal shadow-lg group-hover:shadow-xl transition-shadow">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="font-bold gradient-text-portal">Fintutto</span>
-                <span className="text-xs block text-muted-foreground -mt-1">Portal</span>
+                <span className="font-black text-lg gradient-text-portal">Fintutto</span>
+                <span className="text-[10px] block text-muted-foreground uppercase tracking-wider -mt-0.5">Portal</span>
               </div>
             </Link>
-            <p className="text-sm text-muted-foreground">
-              Professionelle Tools für Mieter & Vermieter. Rechtssicher, einfach, digital.
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              Professionelle Tools fuer Mieter & Vermieter. Rechtssicher, einfach, digital.
             </p>
+            <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
+              <Brain className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[10px] font-semibold text-primary">KI-gestuetzt</span>
+            </div>
           </div>
 
-          <div>
-            <h3 className="font-semibold mb-3">Rechner</h3>
-            <ul className="space-y-2">
-              {footerLinks.rechner.map((link) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-3">Checker</h3>
-            <ul className="space-y-2">
-              {footerLinks.checker.map((link) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-3">Formulare</h3>
-            <ul className="space-y-2">
-              {footerLinks.formulare.map((link) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-3">Ökosystem</h3>
-            <ul className="space-y-2">
-              {footerLinks.oekosystem.map((link) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-3">Rechtliches</h3>
-            <ul className="space-y-2">
-              {footerLinks.rechtliches.map((link) => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <FooterSection title="Rechner" links={footerLinks.rechner} />
+          <FooterSection title="Checker" links={footerLinks.checker} />
+          <FooterSection title="Formulare" links={footerLinks.formulare} />
+          <FooterSection title="Oekosystem" links={footerLinks.oekosystem} />
+          <FooterSection title="Rechtliches" links={footerLinks.rechtliches} />
         </div>
 
-        {/* Ecosystem Apps */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <p className="text-xs text-muted-foreground mb-3 font-medium">Fintutto Oekosystem</p>
-          <div className="flex flex-wrap gap-3 mb-6">
+        {/* Ecosystem Apps Bar */}
+        <div className="mt-12 pt-8 border-t border-border">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-4">
+            Fintutto Oekosystem
+          </p>
+          <div className="flex flex-wrap gap-2">
             {ecosystemApps.map((app) => (
               <a
                 key={app.key}
                 href={app.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full group"
               >
                 {app.icon} {app.name}
+                <ArrowUpRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
             ))}
           </div>
         </div>
 
-        <div className="mt-4 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
-          </p>
+        {/* Bottom Bar */}
+        <div className="mt-8 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            Basierend auf deutschem Mietrecht. Keine Rechtsberatung.
+            \u00a9 {new Date().getFullYear()} Fintutto. Alle Rechte vorbehalten.
+          </p>
+          <p className="text-[10px] text-muted-foreground/60">
+            Basierend auf deutschem Mietrecht (BGB). Keine Rechtsberatung.
           </p>
         </div>
       </div>
