@@ -25,6 +25,7 @@ const AGBPage = lazy(() => import('@/pages/legal/AGBPage'))
 // Module Pages
 const BetriebskostenModulPage = lazy(() => import('@/pages/BetriebskostenModulPage'))
 const ImmobilienPage = lazy(() => import('@/pages/ImmobilienPage'))
+const FintechPage = lazy(() => import('@/pages/FintechPage'))
 
 // Rechner (7 Vermieter-Tools)
 const KautionsRechner = lazy(() => import('@/pages/rechner/KautionsRechner'))
@@ -116,6 +117,7 @@ function App() {
             <Route path="gespeichert" element={<SavedCalculationsPage />} />
             <Route path="betriebskosten" element={<BetriebskostenModulPage />} />
             <Route path="immobilien" element={<ImmobilienPage />} />
+            <Route path="fintech" element={<FintechPage />} />
 
             {/* === LEGAL === */}
             <Route path="impressum" element={<ImpressumPage />} />

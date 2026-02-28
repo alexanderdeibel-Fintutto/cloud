@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, Search } from 'lucide-react'
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, Search, Brain } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { modKey } from '@fintutto/shared'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Checker', href: '/checker', icon: Shield, description: 'Für Mieter' },
   { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Für alle' },
   { name: 'Preise', href: '/preise', icon: null, description: '' },
+  { name: 'FinTech', href: '/fintech', icon: Brain, description: 'KI & Finance-Module' },
   { name: 'Apps', href: '/apps', icon: LayoutGrid, description: 'Alle Fintutto-Apps' },
   { name: 'Referral', href: '/referral', icon: Gift, description: 'Empfehlen & profitieren' },
 ]

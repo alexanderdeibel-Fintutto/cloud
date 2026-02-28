@@ -20,6 +20,7 @@ export default function Onboarding() {
   const [taxId, setTaxId] = useState("");
   const [vatId, setVatId] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // If business already exists, redirect to dashboard
   if (business) {
@@ -31,10 +32,17 @@ export default function Onboarding() {
     if (!name || !businessType) return;
 
     setSaving(true);
+    setError(null);
+
     const result = await createBusiness(name, businessType, taxId || undefined, vatId || undefined);
     setSaving(false);
 
-    if (result) {
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    if (result.data) {
       navigate("/dashboard");
     }
   };
@@ -65,6 +73,12 @@ export default function Onboarding() {
             />
           ))}
         </div>
+
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+            {error}
+          </div>
+        )}
 
         <div className="rounded-xl border border-white/10 bg-white/5 p-6">
           {step === 1 ? (
