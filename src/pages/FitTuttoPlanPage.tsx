@@ -186,8 +186,10 @@ export default function FitTuttoPlanPage() {
       name: planName,
       description: `${FITNESS_LEVEL_LABELS[genLevel as FitnessLevel]} | ${locationNames}`,
       goal: genGoals[0], // primary goal stored in DB
+      goals: genGoals,
       level: genLevel as FitnessLevel,
       location: genLocations[0], // primary location stored in DB
+      locations: genLocations,
       durationWeeks: 8,
       daysPerWeek: parseInt(genDays),
       days,
@@ -687,20 +689,22 @@ export default function FitTuttoPlanPage() {
                           {plan.daysPerWeek}x/Woche · {plan.days.length} Tage · {plan.days.reduce((sum, d) => sum + d.exercises.length, 0)} Uebungen
                         </p>
                         {plan.goal && (
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                              {FITNESS_GOAL_ICONS[plan.goal]} {FITNESS_GOAL_LABELS[plan.goal]}
-                            </span>
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            {(plan.goals && plan.goals.length > 1 ? plan.goals : [plan.goal]).map(g => (
+                              <span key={g} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                {FITNESS_GOAL_ICONS[g]} {FITNESS_GOAL_LABELS[g]}
+                              </span>
+                            ))}
                             {plan.level && (
                               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                                 {FITNESS_LEVEL_LABELS[plan.level]}
                               </span>
                             )}
-                            {plan.location && (
-                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                                {LOCATION_LABELS[plan.location]}
+                            {(plan.locations && plan.locations.length > 1 ? plan.locations : plan.location ? [plan.location] : []).map(l => (
+                              <span key={l} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                {LOCATION_LABELS[l]}
                               </span>
-                            )}
+                            ))}
                           </div>
                         )}
                       </div>

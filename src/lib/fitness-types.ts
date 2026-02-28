@@ -235,8 +235,10 @@ export interface TrainingPlan {
   name: string
   description: string | null
   goal: FitnessGoal | null
+  goals?: FitnessGoal[]
   level: FitnessLevel | null
   location: TrainingLocation | null
+  locations?: TrainingLocation[]
   durationWeeks: number
   daysPerWeek: number
   days: PlanDay[]
