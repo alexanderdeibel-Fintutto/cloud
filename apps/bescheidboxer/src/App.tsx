@@ -135,6 +135,10 @@ import SteuerFreibetraegePage from './pages/SteuerFreibetraegePage'
 import HomeOfficePauschalePage from './pages/HomeOfficePauschalePage'
 import ElektroautoFoerderungPage from './pages/ElektroautoFoerderungPage'
 import SteuerTerminkalenderPage from './pages/SteuerTerminkalenderPage'
+import GewinnermittlungPage from './pages/GewinnermittlungPage'
+import KinderbetreuungskostenPage from './pages/KinderbetreuungskostenPage'
+import SteuerlicheAbschreibungenPage from './pages/SteuerlicheAbschreibungenPage'
+import FreiberuflerRechnerPage from './pages/FreiberuflerRechnerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -289,6 +293,10 @@ function App() {
             <Route path="homeoffice-pauschale" element={<HomeOfficePauschalePage />} />
             <Route path="elektroauto-foerderung" element={<ElektroautoFoerderungPage />} />
             <Route path="steuer-terminkalender" element={<SteuerTerminkalenderPage />} />
+            <Route path="gewinnermittlung" element={<GewinnermittlungPage />} />
+            <Route path="kinderbetreuungskosten" element={<KinderbetreuungskostenPage />} />
+            <Route path="steuerliche-abschreibungen" element={<SteuerlicheAbschreibungenPage />} />
+            <Route path="freiberufler-rechner" element={<FreiberuflerRechnerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
