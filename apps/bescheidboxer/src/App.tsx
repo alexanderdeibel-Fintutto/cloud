@@ -139,6 +139,10 @@ import GewinnermittlungPage from './pages/GewinnermittlungPage'
 import KinderbetreuungskostenPage from './pages/KinderbetreuungskostenPage'
 import SteuerlicheAbschreibungenPage from './pages/SteuerlicheAbschreibungenPage'
 import FreiberuflerRechnerPage from './pages/FreiberuflerRechnerPage'
+import SplittingVorteilPage from './pages/SplittingVorteilPage'
+import NebentaetigkeitPage from './pages/NebentaetigkeitPage'
+import SteuerBegriffsLexikonPage from './pages/SteuerBegriffsLexikonPage'
+import WerbungskostenOptimiererPage from './pages/WerbungskostenOptimiererPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -297,6 +301,10 @@ function App() {
             <Route path="kinderbetreuungskosten" element={<KinderbetreuungskostenPage />} />
             <Route path="steuerliche-abschreibungen" element={<SteuerlicheAbschreibungenPage />} />
             <Route path="freiberufler-rechner" element={<FreiberuflerRechnerPage />} />
+            <Route path="splitting-vorteil" element={<SplittingVorteilPage />} />
+            <Route path="nebentaetigkeit" element={<NebentaetigkeitPage />} />
+            <Route path="steuer-lexikon" element={<SteuerBegriffsLexikonPage />} />
+            <Route path="werbungskosten-optimierer" element={<WerbungskostenOptimiererPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
