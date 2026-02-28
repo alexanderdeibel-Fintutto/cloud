@@ -131,6 +131,10 @@ import SteuererklaerungChecklistePage from './pages/SteuererklaerungChecklistePa
 import HaeuslicheDienstleistungenPage from './pages/HaeuslicheDienstleistungenPage'
 import AltersvorsorgeVergleichPage from './pages/AltersvorsorgeVergleichPage'
 import UnterhaltRechnerPage from './pages/UnterhaltRechnerPage'
+import SteuerFreibetraegePage from './pages/SteuerFreibetraegePage'
+import HomeOfficePauschalePage from './pages/HomeOfficePauschalePage'
+import ElektroautoFoerderungPage from './pages/ElektroautoFoerderungPage'
+import SteuerTerminkalenderPage from './pages/SteuerTerminkalenderPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -281,6 +285,10 @@ function App() {
             <Route path="haeusliche-dienstleistungen" element={<HaeuslicheDienstleistungenPage />} />
             <Route path="altersvorsorge-vergleich" element={<AltersvorsorgeVergleichPage />} />
             <Route path="unterhalt-rechner" element={<UnterhaltRechnerPage />} />
+            <Route path="steuer-freibetraege" element={<SteuerFreibetraegePage />} />
+            <Route path="homeoffice-pauschale" element={<HomeOfficePauschalePage />} />
+            <Route path="elektroauto-foerderung" element={<ElektroautoFoerderungPage />} />
+            <Route path="steuer-terminkalender" element={<SteuerTerminkalenderPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
