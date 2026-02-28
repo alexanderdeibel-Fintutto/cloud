@@ -123,6 +123,10 @@ import WohnungsbauPraemiePage from './pages/WohnungsbauPraemiePage'
 import MeisterBafoegPage from './pages/MeisterBafoegPage'
 import ZulagenRechnerPage from './pages/ZulagenRechnerPage'
 import SteuerVergleichPage from './pages/SteuerVergleichPage'
+import BruttoNettoRechnerPage from './pages/BruttoNettoRechnerPage'
+import KurzarbeitergeldPage from './pages/KurzarbeitergeldPage'
+import MidijobRechnerPage from './pages/MidijobRechnerPage'
+import RentenbesteuerungPage from './pages/RentenbesteuerungPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -265,6 +269,10 @@ function App() {
             <Route path="meister-bafoeg" element={<MeisterBafoegPage />} />
             <Route path="zulagen-rechner" element={<ZulagenRechnerPage />} />
             <Route path="steuer-vergleich" element={<SteuerVergleichPage />} />
+            <Route path="brutto-netto" element={<BruttoNettoRechnerPage />} />
+            <Route path="kurzarbeitergeld" element={<KurzarbeitergeldPage />} />
+            <Route path="midijob-rechner" element={<MidijobRechnerPage />} />
+            <Route path="rentenbesteuerung" element={<RentenbesteuerungPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
