@@ -43,6 +43,7 @@ const RechnerPage = lazy(() => import('@/pages/RechnerPage'))
 const CheckerPage = lazy(() => import('@/pages/CheckerPage'))
 const FormularePage = lazy(() => import('@/pages/FormularePage'))
 const AppsPage = lazy(() => import('@/pages/AppsPage'))
+const TranslatorPage = lazy(() => import('@/pages/TranslatorPage'))
 const ReferralPage = lazy(() => import('@/pages/ReferralPage'))
 
 // Rechner (7 Vermieter-Tools)
@@ -122,6 +123,8 @@ function App() {
               <Route path="/checker" element={<CheckerPage />} />
               <Route path="/formulare" element={<FormularePage />} />
               <Route path="/apps" element={<AppsPage />} />
+              <Route path="/uebersetzer" element={<TranslatorPage />} />
+              <Route path="/translator" element={<TranslatorPage />} />
               <Route path="/referral" element={<ReferralPage />} />
 
               {/* Rechner Routes */}

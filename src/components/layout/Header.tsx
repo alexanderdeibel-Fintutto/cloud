@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell, Search } from 'lucide-react'
+import { Calculator, FileText, Shield, Menu, X, Sparkles, LayoutGrid, Gift, User, LogOut, Dumbbell, Search, Globe } from 'lucide-react'
 import { useState } from 'react'
 import { modKey } from '@fintutto/shared'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 
 const navigation = [
+  { name: 'Uebersetzer', href: '/uebersetzer', icon: Globe, description: '22 Sprachen, TTS & Spracheingabe' },
   { name: 'Rechner', href: '/rechner', icon: Calculator, description: 'Fuer Vermieter' },
   { name: 'Checker', href: '/checker', icon: Shield, description: 'Fuer Mieter' },
   { name: 'Formulare', href: '/formulare', icon: FileText, description: 'Fuer alle' },

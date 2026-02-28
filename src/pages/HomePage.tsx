@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
-  Sparkles
+  Sparkles, Globe, Mic, Languages, Zap
 } from 'lucide-react'
 import { useDocumentTitle, useMetaTags, getOtherApps, EcosystemStatsBar, CrossAppRecommendations } from '@fintutto/shared'
 import { Card, CardContent } from '@/components/ui/card'
@@ -159,6 +159,60 @@ export default function HomePage() {
                 </Card>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Translator Highlight */}
+      <section className="py-16 bg-gradient-to-br from-sky-50 to-blue-50">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <div className="inline-flex items-center gap-2 bg-sky-100 rounded-full px-3 py-1 text-sky-700 text-xs font-medium">
+                  <Globe className="h-3 w-3" />
+                  Unsere beliebteste App
+                </div>
+                <h2 className="text-3xl font-bold">
+                  Fintutto Uebersetzer
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  Kostenlos uebersetzen in 22 Sprachen mit Spracheingabe, Text-to-Speech und Uebersetzungsverlauf. Jetzt direkt hier im Portal verfuegbar.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Globe, text: '22 Sprachen' },
+                    { icon: Mic, text: 'Spracheingabe' },
+                    { icon: Languages, text: 'Echtzeit' },
+                    { icon: Zap, text: 'Gratis' },
+                  ].map(f => (
+                    <div key={f.text} className="flex items-center gap-1.5 text-sm text-sky-700">
+                      <f.icon className="h-4 w-4" />
+                      {f.text}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button size="lg" className="bg-sky-600 hover:bg-sky-700 text-white" asChild>
+                    <Link to="/uebersetzer">
+                      <Globe className="h-5 w-5 mr-2" />
+                      Uebersetzer oeffnen
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <a href="https://translator-fintutto.vercel.app" target="_blank" rel="noopener noreferrer">
+                      Vollversion
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <div className="w-48 h-48 rounded-3xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-2xl shadow-sky-500/25">
+                  <span className="text-8xl">🌐</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
