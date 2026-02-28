@@ -99,6 +99,8 @@ import {
   Utensils,
   LineChart,
   FileBarChart,
+  Target,
+  MapPin,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -238,6 +240,10 @@ export default function CommandPalette() {
     { id: 'nav-schenkungsteuer', label: 'Schenkungsteuer', description: 'Schenkungsteuer berechnen', icon: Gift, category: 'navigation', keywords: ['schenkung', 'schenkungsteuer', 'freibetrag', 'steuerklasse', 'geschenk'], action: () => runAndClose(() => navigate('/schenkungsteuer')) },
     { id: 'nav-verpflegung', label: 'Verpflegungsmehraufwand', description: 'Dienstreise-Pauschalen', icon: Utensils, category: 'navigation', keywords: ['verpflegung', 'mehraufwand', 'dienstreise', 'pauschale', 'vma', 'reise'], action: () => runAndClose(() => navigate('/verpflegungsmehraufwand')) },
     { id: 'nav-investmentsteuer', label: 'Investmentsteuer', description: 'Fondsbesteuerung InvStG', icon: LineChart, category: 'navigation', keywords: ['investment', 'fonds', 'etf', 'teilfreistellung', 'vorabpauschale', 'investmentsteuer'], action: () => runAndClose(() => navigate('/investmentsteuer')) },
+    { id: 'nav-pflegegeld', label: 'Pflegegeld', description: 'Pflegeleistungen SGB XI', icon: HeartPulse, category: 'navigation', keywords: ['pflege', 'pflegegeld', 'pflegegrad', 'sachleistung', 'kurzzeitpflege', 'sgb'], action: () => runAndClose(() => navigate('/pflegegeld')) },
+    { id: 'nav-steuerzinsen', label: 'Steuerzinsen', description: 'Nachzahlungs-/Erstattungszinsen', icon: Percent, category: 'navigation', keywords: ['zinsen', 'nachzahlung', 'erstattung', '233a', 'karenz', 'steuerzinsen'], action: () => runAndClose(() => navigate('/steuerzinsen')) },
+    { id: 'nav-steueroptimierung', label: 'Steueroptimierung', description: 'Alle Abzüge auf einen Blick', icon: Target, category: 'navigation', keywords: ['optimierung', 'sparen', 'abzug', 'werbungskosten', 'sonderausgaben', 'potential'], action: () => runAndClose(() => navigate('/steueroptimierung')) },
+    { id: 'nav-grundstuecksbewertung', label: 'Grundstücksbewertung', description: 'Bewertungsverfahren BewG', icon: MapPin, category: 'navigation', keywords: ['grundstueck', 'bewertung', 'bodenrichtwert', 'ertragswert', 'sachwert', 'vergleichswert'], action: () => runAndClose(() => navigate('/grundstuecksbewertung')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

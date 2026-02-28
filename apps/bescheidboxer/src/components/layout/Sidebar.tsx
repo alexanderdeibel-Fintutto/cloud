@@ -92,6 +92,8 @@ import {
   Utensils,
   LineChart,
   FileBarChart,
+  Target,
+  MapPin,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -186,6 +188,10 @@ const navigation = [
   { name: 'Schenkungsteuer', href: '/schenkungsteuer', icon: Gift },
   { name: 'Verpflegungsmehaufw.', href: '/verpflegungsmehraufwand', icon: Utensils },
   { name: 'Investmentsteuer', href: '/investmentsteuer', icon: LineChart },
+  { name: 'Pflegegeld', href: '/pflegegeld', icon: HeartPulse },
+  { name: 'Steuerzinsen', href: '/steuerzinsen', icon: Percent },
+  { name: 'Steueroptimierung', href: '/steueroptimierung', icon: Target },
+  { name: 'Grundst.bewertung', href: '/grundstuecksbewertung', icon: MapPin },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

@@ -111,6 +111,10 @@ import EinnahmenUeberschussPage from './pages/EinnahmenUeberschussPage'
 import SchenkungsteuerRechnerPage from './pages/SchenkungsteuerRechnerPage'
 import VerpflegungsmehraufwandPage from './pages/VerpflegungsmehraufwandPage'
 import InvestmentsteuerRechnerPage from './pages/InvestmentsteuerRechnerPage'
+import HaeuslichesPflegegeldPage from './pages/HaeuslichesPflegegeldPage'
+import ZinsenRechnerPage from './pages/ZinsenRechnerPage'
+import SteueroptimierungPage from './pages/SteueroptimierungPage'
+import GrundstuecksbewertungPage from './pages/GrundstuecksbewertungPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -241,6 +245,10 @@ function App() {
             <Route path="schenkungsteuer" element={<SchenkungsteuerRechnerPage />} />
             <Route path="verpflegungsmehraufwand" element={<VerpflegungsmehraufwandPage />} />
             <Route path="investmentsteuer" element={<InvestmentsteuerRechnerPage />} />
+            <Route path="pflegegeld" element={<HaeuslichesPflegegeldPage />} />
+            <Route path="steuerzinsen" element={<ZinsenRechnerPage />} />
+            <Route path="steueroptimierung" element={<SteueroptimierungPage />} />
+            <Route path="grundstuecksbewertung" element={<GrundstuecksbewertungPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
