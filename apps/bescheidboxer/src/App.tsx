@@ -155,6 +155,10 @@ import SteuerlicheForschungPage from './pages/SteuerlicheForschungPage'
 import GrundsteuerReformPage from './pages/GrundsteuerReformPage'
 import EinkommensteuerTarifPage from './pages/EinkommensteuerTarifPage'
 import SteuerschaetzungPage from './pages/SteuerschaetzungPage'
+import GewStAnrechnungPage from './pages/GewStAnrechnungPage'
+import SteuerlicheOptimierungTimingPage from './pages/SteuerlicheOptimierungTimingPage'
+import AuslandseinkunftePage from './pages/AuslandseinkunftePage'
+import SteuerberaterKostenPage from './pages/SteuerberaterKostenPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -329,6 +333,10 @@ function App() {
             <Route path="grundsteuer-reform" element={<GrundsteuerReformPage />} />
             <Route path="est-tarif" element={<EinkommensteuerTarifPage />} />
             <Route path="steuerschaetzung" element={<SteuerschaetzungPage />} />
+            <Route path="gewst-anrechnung" element={<GewStAnrechnungPage />} />
+            <Route path="timing-optimierung" element={<SteuerlicheOptimierungTimingPage />} />
+            <Route path="auslandseinkuenfte" element={<AuslandseinkunftePage />} />
+            <Route path="steuerberater-kosten" element={<SteuerberaterKostenPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

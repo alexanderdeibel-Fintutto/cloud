@@ -97,6 +97,7 @@ import {
   Gavel,
   Table2,
   FlaskConical,
+  Globe,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -235,6 +236,10 @@ const navigation = [
   { name: 'Grundsteuer-Reform', href: '/grundsteuer-reform', icon: Building },
   { name: 'ESt-Tarif 2025', href: '/est-tarif', icon: TrendingUp },
   { name: 'Steuerschätzung', href: '/steuerschaetzung', icon: Zap },
+  { name: 'GewSt-Anrechnung', href: '/gewst-anrechnung', icon: Factory },
+  { name: 'Timing-Optimierung', href: '/timing-optimierung', icon: CalendarClock },
+  { name: 'Auslandseinkünfte', href: '/auslandseinkuenfte', icon: Globe },
+  { name: 'Steuerberater-Kosten', href: '/steuerberater-kosten', icon: Briefcase },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

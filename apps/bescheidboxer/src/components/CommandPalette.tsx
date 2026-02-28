@@ -104,6 +104,7 @@ import {
   Gavel,
   Table2,
   FlaskConical,
+  Globe,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -287,6 +288,10 @@ export default function CommandPalette() {
     { id: 'nav-grundsteuer-reform', label: 'Grundsteuer-Reform', description: 'Neue Grundsteuer ab 2025', icon: Building, category: 'navigation', keywords: ['grundsteuer', 'reform', 'bundesmodell', 'hebesatz', 'steuermesszahl'], action: () => runAndClose(() => navigate('/grundsteuer-reform')) },
     { id: 'nav-est-tarif', label: 'ESt-Tarif 2025', description: 'Tarifzonen & Steuersätze', icon: TrendingUp, category: 'navigation', keywords: ['tarif', 'grenzsteuersatz', 'durchschnitt', 'zone', 'progressiv', '32a'], action: () => runAndClose(() => navigate('/est-tarif')) },
     { id: 'nav-schaetzung', label: 'Steuerschätzung', description: 'Schnelle Steuerberechnung', icon: Zap, category: 'navigation', keywords: ['schaetzung', 'schnell', 'grob', 'ueberschlag', 'profil'], action: () => runAndClose(() => navigate('/steuerschaetzung')) },
+    { id: 'nav-gewst-anrechnung', label: 'GewSt-Anrechnung', description: '§ 35 ESt-Ermäßigung', icon: Factory, category: 'navigation', keywords: ['gewerbesteuer', 'anrechnung', '35', 'messbetrag', 'hebesatz'], action: () => runAndClose(() => navigate('/gewst-anrechnung')) },
+    { id: 'nav-timing', label: 'Timing-Optimierung', description: 'Einnahmen & Ausgaben zeitlich steuern', icon: CalendarClock, category: 'navigation', keywords: ['timing', 'verschieben', 'vorziehen', 'jahresende', 'zufluss'], action: () => runAndClose(() => navigate('/timing-optimierung')) },
+    { id: 'nav-ausland', label: 'Auslandseinkünfte', description: 'DBA & Anrechnung/Freistellung', icon: Globe, category: 'navigation', keywords: ['ausland', 'dba', 'anrechnung', 'freistellung', 'progressionsvorbehalt'], action: () => runAndClose(() => navigate('/auslandseinkuenfte')) },
+    { id: 'nav-stb-kosten', label: 'Steuerberater-Kosten', description: 'Beratungskosten absetzen', icon: Briefcase, category: 'navigation', keywords: ['steuerberater', 'beratung', 'kosten', 'werbungskosten', 'betriebsausgaben'], action: () => runAndClose(() => navigate('/steuerberater-kosten')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
