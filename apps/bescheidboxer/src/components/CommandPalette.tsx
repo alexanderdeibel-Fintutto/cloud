@@ -103,6 +103,7 @@ import {
   MapPin,
   Gavel,
   Table2,
+  FlaskConical,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -282,6 +283,10 @@ export default function CommandPalette() {
     { id: 'nav-verluste', label: 'Steuerliche Verluste', description: 'Verlustverrechnung & Rücktrag', icon: ArrowDownUp, category: 'navigation', keywords: ['verlust', 'vortrag', 'ruecktrag', 'verrechnung', '10d', 'mindestbesteuerung'], action: () => runAndClose(() => navigate('/steuerliche-verluste')) },
     { id: 'nav-bav', label: 'Betriebliche Altersvorsorge', description: 'Entgeltumwandlung & bAV', icon: Landmark, category: 'navigation', keywords: ['bav', 'betriebsrente', 'entgeltumwandlung', 'direktversicherung', 'pensionskasse'], action: () => runAndClose(() => navigate('/betriebliche-altersvorsorge')) },
     { id: 'nav-entlastungsbetrag', label: 'Entlastungsbetrag', description: 'Alleinerziehende § 24b', icon: UserCheck, category: 'navigation', keywords: ['alleinerziehend', 'entlastung', 'steuerklasse2', '24b', 'kind'], action: () => runAndClose(() => navigate('/entlastungsbetrag')) },
+    { id: 'nav-forschungszulage', label: 'Forschungszulage', description: 'F&E steuerlich fördern', icon: FlaskConical, category: 'navigation', keywords: ['forschung', 'zulage', 'fue', 'entwicklung', 'kmu', 'innovation'], action: () => runAndClose(() => navigate('/forschungszulage')) },
+    { id: 'nav-grundsteuer-reform', label: 'Grundsteuer-Reform', description: 'Neue Grundsteuer ab 2025', icon: Building, category: 'navigation', keywords: ['grundsteuer', 'reform', 'bundesmodell', 'hebesatz', 'steuermesszahl'], action: () => runAndClose(() => navigate('/grundsteuer-reform')) },
+    { id: 'nav-est-tarif', label: 'ESt-Tarif 2025', description: 'Tarifzonen & Steuersätze', icon: TrendingUp, category: 'navigation', keywords: ['tarif', 'grenzsteuersatz', 'durchschnitt', 'zone', 'progressiv', '32a'], action: () => runAndClose(() => navigate('/est-tarif')) },
+    { id: 'nav-schaetzung', label: 'Steuerschätzung', description: 'Schnelle Steuerberechnung', icon: Zap, category: 'navigation', keywords: ['schaetzung', 'schnell', 'grob', 'ueberschlag', 'profil'], action: () => runAndClose(() => navigate('/steuerschaetzung')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

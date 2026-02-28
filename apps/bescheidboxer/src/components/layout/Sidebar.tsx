@@ -96,6 +96,7 @@ import {
   MapPin,
   Gavel,
   Table2,
+  FlaskConical,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -230,6 +231,10 @@ const navigation = [
   { name: 'Steuerliche Verluste', href: '/steuerliche-verluste', icon: ArrowDownUp },
   { name: 'Betriebl. Altersvorsorge', href: '/betriebliche-altersvorsorge', icon: Landmark },
   { name: 'Entlastungsbetrag', href: '/entlastungsbetrag', icon: UserCheck },
+  { name: 'Forschungszulage', href: '/forschungszulage', icon: FlaskConical },
+  { name: 'Grundsteuer-Reform', href: '/grundsteuer-reform', icon: Building },
+  { name: 'ESt-Tarif 2025', href: '/est-tarif', icon: TrendingUp },
+  { name: 'Steuerschätzung', href: '/steuerschaetzung', icon: Zap },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

@@ -151,6 +151,10 @@ import GrundstuecksgewinnPage from './pages/GrundstuecksgewinnPage'
 import SteuerlicheVerlustePage from './pages/SteuerlicheVerlustePage'
 import BetrieblicheAltersvorsorgePage from './pages/BetrieblicheAltersvorsorgePage'
 import EntlastungsbetragPage from './pages/EntlastungsbetragPage'
+import SteuerlicheForschungPage from './pages/SteuerlicheForschungPage'
+import GrundsteuerReformPage from './pages/GrundsteuerReformPage'
+import EinkommensteuerTarifPage from './pages/EinkommensteuerTarifPage'
+import SteuerschaetzungPage from './pages/SteuerschaetzungPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -321,6 +325,10 @@ function App() {
             <Route path="steuerliche-verluste" element={<SteuerlicheVerlustePage />} />
             <Route path="betriebliche-altersvorsorge" element={<BetrieblicheAltersvorsorgePage />} />
             <Route path="entlastungsbetrag" element={<EntlastungsbetragPage />} />
+            <Route path="forschungszulage" element={<SteuerlicheForschungPage />} />
+            <Route path="grundsteuer-reform" element={<GrundsteuerReformPage />} />
+            <Route path="est-tarif" element={<EinkommensteuerTarifPage />} />
+            <Route path="steuerschaetzung" element={<SteuerschaetzungPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
