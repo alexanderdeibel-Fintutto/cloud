@@ -127,6 +127,10 @@ import BruttoNettoRechnerPage from './pages/BruttoNettoRechnerPage'
 import KurzarbeitergeldPage from './pages/KurzarbeitergeldPage'
 import MidijobRechnerPage from './pages/MidijobRechnerPage'
 import RentenbesteuerungPage from './pages/RentenbesteuerungPage'
+import SteuererklaerungChecklistePage from './pages/SteuererklaerungChecklistePage'
+import HaeuslicheDienstleistungenPage from './pages/HaeuslicheDienstleistungenPage'
+import AltersvorsorgeVergleichPage from './pages/AltersvorsorgeVergleichPage'
+import UnterhaltRechnerPage from './pages/UnterhaltRechnerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -273,6 +277,10 @@ function App() {
             <Route path="kurzarbeitergeld" element={<KurzarbeitergeldPage />} />
             <Route path="midijob-rechner" element={<MidijobRechnerPage />} />
             <Route path="rentenbesteuerung" element={<RentenbesteuerungPage />} />
+            <Route path="steuererklaerung-checkliste" element={<SteuererklaerungChecklistePage />} />
+            <Route path="haeusliche-dienstleistungen" element={<HaeuslicheDienstleistungenPage />} />
+            <Route path="altersvorsorge-vergleich" element={<AltersvorsorgeVergleichPage />} />
+            <Route path="unterhalt-rechner" element={<UnterhaltRechnerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
