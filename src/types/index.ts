@@ -1,3 +1,20 @@
+export interface PlantCareDetails {
+  substrate: string;
+  watering_detail: string;
+  pruning: string;
+  repotting: string;
+  propagation: string;
+  pests: string[];
+  diseases: string[];
+  signs_overwatering: string[];
+  signs_underwatering: string[];
+  winter_care: string;
+  summer_care: string;
+  ideal_location: string;
+  common_mistakes: string[];
+  beginner_summary: string;
+}
+
 export interface PlantSpecies {
   id: string;
   common_name: string;
@@ -22,6 +39,7 @@ export interface PlantSpecies {
   repot_frequency_years: number;
   care_tips: string[];
   tags: string[];
+  care_details?: PlantCareDetails;
 }
 
 export interface Apartment {

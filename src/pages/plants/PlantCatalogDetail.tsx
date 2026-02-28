@@ -4,6 +4,7 @@ import { usePlants } from '@/hooks/usePlantContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { PLANT_SPECIES } from '@/data/plants';
 import { AddPlantDialog } from '@/components/plants/AddPlantDialog';
 import {
@@ -27,6 +28,16 @@ import {
   Flower2,
   Leaf,
   Sprout,
+  Scissors,
+  Bug,
+  Snowflake,
+  SunIcon,
+  Home,
+  XCircle,
+  Heart,
+  BookOpen,
+  Layers,
+  GitBranch,
 } from 'lucide-react';
 
 const difficultyLabels: Record<string, string> = {
@@ -110,6 +121,7 @@ export default function PlantCatalogDetail() {
 
   const LightIcon = lightIcons[species.light] || Cloud;
   const bgColor = FAMILY_COLORS[species.family] || 'bg-green-200 dark:bg-green-900/40';
+  const cd = species.care_details;
 
   function handleAddPlant() {
     if (apartments.length === 0) {
@@ -169,6 +181,19 @@ export default function PlantCatalogDetail() {
             {species.description}
           </p>
 
+          {/* Beginner summary */}
+          {cd && (
+            <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/40">
+              <div className="flex items-start gap-2">
+                <Heart className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-green-800 dark:text-green-300 text-sm">Kurzfassung fuer Einsteiger</p>
+                  <p className="text-sm text-green-700 dark:text-green-400 mt-1">{cd.beginner_summary}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Toxicity warnings */}
           {(species.toxic_pets || species.toxic_children) && (
             <div className="flex flex-wrap gap-2">
@@ -182,12 +207,6 @@ export default function PlantCatalogDetail() {
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/40 text-sm text-red-700 dark:text-red-400">
                   <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                   Giftig fuer Kinder
-                </div>
-              )}
-              {!species.toxic_pets && !species.toxic_children && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/40 text-sm text-green-700 dark:text-green-400">
-                  <ShieldCheck className="h-4 w-4 flex-shrink-0" />
-                  Ungiftig
                 </div>
               )}
             </div>
@@ -338,6 +357,236 @@ export default function PlantCatalogDetail() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ===== DETAILED CARE GUIDE ===== */}
+      {cd && (
+        <>
+          <Separator />
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <BookOpen className="h-6 w-6 text-primary" />
+            Komplette Pflegeanleitung
+          </h2>
+
+          {/* Ideal Location */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Home className="h-5 w-5 text-blue-500" />
+                Idealer Standort
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed">{cd.ideal_location}</p>
+            </CardContent>
+          </Card>
+
+          {/* Watering Detail + Substrate in 2 columns */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Droplets className="h-5 w-5 text-blue-500" />
+                  Giessen - So geht's richtig
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{cd.watering_detail}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Layers className="h-5 w-5 text-amber-600" />
+                  Erde & Substrat
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{cd.substrate}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Pruning + Repotting */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Scissors className="h-5 w-5 text-emerald-500" />
+                  Schneiden & Zurueckschneiden
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{cd.pruning}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <RefreshCw className="h-5 w-5 text-orange-500" />
+                  Umtopfen - Schritt fuer Schritt
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{cd.repotting}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Propagation */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GitBranch className="h-5 w-5 text-green-500" />
+                Vermehrung
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed">{cd.propagation}</p>
+            </CardContent>
+          </Card>
+
+          {/* Over/Under watering signs */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card className="border-blue-200 dark:border-blue-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                  <Droplets className="h-5 w-5" />
+                  Zeichen fuer zu viel Wasser
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {cd.signs_overwatering.map((sign, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <AlertTriangle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span>{sign}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-amber-200 dark:border-amber-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                  <SunIcon className="h-5 w-5" />
+                  Zeichen fuer zu wenig Wasser
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {cd.signs_underwatering.map((sign, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <span>{sign}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Seasonal care */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Snowflake className="h-5 w-5 text-sky-500" />
+                  Winterpflege (Okt - Feb)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{cd.winter_care}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <SunIcon className="h-5 w-5 text-amber-500" />
+                  Sommerpflege (Maerz - Sep)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{cd.summer_care}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Pests & Diseases */}
+          {(cd.pests.length > 0 || cd.diseases.length > 0) && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {cd.pests.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bug className="h-5 w-5 text-red-500" />
+                      Haeufige Schaedlinge
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {cd.pests.map((pest, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <Bug className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
+                          <span>{pest}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {cd.diseases.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-orange-500" />
+                      Haeufige Krankheiten
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {cd.diseases.map((disease, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                          <span>{disease}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* Common Mistakes */}
+          {cd.common_mistakes.length > 0 && (
+            <Card className="border-red-200 dark:border-red-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                  <XCircle className="h-5 w-5" />
+                  Typische Fehler vermeiden
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {cd.common_mistakes.map((mistake, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="h-6 w-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xs font-medium text-red-700 dark:text-red-400 flex-shrink-0 mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span className="text-sm leading-relaxed">{mistake}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
 
       {/* Care Tips */}
       {species.care_tips.length > 0 && (

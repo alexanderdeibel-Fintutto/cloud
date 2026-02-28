@@ -1,6 +1,7 @@
 import { PlantSpecies } from '../types';
+import { enrichPlantsWithCareDetails } from './plant-care-details';
 
-export const PLANT_SPECIES: PlantSpecies[] = [
+const RAW_PLANT_SPECIES: PlantSpecies[] = [
   {
     id: 'plant-001',
     common_name: 'Monstera',
@@ -1402,6 +1403,9 @@ export const PLANT_SPECIES: PlantSpecies[] = [
     tags: ['Anfänger', 'Kletterpflanze', 'Hängepflanze', 'Luftreinigend'],
   },
 ];
+
+// Enrich all plants with generated care details at module load time
+export const PLANT_SPECIES = enrichPlantsWithCareDetails(RAW_PLANT_SPECIES);
 
 export function searchPlants(query: string): PlantSpecies[] {
   const lowerQuery = query.toLowerCase();

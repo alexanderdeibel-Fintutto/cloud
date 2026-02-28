@@ -35,6 +35,7 @@ import {
   generateCareProtocol,
   type ScanResult,
   type CareProtocol,
+  type ImageAnalysis,
 } from '@/lib/plant-scanner';
 import { PlantSpecies } from '@/types';
 import { toast } from 'sonner';
@@ -188,10 +189,10 @@ export default function PlantScannerPage() {
 
     // Short delay for UX feedback
     setTimeout(() => {
-      let colorHints: string[] = [];
+      let imageAnalysis: ImageAnalysis | undefined;
 
       const finalize = () => {
-        const scanResults = identifyPlant(textQuery || '', colorHints);
+        const scanResults = identifyPlant(textQuery || '', imageAnalysis);
         setResults(scanResults);
         setStep('results');
       };
@@ -201,7 +202,7 @@ export default function PlantScannerPage() {
         const img = new Image();
         img.onload = () => {
           try {
-            colorHints = analyzeImageColors(img);
+            imageAnalysis = analyzeImageColors(img);
           } catch (e) {
             // Color analysis failed (e.g. tainted canvas) - continue without color hints
           }

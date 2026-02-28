@@ -60,23 +60,38 @@ export interface CareTask {
   priority: 'high' | 'medium' | 'low';
 }
 
+/** Minimum confidence to include in results */
+const MIN_CONFIDENCE = 25;
+/** Maximum results to return */
+const MAX_RESULTS = 5;
+/** Minimum green+brown pixel ratio to consider image as containing a plant */
+const MIN_PLANT_PIXEL_RATIO = 0.12;
+
+export interface ImageAnalysis {
+  colorHints: string[];
+  isLikelyPlant: boolean;
+  greenRatio: number;
+  brownRatio: number;
+}
+
 /**
- * Analyze image dominant colors by drawing to a canvas.
- * Returns color category hints (e.g., "grün", "bunt", etc.)
+ * Analyze image dominant colors and determine if the image likely contains a plant.
+ * Returns color hints and a plant-likelihood flag.
  */
-export function analyzeImageColors(imageElement: HTMLImageElement): string[] {
+export function analyzeImageColors(imageElement: HTMLImageElement): ImageAnalysis {
   const canvas = document.createElement('canvas');
   const size = 100;
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return [];
+  if (!ctx) return { colorHints: [], isLikelyPlant: false, greenRatio: 0, brownRatio: 0 };
 
   ctx.drawImage(imageElement, 0, 0, size, size);
   const imageData = ctx.getImageData(0, 0, size, size).data;
 
   let totalR = 0, totalG = 0, totalB = 0;
   let greenPixels = 0, brownPixels = 0, whitePixels = 0;
+  let darkGreenPixels = 0;
   const pixelCount = size * size;
 
   for (let i = 0; i < imageData.length; i += 4) {
@@ -87,8 +102,13 @@ export function analyzeImageColors(imageElement: HTMLImageElement): string[] {
     totalG += g;
     totalB += b;
 
+    // Green detection: green channel dominant
     if (g > r * 1.2 && g > b * 1.1 && g > 60) greenPixels++;
-    if (r > g && r > b && r - g < 80 && g > 40) brownPixels++;
+    // Dark green: strong green in lower brightness
+    if (g > r * 1.3 && g > b * 1.2 && g > 40 && g < 160) darkGreenPixels++;
+    // Brown: earth/soil/bark tones
+    if (r > g && r > b && r - g < 80 && g > 40 && r < 200) brownPixels++;
+    // White/bright
     if (r > 200 && g > 200 && b > 200) whitePixels++;
   }
 
@@ -96,92 +116,132 @@ export function analyzeImageColors(imageElement: HTMLImageElement): string[] {
   const avgG = totalG / pixelCount;
   const avgB = totalB / pixelCount;
 
+  const greenRatio = greenPixels / pixelCount;
+  const brownRatio = brownPixels / pixelCount;
+
   const hints: string[] = [];
-  if (greenPixels / pixelCount > 0.2) hints.push('grün');
-  if (greenPixels / pixelCount > 0.5) hints.push('dunkelgrün');
-  if (brownPixels / pixelCount > 0.15) hints.push('braun');
+  if (greenRatio > 0.2) hints.push('grün');
+  if (greenRatio > 0.5) hints.push('dunkelgrün');
+  if (brownRatio > 0.15) hints.push('braun');
   if (whitePixels / pixelCount > 0.3) hints.push('weiß');
   if (avgR > avgG * 1.3 && avgR > avgB * 1.3) hints.push('rot');
   if (avgR > 150 && avgG > 100 && avgB < 100) hints.push('gelb');
   if (avgB > avgR * 1.2 && avgB > avgG * 1.1) hints.push('lila');
 
   // Shape heuristics based on color distribution
-  const greenRatio = greenPixels / pixelCount;
   if (greenRatio > 0.4) hints.push('blattschmuck');
-  if (greenRatio < 0.1 && brownPixels / pixelCount < 0.1) hints.push('blüte');
+  if (greenRatio < 0.1 && brownRatio < 0.1) hints.push('blüte');
 
-  return hints;
+  // Determine if image likely contains a plant:
+  // Plants typically have significant green and/or brown (soil/bark) pixels
+  const plantPixelRatio = greenRatio + brownRatio * 0.5;
+  const isLikelyPlant = plantPixelRatio >= MIN_PLANT_PIXEL_RATIO;
+
+  return { colorHints: hints, isLikelyPlant, greenRatio, brownRatio };
 }
 
 /**
  * Match a user text query + optional color hints against the plant database.
  * Returns ranked results sorted by confidence.
+ *
+ * Only returns results above MIN_CONFIDENCE threshold.
+ * If imageAnalysis indicates no plant detected, returns empty unless
+ * user provided a strong text query.
  */
 export function identifyPlant(
   textQuery: string,
-  colorHints: string[] = []
+  imageAnalysis?: ImageAnalysis
 ): ScanResult[] {
+  const colorHints = imageAnalysis?.colorHints || [];
   const queryTerms = textQuery.toLowerCase().split(/[\s,;]+/).filter(Boolean);
   const allTerms = [...queryTerms, ...colorHints.map(h => h.toLowerCase())];
 
+  const hasTextQuery = textQuery.trim().length >= 2;
+
+  // If we have image analysis showing no plant AND no meaningful text query,
+  // return empty results - this is likely not a plant photo
+  if (imageAnalysis && !imageAnalysis.isLikelyPlant && !hasTextQuery) {
+    return [];
+  }
+
   const results: ScanResult[] = [];
+
+  // Determine how much to weight color-based matches
+  // If image doesn't look like a plant, color hints are unreliable
+  const colorWeight = imageAnalysis?.isLikelyPlant ? 1 : 0.1;
 
   PLANT_SPECIES.forEach(species => {
     const features = VISUAL_FEATURES[species.id] || [];
     const matchedFeatures: string[] = [];
     let score = 0;
+    let hasNameMatch = false;
 
     // Exact name match is strongest
     const nameLower = species.common_name.toLowerCase();
     const botanicalLower = species.botanical_name.toLowerCase();
     const queryLower = textQuery.toLowerCase().trim();
 
-    if (nameLower === queryLower || botanicalLower === queryLower) {
-      score += 100;
-      matchedFeatures.push(species.common_name);
-    } else if (nameLower.includes(queryLower) || botanicalLower.includes(queryLower)) {
-      score += 60;
-      matchedFeatures.push(species.common_name);
+    if (queryLower.length >= 2) {
+      if (nameLower === queryLower || botanicalLower === queryLower) {
+        score += 100;
+        matchedFeatures.push(species.common_name);
+        hasNameMatch = true;
+      } else if (nameLower.includes(queryLower) || botanicalLower.includes(queryLower)) {
+        score += 60;
+        matchedFeatures.push(species.common_name);
+        hasNameMatch = true;
+      } else if (queryLower.includes(nameLower) && nameLower.length >= 4) {
+        score += 40;
+        matchedFeatures.push(species.common_name);
+        hasNameMatch = true;
+      }
     }
 
-    // Term-by-term matching
-    allTerms.forEach(term => {
-      if (term.length < 2) return;
+    // Term-by-term matching against features (only text query terms, not color)
+    queryTerms.forEach(term => {
+      if (term.length < 3) return; // Skip very short terms
       features.forEach(feature => {
-        if (feature.includes(term) || term.includes(feature)) {
-          score += 10;
-          if (!matchedFeatures.includes(feature)) {
-            matchedFeatures.push(feature);
-          }
+        if (feature === term) {
+          score += 12;
+          if (!matchedFeatures.includes(feature)) matchedFeatures.push(feature);
+        } else if (feature.includes(term) && term.length >= 4) {
+          score += 6;
+          if (!matchedFeatures.includes(feature)) matchedFeatures.push(feature);
+        } else if (term.includes(feature) && feature.length >= 4) {
+          score += 4;
+          if (!matchedFeatures.includes(feature)) matchedFeatures.push(feature);
         }
       });
 
       // Family match
-      if (species.family.toLowerCase().includes(term)) {
+      if (species.family.toLowerCase().includes(term) && term.length >= 4) {
         score += 5;
         matchedFeatures.push(species.family);
       }
     });
 
-    // Color hint bonus
+    // Color hint bonus - only when image actually looks like a plant
     colorHints.forEach(hint => {
       const hintLower = hint.toLowerCase();
-      if (species.tags.some(t => t.toLowerCase().includes(hintLower))) {
-        score += 8;
+      // Only award color points for specific, discriminating matches
+      if (species.tags.some(t => t.toLowerCase() === hintLower)) {
+        score += 6 * colorWeight;
+      } else if (species.tags.some(t => t.toLowerCase().includes(hintLower))) {
+        score += 3 * colorWeight;
       }
       if (species.description.toLowerCase().includes(hintLower)) {
-        score += 3;
+        score += 2 * colorWeight;
       }
     });
 
-    if (score > 0) {
-      // Normalize confidence to 0-100
+    // Only include results that pass minimum confidence
+    if (score >= MIN_CONFIDENCE) {
       const confidence = Math.min(100, Math.round(score));
       results.push({ species, confidence, matchedFeatures: [...new Set(matchedFeatures)] });
     }
   });
 
-  return results.sort((a, b) => b.confidence - a.confidence).slice(0, 10);
+  return results.sort((a, b) => b.confidence - a.confidence).slice(0, MAX_RESULTS);
 }
 
 /**
