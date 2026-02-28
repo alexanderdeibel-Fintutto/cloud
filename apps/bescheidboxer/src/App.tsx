@@ -115,6 +115,10 @@ import HaeuslichesPflegegeldPage from './pages/HaeuslichesPflegegeldPage'
 import ZinsenRechnerPage from './pages/ZinsenRechnerPage'
 import SteueroptimierungPage from './pages/SteueroptimierungPage'
 import GrundstuecksbewertungPage from './pages/GrundstuecksbewertungPage'
+import SteuerklassenRechnerPage from './pages/SteuerklassenRechnerPage'
+import GeldwerterVorteilPage from './pages/GeldwerterVorteilPage'
+import SteuerStrafRechtPage from './pages/SteuerStrafRechtPage'
+import EinkommensteuerTabellenPage from './pages/EinkommensteuerTabellenPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -249,6 +253,10 @@ function App() {
             <Route path="steuerzinsen" element={<ZinsenRechnerPage />} />
             <Route path="steueroptimierung" element={<SteueroptimierungPage />} />
             <Route path="grundstuecksbewertung" element={<GrundstuecksbewertungPage />} />
+            <Route path="steuerklassen-rechner" element={<SteuerklassenRechnerPage />} />
+            <Route path="geldwerter-vorteil" element={<GeldwerterVorteilPage />} />
+            <Route path="steuerstrafrecht" element={<SteuerStrafRechtPage />} />
+            <Route path="est-tabellen" element={<EinkommensteuerTabellenPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

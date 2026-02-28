@@ -101,6 +101,8 @@ import {
   FileBarChart,
   Target,
   MapPin,
+  Gavel,
+  Table2,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -244,6 +246,10 @@ export default function CommandPalette() {
     { id: 'nav-steuerzinsen', label: 'Steuerzinsen', description: 'Nachzahlungs-/Erstattungszinsen', icon: Percent, category: 'navigation', keywords: ['zinsen', 'nachzahlung', 'erstattung', '233a', 'karenz', 'steuerzinsen'], action: () => runAndClose(() => navigate('/steuerzinsen')) },
     { id: 'nav-steueroptimierung', label: 'Steueroptimierung', description: 'Alle Abzüge auf einen Blick', icon: Target, category: 'navigation', keywords: ['optimierung', 'sparen', 'abzug', 'werbungskosten', 'sonderausgaben', 'potential'], action: () => runAndClose(() => navigate('/steueroptimierung')) },
     { id: 'nav-grundstuecksbewertung', label: 'Grundstücksbewertung', description: 'Bewertungsverfahren BewG', icon: MapPin, category: 'navigation', keywords: ['grundstueck', 'bewertung', 'bodenrichtwert', 'ertragswert', 'sachwert', 'vergleichswert'], action: () => runAndClose(() => navigate('/grundstuecksbewertung')) },
+    { id: 'nav-stkl-rechner', label: 'Steuerklassen-Rechner', description: 'Optimale Kombination berechnen', icon: UsersRound, category: 'navigation', keywords: ['steuerklasse', 'rechner', 'lohnsteuer', 'ehepaar', 'kombination'], action: () => runAndClose(() => navigate('/steuerklassen-rechner')) },
+    { id: 'nav-geldwerter-vorteil', label: 'Geldwerter Vorteil', description: 'Benefits & Sachbezüge bewerten', icon: Gift, category: 'navigation', keywords: ['geldwerter', 'vorteil', 'sachbezug', 'benefit', 'firmenwagen', 'jobticket'], action: () => runAndClose(() => navigate('/geldwerter-vorteil')) },
+    { id: 'nav-steuerstrafrecht', label: 'Steuerstrafrecht', description: 'Strafrahmen & Selbstanzeige', icon: Gavel, category: 'navigation', keywords: ['steuerstrafrecht', 'hinterziehung', 'selbstanzeige', 'strafe', 'bussgeld'], action: () => runAndClose(() => navigate('/steuerstrafrecht')) },
+    { id: 'nav-est-tabellen', label: 'ESt-Tabellen', description: 'Grund- & Splittingtabelle 2025', icon: Table2, category: 'navigation', keywords: ['tabelle', 'grundtabelle', 'splitting', 'tarif', 'einkommensteuer', 'steuersatz'], action: () => runAndClose(() => navigate('/est-tabellen')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen

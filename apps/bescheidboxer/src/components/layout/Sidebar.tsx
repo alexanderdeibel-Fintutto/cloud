@@ -94,6 +94,8 @@ import {
   FileBarChart,
   Target,
   MapPin,
+  Gavel,
+  Table2,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -192,6 +194,10 @@ const navigation = [
   { name: 'Steuerzinsen', href: '/steuerzinsen', icon: Percent },
   { name: 'Steueroptimierung', href: '/steueroptimierung', icon: Target },
   { name: 'Grundst.bewertung', href: '/grundstuecksbewertung', icon: MapPin },
+  { name: 'StKl-Rechner', href: '/steuerklassen-rechner', icon: UsersRound },
+  { name: 'Geldwerter Vorteil', href: '/geldwerter-vorteil', icon: Gift },
+  { name: 'Steuerstrafrecht', href: '/steuerstrafrecht', icon: Gavel },
+  { name: 'ESt-Tabellen', href: '/est-tabellen', icon: Table2 },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },
