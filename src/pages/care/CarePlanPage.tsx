@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { usePlants } from '@/hooks/usePlantContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Droplets,
   Leaf,
@@ -15,6 +16,8 @@ import {
   Home,
   DoorOpen,
   Sparkles,
+  ListChecks,
+  Zap,
 } from 'lucide-react';
 import { format, parseISO, isToday, isBefore, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -31,10 +34,16 @@ function ReminderCard({
   reminder,
   variant,
   onMarkDone,
+  selected,
+  onToggleSelect,
+  selectionMode,
 }: {
   reminder: CareReminder;
   variant: 'overdue' | 'today' | 'upcoming';
   onMarkDone: (reminder: CareReminder) => void;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
+  selectionMode?: boolean;
 }) {
   const config = careTypeConfig[reminder.type] || careTypeConfig.water;
   const Icon = config.icon;
@@ -57,9 +66,16 @@ function ReminderCard({
 
   return (
     <div
-      className={`flex items-center justify-between rounded-lg border border-l-4 ${borderColor} ${bgColor} p-4 transition-all hover:shadow-sm`}
+      className={`flex items-center justify-between rounded-lg border border-l-4 ${borderColor} ${bgColor} p-4 transition-all hover:shadow-sm ${selected ? 'ring-2 ring-primary' : ''}`}
     >
       <div className="flex items-center gap-3">
+        {selectionMode && onToggleSelect && (
+          <Checkbox
+            checked={selected}
+            onCheckedChange={() => onToggleSelect(reminder.id)}
+            className="h-5 w-5"
+          />
+        )}
         <div
           className={`flex items-center justify-center w-10 h-10 rounded-full bg-background shadow-sm ${config.color}`}
         >
@@ -120,6 +136,8 @@ function EmptyState({ message, icon: Icon }: { message: string; icon: typeof Spa
 
 export default function CarePlanPage() {
   const { getOverdueReminders, getTodayReminders, getUpcomingReminders, logCareEvent } = usePlants();
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const overdueReminders = useMemo(() => {
     return getOverdueReminders().filter(r => {
@@ -130,6 +148,85 @@ export default function CarePlanPage() {
 
   const todayReminders = useMemo(() => getTodayReminders(), [getTodayReminders]);
   const upcomingReminders = useMemo(() => getUpcomingReminders(7), [getUpcomingReminders]);
+
+  const allReminders = useMemo(
+    () => [...overdueReminders, ...todayReminders, ...upcomingReminders],
+    [overdueReminders, todayReminders, upcomingReminders]
+  );
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBatchMarkDone = () => {
+    const remindersToComplete = allReminders.filter((r) => selectedIds.has(r.id));
+    const now = new Date().toISOString();
+    remindersToComplete.forEach((reminder) => {
+      logCareEvent({
+        plant_id: reminder.plant_id,
+        type: reminder.type,
+        performed_at: now,
+        notes: '',
+      });
+    });
+    toast.success(`${remindersToComplete.length} Aufgaben erledigt!`, {
+      description: 'Alle ausgewaehlten Pflegeaufgaben wurden abgehakt.',
+    });
+    setSelectedIds(new Set());
+    setSelectionMode(false);
+  };
+
+  const handleBatchAllOverdue = () => {
+    if (overdueReminders.length === 0) return;
+    const now = new Date().toISOString();
+    overdueReminders.forEach((reminder) => {
+      logCareEvent({
+        plant_id: reminder.plant_id,
+        type: reminder.type,
+        performed_at: now,
+        notes: '',
+      });
+    });
+    toast.success(`${overdueReminders.length} ueberfaellige Aufgaben erledigt!`, {
+      description: 'Alle ueberfaelligen Pflanzen wurden gepflegt.',
+      icon: <Zap className="h-5 w-5 text-yellow-500" />,
+    });
+  };
+
+  const handleBatchAllToday = () => {
+    if (todayReminders.length === 0) return;
+    const now = new Date().toISOString();
+    todayReminders.forEach((reminder) => {
+      logCareEvent({
+        plant_id: reminder.plant_id,
+        type: reminder.type,
+        performed_at: now,
+        notes: '',
+      });
+    });
+    toast.success(`${todayReminders.length} heutige Aufgaben erledigt!`, {
+      description: 'Alle heutigen Pflanzen wurden gepflegt.',
+      icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+    });
+  };
+
+  const handleSelectAll = (reminders: CareReminder[]) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const allSelected = reminders.every((r) => next.has(r.id));
+      if (allSelected) {
+        reminders.forEach((r) => next.delete(r.id));
+      } else {
+        reminders.forEach((r) => next.add(r.id));
+      }
+      return next;
+    });
+  };
 
   const handleMarkDone = (reminder: CareReminder) => {
     const now = new Date().toISOString();
@@ -161,14 +258,62 @@ export default function CarePlanPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Droplets className="h-7 w-7 text-primary" />
-          Pflege & Giessplan
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Behalte den Ueberblick ueber die Pflege deiner Pflanzen.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Droplets className="h-7 w-7 text-primary" />
+            Pflege & Giessplan
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Behalte den Ueberblick ueber die Pflege deiner Pflanzen.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {selectionMode ? (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setSelectionMode(false);
+                  setSelectedIds(new Set());
+                }}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleBatchMarkDone}
+                disabled={selectedIds.size === 0}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle2 className="mr-1 h-4 w-4" />
+                {selectedIds.size} erledigen
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSelectionMode(true)}
+              >
+                <ListChecks className="mr-1 h-4 w-4" />
+                Auswaehlen
+              </Button>
+              {overdueReminders.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleBatchAllOverdue}
+                >
+                  <Zap className="mr-1 h-4 w-4" />
+                  Alle ueberfaelligen erledigen
+                </Button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Summary Stats */}
@@ -244,14 +389,31 @@ export default function CarePlanPage() {
               icon={Sparkles}
             />
           ) : (
-            overdueReminders.map(reminder => (
-              <ReminderCard
-                key={reminder.id}
-                reminder={reminder}
-                variant="overdue"
-                onMarkDone={handleMarkDone}
-              />
-            ))
+            <>
+              {selectionMode && overdueReminders.length > 1 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs"
+                  onClick={() => handleSelectAll(overdueReminders)}
+                >
+                  {overdueReminders.every((r) => selectedIds.has(r.id))
+                    ? 'Alle abwaehlen'
+                    : 'Alle auswaehlen'}
+                </Button>
+              )}
+              {overdueReminders.map(reminder => (
+                <ReminderCard
+                  key={reminder.id}
+                  reminder={reminder}
+                  variant="overdue"
+                  onMarkDone={handleMarkDone}
+                  selected={selectedIds.has(reminder.id)}
+                  onToggleSelect={handleToggleSelect}
+                  selectionMode={selectionMode}
+                />
+              ))}
+            </>
           )}
         </TabsContent>
 
@@ -262,14 +424,44 @@ export default function CarePlanPage() {
               icon={Sparkles}
             />
           ) : (
-            todayReminders.map(reminder => (
-              <ReminderCard
-                key={reminder.id}
-                reminder={reminder}
-                variant="today"
-                onMarkDone={handleMarkDone}
-              />
-            ))
+            <>
+              {!selectionMode && todayReminders.length > 1 && (
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleBatchAllToday}
+                    className="text-xs"
+                  >
+                    <Zap className="mr-1 h-3 w-3" />
+                    Alle heutigen erledigen
+                  </Button>
+                </div>
+              )}
+              {selectionMode && todayReminders.length > 1 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs"
+                  onClick={() => handleSelectAll(todayReminders)}
+                >
+                  {todayReminders.every((r) => selectedIds.has(r.id))
+                    ? 'Alle abwaehlen'
+                    : 'Alle auswaehlen'}
+                </Button>
+              )}
+              {todayReminders.map(reminder => (
+                <ReminderCard
+                  key={reminder.id}
+                  reminder={reminder}
+                  variant="today"
+                  onMarkDone={handleMarkDone}
+                  selected={selectedIds.has(reminder.id)}
+                  onToggleSelect={handleToggleSelect}
+                  selectionMode={selectionMode}
+                />
+              ))}
+            </>
           )}
         </TabsContent>
 
@@ -280,14 +472,31 @@ export default function CarePlanPage() {
               icon={CalendarClock}
             />
           ) : (
-            upcomingReminders.map(reminder => (
-              <ReminderCard
-                key={reminder.id}
-                reminder={reminder}
-                variant="upcoming"
-                onMarkDone={handleMarkDone}
-              />
-            ))
+            <>
+              {selectionMode && upcomingReminders.length > 1 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs"
+                  onClick={() => handleSelectAll(upcomingReminders)}
+                >
+                  {upcomingReminders.every((r) => selectedIds.has(r.id))
+                    ? 'Alle abwaehlen'
+                    : 'Alle auswaehlen'}
+                </Button>
+              )}
+              {upcomingReminders.map(reminder => (
+                <ReminderCard
+                  key={reminder.id}
+                  reminder={reminder}
+                  variant="upcoming"
+                  onMarkDone={handleMarkDone}
+                  selected={selectedIds.has(reminder.id)}
+                  onToggleSelect={handleToggleSelect}
+                  selectionMode={selectionMode}
+                />
+              ))}
+            </>
           )}
         </TabsContent>
       </Tabs>

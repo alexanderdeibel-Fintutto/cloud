@@ -18,6 +18,7 @@ import {
   Gift,
   Tag,
   ExternalLink,
+  BarChart3,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,6 +34,7 @@ const navItems = [
   { to: '/vacation', icon: Plane, label: 'Urlaubsplan' },
   { to: '/shopping', icon: ShoppingCart, label: 'Einkaufsliste' },
   { to: '/calendar', icon: Calendar, label: 'Kalender' },
+  { to: '/stats', icon: BarChart3, label: 'Statistik' },
 ];
 
 const extraItems = [

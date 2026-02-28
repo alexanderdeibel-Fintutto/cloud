@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlants } from '@/hooks/usePlantContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,8 +21,7 @@ import {
   Heart,
   TrendingUp,
 } from 'lucide-react';
-import { format, parseISO, differenceInDays } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { differenceInDays, parseISO } from 'date-fns';
 import { EcosystemBanner } from '@/components/EcosystemBanner';
 
 export default function Dashboard() {
@@ -35,6 +35,9 @@ export default function Dashboard() {
     getUpcomingReminders,
     logCareEvent,
   } = usePlants();
+
+  // Initialize notifications - checks & sends if overdue
+  useNotifications(getOverdueReminders);
 
   const enrichedPlants = useMemo(() => getEnrichedPlants(), [getEnrichedPlants]);
   const overdueReminders = useMemo(() => getOverdueReminders(), [getOverdueReminders]);

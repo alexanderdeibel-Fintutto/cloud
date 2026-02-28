@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { usePlants } from '@/hooks/usePlantContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
   Settings,
   User,
   Bell,
+  BellRing,
   Clock,
   Download,
   Upload,
@@ -66,7 +69,9 @@ export default function SettingsPage() {
     careEvents,
     vacationPlans,
     shoppingItems,
+    getOverdueReminders,
   } = usePlants();
+  const notifications = useNotifications(getOverdueReminders);
 
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(loadNotificationPrefs);
   const [reminderTime, setReminderTime] = useState(loadReminderTime);
@@ -274,12 +279,96 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
+      {/* Browser Notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BellRing className="h-5 w-5" />
+            Browser-Benachrichtigungen
+            {notifications.isEnabled && notifications.permission === 'granted' && (
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                Aktiv
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Erhalte Push-Benachrichtigungen direkt im Browser, wenn Pflanzen gegossen oder
+            geduengt werden muessen - auch wenn die App nicht geoeffnet ist.
+          </p>
+
+          {!notifications.isSupported ? (
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950 p-3 text-sm text-yellow-800 dark:text-yellow-200">
+              Dein Browser unterstuetzt leider keine Push-Benachrichtigungen.
+            </div>
+          ) : notifications.permission === 'denied' ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 p-3 text-sm text-red-800 dark:text-red-200">
+              Browser-Benachrichtigungen wurden blockiert. Bitte erlaube sie in deinen Browser-Einstellungen
+              und lade die Seite neu.
+            </div>
+          ) : notifications.isEnabled && notifications.permission === 'granted' ? (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950 p-3 text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
+                <BellRing className="h-4 w-4 flex-shrink-0" />
+                Benachrichtigungen sind aktiviert. Du wirst ueber faellige Pflege informiert.
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    notifications.sendNotification(
+                      'Test-Benachrichtigung',
+                      'Die Browser-Benachrichtigungen funktionieren!'
+                    );
+                    toast.success('Test-Benachrichtigung gesendet!');
+                  }}
+                >
+                  <Bell className="mr-1 h-4 w-4" />
+                  Testen
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    notifications.disable();
+                    toast.info('Browser-Benachrichtigungen deaktiviert.');
+                    // Force re-render
+                    window.location.reload();
+                  }}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Deaktivieren
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              onClick={async () => {
+                const granted = await notifications.requestPermission();
+                if (granted) {
+                  toast.success('Browser-Benachrichtigungen aktiviert!');
+                  window.location.reload();
+                } else {
+                  toast.error('Berechtigung wurde nicht erteilt.');
+                }
+              }}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <BellRing className="mr-2 h-4 w-4" />
+              Benachrichtigungen aktivieren
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Notification Preferences */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Bell className="h-5 w-5" />
-            Benachrichtigungen
+            Erinnerungseinstellungen
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -293,7 +382,7 @@ export default function SettingsPage() {
                   Giess-Erinnerungen
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  Benachrichtigung, wenn Pflanzen gegossen werden müssen
+                  Benachrichtigung, wenn Pflanzen gegossen werden muessen
                 </p>
               </div>
             </div>
@@ -315,10 +404,10 @@ export default function SettingsPage() {
               </div>
               <div>
                 <Label htmlFor="fertilize-reminders" className="font-medium cursor-pointer">
-                  Dünge-Erinnerungen
+                  Duenge-Erinnerungen
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  Benachrichtigung, wenn Pflanzen gedüngt werden müssen
+                  Benachrichtigung, wenn Pflanzen geduengt werden muessen
                 </p>
               </div>
             </div>
