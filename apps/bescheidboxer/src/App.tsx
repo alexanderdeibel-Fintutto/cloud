@@ -107,6 +107,10 @@ import GrunderwerbsteuerRechnerPage from './pages/GrunderwerbsteuerRechnerPage'
 import EntfernungspauschaleRechnerPage from './pages/EntfernungspauschaleRechnerPage'
 import KirchensteuerRechnerPage from './pages/KirchensteuerRechnerPage'
 import SteuererstattungsRechnerPage from './pages/SteuererstattungsRechnerPage'
+import EinnahmenUeberschussPage from './pages/EinnahmenUeberschussPage'
+import SchenkungsteuerRechnerPage from './pages/SchenkungsteuerRechnerPage'
+import VerpflegungsmehraufwandPage from './pages/VerpflegungsmehraufwandPage'
+import InvestmentsteuerRechnerPage from './pages/InvestmentsteuerRechnerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -233,6 +237,10 @@ function App() {
             <Route path="entfernungspauschale" element={<EntfernungspauschaleRechnerPage />} />
             <Route path="kirchensteuer" element={<KirchensteuerRechnerPage />} />
             <Route path="steuererstattung" element={<SteuererstattungsRechnerPage />} />
+            <Route path="einnahmen-ueberschuss" element={<EinnahmenUeberschussPage />} />
+            <Route path="schenkungsteuer" element={<SchenkungsteuerRechnerPage />} />
+            <Route path="verpflegungsmehraufwand" element={<VerpflegungsmehraufwandPage />} />
+            <Route path="investmentsteuer" element={<InvestmentsteuerRechnerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

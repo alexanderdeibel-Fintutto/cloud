@@ -89,6 +89,9 @@ import {
   RefreshCcw,
   BadgeInfo,
   Church,
+  Utensils,
+  LineChart,
+  FileBarChart,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -179,6 +182,10 @@ const navigation = [
   { name: 'Entfernungspauschale', href: '/entfernungspauschale', icon: Car },
   { name: 'Kirchensteuer', href: '/kirchensteuer', icon: Church },
   { name: 'Steuererstattung', href: '/steuererstattung', icon: Receipt },
+  { name: 'EÜR', href: '/einnahmen-ueberschuss', icon: FileBarChart },
+  { name: 'Schenkungsteuer', href: '/schenkungsteuer', icon: Gift },
+  { name: 'Verpflegungsmehaufw.', href: '/verpflegungsmehraufwand', icon: Utensils },
+  { name: 'Investmentsteuer', href: '/investmentsteuer', icon: LineChart },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

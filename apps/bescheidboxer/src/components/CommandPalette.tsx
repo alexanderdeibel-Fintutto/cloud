@@ -96,6 +96,9 @@ import {
   RefreshCcw,
   BadgeInfo,
   Church,
+  Utensils,
+  LineChart,
+  FileBarChart,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -231,6 +234,10 @@ export default function CommandPalette() {
     { id: 'nav-entfernungspauschale', label: 'Entfernungspauschale', description: 'Pendlerpauschale berechnen', icon: Car, category: 'navigation', keywords: ['entfernungspauschale', 'pendlerpauschale', 'fahrtkosten', 'pendler', 'kilometer', 'homeoffice'], action: () => runAndClose(() => navigate('/entfernungspauschale')) },
     { id: 'nav-kirchensteuer', label: 'Kirchensteuer', description: 'Kirchensteuer & Kappung berechnen', icon: Church, category: 'navigation', keywords: ['kirchensteuer', 'kirche', 'kappung', 'sonderausgaben', 'austritt'], action: () => runAndClose(() => navigate('/kirchensteuer')) },
     { id: 'nav-steuererstattung', label: 'Steuererstattung', description: 'Erstattung oder Nachzahlung schätzen', icon: Receipt, category: 'navigation', keywords: ['steuererstattung', 'erstattung', 'nachzahlung', 'lohnsteuer', 'steuererklaerung', 'refund'], action: () => runAndClose(() => navigate('/steuererstattung')) },
+    { id: 'nav-euer', label: 'EÜR', description: 'Einnahmen-Überschuss-Rechnung', icon: FileBarChart, category: 'navigation', keywords: ['euer', 'einnahmen', 'ueberschuss', 'selbstaendig', 'freiberufler', 'gewinn'], action: () => runAndClose(() => navigate('/einnahmen-ueberschuss')) },
+    { id: 'nav-schenkungsteuer', label: 'Schenkungsteuer', description: 'Schenkungsteuer berechnen', icon: Gift, category: 'navigation', keywords: ['schenkung', 'schenkungsteuer', 'freibetrag', 'steuerklasse', 'geschenk'], action: () => runAndClose(() => navigate('/schenkungsteuer')) },
+    { id: 'nav-verpflegung', label: 'Verpflegungsmehraufwand', description: 'Dienstreise-Pauschalen', icon: Utensils, category: 'navigation', keywords: ['verpflegung', 'mehraufwand', 'dienstreise', 'pauschale', 'vma', 'reise'], action: () => runAndClose(() => navigate('/verpflegungsmehraufwand')) },
+    { id: 'nav-investmentsteuer', label: 'Investmentsteuer', description: 'Fondsbesteuerung InvStG', icon: LineChart, category: 'navigation', keywords: ['investment', 'fonds', 'etf', 'teilfreistellung', 'vorabpauschale', 'investmentsteuer'], action: () => runAndClose(() => navigate('/investmentsteuer')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
