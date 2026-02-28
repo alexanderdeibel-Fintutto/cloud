@@ -119,6 +119,10 @@ import SteuerklassenRechnerPage from './pages/SteuerklassenRechnerPage'
 import GeldwerterVorteilPage from './pages/GeldwerterVorteilPage'
 import SteuerStrafRechtPage from './pages/SteuerStrafRechtPage'
 import EinkommensteuerTabellenPage from './pages/EinkommensteuerTabellenPage'
+import WohnungsbauPraemiePage from './pages/WohnungsbauPraemiePage'
+import MeisterBafoegPage from './pages/MeisterBafoegPage'
+import ZulagenRechnerPage from './pages/ZulagenRechnerPage'
+import SteuerVergleichPage from './pages/SteuerVergleichPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -257,6 +261,10 @@ function App() {
             <Route path="geldwerter-vorteil" element={<GeldwerterVorteilPage />} />
             <Route path="steuerstrafrecht" element={<SteuerStrafRechtPage />} />
             <Route path="est-tabellen" element={<EinkommensteuerTabellenPage />} />
+            <Route path="wohnungsbau-praemie" element={<WohnungsbauPraemiePage />} />
+            <Route path="meister-bafoeg" element={<MeisterBafoegPage />} />
+            <Route path="zulagen-rechner" element={<ZulagenRechnerPage />} />
+            <Route path="steuer-vergleich" element={<SteuerVergleichPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
