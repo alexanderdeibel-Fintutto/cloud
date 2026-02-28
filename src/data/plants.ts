@@ -1,5 +1,6 @@
 import { PlantSpecies } from '../types';
 import { enrichPlantsWithCareDetails } from './plant-care-details';
+import { EXTENDED_PLANT_SPECIES } from './plants-extended';
 
 const RAW_PLANT_SPECIES: PlantSpecies[] = [
   {
@@ -1404,8 +1405,8 @@ const RAW_PLANT_SPECIES: PlantSpecies[] = [
   },
 ];
 
-// Enrich all plants with generated care details at module load time
-export const PLANT_SPECIES = enrichPlantsWithCareDetails(RAW_PLANT_SPECIES);
+// Combine base + extended plants, then enrich all with generated care details
+export const PLANT_SPECIES = enrichPlantsWithCareDetails([...RAW_PLANT_SPECIES, ...EXTENDED_PLANT_SPECIES]);
 
 export function searchPlants(query: string): PlantSpecies[] {
   const lowerQuery = query.toLowerCase();

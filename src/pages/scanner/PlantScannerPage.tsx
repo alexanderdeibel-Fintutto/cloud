@@ -28,6 +28,13 @@ import {
   ShieldAlert,
   MapPin,
   Zap,
+  Settings,
+  Brain,
+  Search,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Key,
 } from 'lucide-react';
 import {
   identifyPlant,
@@ -37,11 +44,33 @@ import {
   type CareProtocol,
   type ImageAnalysis,
 } from '@/lib/plant-scanner';
+import {
+  identifyWithPlantId,
+  isPlantIdConfigured,
+  getApiKey,
+  setApiKey,
+  type PlantIdSuggestion,
+} from '@/lib/plant-id-api';
+import { PLANT_SPECIES } from '@/data/plants';
 import { PlantSpecies } from '@/types';
 import { toast } from 'sonner';
 
 type ScanStep = 'capture' | 'identifying' | 'results' | 'protocol';
 const steps: ScanStep[] = ['capture', 'identifying', 'results', 'protocol'];
+
+/** Extended scan result that can come from Plant.id or local scanner */
+interface ExtendedScanResult {
+  species: PlantSpecies | null;
+  confidence: number;
+  matchedFeatures: string[];
+  // Plant.id specific data (when species not in local DB)
+  plantIdName?: string;
+  plantIdCommonNames?: string[];
+  plantIdDescription?: string;
+  plantIdImageUrl?: string;
+  plantIdUrl?: string;
+  plantIdFamily?: string;
+}
 
 const difficultyLabels: Record<string, { label: string; color: string }> = {
   easy: { label: 'Einfach', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
@@ -56,6 +85,44 @@ const lightLabels: Record<string, string> = {
   direct: 'Direkte Sonne',
 };
 
+/**
+ * Try to match a Plant.id suggestion to our local plant database.
+ * Matches by botanical name (exact or partial).
+ */
+function matchToLocalPlant(suggestion: PlantIdSuggestion): PlantSpecies | null {
+  const botanicalLower = suggestion.name.toLowerCase();
+
+  // Exact botanical name match
+  const exact = PLANT_SPECIES.find(
+    p => p.botanical_name.toLowerCase() === botanicalLower
+  );
+  if (exact) return exact;
+
+  // Genus match (first word of botanical name)
+  const genus = botanicalLower.split(' ')[0];
+  if (genus.length >= 4) {
+    const genusMatch = PLANT_SPECIES.find(
+      p => p.botanical_name.toLowerCase().startsWith(genus)
+    );
+    if (genusMatch) return genusMatch;
+  }
+
+  // Common name match
+  if (suggestion.details?.common_names) {
+    for (const cn of suggestion.details.common_names) {
+      const cnLower = cn.toLowerCase();
+      const match = PLANT_SPECIES.find(
+        p => p.common_name.toLowerCase() === cnLower ||
+             p.common_name.toLowerCase().includes(cnLower) ||
+             cnLower.includes(p.common_name.toLowerCase())
+      );
+      if (match) return match;
+    }
+  }
+
+  return null;
+}
+
 export default function PlantScannerPage() {
   const navigate = useNavigate();
   const { addPlant, apartments, getRoomsForApartment } = usePlants();
@@ -63,12 +130,18 @@ export default function PlantScannerPage() {
   const [step, setStep] = useState<ScanStep>('capture');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [textQuery, setTextQuery] = useState('');
-  const [results, setResults] = useState<ScanResult[]>([]);
+  const [results, setResults] = useState<ExtendedScanResult[]>([]);
   const [selectedSpecies, setSelectedSpecies] = useState<PlantSpecies | null>(null);
+  const [selectedResult, setSelectedResult] = useState<ExtendedScanResult | null>(null);
   const [careProtocol, setCareProtocol] = useState<CareProtocol | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [videoReady, setVideoReady] = useState(false);
+  const [usedAI, setUsedAI] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [identifyingText, setIdentifyingText] = useState('Pflanze wird erkannt...');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -113,8 +186,6 @@ export default function PlantScannerPage() {
         },
       });
       streamRef.current = stream;
-      // Set cameraActive to render the <video> element,
-      // then the useEffect above will connect the stream
       setCameraActive(true);
     } catch (err) {
       setCameraError('Kamera konnte nicht aktiviert werden. Bitte erlaube den Kamerazugriff oder lade ein Foto hoch.');
@@ -142,7 +213,6 @@ export default function PlantScannerPage() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
-    // Ensure video actually has frames
     if (video.videoWidth === 0 || video.videoHeight === 0) {
       toast.error('Kein Bild von der Kamera empfangen. Bitte warte einen Moment und versuche es erneut.');
       return;
@@ -158,7 +228,6 @@ export default function PlantScannerPage() {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-    // Verify the captured image is not empty
     if (dataUrl.length < 1000) {
       toast.error('Das aufgenommene Bild ist leer. Bitte versuche es erneut.');
       return;
@@ -184,72 +253,120 @@ export default function PlantScannerPage() {
     reader.readAsDataURL(file);
   }, [stopCamera]);
 
-  const runIdentification = useCallback(() => {
+  const runIdentification = useCallback(async () => {
     setStep('identifying');
+    setUsedAI(false);
 
-    // Short delay for UX feedback
-    setTimeout(() => {
-      let imageAnalysis: ImageAnalysis | undefined;
+    const hasApiKey = isPlantIdConfigured();
+    const hasImage = !!imageUrl;
 
-      const finalize = () => {
-        const scanResults = identifyPlant(textQuery || '', imageAnalysis);
-        setResults(scanResults);
-        setStep('results');
-      };
+    // Plant.id API path: when we have an image and API key
+    if (hasApiKey && hasImage) {
+      setIdentifyingText('KI analysiert das Bild...');
+      try {
+        const result = await identifyWithPlantId(imageUrl);
 
-      // If we have an image, analyze its colors
-      if (imageUrl) {
-        const img = new Image();
-        img.onload = () => {
-          try {
-            imageAnalysis = analyzeImageColors(img);
-          } catch (e) {
-            // Color analysis failed (e.g. tainted canvas) - continue without color hints
-          }
-          finalize();
-        };
-        img.onerror = () => {
-          // Image failed to load - fall back to text-only identification
-          finalize();
-        };
-        // Do NOT set crossOrigin for data URLs - it blocks loading on mobile browsers
-        if (!imageUrl.startsWith('data:')) {
-          img.crossOrigin = 'anonymous';
+        if (!result.is_plant) {
+          // Not a plant detected
+          setResults([]);
+          setUsedAI(true);
+          setStep('results');
+          return;
         }
-        img.src = imageUrl;
 
-        // Safety timeout: if image hasn't loaded in 5s, proceed anyway
-        setTimeout(() => {
-          if (step === 'identifying') {
-            finalize();
-          }
-        }, 5000);
-      } else {
-        // Text-only search
-        finalize();
-      }
-    }, 600);
-  }, [imageUrl, textQuery, step]);
+        // Convert Plant.id suggestions to ExtendedScanResult
+        const extendedResults: ExtendedScanResult[] = result.suggestions
+          .filter(s => s.probability > 0.01)
+          .slice(0, 8)
+          .map(suggestion => {
+            const localPlant = matchToLocalPlant(suggestion);
+            return {
+              species: localPlant,
+              confidence: Math.round(suggestion.probability * 100),
+              matchedFeatures: [suggestion.name],
+              plantIdName: suggestion.name,
+              plantIdCommonNames: suggestion.details?.common_names,
+              plantIdDescription: suggestion.details?.description?.value,
+              plantIdImageUrl: suggestion.details?.image?.value,
+              plantIdUrl: suggestion.details?.url,
+              plantIdFamily: suggestion.details?.taxonomy?.family,
+            };
+          });
 
-  const selectPlant = useCallback((species: PlantSpecies) => {
-    setSelectedSpecies(species);
-
-    // Determine room light level from first available room
-    let roomLight: 'low' | 'medium' | 'bright' | 'direct' | undefined;
-    if (apartments.length > 0) {
-      const rooms = getRoomsForApartment(apartments[0].id);
-      if (rooms.length > 0) {
-        roomLight = rooms[0].light_level;
+        setResults(extendedResults);
+        setUsedAI(true);
+        setStep('results');
+        return;
+      } catch (err: any) {
+        toast.error(err.message || 'Plant.id API Fehler');
+        // Fall through to local identification
       }
     }
 
-    const protocol = generateCareProtocol(species, roomLight);
-    setCareProtocol(protocol);
+    // Local identification path (fallback or no API key)
+    setIdentifyingText('Lokale Erkennung läuft...');
+
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    let imageAnalysis: ImageAnalysis | undefined;
+
+    const finalize = () => {
+      const scanResults = identifyPlant(textQuery || '', imageAnalysis);
+      const extendedResults: ExtendedScanResult[] = scanResults.map(r => ({
+        species: r.species,
+        confidence: r.confidence,
+        matchedFeatures: r.matchedFeatures,
+      }));
+      setResults(extendedResults);
+      setStep('results');
+    };
+
+    if (imageUrl) {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          imageAnalysis = analyzeImageColors(img);
+        } catch (e) {
+          // Color analysis failed
+        }
+        finalize();
+      };
+      img.onerror = () => finalize();
+      if (!imageUrl.startsWith('data:')) {
+        img.crossOrigin = 'anonymous';
+      }
+      img.src = imageUrl;
+
+      setTimeout(() => {
+        if (step === 'identifying') finalize();
+      }, 5000);
+    } else {
+      finalize();
+    }
+  }, [imageUrl, textQuery, step]);
+
+  const selectResult = useCallback((result: ExtendedScanResult) => {
+    setSelectedResult(result);
+
+    if (result.species) {
+      setSelectedSpecies(result.species);
+
+      let roomLight: 'low' | 'medium' | 'bright' | 'direct' | undefined;
+      if (apartments.length > 0) {
+        const rooms = getRoomsForApartment(apartments[0].id);
+        if (rooms.length > 0) roomLight = rooms[0].light_level;
+      }
+
+      const protocol = generateCareProtocol(result.species, roomLight);
+      setCareProtocol(protocol);
+    } else {
+      setSelectedSpecies(null);
+      setCareProtocol(null);
+    }
     setStep('protocol');
   }, [apartments, getRoomsForApartment]);
 
   const addToMyPlants = useCallback((species: PlantSpecies) => {
-    // Navigate to catalog detail which has the AddPlantDialog
     navigate(`/catalog/${species.id}`);
     toast.success(`Öffne "${species.common_name}" im Katalog zum Hinzufügen.`);
   }, [navigate]);
@@ -269,10 +386,22 @@ export default function PlantScannerPage() {
     setTextQuery('');
     setResults([]);
     setSelectedSpecies(null);
+    setSelectedResult(null);
     setCareProtocol(null);
     setCameraError(null);
+    setUsedAI(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [stopCamera]);
+
+  const saveApiKey = useCallback(() => {
+    setApiKey(apiKeyInput);
+    setShowApiKeyInput(false);
+    if (apiKeyInput.trim()) {
+      toast.success('Plant.id API-Key gespeichert!');
+    } else {
+      toast.info('API-Key entfernt. Es wird die lokale Erkennung verwendet.');
+    }
+  }, [apiKeyInput]);
 
   return (
     <div className="space-y-6">
@@ -284,16 +413,103 @@ export default function PlantScannerPage() {
             Pflanzen-Scanner
           </h1>
           <p className="text-muted-foreground mt-1">
-            Fotografiere oder beschreibe eine Pflanze – wir erkennen sie und erstellen ein Pflegeprotokoll.
+            {isPlantIdConfigured()
+              ? 'KI-gestützte Pflanzenerkennung mit Plant.id'
+              : 'Fotografiere oder beschreibe eine Pflanze zur Erkennung.'
+            }
           </p>
         </div>
-        {step !== 'capture' && (
-          <Button variant="outline" onClick={reset} className="gap-2">
-            <RotateCcw className="h-4 w-4" />
-            Neuer Scan
+        <div className="flex gap-2">
+          {step !== 'capture' && (
+            <Button variant="outline" onClick={reset} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Neuer Scan
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setApiKeyInput(getApiKey() || '');
+              setShowApiKeyInput(!showApiKeyInput);
+            }}
+            title="API-Einstellungen"
+          >
+            <Settings className="h-4 w-4" />
           </Button>
-        )}
+        </div>
       </div>
+
+      {/* API Key Configuration */}
+      {showApiKeyInput && (
+        <Card className="border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Key className="h-4 w-4 text-blue-500" />
+              <span className="font-medium text-sm">Plant.id API-Key</span>
+              {isPlantIdConfigured() && (
+                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
+                  Aktiv
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Für KI-basierte Erkennung benötigst du einen API-Key von{' '}
+              <a
+                href="https://web.plant.id"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline inline-flex items-center gap-1"
+              >
+                plant.id <ExternalLink className="h-3 w-3" />
+              </a>
+              . Ohne Key wird die lokale Erkennung (Textsuche + Farbanalyse) verwendet.
+            </p>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Input
+                  type={showApiKey ? 'text' : 'password'}
+                  placeholder="Dein Plant.id API-Key..."
+                  value={apiKeyInput}
+                  onChange={e => setApiKeyInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') saveApiKey();
+                  }}
+                  className="pr-10"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              <Button onClick={saveApiKey} className="gap-1">
+                Speichern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Status Badge */}
+      {step === 'capture' && (
+        <div className="flex items-center gap-2">
+          {isPlantIdConfigured() ? (
+            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 gap-1">
+              <Brain className="h-3 w-3" />
+              KI-Erkennung aktiv (Plant.id)
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1">
+              <Search className="h-3 w-3" />
+              Lokale Erkennung (ohne API-Key)
+            </Badge>
+          )}
+        </div>
+      )}
 
       {/* Step Indicator */}
       <div className="flex items-center gap-2 text-sm">
@@ -358,14 +574,12 @@ export default function PlantScannerPage() {
                     className="w-full max-h-[400px] object-cover rounded-lg bg-black"
                     style={{ minHeight: '300px' }}
                   />
-                  {/* Loading indicator while video initializes */}
                   {!videoReady && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-lg">
                       <div className="w-12 h-12 rounded-full border-4 border-green-400 border-t-transparent animate-spin" />
                       <p className="text-white text-sm mt-3">Kamera wird gestartet...</p>
                     </div>
                   )}
-                  {/* Scan overlay */}
                   {videoReady && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="w-48 h-48 border-2 border-green-400 rounded-2xl opacity-60 animate-pulse" />
@@ -393,7 +607,10 @@ export default function PlantScannerPage() {
                   <div>
                     <p className="font-medium text-lg">Pflanze fotografieren oder Bild hochladen</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Für beste Ergebnisse: Blätter gut sichtbar, bei Tageslicht fotografieren.
+                      {isPlantIdConfigured()
+                        ? 'Die KI erkennt tausende Pflanzenarten aus einem einzigen Foto.'
+                        : 'Für beste Ergebnisse: Blätter gut sichtbar, bei Tageslicht fotografieren.'
+                      }
                     </p>
                   </div>
                   <div className="flex gap-3">
@@ -448,7 +665,10 @@ export default function PlantScannerPage() {
                   }}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Beschreibe Blattform, Farbe, Größe oder den bekannten Namen.
+                  {isPlantIdConfigured()
+                    ? 'Die KI erkennt die Pflanze automatisch. Text ist optional als Zusatzinfo.'
+                    : 'Beschreibe Blattform, Farbe, Größe oder den bekannten Namen.'
+                  }
                 </p>
               </div>
             </CardContent>
@@ -461,8 +681,17 @@ export default function PlantScannerPage() {
             disabled={!imageUrl && !textQuery.trim()}
             onClick={runIdentification}
           >
-            <Zap className="h-5 w-5" />
-            Pflanze erkennen
+            {isPlantIdConfigured() ? (
+              <>
+                <Brain className="h-5 w-5" />
+                KI-Erkennung starten
+              </>
+            ) : (
+              <>
+                <Zap className="h-5 w-5" />
+                Pflanze erkennen
+              </>
+            )}
           </Button>
         </div>
       )}
@@ -472,10 +701,19 @@ export default function PlantScannerPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-              <ScanLine className="h-8 w-8 text-primary" />
+              {isPlantIdConfigured() ? (
+                <Brain className="h-8 w-8 text-primary" />
+              ) : (
+                <ScanLine className="h-8 w-8 text-primary" />
+              )}
             </div>
-            <p className="font-medium text-lg">Pflanze wird erkannt...</p>
-            <p className="text-sm text-muted-foreground">Analyse von Bild und Beschreibung</p>
+            <p className="font-medium text-lg">{identifyingText}</p>
+            <p className="text-sm text-muted-foreground">
+              {isPlantIdConfigured()
+                ? 'Bild wird an die Plant.id KI gesendet...'
+                : 'Analyse von Bild und Beschreibung'
+              }
+            </p>
             <Progress value={65} className="w-48" />
           </CardContent>
         </Card>
@@ -494,13 +732,25 @@ export default function PlantScannerPage() {
             </div>
           )}
 
+          {usedAI && (
+            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 gap-1">
+              <Brain className="h-3 w-3" />
+              Ergebnis via Plant.id KI
+            </Badge>
+          )}
+
           {results.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-3">
                 <AlertTriangle className="h-10 w-10 text-muted-foreground/50" />
-                <p className="font-medium">Keine Pflanze erkannt</p>
+                <p className="font-medium">
+                  {usedAI ? 'Keine Pflanze im Bild erkannt' : 'Keine Pflanze erkannt'}
+                </p>
                 <p className="text-sm text-muted-foreground max-w-md">
-                  Versuche es mit einem schärferen Foto, besserer Beleuchtung oder einer genaueren Beschreibung.
+                  {usedAI
+                    ? 'Die KI konnte keine Pflanze im Bild identifizieren. Stelle sicher, dass eine Pflanze gut sichtbar ist.'
+                    : 'Versuche es mit einem schärferen Foto, besserer Beleuchtung oder einer genaueren Beschreibung.'
+                  }
                 </p>
                 <Button onClick={reset} variant="outline" className="gap-2 mt-2">
                   <RotateCcw className="h-4 w-4" />
@@ -511,255 +761,352 @@ export default function PlantScannerPage() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                {results.length} mögliche Treffer gefunden. Wähle die richtige Pflanze:
+                {results.length} mögliche{results.length === 1 ? 'r' : ''} Treffer gefunden. Wähle die richtige Pflanze:
               </p>
-              {results.map((result, idx) => (
-                <Card
-                  key={result.species.id}
-                  className={`cursor-pointer transition-all hover:shadow-md hover:border-primary/30 ${
-                    idx === 0 ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/10' : ''
-                  }`}
-                  onClick={() => selectPlant(result.species)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="relative">
-                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
-                            <Leaf className="h-7 w-7 text-green-600 dark:text-green-400" />
-                          </div>
-                          {idx === 0 && (
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                              <Sparkles className="h-3 w-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-semibold">{result.species.common_name}</p>
+              {results.map((result, idx) => {
+                const name = result.species?.common_name || result.plantIdCommonNames?.[0] || result.plantIdName || 'Unbekannt';
+                const botanical = result.species?.botanical_name || result.plantIdName || '';
+                const family = result.species?.family || result.plantIdFamily || '';
+                const inLocalDb = !!result.species;
+
+                return (
+                  <Card
+                    key={`${result.plantIdName || result.species?.id}-${idx}`}
+                    className={`cursor-pointer transition-all hover:shadow-md hover:border-primary/30 ${
+                      idx === 0 ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/10' : ''
+                    }`}
+                    onClick={() => selectResult(result)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="relative">
+                            {result.plantIdImageUrl ? (
+                              <img
+                                src={result.plantIdImageUrl}
+                                alt={name}
+                                className="w-14 h-14 rounded-xl object-cover"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
+                                <Leaf className="h-7 w-7 text-green-600 dark:text-green-400" />
+                              </div>
+                            )}
                             {idx === 0 && (
-                              <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
-                                Bester Treffer
-                              </Badge>
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                <Sparkles className="h-3 w-3 text-white" />
+                              </div>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground italic">
-                            {result.species.botanical_name}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge
-                              variant="secondary"
-                              className={`text-xs ${difficultyLabels[result.species.difficulty]?.color || ''}`}
-                            >
-                              {difficultyLabels[result.species.difficulty]?.label}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {lightLabels[result.species.light]}
-                            </span>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-semibold">{name}</p>
+                              {idx === 0 && (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
+                                  Bester Treffer
+                                </Badge>
+                              )}
+                              {inLocalDb && (
+                                <Badge variant="outline" className="text-xs gap-1">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  Im Katalog
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground italic">
+                              {botanical}{family ? ` · ${family}` : ''}
+                            </p>
+                            {result.species && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs ${difficultyLabels[result.species.difficulty]?.color || ''}`}
+                                >
+                                  {difficultyLabels[result.species.difficulty]?.label}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {lightLabels[result.species.light]}
+                                </span>
+                              </div>
+                            )}
+                            {!inLocalDb && result.plantIdCommonNames && result.plantIdCommonNames.length > 1 && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Auch: {result.plantIdCommonNames.slice(1, 3).join(', ')}
+                              </p>
+                            )}
                           </div>
                         </div>
-                      </div>
-                      <div className="text-right flex flex-col items-end gap-1">
-                        <div className="flex items-center gap-1">
-                          <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {result.confidence}%
-                          </span>
+                        <div className="text-right flex flex-col items-end gap-1">
+                          <div className="flex items-center gap-1">
+                            <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {result.confidence}%
+                            </span>
+                          </div>
+                          <Progress value={result.confidence} className="w-20 h-1.5" />
+                          <ArrowRight className="h-4 w-4 text-muted-foreground mt-1" />
                         </div>
-                        <Progress value={result.confidence} className="w-20 h-1.5" />
-                        <ArrowRight className="h-4 w-4 text-muted-foreground mt-1" />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </>
           )}
         </div>
       )}
 
       {/* STEP: Care Protocol */}
-      {step === 'protocol' && careProtocol && selectedSpecies && (
+      {step === 'protocol' && selectedResult && (
         <div className="space-y-6">
           {/* Species header */}
           <Card className="border-green-200 dark:border-green-800">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                {imageUrl && (
+                {(imageUrl || selectedResult.plantIdImageUrl) && (
                   <img
-                    src={imageUrl}
-                    alt={selectedSpecies.common_name}
+                    src={imageUrl || selectedResult.plantIdImageUrl || ''}
+                    alt={selectedResult.species?.common_name || selectedResult.plantIdName || ''}
                     className="w-24 h-24 object-cover rounded-xl shadow-sm flex-shrink-0"
                   />
                 )}
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-bold">{selectedSpecies.common_name}</h2>
-                    <Badge
-                      className={difficultyLabels[selectedSpecies.difficulty]?.color}
-                    >
-                      {difficultyLabels[selectedSpecies.difficulty]?.label}
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h2 className="text-xl font-bold">
+                      {selectedResult.species?.common_name
+                        || selectedResult.plantIdCommonNames?.[0]
+                        || selectedResult.plantIdName
+                        || 'Unbekannte Pflanze'}
+                    </h2>
+                    {selectedSpecies && (
+                      <Badge
+                        className={difficultyLabels[selectedSpecies.difficulty]?.color}
+                      >
+                        {difficultyLabels[selectedSpecies.difficulty]?.label}
+                      </Badge>
+                    )}
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
+                      {selectedResult.confidence}% Konfidenz
                     </Badge>
                   </div>
                   <p className="text-sm italic text-muted-foreground mb-2">
-                    {selectedSpecies.botanical_name} · {selectedSpecies.family}
+                    {selectedResult.species?.botanical_name || selectedResult.plantIdName}
+                    {(selectedResult.species?.family || selectedResult.plantIdFamily) &&
+                      ` · ${selectedResult.species?.family || selectedResult.plantIdFamily}`
+                    }
                   </p>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {selectedSpecies.description}
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {selectedResult.species?.description || selectedResult.plantIdDescription || ''}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Weekly care tasks */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Calendar className="h-5 w-5 text-primary" />
-                Pflegeprotokoll
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {careProtocol.weeklyTasks.map(task => {
-                const iconMap: Record<string, typeof Droplets> = {
-                  water: Droplets,
-                  fertilize: FlowerIcon,
-                  mist: Sparkles,
-                  rotate: RotateCcw,
-                  prune: Leaf,
-                  repot: FlowerIcon,
-                };
-                const colorMap: Record<string, string> = {
-                  water: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30',
-                  fertilize: 'text-green-500 bg-green-50 dark:bg-green-950/30',
-                  mist: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-950/30',
-                  rotate: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30',
-                  prune: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30',
-                  repot: 'text-orange-500 bg-orange-50 dark:bg-orange-950/30',
-                };
-                const Icon = iconMap[task.type] || Droplets;
-
-                return (
-                  <div
-                    key={task.type}
-                    className={`flex items-start gap-3 p-3 rounded-lg ${colorMap[task.type] || 'bg-muted'}`}
-                  >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-background shadow-sm flex-shrink-0">
-                      <Icon className={`h-5 w-5 ${colorMap[task.type]?.split(' ')[0] || ''}`} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{task.label}</span>
-                        <Badge variant="outline" className="text-xs">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Alle {task.frequencyDays} Tage
-                        </Badge>
-                        {task.priority === 'high' && (
-                          <Badge variant="destructive" className="text-xs">Wichtig</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-                    </div>
+          {/* Plant.id-only result (not in local DB) */}
+          {!selectedSpecies && selectedResult.plantIdName && (
+            <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/10">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Pflanze nicht im lokalen Katalog</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      "{selectedResult.plantIdCommonNames?.[0] || selectedResult.plantIdName}" wurde von der KI erkannt,
+                      ist aber nicht in unserem Pflanzenkatalog. Detaillierte Pflegeinfos sind daher nicht verfügbar.
+                    </p>
+                    {selectedResult.plantIdUrl && (
+                      <a
+                        href={selectedResult.plantIdUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-500 hover:underline inline-flex items-center gap-1 mt-2"
+                      >
+                        Mehr Informationen online <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
                   </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          {/* Placement */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <MapPin className="h-5 w-5 text-primary" />
-                Standort-Empfehlung
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-3 mb-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Sun className="h-4 w-4 text-amber-500" />
-                  <span>{lightLabels[selectedSpecies.light]}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Thermometer className="h-4 w-4 text-red-400" />
-                  <span>{selectedSpecies.temperature_min}–{selectedSpecies.temperature_max}°C</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Droplets className="h-4 w-4 text-blue-400" />
-                  <span>Feuchtigkeit: {selectedSpecies.humidity === 'high' ? 'Hoch' : selectedSpecies.humidity === 'medium' ? 'Mittel' : 'Niedrig'}</span>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground">{careProtocol.placement}</p>
-            </CardContent>
-          </Card>
-
-          {/* Seasonal notes */}
-          {careProtocol.seasonalNotes.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  Saisonale Hinweise
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {careProtocol.seasonalNotes.map((note, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>{note}</span>
-                    </li>
-                  ))}
-                </ul>
               </CardContent>
             </Card>
           )}
 
-          {/* Warnings */}
-          {careProtocol.warnings.length > 0 && (
-            <Card className="border-red-200 dark:border-red-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-red-600 dark:text-red-400">
-                  <ShieldAlert className="h-5 w-5" />
-                  Warnhinweise
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {careProtocol.warnings.map((warning, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-red-700 dark:text-red-300">
-                      <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      <span>{warning}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+          {/* Care Protocol (only for plants in local DB) */}
+          {selectedSpecies && careProtocol && (
+            <>
+              {/* Weekly care tasks */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    Pflegeprotokoll
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {careProtocol.weeklyTasks.map(task => {
+                    const iconMap: Record<string, typeof Droplets> = {
+                      water: Droplets,
+                      fertilize: FlowerIcon,
+                      mist: Sparkles,
+                      rotate: RotateCcw,
+                      prune: Leaf,
+                      repot: FlowerIcon,
+                    };
+                    const colorMap: Record<string, string> = {
+                      water: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30',
+                      fertilize: 'text-green-500 bg-green-50 dark:bg-green-950/30',
+                      mist: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-950/30',
+                      rotate: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30',
+                      prune: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30',
+                      repot: 'text-orange-500 bg-orange-50 dark:bg-orange-950/30',
+                    };
+                    const Icon = iconMap[task.type] || Droplets;
+
+                    return (
+                      <div
+                        key={task.type}
+                        className={`flex items-start gap-3 p-3 rounded-lg ${colorMap[task.type] || 'bg-muted'}`}
+                      >
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-background shadow-sm flex-shrink-0">
+                          <Icon className={`h-5 w-5 ${colorMap[task.type]?.split(' ')[0] || ''}`} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{task.label}</span>
+                            <Badge variant="outline" className="text-xs">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Alle {task.frequencyDays} Tage
+                            </Badge>
+                            {task.priority === 'high' && (
+                              <Badge variant="destructive" className="text-xs">Wichtig</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+
+              {/* Placement */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    Standort-Empfehlung
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-3 mb-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Sun className="h-4 w-4 text-amber-500" />
+                      <span>{lightLabels[selectedSpecies.light]}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Thermometer className="h-4 w-4 text-red-400" />
+                      <span>{selectedSpecies.temperature_min}–{selectedSpecies.temperature_max}°C</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Droplets className="h-4 w-4 text-blue-400" />
+                      <span>Feuchtigkeit: {selectedSpecies.humidity === 'high' ? 'Hoch' : selectedSpecies.humidity === 'medium' ? 'Mittel' : 'Niedrig'}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{careProtocol.placement}</p>
+                </CardContent>
+              </Card>
+
+              {/* Seasonal notes */}
+              {careProtocol.seasonalNotes.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Calendar className="h-5 w-5 text-primary" />
+                      Saisonale Hinweise
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {careProtocol.seasonalNotes.map((note, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{note}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Warnings */}
+              {careProtocol.warnings.length > 0 && (
+                <Card className="border-red-200 dark:border-red-800">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg text-red-600 dark:text-red-400">
+                      <ShieldAlert className="h-5 w-5" />
+                      Warnhinweise
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {careProtocol.warnings.map((warning, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-red-700 dark:text-red-300">
+                          <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                          <span>{warning}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
 
           <Separator />
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              className="flex-1 bg-green-600 hover:bg-green-700 gap-2 h-11"
-              onClick={() => addToMyPlants(selectedSpecies)}
-            >
-              <Plus className="h-4 w-4" />
-              Zu meinen Pflanzen hinzufügen
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 gap-2 h-11"
-              onClick={() => addToCarePlan(selectedSpecies)}
-            >
-              <Droplets className="h-4 w-4" />
-              In Pflegeplan aufnehmen
-            </Button>
+            {selectedSpecies ? (
+              <>
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700 gap-2 h-11"
+                  onClick={() => addToMyPlants(selectedSpecies)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Zu meinen Pflanzen hinzufügen
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 h-11"
+                  onClick={() => addToCarePlan(selectedSpecies)}
+                >
+                  <Droplets className="h-4 w-4" />
+                  In Pflegeplan aufnehmen
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 h-11"
+                  onClick={() => navigate('/catalog')}
+                >
+                  <Search className="h-4 w-4" />
+                  Im Katalog suchen
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 h-11"
+                  onClick={reset}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Neuer Scan
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Care tips from species */}
-          {selectedSpecies.care_tips.length > 0 && (
+          {selectedSpecies && selectedSpecies.care_tips.length > 0 && (
             <Card className="bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
