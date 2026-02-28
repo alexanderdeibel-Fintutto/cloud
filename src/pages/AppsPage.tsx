@@ -209,6 +209,26 @@ export default function AppsPage() {
         </div>
       </section>
 
+      {/* Flagship App Highlight */}
+      {filteredApps.some(a => a.id === 'translator') && (
+        <section className="py-6 bg-gradient-to-r from-sky-50 to-blue-50 border-b">
+          <div className="container">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-3xl">🌐</span>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-bold">Unsere beliebteste App: Fintutto Uebersetzer</h2>
+                <p className="text-sm text-muted-foreground">22 Sprachen, Google Cloud TTS, Spracheingabe &ndash; jetzt direkt im Portal verfuegbar</p>
+              </div>
+              <Button className="bg-sky-600 hover:bg-sky-700 text-white shrink-0" asChild>
+                <Link to="/uebersetzer">
+                  Uebersetzer oeffnen <ArrowRight className="h-4 w-4 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* App Grid */}
       <section className="py-12">
         <div className="container">

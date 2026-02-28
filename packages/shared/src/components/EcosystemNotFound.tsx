@@ -6,7 +6,7 @@ interface EcosystemNotFoundProps {
   renderLink?: (props: { to: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }) => React.ReactNode
 }
 
-const FEATURED_SLUGS = ['vermietify', 'portal', 'ablesung', 'translator', 'pflanzen-manager', 'vermieter-portal']
+const FEATURED_SLUGS = ['translator', 'portal', 'vermietify', 'ablesung', 'pflanzen-manager', 'vermieter-portal']
 
 export function EcosystemNotFound({ currentAppSlug, homeHref = '/', renderLink }: EcosystemNotFoundProps) {
   const featured = FEATURED_SLUGS

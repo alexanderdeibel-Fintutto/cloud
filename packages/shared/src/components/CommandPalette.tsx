@@ -311,6 +311,7 @@ export const CHECKER_TOOLS: CommandItem[] = [
 ]
 
 export const ECOSYSTEM_TOOLS: CommandItem[] = [
+  { id: 'e-translator', title: 'Uebersetzer', category: 'Ökosystem', path: 'https://translator-fintutto.vercel.app', icon: '🌐', keywords: ['uebersetzer', 'translate', 'sprachen', 'translator', 'tts', 'spracheingabe', 'deutsch', 'englisch'], external: true },
   { id: 'e-vermietify', title: 'Vermietify', category: 'Ökosystem', path: 'https://vermietify.vercel.app', icon: '🏠', keywords: ['immobilien', 'verwaltung', 'vermieter'], external: true },
   { id: 'e-ablesung', title: 'Ablesung', category: 'Ökosystem', path: 'https://ablesung.vercel.app', icon: '📊', keywords: ['zähler', 'strom', 'gas', 'wasser'], external: true },
   { id: 'e-hausmeister', title: 'HausmeisterPro', category: 'Ökosystem', path: 'https://hausmeister-pro.vercel.app', icon: '🔧', keywords: ['hausmeister', 'facility'], external: true },
@@ -319,7 +320,6 @@ export const ECOSYSTEM_TOOLS: CommandItem[] = [
   { id: 'e-portal', title: 'Fintutto Portal', category: 'Ökosystem', path: 'https://portal.fintutto.cloud', icon: '🧮', keywords: ['rechner', 'checker', 'formulare'], external: true },
   { id: 'e-financial', title: 'Financial Compass', category: 'Ökosystem', path: 'https://fintutto-your-financial-compass.vercel.app', icon: '🧭', keywords: ['finanzen', 'buchhaltung', 'steuer'], external: true },
   { id: 'e-admin', title: 'Admin-Hub', category: 'Ökosystem', path: 'https://fintutto-admin-hub.vercel.app', icon: '⚙️', keywords: ['admin', 'verwaltung'], external: true },
-  { id: 'e-translator', title: 'Übersetzer', category: 'Ökosystem', path: 'https://translator-fintutto.vercel.app', icon: '🌐', keywords: ['übersetzer', 'sprachen', 'translator'], external: true },
   { id: 'e-pflanzen', title: 'Pflanzen-Manager', category: 'Ökosystem', path: 'https://zimmerpflanze.vercel.app', icon: '🌱', keywords: ['pflanzen', 'gießen', 'zimmerpflanze'], external: true },
   { id: 'e-fitness', title: 'Personaltrainer', category: 'Ökosystem', path: 'https://personaltrainer-murex.vercel.app', icon: '💪', keywords: ['fitness', 'training', 'sport'], external: true },
   { id: 'e-luggage', title: 'LuggageX', category: 'Ökosystem', path: 'https://luggagex-fintutto.vercel.app', icon: '🧳', keywords: ['gepäck', 'reise', 'koffer'], external: true },

@@ -163,11 +163,11 @@ export const FINTUTTO_APPS = {
     url: 'https://fintutto-admin-hub.vercel.app',
     category: 'finanzen' as AppCategory,
   },
-  // --- Lifestyle ---
+  // --- Lifestyle (Translator = Flagship App) ---
   translator: {
-    name: 'Übersetzer',
+    name: 'Uebersetzer',
     slug: 'translator',
-    description: 'Online-Übersetzer mit 22 Sprachen & TTS',
+    description: 'Kostenloser Uebersetzer mit 22 Sprachen, Cloud TTS & Spracheingabe',
     icon: '🌐',
     url: 'https://translator-fintutto.vercel.app',
     category: 'lifestyle' as AppCategory,

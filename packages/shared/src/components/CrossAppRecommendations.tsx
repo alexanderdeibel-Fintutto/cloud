@@ -10,26 +10,29 @@ interface Recommendation {
 
 const APP_RECOMMENDATIONS: Record<string, string[]> = {
   // Rechner pages → suggest property management & meter reading
-  '/rechner/kaution': ['vermietify', 'mieter', 'portal'],
-  '/rechner/mieterhoehung': ['vermietify', 'bescheidboxer', 'financialCompass'],
-  '/rechner/kaufnebenkosten': ['vermietify', 'financialCompass'],
-  '/rechner/eigenkapital': ['financialCompass', 'vermietify'],
-  '/rechner/grundsteuer': ['bescheidboxer', 'financialCompass'],
-  '/rechner/rendite': ['vermietify', 'financialCompass', 'ablesung'],
-  '/rechner/nebenkosten': ['ablesung', 'bescheidboxer', 'vermietify'],
+  '/rechner/kaution': ['vermietify', 'mieter', 'translator'],
+  '/rechner/mieterhoehung': ['vermietify', 'bescheidboxer', 'translator'],
+  '/rechner/kaufnebenkosten': ['vermietify', 'financialCompass', 'translator'],
+  '/rechner/eigenkapital': ['financialCompass', 'vermietify', 'translator'],
+  '/rechner/grundsteuer': ['bescheidboxer', 'financialCompass', 'translator'],
+  '/rechner/rendite': ['vermietify', 'financialCompass', 'translator'],
+  '/rechner/nebenkosten': ['ablesung', 'bescheidboxer', 'translator'],
   // Checker pages → suggest related tools
-  '/checker/mietpreisbremse': ['mieter', 'bescheidboxer'],
-  '/checker/nebenkosten': ['ablesung', 'bescheidboxer'],
-  '/checker/betriebskosten': ['ablesung', 'vermietify'],
-  '/checker/kuendigung': ['mieter', 'bescheidboxer'],
-  '/checker/kaution': ['mieter', 'vermietify'],
+  '/checker/mietpreisbremse': ['mieter', 'bescheidboxer', 'translator'],
+  '/checker/nebenkosten': ['ablesung', 'bescheidboxer', 'translator'],
+  '/checker/betriebskosten': ['ablesung', 'vermietify', 'translator'],
+  '/checker/kuendigung': ['mieter', 'bescheidboxer', 'translator'],
+  '/checker/kaution': ['mieter', 'vermietify', 'translator'],
   // Formulare pages → suggest property management
-  '/formulare/mietvertrag': ['vermietify', 'mieter'],
-  '/formulare/betriebskosten': ['ablesung', 'vermietify'],
+  '/formulare/mietvertrag': ['vermietify', 'mieter', 'translator'],
+  '/formulare/betriebskosten': ['ablesung', 'vermietify', 'translator'],
+  // Translator page → suggest complementary apps
+  '/uebersetzer': ['portal', 'bescheidboxer', 'mieter'],
+  '/translator': ['portal', 'bescheidboxer', 'mieter'],
   // Fallback by section
-  '/rechner': ['vermietify', 'financialCompass', 'ablesung'],
-  '/checker': ['mieter', 'bescheidboxer'],
-  '/formulare': ['vermietify', 'mieter'],
+  '/rechner': ['vermietify', 'financialCompass', 'translator'],
+  '/checker': ['mieter', 'bescheidboxer', 'translator'],
+  '/formulare': ['vermietify', 'mieter', 'translator'],
 }
 
 const REASONS: Record<string, string> = {
@@ -41,7 +44,7 @@ const REASONS: Record<string, string> = {
   hausmeisterPro: 'Aufgaben & Belege verwalten',
   adminHub: 'Alle Apps zentral steuern',
   portal: 'Rechner, Checker & Formulare',
-  translator: 'Texte in 22 Sprachen übersetzen',
+  translator: 'Kostenlos uebersetzen in 22 Sprachen mit Spracheingabe & TTS',
   pflanzenManager: 'Zimmerpflanzen-Pflege tracken',
   personaltrainer: 'Trainingspläne erstellen',
   luggageX: 'Reisegepäck organisieren',
