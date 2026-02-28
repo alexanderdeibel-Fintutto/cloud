@@ -143,6 +143,10 @@ import SplittingVorteilPage from './pages/SplittingVorteilPage'
 import NebentaetigkeitPage from './pages/NebentaetigkeitPage'
 import SteuerBegriffsLexikonPage from './pages/SteuerBegriffsLexikonPage'
 import WerbungskostenOptimiererPage from './pages/WerbungskostenOptimiererPage'
+import SteuerschuldRechnerPage from './pages/SteuerschuldRechnerPage'
+import SteuerlicheGestaltungPage from './pages/SteuerlicheGestaltungPage'
+import DividendenRechnerPage from './pages/DividendenRechnerPage'
+import MehrwertsteuerRechnerPage from './pages/MehrwertsteuerRechnerPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -305,6 +309,10 @@ function App() {
             <Route path="nebentaetigkeit" element={<NebentaetigkeitPage />} />
             <Route path="steuer-lexikon" element={<SteuerBegriffsLexikonPage />} />
             <Route path="werbungskosten-optimierer" element={<WerbungskostenOptimiererPage />} />
+            <Route path="steuerschuld-rechner" element={<SteuerschuldRechnerPage />} />
+            <Route path="steuerliche-gestaltung" element={<SteuerlicheGestaltungPage />} />
+            <Route path="dividenden-rechner" element={<DividendenRechnerPage />} />
+            <Route path="mehrwertsteuer-rechner" element={<MehrwertsteuerRechnerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
