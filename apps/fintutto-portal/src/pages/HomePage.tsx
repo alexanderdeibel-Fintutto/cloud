@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProperties } from '@/hooks/useProperties'
-import { getOtherApps, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner, EcosystemStatsBar } from '@fintutto/shared'
+import { getEcosystemBarItems, useDocumentTitle, useRecentTools, useMetaTags, AnnouncementBanner, EcosystemStatsBar } from '@fintutto/shared'
 
 /* ============================
    ANIMATED COUNTER HOOK

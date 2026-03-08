@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Building2 } from 'lucide-react'
-import { getOtherApps } from '@fintutto/shared'
+import { getEcosystemBarItems } from '@fintutto/shared'
 
-const ecosystemApps = getOtherApps('vermieter-portal')
+const ecosystemApps = getEcosystemBarItems('vermieter-portal')
 
 const footerLinks = {
   rechner: [

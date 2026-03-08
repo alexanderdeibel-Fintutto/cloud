@@ -223,16 +223,30 @@ export { AppSwitcher } from './components/AppSwitcher'
 export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
 
 // UI Components
-export { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export { CommandPalette, CHECKER_TOOLS, PORTAL_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
 export type { CommandItem } from './components/CommandPalette'
 export { ErrorBoundary } from './components/ErrorBoundary'
 export { PageSkeleton } from './components/PageSkeleton'
 export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
+export { CrossAppRecommendations } from './components/CrossAppRecommendations'
+export { ShareResultButton } from './components/ShareResultButton'
+export { Breadcrumbs } from './components/Breadcrumbs'
+export { PrintStyles } from './components/PrintStyles'
+export { AnnouncementBanner } from './components/AnnouncementBanner'
+export { RecentToolsWidget } from './components/RecentToolsWidget'
 
 // Hooks
 export { useScrollToTop } from './hooks/useScrollToTop'
 export { useDocumentTitle } from './hooks/useDocumentTitle'
 export { useMetaTags } from './hooks/useMetaTags'
+export { useJsonLd } from './hooks/useJsonLd'
+export { useKeyboardNav } from './hooks/useKeyboardNav'
+export { useUnsavedChanges } from './hooks/useUnsavedChanges'
+export { useLocalStorage } from './hooks/useLocalStorage'
+export { useRecentTools } from './hooks/useRecentTools'
 
 // Ecosystem Stats
 export { EcosystemStatsBar } from './components/EcosystemStatsBar'
+
+// Deeplinks
+export { kautionsRechnerLink, mieterhoehungRechnerLink, mietvertragLink } from './deeplinks'

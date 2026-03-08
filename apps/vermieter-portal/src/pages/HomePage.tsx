@@ -20,9 +20,9 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { useAuth } from '../contexts/AuthContext'
 import { useProperties } from '../hooks/useProperties'
-import { getOtherApps, useDocumentTitle, EcosystemStatsBar } from '@fintutto/shared'
+import { getEcosystemBarItems, useDocumentTitle, EcosystemStatsBar } from '@fintutto/shared'
 
-const ecosystemApps = getOtherApps('portal')
+const ecosystemApps = getEcosystemBarItems('portal')
 
 const rechnerCards = [
   {

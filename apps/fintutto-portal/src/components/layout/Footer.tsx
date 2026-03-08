@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Sparkles, ArrowUpRight, Brain } from 'lucide-react'
-import { getOtherApps } from '@fintutto/shared'
+import { getEcosystemBarItems } from '@fintutto/shared'
 
-const ecosystemApps = getOtherApps('portal')
+const ecosystemApps = getEcosystemBarItems('portal')
 
 const footerLinks = {
   rechner: [
