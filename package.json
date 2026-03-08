@@ -2,6 +2,7 @@
   "name": "fintutto-portal-monorepo",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@10.29.3",
   "type": "module",
   "workspaces": [
     "packages/*",
@@ -25,7 +26,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fintutto/shared": "*",
+    "@fintutto/shared": "workspace:*",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-progress": "^1.0.3",
     "@radix-ui/react-select": "^2.0.0",
