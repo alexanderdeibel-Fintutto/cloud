@@ -280,6 +280,31 @@ export default function FintechPage() {
         </div>
       </section>
 
+      {/* Universe Bundle Banner */}
+      <section className="py-16">
+        <div className="container max-w-4xl">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-pink-500/10 border border-amber-500/20 p-10 text-center">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(245,158,11,0.08),transparent_70%)]" />
+            <div className="relative">
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 rounded-full px-4 py-1.5 mb-4">
+                <Sparkles className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Spare ueber 39%</span>
+              </div>
+              <h3 className="text-3xl font-black mb-3">Universe Bundle</h3>
+              <p className="text-muted-foreground max-w-lg mx-auto mb-6">
+                Alle 3 FinTech-Apps in einem Abo fuer nur 19,99{'\u20ac'}/Monat statt 32,97{'\u20ac'}.
+              </p>
+              <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 rounded-2xl h-12 px-8 font-bold hover:opacity-90" asChild>
+                <Link to="/universe-bundle">
+                  Bundle entdecken
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24">
         <div className="container max-w-3xl text-center">

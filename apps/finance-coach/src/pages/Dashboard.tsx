@@ -3,28 +3,12 @@ import { AppLayout } from "@/components/AppLayout";
 import { Progress } from "@/components/ui/progress";
 import {
   Wallet, TrendingUp, TrendingDown, PiggyBank,
-  ArrowUpRight, ArrowDownRight, Brain
+  ArrowUpRight, ArrowDownRight, Brain, ExternalLink, Info
 } from "lucide-react";
 import { formatEuro, getUpgradeSuggestions } from "@fintutto/shared";
 import { useEntitlements } from "@/hooks/useEntitlements";
-import { ExternalLink } from "lucide-react";
+import { useFinanceData, computeBudgetSpent } from "@/hooks/useFinanceData";
 import { Button } from "@/components/ui/button";
-
-const MOCK_STATS = {
-  balance: 4823.50,
-  income: 3200,
-  expenses: 2147.30,
-  savings: 1052.70,
-  savingsGoalPercent: 68,
-};
-
-const MOCK_TRANSACTIONS = [
-  { id: 1, label: "Gehalt", amount: 3200, type: "income" as const, date: "01.03.2026", category: "Gehalt" },
-  { id: 2, label: "Miete", amount: -850, type: "expense" as const, date: "01.03.2026", category: "Wohnen" },
-  { id: 3, label: "REWE Einkauf", amount: -67.40, type: "expense" as const, date: "02.03.2026", category: "Lebensmittel" },
-  { id: 4, label: "Spotify", amount: -9.99, type: "expense" as const, date: "03.03.2026", category: "Abos" },
-  { id: 5, label: "Tankstelle", amount: -58.20, type: "expense" as const, date: "04.03.2026", category: "Mobilitaet" },
-];
 
 const MOCK_AI_INSIGHT = {
   title: "Spar-Tipp",
@@ -69,6 +53,19 @@ function CrossAppSuggestions() {
 }
 
 export default function Dashboard() {
+  const { transactions, budgets, stats, usingMock, loading } = useFinanceData();
+  const budgetItems = computeBudgetSpent(budgets, transactions);
+
+  // Format transaction for display
+  const displayTransactions = transactions.slice(0, 5).map((tx) => ({
+    id: tx.id,
+    label: tx.description || tx.merchant || tx.category || "Transaktion",
+    amount: tx.direction === "inflow" ? tx.amount : -tx.amount,
+    type: tx.direction === "inflow" ? ("income" as const) : ("expense" as const),
+    date: new Date(tx.occurred_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }),
+    category: tx.category || "Sonstiges",
+  }));
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -77,13 +74,20 @@ export default function Dashboard() {
           <p className="text-muted-foreground mt-1">Dein Finanzueberblick auf einen Blick</p>
         </div>
 
+        {usingMock && !loading && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-2.5">
+            <Info className="h-4 w-4 shrink-0" />
+            <span>Demodaten - fuege Transaktionen hinzu, um echte Auswertungen zu sehen.</span>
+          </div>
+        )}
+
         {/* KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Kontostand", value: MOCK_STATS.balance, icon: Wallet, color: "text-blue-400", trend: "+2.3%" },
-            { label: "Einnahmen", value: MOCK_STATS.income, icon: TrendingUp, color: "text-green-400", trend: "+3.200" },
-            { label: "Ausgaben", value: MOCK_STATS.expenses, icon: TrendingDown, color: "text-red-400", trend: "-2.147" },
-            { label: "Gespart", value: MOCK_STATS.savings, icon: PiggyBank, color: "text-emerald-400", trend: "+1.053" },
+            { label: "Kontostand", value: stats.balance, icon: Wallet, color: "text-blue-400" },
+            { label: "Einnahmen", value: stats.income, icon: TrendingUp, color: "text-green-400" },
+            { label: "Ausgaben", value: stats.expenses, icon: TrendingDown, color: "text-red-400" },
+            { label: "Gespart", value: stats.savings, icon: PiggyBank, color: "text-emerald-400" },
           ].map((stat) => (
             <Card key={stat.label}>
               <CardContent className="p-5">
@@ -92,7 +96,6 @@ export default function Dashboard() {
                   <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
                 <div className="text-2xl font-bold">{formatEuro(stat.value)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{stat.trend} diesen Monat</div>
               </CardContent>
             </Card>
           ))}
@@ -104,18 +107,18 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <PiggyBank className="h-5 w-5 text-primary" />
-                Sparziel Maerz
+                Sparziel-Fortschritt
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Fortschritt</span>
-                  <span className="font-semibold">{MOCK_STATS.savingsGoalPercent}%</span>
+                  <span className="font-semibold">{stats.savingsGoalPercent}%</span>
                 </div>
-                <Progress value={MOCK_STATS.savingsGoalPercent} />
+                <Progress value={stats.savingsGoalPercent} />
                 <p className="text-xs text-muted-foreground">
-                  {formatEuro(MOCK_STATS.savings)} von {formatEuro(1500)} gespart
+                  {formatEuro(stats.savings)} gespart diesen Monat
                 </p>
               </div>
             </CardContent>
@@ -143,11 +146,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  { label: "Wohnen", spent: 850, budget: 900, color: "bg-blue-500" },
-                  { label: "Lebensmittel", spent: 340, budget: 400, color: "bg-green-500" },
-                  { label: "Mobilitaet", spent: 180, budget: 200, color: "bg-amber-500" },
-                ].map((cat) => (
+                {budgetItems.map((cat) => (
                   <div key={cat.label}>
                     <div className="flex justify-between text-xs mb-1">
                       <span>{cat.label}</span>
@@ -176,7 +175,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {MOCK_TRANSACTIONS.map((tx) => (
+              {displayTransactions.map((tx) => (
                 <div key={tx.id} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
                   <div className="flex items-center gap-3">
                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
