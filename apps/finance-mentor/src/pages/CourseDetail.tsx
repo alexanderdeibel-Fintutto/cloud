@@ -6,13 +6,18 @@ import {
   BookOpen, Award, Clock, Lock, Play, CheckCircle2,
   ArrowLeft, Users
 } from "lucide-react";
-import { COURSES, LEVEL_LABELS } from "@/lib/courses";
+import { LEVEL_LABELS } from "@/lib/courses";
 import { useEntitlements } from "@/hooks/useEntitlements";
+import { useCourses } from "@/hooks/useCourses";
+import { useCourseProgress } from "@/hooks/useCourseProgress";
+import { Progress } from "@/components/ui/progress";
 
 export default function CourseDetail() {
   const { courseId } = useParams();
   const { hasFeature } = useEntitlements();
-  const course = COURSES.find((c) => c.id === courseId);
+  const { courses } = useCourses();
+  const course = courses.find((c) => c.id === courseId);
+  const { isLessonComplete, markLessonComplete, getCoursePercent } = useCourseProgress(courseId);
 
   const hasPremium = hasFeature("learn_premium_courses");
 
@@ -63,27 +68,46 @@ export default function CourseDetail() {
           </div>
         </div>
 
+        {/* Progress Bar */}
+        {course.lessons.length > 0 && (
+          <Card>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Kurs-Fortschritt</span>
+                <span className="text-sm text-muted-foreground">{getCoursePercent(course.id, course.lessons.length)}%</span>
+              </div>
+              <Progress value={getCoursePercent(course.id, course.lessons.length)} />
+            </CardContent>
+          </Card>
+        )}
+
         {/* Free Lessons */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Kostenlose Lektionen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {freeLessons.map((lesson, idx) => (
-              <button
-                key={lesson.id}
-                className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-accent transition-colors text-left"
-              >
-                <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center text-xs font-bold text-primary">
-                  {idx + 1}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{lesson.title}</p>
-                  <p className="text-xs text-muted-foreground">{lesson.duration}</p>
-                </div>
-                <Play className="h-4 w-4 text-primary" />
-              </button>
-            ))}
+            {freeLessons.map((lesson, idx) => {
+              const done = isLessonComplete(lesson.id);
+              return (
+                <button
+                  key={lesson.id}
+                  onClick={() => !done && markLessonComplete(course.id, lesson.id)}
+                  className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-accent transition-colors text-left"
+                >
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                    done ? "bg-primary text-primary-foreground" : "bg-primary/15 text-primary"
+                  }`}>
+                    {done ? <CheckCircle2 className="h-4 w-4" /> : idx + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`font-medium text-sm ${done ? "line-through text-muted-foreground" : ""}`}>{lesson.title}</p>
+                    <p className="text-xs text-muted-foreground">{lesson.duration}</p>
+                  </div>
+                  {done ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Play className="h-4 w-4 text-primary" />}
+                </button>
+              );
+            })}
           </CardContent>
         </Card>
 
@@ -99,25 +123,32 @@ export default function CourseDetail() {
             <CardContent className="space-y-2">
               {premiumLessons.map((lesson, idx) => {
                 const canAccess = hasPremium || course.free;
+                const done = isLessonComplete(lesson.id);
                 return (
-                  <div
+                  <button
                     key={lesson.id}
-                    className={`flex items-center gap-4 p-3 rounded-xl ${
+                    disabled={!canAccess}
+                    onClick={() => canAccess && !done && markLessonComplete(course.id, lesson.id)}
+                    className={`w-full flex items-center gap-4 p-3 rounded-xl text-left ${
                       canAccess ? "hover:bg-accent cursor-pointer" : "opacity-60"
                     }`}
                   >
-                    <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center text-xs font-bold text-muted-foreground">
-                      {freeLessons.length + idx + 1}
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                      done ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                    }`}>
+                      {done ? <CheckCircle2 className="h-4 w-4" /> : freeLessons.length + idx + 1}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{lesson.title}</p>
+                      <p className={`font-medium text-sm ${done ? "line-through text-muted-foreground" : ""}`}>{lesson.title}</p>
                       <p className="text-xs text-muted-foreground">{lesson.duration}</p>
                     </div>
-                    {canAccess
-                      ? <Play className="h-4 w-4 text-primary" />
-                      : <Lock className="h-4 w-4 text-muted-foreground" />
+                    {!canAccess
+                      ? <Lock className="h-4 w-4 text-muted-foreground" />
+                      : done
+                        ? <CheckCircle2 className="h-4 w-4 text-primary" />
+                        : <Play className="h-4 w-4 text-primary" />
                     }
-                  </div>
+                  </button>
                 );
               })}
 

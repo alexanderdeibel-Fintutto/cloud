@@ -1,56 +1,47 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/AppLayout";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Target, Plane, Car, GraduationCap, Home } from "lucide-react";
+import { Plus, Target, Info } from "lucide-react";
 import { formatEuro } from "@fintutto/shared";
+import { useFinanceData } from "@/hooks/useFinanceData";
 
-const MOCK_GOALS = [
-  {
-    id: "1",
-    name: "Notgroschen",
-    target: 5000,
-    saved: 3400,
-    icon: Target,
-    color: "from-emerald-500 to-green-600",
-    monthly: 200,
-    deadline: "Sep 2026",
-  },
-  {
-    id: "2",
-    name: "Urlaub Kroatien",
-    target: 2000,
-    saved: 800,
-    icon: Plane,
-    color: "from-blue-500 to-cyan-600",
-    monthly: 150,
-    deadline: "Jul 2026",
-  },
-  {
-    id: "3",
-    name: "Neues Auto",
-    target: 15000,
-    saved: 4200,
-    icon: Car,
-    color: "from-amber-500 to-orange-600",
-    monthly: 300,
-    deadline: "Dez 2027",
-  },
-  {
-    id: "4",
-    name: "Weiterbildung",
-    target: 1500,
-    saved: 1500,
-    icon: GraduationCap,
-    color: "from-purple-500 to-indigo-600",
-    monthly: 0,
-    deadline: "Erreicht!",
-  },
-];
+const GOAL_COLORS: Record<string, string> = {
+  notfall: "from-emerald-500 to-green-600",
+  urlaub: "from-blue-500 to-cyan-600",
+  auto: "from-amber-500 to-orange-600",
+  bildung: "from-purple-500 to-indigo-600",
+  wohnung: "from-rose-500 to-pink-600",
+};
+
+function getGoalColor(title: string): string {
+  const lower = title.toLowerCase();
+  for (const [key, color] of Object.entries(GOAL_COLORS)) {
+    if (lower.includes(key)) return color;
+  }
+  return "from-gray-500 to-slate-600";
+}
+
+function formatDeadline(deadline: string | null, status: string): string {
+  if (status === "achieved") return "Erreicht!";
+  if (!deadline) return "Kein Datum";
+  return new Date(deadline).toLocaleDateString("de-DE", { month: "short", year: "numeric" });
+}
 
 export default function SavingsGoals() {
-  const totalSaved = MOCK_GOALS.reduce((sum, g) => sum + g.saved, 0);
-  const totalTarget = MOCK_GOALS.reduce((sum, g) => sum + g.target, 0);
+  const { goals, loading, usingMock } = useFinanceData();
+
+  const displayGoals = goals.map((g) => ({
+    id: g.id,
+    name: g.title,
+    target: Number(g.target_amount),
+    saved: Number(g.current_amount),
+    color: getGoalColor(g.title),
+    deadline: formatDeadline(g.deadline, g.status),
+  }));
+
+  const totalSaved = displayGoals.reduce((sum, g) => sum + g.saved, 0);
+  const totalTarget = displayGoals.reduce((sum, g) => sum + g.target, 0);
 
   return (
     <AppLayout>
@@ -68,8 +59,15 @@ export default function SavingsGoals() {
           </Button>
         </div>
 
+        {usingMock && !loading && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-2.5">
+            <Info className="h-4 w-4 shrink-0" />
+            <span>Beispieldaten - erstelle dein erstes Sparziel, um loszulegen.</span>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 gap-6">
-          {MOCK_GOALS.map((goal) => {
+          {displayGoals.map((goal) => {
             const percent = Math.min((goal.saved / goal.target) * 100, 100);
             const isComplete = goal.saved >= goal.target;
 
@@ -78,7 +76,7 @@ export default function SavingsGoals() {
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4 mb-4">
                     <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${goal.color} flex items-center justify-center shadow-lg shrink-0`}>
-                      <goal.icon className="h-6 w-6 text-white" />
+                      <Target className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
@@ -101,9 +99,6 @@ export default function SavingsGoals() {
                     <Progress value={percent} />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>{Math.round(percent)}% erreicht</span>
-                      {!isComplete && goal.monthly > 0 && (
-                        <span>{formatEuro(goal.monthly)}/Monat Sparrate</span>
-                      )}
                     </div>
                   </div>
 

@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AppSwitcher } from "@fintutto/shared";
 import type { ReactNode } from "react";
 
 const NAV_ITEMS = [
@@ -54,6 +55,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+
+        <div className="px-3 mb-3">
+          <AppSwitcher currentAppSlug="finance-mentor" />
+        </div>
 
         <div className="border-t border-border/50 pt-4 mt-4">
           <div className="flex items-center gap-3 px-3 mb-3">

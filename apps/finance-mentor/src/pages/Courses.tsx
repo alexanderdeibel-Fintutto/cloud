@@ -1,19 +1,24 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/AppLayout";
 import { BookOpen, Award, Clock, Lock, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { COURSES, CATEGORIES, LEVEL_LABELS } from "@/lib/courses";
+import { LEVEL_LABELS } from "@/lib/courses";
+import { useCourses } from "@/hooks/useCourses";
 
 export default function Courses() {
+  const { courses, loading } = useCourses();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Alle");
 
-  const allCategories = ["Alle", ...CATEGORIES];
+  const categories = useMemo(
+    () => ["Alle", ...new Set(courses.map((c) => c.category))],
+    [courses]
+  );
 
-  const filtered = COURSES.filter((course) => {
+  const filtered = courses.filter((course) => {
     const matchSearch = course.title.toLowerCase().includes(search.toLowerCase()) ||
       course.description.toLowerCase().includes(search.toLowerCase());
     const matchCategory = category === "Alle" || course.category === category;
@@ -25,7 +30,7 @@ export default function Courses() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Kurskatalog</h1>
-          <p className="text-muted-foreground mt-1">{COURSES.length} Kurse zu Finanzen, Steuern und Investieren</p>
+          <p className="text-muted-foreground mt-1">{courses.length} Kurse zu Finanzen, Steuern und Investieren</p>
         </div>
 
         {/* Search & Filter */}
@@ -40,7 +45,7 @@ export default function Courses() {
             />
           </div>
           <div className="flex gap-2 flex-wrap">
-            {allCategories.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}

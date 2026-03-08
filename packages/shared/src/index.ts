@@ -82,80 +82,114 @@ export function modKey() {
   return isMac() ? '\u2318' : 'Ctrl'
 }
 
+// App categories
+export const APP_CATEGORIES = {
+  immobilien: 'Immobilien',
+  fintech: 'FinTech',
+  tools: 'Tools & Verwaltung',
+} as const
+
+export type AppCategory = keyof typeof APP_CATEGORIES
+export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
+
 // Fintutto Ecosystem App Registry
 export const FINTUTTO_APPS = {
   vermietify: {
     name: 'Vermietify',
     slug: 'vermietify',
-    description: 'Immobilienverwaltung für Vermieter',
+    description: 'Immobilienverwaltung fuer Vermieter',
     icon: '🏠',
+    url: 'https://vermietify.fintutto.cloud',
+    category: 'immobilien' as AppCategory,
   },
   ablesung: {
     name: 'Ablesung',
     slug: 'ablesung',
-    description: 'Zählerablesung & Verbrauchserfassung',
+    description: 'Zaehlerablesung & Verbrauchserfassung',
     icon: '📊',
+    url: 'https://ablesung.fintutto.cloud',
+    category: 'immobilien' as AppCategory,
   },
   hausmeisterPro: {
     name: 'HausmeisterPro',
     slug: 'hausmeister-pro',
-    description: 'Hausmeister- & Gebäudeverwaltung',
+    description: 'Hausmeister- & Gebaeudeverwaltung',
     icon: '🔧',
+    url: 'https://hausmeister.fintutto.cloud',
+    category: 'immobilien' as AppCategory,
   },
   mieter: {
     name: 'Mieter',
     slug: 'mieter',
     description: 'Mieter-Portal & Tools',
     icon: '🏡',
+    url: 'https://mieter.fintutto.cloud',
+    category: 'immobilien' as AppCategory,
   },
   bescheidboxer: {
     name: 'BescheidBoxer',
     slug: 'bescheidboxer',
-    description: 'Steuerbescheid-Prüfer',
+    description: 'Steuerbescheid-Pruefer',
     icon: '📋',
+    url: 'https://bescheidboxer.fintutto.cloud',
+    category: 'tools' as AppCategory,
   },
   portal: {
     name: 'Fintutto Portal',
     slug: 'portal',
     description: 'Rechner, Checker & Formulare',
     icon: '🧮',
+    url: 'https://fintutto.cloud',
+    category: 'tools' as AppCategory,
   },
   adminHub: {
     name: 'Admin-Hub',
     slug: 'admin-hub',
     description: 'Zentrale Verwaltung',
     icon: '⚙️',
+    url: 'https://admin.fintutto.cloud',
+    category: 'tools' as AppCategory,
   },
   financialCompass: {
     name: 'Financial Compass',
     slug: 'financial-compass',
-    description: 'Finanzübersicht & Buchhaltung',
+    description: 'Finanzuebersicht & Buchhaltung',
     icon: '🧭',
+    url: 'https://compass.fintutto.cloud',
+    category: 'tools' as AppCategory,
   },
-  // ─── NEW: FinTech Universe Apps ──────────────────────────────
+  // ─── FinTech Universe Apps ──────────────────────────────
   financeCoach: {
     name: 'Finance Coach',
     slug: 'finance-coach',
     description: 'KI-Finanzberatung & Budgetierung',
     icon: '💰',
+    url: 'https://finance-coach.fintutto.cloud',
+    category: 'fintech' as AppCategory,
   },
   fintuttoBiz: {
     name: 'Fintutto Biz',
     slug: 'fintutto-biz',
     description: 'Freelancer Finance OS',
     icon: '💼',
+    url: 'https://fintutto-biz.vercel.app',
+    category: 'fintech' as AppCategory,
   },
   financeMentor: {
     name: 'Finance Mentor',
     slug: 'finance-mentor',
     description: 'Finanz-Education & Zertifikate',
     icon: '📚',
+    url: 'https://finance-mentor.fintutto.cloud',
+    category: 'fintech' as AppCategory,
   },
   fintuttoApi: {
     name: 'Fintutto API',
     slug: 'fintutto-api',
     description: 'B2B Finance Intelligence API',
     icon: '🔌',
+    url: 'https://api.fintutto.cloud',
+    category: 'fintech' as AppCategory,
   },
   secondBrain: {
     name: 'SecondBrain',
@@ -179,3 +213,11 @@ export { createSupabaseClient, type CreateSupabaseClientOptions } from './supaba
 
 // Entitlements engine (FinTech Universe)
 export * from './entitlements'
+
+// Cross-app monetization (PremiumTeaser, upgrade suggestions)
+export { getPremiumTeaserConfig, getUpgradeSuggestions, CROSS_APP_UPGRADES } from './components/PremiumTeaser'
+export type { PremiumTeaserProps, UpgradePromptConfig } from './components/PremiumTeaser'
+
+// Cross-app navigation
+export { AppSwitcher } from './components/AppSwitcher'
+export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'

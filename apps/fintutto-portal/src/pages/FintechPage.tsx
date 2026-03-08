@@ -14,14 +14,15 @@ const modules = [
   {
     name: 'AI Finance Coach',
     tagline: 'Dein persoenlicher KI-Finanzberater',
-    description: 'Bank-Sync, automatische Kategorisierung, Budget-Tracker und KI-gesteuerter Cashflow-Forecast. Verstehe dein Geld wie nie zuvor.',
+    description: 'Budget-Tracker, Sparziele, personalisierte KI-Insights und Cashflow-Prognose. Verstehe dein Geld wie nie zuvor.',
     icon: Brain,
-    gradient: 'from-indigo-600 via-violet-600 to-purple-600',
-    status: 'Bald verfuegbar',
-    statusColor: 'bg-indigo-100 text-indigo-700',
+    gradient: 'from-emerald-500 via-green-600 to-teal-600',
+    status: 'Live',
+    statusColor: 'bg-green-100 text-green-700',
     score: 33,
     maxScore: 40,
-    price: '10-12',
+    price: '0-8',
+    url: 'https://finance-coach.fintutto.cloud',
     features: [
       { title: 'KI-Insights', desc: 'Personalisierte Finanz-Tipps basierend auf deinem Verhalten', icon: Brain },
       { title: 'Bank-Sync', desc: 'Automatischer Import von allen deutschen Bankkonten', icon: Landmark },
@@ -40,12 +41,13 @@ const modules = [
     tagline: 'Das Freelancer Finance OS',
     description: 'Professionelle Buchhaltung fuer Freelancer und Kleinunternehmer. Rechnungen, Ausgaben, Steuern, DATEV-Export - alles in einer App.',
     icon: Wallet,
-    gradient: 'from-emerald-600 via-teal-600 to-cyan-600',
-    status: 'In Entwicklung',
-    statusColor: 'bg-emerald-100 text-emerald-700',
+    gradient: 'from-blue-600 via-indigo-600 to-violet-600',
+    status: 'Live',
+    statusColor: 'bg-green-100 text-green-700',
     score: 37,
     maxScore: 40,
-    price: '9-39',
+    price: '0-20',
+    url: 'https://fintutto-biz.vercel.app',
     features: [
       { title: 'Rechnungen', desc: 'Professionelle Rechnungen erstellen und versenden', icon: Receipt },
       { title: 'Ausgaben-Tracker', desc: 'Belege scannen, Ausgaben kategorisieren', icon: CreditCard },
@@ -62,14 +64,15 @@ const modules = [
   {
     name: 'Finance Mentor',
     tagline: 'Finanz-Education gamifiziert',
-    description: 'Lerne den Umgang mit Geld spielerisch. Interaktive Lernpfade, Quizzes und KI-Tutor - von Basics bis Immobilien-Investor.',
+    description: 'Lerne den Umgang mit Geld spielerisch. 6 strukturierte Kurse, Quizzes, KI-Tutor und Zertifikate - von Budgetierung bis Immobilien-Investment.',
     icon: GraduationCap,
-    gradient: 'from-amber-500 via-orange-500 to-red-500',
-    status: 'Phase 2',
-    statusColor: 'bg-amber-100 text-amber-700',
+    gradient: 'from-purple-500 via-violet-600 to-indigo-600',
+    status: 'Live',
+    statusColor: 'bg-green-100 text-green-700',
     score: 31,
     maxScore: 40,
-    price: '29-99',
+    price: '0-30',
+    url: 'https://finance-mentor.fintutto.cloud',
     features: [
       { title: 'Lernpfade', desc: 'Strukturierte Kurse von Anfaenger bis Profi', icon: TrendingUp },
       { title: 'Quizzes', desc: 'Teste dein Wissen mit interaktiven Aufgaben', icon: Zap },
@@ -128,17 +131,17 @@ export default function FintechPage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-8">
               <Sparkles className="h-4 w-4 text-indigo-300" />
-              <span className="text-white/80 text-sm font-medium">3 neue Module in Entwicklung</span>
+              <span className="text-white/80 text-sm font-medium">3 FinTech-Apps - Jetzt live!</span>
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight">
-              Die Zukunft von
-              <span className="block bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">
-                Fintutto
+              Das FinTech
+              <span className="block bg-gradient-to-r from-emerald-300 via-indigo-300 to-purple-300 bg-clip-text text-transparent mt-2">
+                Universe
               </span>
             </h1>
             <p className="text-xl text-white/50 max-w-2xl mx-auto leading-relaxed">
-              Von KI-Finance-Coaching ueber Freelancer-Buchhaltung bis Finanz-Education -
-              drei neue Module erweitern dein Oekosystem.
+              KI-Finanzcoach, Freelancer-Buchhaltung und Finanz-Kurse -
+              drei Apps erweitern das Fintutto-Oekosystem. Alle kostenlos starten.
             </p>
           </div>
         </div>
@@ -191,6 +194,16 @@ export default function FintechPage() {
                       ))}
                     </div>
                   </div>
+
+                  {/* CTA */}
+                  {'url' in mod && (mod as any).url && (
+                    <Button className={`bg-gradient-to-r ${mod.gradient} text-white border-0 hover:opacity-90 rounded-xl h-11 px-6 font-semibold`} asChild>
+                      <a href={(mod as any).url} target="_blank" rel="noopener noreferrer">
+                        Kostenlos starten
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </a>
+                    </Button>
+                  )}
                 </div>
 
                 {/* Features Side */}
@@ -267,22 +280,47 @@ export default function FintechPage() {
         </div>
       </section>
 
+      {/* Universe Bundle Banner */}
+      <section className="py-16">
+        <div className="container max-w-4xl">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-pink-500/10 border border-amber-500/20 p-10 text-center">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(245,158,11,0.08),transparent_70%)]" />
+            <div className="relative">
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 rounded-full px-4 py-1.5 mb-4">
+                <Sparkles className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Spare ueber 39%</span>
+              </div>
+              <h3 className="text-3xl font-black mb-3">Universe Bundle</h3>
+              <p className="text-muted-foreground max-w-lg mx-auto mb-6">
+                Alle 3 FinTech-Apps in einem Abo fuer nur 19,99{'\u20ac'}/Monat statt 32,97{'\u20ac'}.
+              </p>
+              <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 rounded-2xl h-12 px-8 font-bold hover:opacity-90" asChild>
+                <Link to="/universe-bundle">
+                  Bundle entdecken
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24">
         <div className="container max-w-3xl text-center">
           <h2 className="text-4xl font-black mb-5 tracking-tight">
-            Bleib auf dem Laufenden
+            Bereit loszulegen?
           </h2>
           <p className="text-lg text-muted-foreground mb-10">
-            Die FinTech-Module werden Schritt fuer Schritt gelauncht.
-            Starte heute mit den bestehenden Tools und profitiere spaeter automatisch.
+            Alle FinTech-Apps sind live und kostenlos nutzbar.
+            Ein Konto - alle Apps.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="gradient-portal text-white border-0 text-base px-10 h-14 rounded-2xl font-semibold" asChild>
-              <Link to="/rechner">
-                Jetzt Tools nutzen
+              <a href="https://finance-coach.fintutto.cloud/register" target="_blank" rel="noopener noreferrer">
+                Finance Coach starten
                 <ArrowRight className="h-5 w-5 ml-2" />
-              </Link>
+              </a>
             </Button>
             <Button size="lg" variant="outline" className="text-base px-10 h-14 rounded-2xl font-semibold" asChild>
               <Link to="/apps">

@@ -125,8 +125,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (user) {
           const isActive = subscription.status === 'active'
+          const productKey = subscription.metadata?.productKey
 
-          if (!isActive) {
+          if (isActive && productKey) {
+            // Sync entitlements for active subscription (handles plan changes)
+            await syncEntitlements(user.id, productKey, 'grant')
+          } else if (!isActive) {
             // Downgrade to free tier
             await supabase
               .from('users')
@@ -135,6 +139,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 checks_limit: PLAN_CREDIT_LIMITS.free,
               })
               .eq('id', user.id)
+
+            // Revoke entitlements if product key exists
+            if (productKey) {
+              await syncEntitlements(user.id, productKey, 'revoke')
+            }
           }
         }
         break
