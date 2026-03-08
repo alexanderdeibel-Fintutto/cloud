@@ -1,4 +1,9 @@
-import { FINTUTTO_APPS } from './index'
+import { FINTUTTO_APPS } from './apps-registry'
+
+const PORTAL_BASE = FINTUTTO_APPS.portal.url
+const ABLESUNG_BASE = FINTUTTO_APPS.ablesung.url
+const VERMIETIFY_BASE = FINTUTTO_APPS.vermietify.url
+const VERMIETER_BASE = FINTUTTO_APPS.vermieterPortal.url
 
 /**
  * Cross-app deep link builder for the Fintutto ecosystem.
@@ -33,20 +38,20 @@ export function kautionsRechnerLink(data: RentData): string {
   const params = new URLSearchParams()
   if (data.rent) params.set('rent', String(data.rent))
   if (data.address) params.set('address', data.address)
-  return `${FINTUTTO_APPS.portal.url}/rechner/kaution?${params}`
+  return `${PORTAL_BASE}/rechner/kaution?${params}`
 }
 
 export function mieterhoehungRechnerLink(data: RentData): string {
   const params = new URLSearchParams()
   if (data.rent) params.set('rent', String(data.rent))
   if (data.address) params.set('address', data.address)
-  return `${FINTUTTO_APPS.portal.url}/rechner/mieterhoehung?${params}`
+  return `${PORTAL_BASE}/rechner/mieterhoehung?${params}`
 }
 
 export function renditeRechnerLink(data: RentData): string {
   const params = new URLSearchParams()
   if (data.rent) params.set('rent', String(data.rent))
-  return `${FINTUTTO_APPS.portal.url}/rechner/rendite?${params}`
+  return `${PORTAL_BASE}/rechner/rendite?${params}`
 }
 
 // Portal Formular deep links
@@ -63,7 +68,7 @@ export function mietvertragLink(data: PropertyData): string {
   if (data.tenantFirst) params.set('tenantFirst', data.tenantFirst)
   if (data.tenantLast) params.set('tenantLast', data.tenantLast)
   if (data.tenantEmail) params.set('tenantEmail', data.tenantEmail)
-  return `${FINTUTTO_APPS.portal.url}/formulare/mietvertrag?${params}`
+  return `${PORTAL_BASE}/formulare/mietvertrag?${params}`
 }
 
 /**
@@ -113,16 +118,16 @@ export function ablesungLink(data: MeterData): string {
   if (data.unitId) params.set('unit', data.unitId)
   if (data.meterType) params.set('type', data.meterType)
   const qs = params.toString()
-  return `${FINTUTTO_APPS.ablesung.url}${qs ? `?${qs}` : ''}`
+  return `${ABLESUNG_BASE}${qs ? `?${qs}` : ''}`
 }
 
 // Vermietify: open a specific building or unit
 export function vermietifyBuildingLink(buildingId: string): string {
-  return `${FINTUTTO_APPS.vermietify.url}/buildings/${buildingId}`
+  return `${VERMIETIFY_BASE}/buildings/${buildingId}`
 }
 
 export function vermietifyUnitLink(buildingId: string, unitId: string): string {
-  return `${FINTUTTO_APPS.vermietify.url}/buildings/${buildingId}/units/${unitId}`
+  return `${VERMIETIFY_BASE}/buildings/${buildingId}/units/${unitId}`
 }
 
 // Portal Checker deep links (pre-fill checker data)
@@ -131,7 +136,7 @@ export function nebenkostenCheckerLink(data: CheckerData): string {
   if (data.rent) params.set('rent', String(data.rent))
   if (data.address) params.set('address', data.address)
   if (data.area) params.set('area', String(data.area))
-  return `${FINTUTTO_APPS.portal.url}/checker/nebenkosten?${params}`
+  return `${PORTAL_BASE}/checker/nebenkosten?${params}`
 }
 
 export function mietpreisbremseCheckerLink(data: CheckerData): string {
@@ -141,7 +146,7 @@ export function mietpreisbremseCheckerLink(data: CheckerData): string {
   if (data.area) params.set('area', String(data.area))
   if (data.rooms) params.set('rooms', String(data.rooms))
   if (data.year) params.set('year', String(data.year))
-  return `${FINTUTTO_APPS.portal.url}/checker/mietpreisbremse?${params}`
+  return `${PORTAL_BASE}/checker/mietpreisbremse?${params}`
 }
 
 // Vermieter-Portal deep links
@@ -150,7 +155,7 @@ export function vermieterRechnerLink(rechner: string, data: RentData): string {
   if (data.rent) params.set('rent', String(data.rent))
   if (data.address) params.set('address', data.address)
   const qs = params.toString()
-  return `${FINTUTTO_APPS.vermieterPortal.url}/rechner/${rechner}${qs ? `?${qs}` : ''}`
+  return `${VERMIETER_BASE}/rechner/${rechner}${qs ? `?${qs}` : ''}`
 }
 
 // Convenience: all cross-app links for a property/unit

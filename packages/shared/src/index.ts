@@ -82,84 +82,9 @@ export function modKey() {
   return isMac() ? '\u2318' : 'Ctrl'
 }
 
-// Fintutto Ecosystem App Registry
-export const FINTUTTO_APPS = {
-  vermietify: {
-    name: 'Vermietify',
-    slug: 'vermietify',
-    description: 'Immobilienverwaltung für Vermieter',
-    icon: '🏠',
-  },
-  ablesung: {
-    name: 'Ablesung',
-    slug: 'ablesung',
-    description: 'Zählerablesung & Verbrauchserfassung',
-    icon: '📊',
-  },
-  hausmeisterPro: {
-    name: 'HausmeisterPro',
-    slug: 'hausmeister-pro',
-    description: 'Hausmeister- & Gebäudeverwaltung',
-    icon: '🔧',
-  },
-  mieter: {
-    name: 'Mieter',
-    slug: 'mieter',
-    description: 'Mieter-Portal & Tools',
-    icon: '🏡',
-  },
-  bescheidboxer: {
-    name: 'BescheidBoxer',
-    slug: 'bescheidboxer',
-    description: 'Steuerbescheid-Prüfer',
-    icon: '📋',
-  },
-  portal: {
-    name: 'Fintutto Portal',
-    slug: 'portal',
-    description: 'Rechner, Checker & Formulare',
-    icon: '🧮',
-  },
-  adminHub: {
-    name: 'Admin-Hub',
-    slug: 'admin-hub',
-    description: 'Zentrale Verwaltung',
-    icon: '⚙️',
-  },
-  financialCompass: {
-    name: 'Financial Compass',
-    slug: 'financial-compass',
-    description: 'Finanzübersicht & Buchhaltung',
-    icon: '🧭',
-  },
-  // ─── NEW: FinTech Universe Apps ──────────────────────────────
-  financeCoach: {
-    name: 'Finance Coach',
-    slug: 'finance-coach',
-    description: 'KI-Finanzberatung & Budgetierung',
-    icon: '💰',
-  },
-  fintuttoBiz: {
-    name: 'Fintutto Biz',
-    slug: 'fintutto-biz',
-    description: 'Freelancer Finance OS',
-    icon: '💼',
-  },
-  financeMentor: {
-    name: 'Finance Mentor',
-    slug: 'finance-mentor',
-    description: 'Finanz-Education & Zertifikate',
-    icon: '📚',
-  },
-  fintuttoApi: {
-    name: 'Fintutto API',
-    slug: 'fintutto-api',
-    description: 'B2B Finance Intelligence API',
-    icon: '🔌',
-  },
-} as const
-
-export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
+// Fintutto Ecosystem App Registry (re-exported from apps-registry to avoid circular deps)
+export { FINTUTTO_APPS, APP_CATEGORIES, type FintuttoAppKey, type AppCategory } from './apps-registry'
+import { FINTUTTO_APPS } from './apps-registry'
 
 /**
  * Returns all Fintutto ecosystem apps except the given one,
@@ -177,22 +102,6 @@ export function getOtherApps(excludeSlug: string) {
     }))
 }
 
-/**
- * Returns ecosystem apps grouped by category for the ecosystem bar.
- */
-export function getEcosystemBarGrouped(excludeSlug: string) {
-  const apps = getOtherApps(excludeSlug)
-  const groups: Record<string, typeof apps> = {}
-  for (const app of apps) {
-    const cat = app.key in { vermietify: 1, ablesung: 1, hausmeisterPro: 1, mieter: 1 }
-      ? 'Immobilien'
-      : app.key in { financeCoach: 1, fintuttoBiz: 1, financeMentor: 1, fintuttoApi: 1 }
-        ? 'FinTech'
-        : 'Tools'
-    ;(groups[cat] ??= []).push(app)
-  }
-  return groups
-}
 
 /**
  * Creates a Fintutto API client stub.
@@ -205,17 +114,7 @@ export function createFintuttoClient(_options?: { baseUrl?: string; apiKey?: str
   }
 }
 
-// ─── Tool & Category Constants ───────────────────────────────────────────────
-
-export type AppCategory = 'rechner' | 'checker' | 'formulare' | 'fintech' | 'tools'
-
-export const APP_CATEGORIES: Record<AppCategory, { label: string; icon: string }> = {
-  rechner: { label: 'Rechner', icon: '🧮' },
-  checker: { label: 'Checker', icon: '✅' },
-  formulare: { label: 'Formulare', icon: '📄' },
-  fintech: { label: 'FinTech', icon: '💰' },
-  tools: { label: 'Tools', icon: '🔧' },
-}
+// ─── Tool Constants ──────────────────────────────────────────────────────────
 
 export const PORTAL_TOOLS = [
   { id: 'kaution', label: 'Kautions-Rechner', href: '/rechner/kaution', category: 'rechner' },
@@ -255,6 +154,12 @@ export { createSupabaseClient, type CreateSupabaseClientOptions } from './supaba
 
 // Entitlements engine (FinTech Universe)
 export * from './entitlements'
+
+// Deep links (cross-app navigation)
+export * from './deeplinks'
+
+// Ecosystem bar helpers
+export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
 
 // React hooks
 export {

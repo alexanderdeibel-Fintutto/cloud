@@ -1,4 +1,4 @@
-import { FINTUTTO_APPS, APP_CATEGORIES, type FintuttoAppKey, type AppCategory } from '../index'
+import { FINTUTTO_APPS, APP_CATEGORIES, type FintuttoAppKey, type AppCategory } from '../apps-registry'
 
 /**
  * Returns a flat list of ecosystem apps for navigation (excluding current app).
@@ -23,10 +23,10 @@ export function getEcosystemBarGrouped(currentAppSlug: string) {
   const items = getEcosystemBarItems(currentAppSlug)
   const groups: { category: AppCategory; label: string; apps: typeof items }[] = []
 
-  for (const [key, label] of Object.entries(APP_CATEGORIES)) {
+  for (const [key, meta] of Object.entries(APP_CATEGORIES)) {
     const categoryApps = items.filter((app) => app.category === key)
     if (categoryApps.length > 0) {
-      groups.push({ category: key as AppCategory, label, apps: categoryApps })
+      groups.push({ category: key as AppCategory, label: meta.label, apps: categoryApps })
     }
   }
 
