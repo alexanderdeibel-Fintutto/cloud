@@ -4,16 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AppLayout } from "@/components/AppLayout";
 import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink } from "lucide-react";
-import { COURSES, LEVEL_LABELS } from "@/lib/courses";
+import { LEVEL_LABELS } from "@/lib/courses";
 import { getUpgradeSuggestions } from "@fintutto/shared";
 import { useEntitlements } from "@/hooks/useEntitlements";
+import { useCourses } from "@/hooks/useCourses";
+import { useCourseProgress } from "@/hooks/useCourseProgress";
 
 export default function Dashboard() {
-  // Mock user progress
-  const completedLessons = 8;
-  const totalLessons = COURSES.reduce((sum, c) => sum + c.lessons.length, 0);
-  const streak = 5;
-  const certificates = 0;
+  const { courses } = useCourses();
+  const { lessonProgress, getCoursePercent } = useCourseProgress();
+
+  const totalLessons = courses.reduce((sum, c) => sum + c.lessons.length, 0);
+  const completedLessons = lessonProgress.filter((p) => p.progress >= 100).length;
+
+  // Find the course with most recent incomplete progress to suggest "continue"
+  const inProgressCourse = courses.find((c) => {
+    const pct = getCoursePercent(c.id, c.lessons.length);
+    return pct > 0 && pct < 100;
+  }) || courses[0];
+
+  const inProgressPercent = inProgressCourse
+    ? getCoursePercent(inProgressCourse.id, inProgressCourse.lessons.length)
+    : 0;
+
+  const completedCourseCount = courses.filter(
+    (c) => getCoursePercent(c.id, c.lessons.length) >= 100
+  ).length;
+
+  // Suggest courses the user hasn't started yet
+  const notStartedCourses = courses.filter(
+    (c) => getCoursePercent(c.id, c.lessons.length) === 0
+  );
+  const recommendedCourses = notStartedCourses.length > 0 ? notStartedCourses.slice(0, 3) : courses.slice(0, 3);
 
   return (
     <AppLayout>
@@ -26,10 +48,10 @@ export default function Dashboard() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Abgeschlossen", value: `${completedLessons}/${totalLessons}`, icon: BookOpen, color: "text-blue-400" },
-            { label: "Zertifikate", value: certificates.toString(), icon: Award, color: "text-amber-400" },
-            { label: "Lernzeit", value: "3,5 Std", icon: Clock, color: "text-green-400" },
-            { label: "Streak", value: `${streak} Tage`, icon: Flame, color: "text-orange-400" },
+            { label: "Lektionen", value: `${completedLessons}/${totalLessons}`, icon: BookOpen, color: "text-blue-400" },
+            { label: "Kurse fertig", value: completedCourseCount.toString(), icon: Award, color: "text-amber-400" },
+            { label: "Lernzeit", value: `${Math.round(completedLessons * 0.15 * 10) / 10} Std`, icon: Clock, color: "text-green-400" },
+            { label: "Kurse gesamt", value: courses.length.toString(), icon: Flame, color: "text-orange-400" },
           ].map((stat) => (
             <Card key={stat.label}>
               <CardContent className="p-5">
@@ -49,22 +71,24 @@ export default function Dashboard() {
             <CardTitle className="text-lg">Weitermachen</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
-              <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${COURSES[0].icon} flex items-center justify-center shadow-lg shrink-0`}>
-                <Play className="h-6 w-6 text-white" />
+            {inProgressCourse && (
+              <div className="flex items-center gap-4">
+                <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${inProgressCourse.icon} flex items-center justify-center shadow-lg shrink-0`}>
+                  <Play className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold">{inProgressCourse.title}</h3>
+                  <p className="text-sm text-muted-foreground">{inProgressPercent}% abgeschlossen</p>
+                  <Progress value={inProgressPercent} className="mt-2 h-2" />
+                </div>
+                <Button asChild>
+                  <Link to={`/kurse/${inProgressCourse.id}`}>
+                    {inProgressPercent > 0 ? "Fortsetzen" : "Starten"}
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Link>
+                </Button>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">{COURSES[0].title}</h3>
-                <p className="text-sm text-muted-foreground">Lektion 3 von {COURSES[0].lessons.length}</p>
-                <Progress value={37} className="mt-2 h-2" />
-              </div>
-              <Button asChild>
-                <Link to={`/kurse/${COURSES[0].id}`}>
-                  Fortsetzen
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -77,7 +101,7 @@ export default function Dashboard() {
             </Button>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
-            {COURSES.slice(0, 3).map((course) => (
+            {recommendedCourses.map((course) => (
               <Link key={course.id} to={`/kurse/${course.id}`}>
                 <Card className="h-full hover:border-primary/30 transition-colors">
                   <CardContent className="p-5">
