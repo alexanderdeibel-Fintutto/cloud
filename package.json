@@ -2,6 +2,7 @@
   "name": "fintutto-portal-monorepo",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@10.29.3",
   "type": "module",
   "workspaces": [
     "packages/*",
