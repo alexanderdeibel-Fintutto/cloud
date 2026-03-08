@@ -221,3 +221,18 @@ export type { PremiumTeaserProps, UpgradePromptConfig } from './components/Premi
 // Cross-app navigation
 export { AppSwitcher } from './components/AppSwitcher'
 export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+
+// UI Components
+export { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export type { CommandItem } from './components/CommandPalette'
+export { ErrorBoundary } from './components/ErrorBoundary'
+export { PageSkeleton } from './components/PageSkeleton'
+export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
+
+// Hooks
+export { useScrollToTop } from './hooks/useScrollToTop'
+export { useDocumentTitle } from './hooks/useDocumentTitle'
+export { useMetaTags } from './hooks/useMetaTags'
+
+// Ecosystem Stats
+export { EcosystemStatsBar } from './components/EcosystemStatsBar'

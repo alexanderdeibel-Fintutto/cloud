@@ -3,11 +3,11 @@ import {
   Calculator, Shield, FileText, ArrowRight, CheckCircle2,
   Sparkles
 } from 'lucide-react'
-import { useDocumentTitle, useMetaTags, getOtherApps, EcosystemStatsBar } from '@fintutto/shared'
+import { useDocumentTitle, useMetaTags, getEcosystemBarItems, EcosystemStatsBar } from '@fintutto/shared'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-const ecosystemApps = getOtherApps('mieter-checker')
+const ecosystemApps = getEcosystemBarItems('portal')
 
 const categories = [
   {

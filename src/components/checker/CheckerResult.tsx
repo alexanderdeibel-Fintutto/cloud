@@ -1,9 +1,5 @@
- claude/review-repo-setup-0rnoo
 import { lazy, Suspense } from 'react'
-import { CheckCircle, XCircle, AlertCircle, ArrowRight, FileText, Download } from 'lucide-react'
-
 import { CheckCircle, XCircle, AlertCircle, ArrowRight, FileText, Download, Calculator } from 'lucide-react'
- main
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
