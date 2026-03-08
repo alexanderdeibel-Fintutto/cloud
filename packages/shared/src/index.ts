@@ -159,6 +159,88 @@ export const FINTUTTO_APPS = {
   },
 } as const
 
+export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
+
+/**
+ * Returns all Fintutto ecosystem apps except the given one,
+ * with URLs pointing to their Vercel deployments.
+ */
+export function getOtherApps(excludeSlug: string) {
+  return Object.entries(FINTUTTO_APPS)
+    .filter(([, app]) => app.slug !== excludeSlug)
+    .map(([key, app]) => ({
+      key,
+      name: app.name,
+      icon: app.icon,
+      description: app.description,
+      url: `https://${app.slug}.fintutto.com`,
+    }))
+}
+
+/**
+ * Returns ecosystem apps grouped by category for the ecosystem bar.
+ */
+export function getEcosystemBarGrouped(excludeSlug: string) {
+  const apps = getOtherApps(excludeSlug)
+  const groups: Record<string, typeof apps> = {}
+  for (const app of apps) {
+    const cat = app.key in { vermietify: 1, ablesung: 1, hausmeisterPro: 1, mieter: 1 }
+      ? 'Immobilien'
+      : app.key in { financeCoach: 1, fintuttoBiz: 1, financeMentor: 1, fintuttoApi: 1 }
+        ? 'FinTech'
+        : 'Tools'
+    ;(groups[cat] ??= []).push(app)
+  }
+  return groups
+}
+
+/**
+ * Creates a Fintutto API client stub.
+ */
+export function createFintuttoClient(_options?: { baseUrl?: string; apiKey?: string }) {
+  return {
+    get: async (path: string) => fetch(path).then(r => r.json()),
+    post: async (path: string, body: unknown) =>
+      fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json()),
+  }
+}
+
+// ─── Tool & Category Constants ───────────────────────────────────────────────
+
+export type AppCategory = 'rechner' | 'checker' | 'formulare' | 'fintech' | 'tools'
+
+export const APP_CATEGORIES: Record<AppCategory, { label: string; icon: string }> = {
+  rechner: { label: 'Rechner', icon: '🧮' },
+  checker: { label: 'Checker', icon: '✅' },
+  formulare: { label: 'Formulare', icon: '📄' },
+  fintech: { label: 'FinTech', icon: '💰' },
+  tools: { label: 'Tools', icon: '🔧' },
+}
+
+export const PORTAL_TOOLS = [
+  { id: 'kaution', label: 'Kautions-Rechner', href: '/rechner/kaution', category: 'rechner' },
+  { id: 'mieterhoehung', label: 'Mieterhöhungs-Rechner', href: '/rechner/mieterhoehung', category: 'rechner' },
+  { id: 'kaufnebenkosten', label: 'Kaufnebenkosten-Rechner', href: '/rechner/kaufnebenkosten', category: 'rechner' },
+  { id: 'rendite', label: 'Rendite-Rechner', href: '/rechner/rendite', category: 'rechner' },
+  { id: 'grundsteuer', label: 'Grundsteuer-Rechner', href: '/rechner/grundsteuer', category: 'rechner' },
+  { id: 'nebenkosten', label: 'Nebenkosten-Rechner', href: '/rechner/nebenkosten', category: 'rechner' },
+  { id: 'eigenkapital', label: 'Eigenkapital-Rechner', href: '/rechner/eigenkapital', category: 'rechner' },
+]
+
+export const CHECKER_TOOLS = [
+  { id: 'mietpreisbremse', label: 'Mietpreisbremse-Checker', href: '/checker/mietpreisbremse', category: 'checker' },
+  { id: 'mieterhoehung-check', label: 'Mieterhöhung-Checker', href: '/checker/mieterhoehung', category: 'checker' },
+  { id: 'nebenkosten-check', label: 'Nebenkosten-Checker', href: '/checker/nebenkosten', category: 'checker' },
+  { id: 'kuendigung', label: 'Kündigungs-Checker', href: '/checker/kuendigung', category: 'checker' },
+  { id: 'kaution-check', label: 'Kaution-Checker', href: '/checker/kaution', category: 'checker' },
+  { id: 'mietminderung', label: 'Mietminderungs-Checker', href: '/checker/mietminderung', category: 'checker' },
+]
+
+export const ECOSYSTEM_TOOLS = [
+  ...PORTAL_TOOLS,
+  ...CHECKER_TOOLS,
+]
+
 // Re-export all database types
 export * from './types/database'
 
@@ -173,3 +255,31 @@ export { createSupabaseClient, type CreateSupabaseClientOptions } from './supaba
 
 // Entitlements engine (FinTech Universe)
 export * from './entitlements'
+
+// React hooks
+export {
+  useDocumentTitle,
+  useMetaTags,
+  useJsonLd,
+  useLocalStorage,
+  useUnsavedChanges,
+  useKeyboardNav,
+  useScrollToTop,
+  useRecentTools,
+} from './hooks'
+
+// React components
+export {
+  ErrorBoundary,
+  PageSkeleton,
+  Breadcrumbs,
+  RecentToolsWidget,
+  ShareResultButton,
+  CrossAppRecommendations,
+  AnnouncementBanner,
+  EcosystemStatsBar,
+  CommandPalette,
+  PrintStyles,
+  KeyboardShortcutsHelp,
+  AppSwitcher,
+} from './components'
