@@ -287,17 +287,17 @@ export default function AppsPage() {
         <div className="container relative text-center">
           <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-6">
             <Brain className="h-4 w-4 text-indigo-300" />
-            <span className="text-white/80 text-sm font-medium">Coming Soon</span>
+            <span className="text-white/80 text-sm font-medium">FinTech Universe - Jetzt live!</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-            FinTech-Erweiterungen
+            3 neue FinTech-Apps
           </h2>
           <p className="text-white/50 mb-10 max-w-xl mx-auto">
-            AI Finance Coach, Freelancer Buchhaltung und Finanz-Education - drei neue Module erweitern das Oekosystem.
+            Finance Coach (KI-Budgetierung), Fintutto Biz (Freelancer-Buchhaltung) und Finance Mentor (Finanz-Kurse) - jetzt kostenlos starten.
           </p>
           <Button size="lg" className="bg-white text-indigo-900 hover:bg-white/90 rounded-xl h-12 px-8 font-semibold" asChild>
             <Link to="/fintech">
-              Mehr erfahren
+              Alle FinTech-Apps
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>
