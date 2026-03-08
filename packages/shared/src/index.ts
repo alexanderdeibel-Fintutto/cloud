@@ -95,7 +95,7 @@ export const FINTUTTO_APPS = {
     slug: 'vermietify',
     description: 'Immobilienverwaltung für Vermieter',
     icon: '🏠',
-    url: 'https://vermietify.vercel.app',
+    url: 'https://vermietify.fintutto.cloud',
     category: 'immobilien' as AppCategory,
   },
   ablesung: {
@@ -103,7 +103,7 @@ export const FINTUTTO_APPS = {
     slug: 'ablesung',
     description: 'Zählerablesung & Verbrauchserfassung',
     icon: '📊',
-    url: 'https://ablesung.vercel.app',
+    url: 'https://ablesung.fintutto.cloud',
     category: 'immobilien' as AppCategory,
   },
   hausmeisterPro: {
@@ -111,7 +111,7 @@ export const FINTUTTO_APPS = {
     slug: 'hausmeister-pro',
     description: 'Hausmeister- & Gebäudeverwaltung',
     icon: '🔧',
-    url: 'https://hausmeister-pro.vercel.app',
+    url: 'https://hausmeister.fintutto.cloud',
     category: 'immobilien' as AppCategory,
   },
   mieter: {
@@ -119,7 +119,7 @@ export const FINTUTTO_APPS = {
     slug: 'mieter',
     description: 'Mieter-Portal & Tools',
     icon: '🏡',
-    url: 'https://mieter-kw8d.vercel.app',
+    url: 'https://mieter.fintutto.cloud',
     category: 'immobilien' as AppCategory,
   },
   vermieterPortal: {
@@ -133,7 +133,7 @@ export const FINTUTTO_APPS = {
   // --- Finanzen & Tools ---
   portal: {
     name: 'Fintutto Portal',
-    slug: 'portal',
+    slug: 'mieter-checker',
     description: 'Rechner, Checker & Formulare',
     icon: '🧮',
     url: 'https://portal.fintutto.cloud',
@@ -144,7 +144,7 @@ export const FINTUTTO_APPS = {
     slug: 'financial-compass',
     description: 'Finanzübersicht & Buchhaltung',
     icon: '🧭',
-    url: 'https://fintutto-your-financial-compass.vercel.app',
+    url: 'https://fintutto.cloud',
     category: 'finanzen' as AppCategory,
   },
   bescheidboxer: {
@@ -152,7 +152,7 @@ export const FINTUTTO_APPS = {
     slug: 'bescheidboxer',
     description: 'Steuerbescheid-Prüfer',
     icon: '📋',
-    url: 'https://bescheidboxer.vercel.app',
+    url: 'https://bescheidboxer.fintutto.cloud',
     category: 'finanzen' as AppCategory,
   },
   adminHub: {
@@ -160,7 +160,7 @@ export const FINTUTTO_APPS = {
     slug: 'admin-hub',
     description: 'Zentrale Verwaltung',
     icon: '⚙️',
-    url: 'https://fintutto-admin-hub.vercel.app',
+    url: 'https://admin.fintutto.cloud',
     category: 'finanzen' as AppCategory,
   },
   // --- Lifestyle (Translator = Flagship App) ---
@@ -169,7 +169,7 @@ export const FINTUTTO_APPS = {
     slug: 'translator',
     description: 'Kostenloser Uebersetzer mit 22 Sprachen, Cloud TTS & Spracheingabe',
     icon: '🌐',
-    url: 'https://translator-fintutto.vercel.app',
+    url: 'https://translator.fintutto.cloud',
     category: 'lifestyle' as AppCategory,
   },
   pflanzenManager: {
@@ -177,7 +177,7 @@ export const FINTUTTO_APPS = {
     slug: 'pflanzen-manager',
     description: 'Zimmerpflanzen-Pflege & Tracking',
     icon: '🌱',
-    url: 'https://zimmerpflanze.vercel.app',
+    url: 'https://pflanzen.fintutto.cloud',
     category: 'lifestyle' as AppCategory,
   },
   personaltrainer: {
@@ -185,7 +185,7 @@ export const FINTUTTO_APPS = {
     slug: 'personaltrainer',
     description: 'Fitness-Coaching & Trainingspläne',
     icon: '💪',
-    url: 'https://personaltrainer-murex.vercel.app',
+    url: 'https://fittutto.fintutto.cloud',
     category: 'lifestyle' as AppCategory,
   },
   luggageX: {
@@ -193,7 +193,7 @@ export const FINTUTTO_APPS = {
     slug: 'luggagex',
     description: 'Gepäck-Tracking & Reise-Checklisten',
     icon: '🧳',
-    url: 'https://luggagex-fintutto.vercel.app',
+    url: 'https://luggagex.fintutto.cloud',
     category: 'lifestyle' as AppCategory,
   },
   // --- Sales & B2B ---
@@ -210,7 +210,7 @@ export const FINTUTTO_APPS = {
     slug: 'command-center',
     description: 'Fintutto Steuerungszentrale',
     icon: '🎛️',
-    url: 'https://fintutto-command-center.vercel.app',
+    url: 'https://command.fintutto.cloud',
     category: 'sales' as AppCategory,
   },
 } as const

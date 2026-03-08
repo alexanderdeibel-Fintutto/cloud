@@ -200,7 +200,7 @@ export default function HomePage() {
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild>
-                    <a href="https://translator-fintutto.vercel.app" target="_blank" rel="noopener noreferrer">
+                    <a href="https://translator.fintutto.cloud" target="_blank" rel="noopener noreferrer">
                       Vollversion
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </a>

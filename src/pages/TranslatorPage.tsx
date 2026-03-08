@@ -103,7 +103,7 @@ export default function TranslatorPage() {
             Noch mehr Features? Die vollstaendige Translator-App mit Live-Sessions, Offline-Modus und mobiler App:
           </p>
           <Button variant="outline" size="lg" asChild>
-            <a href="https://translator-fintutto.vercel.app" target="_blank" rel="noopener noreferrer">
+            <a href="https://translator.fintutto.cloud" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4 mr-2" />
               Translator-App oeffnen
               <ArrowRight className="h-4 w-4 ml-2" />
