@@ -88,13 +88,26 @@ export function useUploadDocument() {
 
       return results
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] })
+      // Log upload activity for each document
+      if (user && data) {
+        for (const doc of data) {
+          supabase.from('sb_activity_log').insert({
+            user_id: user.id,
+            action: 'upload',
+            entity_type: 'document',
+            entity_id: doc.id,
+            metadata: { title: doc.title, file_type: doc.file_type },
+          }).then(() => {})
+        }
+      }
     },
   })
 }
 
 export function useToggleFavorite() {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -105,14 +118,25 @@ export function useToggleFavorite() {
         .eq('id', doc.id)
 
       if (error) throw error
+      return doc
     },
-    onSuccess: () => {
+    onSuccess: (doc) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] })
+      if (user && doc && !doc.is_favorite) {
+        supabase.from('sb_activity_log').insert({
+          user_id: user.id,
+          action: 'favorite',
+          entity_type: 'document',
+          entity_id: doc.id,
+          metadata: { title: doc.title },
+        }).then(() => {})
+      }
     },
   })
 }
 
 export function useDeleteDocument() {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -123,9 +147,19 @@ export function useDeleteDocument() {
       // Delete from DB
       const { error } = await supabase.from('sb_documents').delete().eq('id', doc.id)
       if (error) throw error
+      return doc
     },
-    onSuccess: () => {
+    onSuccess: (doc) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] })
+      if (user && doc) {
+        supabase.from('sb_activity_log').insert({
+          user_id: user.id,
+          action: 'delete',
+          entity_type: 'document',
+          entity_id: doc.id,
+          metadata: { title: doc.title },
+        }).then(() => {})
+      }
     },
   })
 }

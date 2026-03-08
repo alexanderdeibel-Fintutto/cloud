@@ -5,6 +5,8 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { type Document } from './DocumentCard'
 import { formatRelativeTime, formatFileSize } from '@/lib/utils'
+import { supabase } from '@/integrations/supabase'
+import { toast } from 'sonner'
 
 interface DocumentViewerProps {
   document: Document
@@ -13,6 +15,27 @@ interface DocumentViewerProps {
 }
 
 export default function DocumentViewer({ document: doc, onClose, onFavorite }: DocumentViewerProps) {
+  const handleDownload = async () => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('secondbrain-docs')
+        .download(doc.storage_path)
+
+      if (error) throw error
+
+      const url = URL.createObjectURL(data)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = doc.title + '.' + doc.storage_path.split('.').pop()
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Download error:', err)
+      toast.error('Download fehlgeschlagen')
+    }
+  }
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
@@ -28,7 +51,7 @@ export default function DocumentViewer({ document: doc, onClose, onFavorite }: D
               <Button variant="ghost" size="icon" onClick={() => onFavorite(doc)}>
                 <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={handleDownload}>
                 <Download className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
