@@ -30,7 +30,7 @@ export default function Courses() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Kurskatalog</h1>
-          <p className="text-muted-foreground mt-1">{courses.length} Kurse zu Finanzen, Steuern und Investieren</p>
+          <p className="text-muted-foreground mt-1">{courses.length} Kurse zu Finanzen, Mindset, Investieren und finanzieller Freiheit</p>
         </div>
 
         {/* Search & Filter */}
