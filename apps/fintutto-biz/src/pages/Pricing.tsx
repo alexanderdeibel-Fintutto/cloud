@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BIZ_PLANS, type BizPlan } from "@/config/plans";
+import { createCheckoutSession } from "@fintutto/shared";
 import { formatEuro } from "@/lib/utils";
 import {
   Briefcase,
@@ -13,7 +13,7 @@ import {
 
 export default function Pricing() {
   const navigate = useNavigate();
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +30,7 @@ export default function Pricing() {
   };
 
   const createCheckout = async (plan: BizPlan) => {
-    if (!session?.access_token) return;
+    if (!user) return;
 
     setCheckoutLoading(plan.id);
     setError(null);
@@ -43,22 +43,16 @@ export default function Pricing() {
         return;
       }
 
-      const { data, error: fnError } = await supabase.functions.invoke("create-checkout", {
-        body: {
-          priceId,
-          successUrl: `${window.location.origin}/payment-success`,
-          cancelUrl: `${window.location.origin}/preise`,
-          metadata: { productKey: plan.productKey },
-        },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+      const url = await createCheckoutSession({
+        priceId,
+        userId: user.id,
+        userEmail: user.email || "",
+        tierId: plan.id,
+        productKey: plan.productKey,
+        successUrl: `${window.location.origin}/payment-success`,
+        cancelUrl: `${window.location.origin}/preise`,
       });
-
-      if (fnError) throw fnError;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      window.location.href = url;
     } catch (err) {
       console.error("Checkout error:", err);
       setError("Checkout konnte nicht gestartet werden.");

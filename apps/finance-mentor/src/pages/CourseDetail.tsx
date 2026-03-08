@@ -6,13 +6,15 @@ import {
   BookOpen, Award, Clock, Lock, Play, CheckCircle2,
   ArrowLeft, Users
 } from "lucide-react";
-import { COURSES, LEVEL_LABELS } from "@/lib/courses";
+import { LEVEL_LABELS } from "@/lib/courses";
 import { useEntitlements } from "@/hooks/useEntitlements";
+import { useCourses } from "@/hooks/useCourses";
 
 export default function CourseDetail() {
   const { courseId } = useParams();
   const { hasFeature } = useEntitlements();
-  const course = COURSES.find((c) => c.id === courseId);
+  const { courses } = useCourses();
+  const course = courses.find((c) => c.id === courseId);
 
   const hasPremium = hasFeature("learn_premium_courses");
 
