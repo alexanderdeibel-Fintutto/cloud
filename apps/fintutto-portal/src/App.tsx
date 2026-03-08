@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { ErrorBoundary, PageSkeleton } from '@fintutto/shared'
+import { AuthProvider } from '@/contexts/AuthContext'
 import Layout from '@/components/layout/Layout'
 
 // Eagerly loaded (always needed)
@@ -68,6 +69,7 @@ function PageLoader() {
 function App() {
   return (
     <ErrorBoundary>
+    <AuthProvider>
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -133,6 +135,7 @@ function App() {
       </Suspense>
       <Toaster position="top-right" richColors />
     </BrowserRouter>
+    </AuthProvider>
     </ErrorBoundary>
   )
 }
