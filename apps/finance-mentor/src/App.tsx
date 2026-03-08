@@ -9,6 +9,7 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
+import LessonViewer from "./pages/LessonViewer";
 import Certificates from "./pages/Certificates";
 import Settings from "./pages/Settings";
 import Pricing from "./pages/Pricing";
@@ -35,6 +36,9 @@ const App = () => (
         } />
         <Route path="/kurse/:courseId" element={
           <ProtectedRoute><CourseDetail /></ProtectedRoute>
+        } />
+        <Route path="/kurse/:courseId/lektion/:lessonId" element={
+          <ProtectedRoute><LessonViewer /></ProtectedRoute>
         } />
         <Route path="/zertifikate" element={
           <ProtectedRoute><Certificates /></ProtectedRoute>

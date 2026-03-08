@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/AppLayout";
 import {
   BookOpen, Award, Clock, Lock, Play, CheckCircle2,
-  ArrowLeft, Users
+  ArrowLeft,
 } from "lucide-react";
 import { LEVEL_LABELS } from "@/lib/courses";
 import { useEntitlements } from "@/hooks/useEntitlements";
@@ -17,7 +17,7 @@ export default function CourseDetail() {
   const { hasFeature } = useEntitlements();
   const { courses } = useCourses();
   const course = courses.find((c) => c.id === courseId);
-  const { isLessonComplete, markLessonComplete, getCoursePercent } = useCourseProgress(courseId);
+  const { isLessonComplete, getCoursePercent } = useCourseProgress(courseId);
 
   const hasPremium = hasFeature("learn_premium_courses");
 
@@ -36,6 +36,10 @@ export default function CourseDetail() {
 
   const freeLessons = course.lessons.filter((l) => l.free);
   const premiumLessons = course.lessons.filter((l) => !l.free);
+  const coursePercent = getCoursePercent(course.id, course.lessons.length);
+
+  // Find first incomplete lesson for "continue" CTA
+  const nextLesson = course.lessons.find((l) => !isLessonComplete(l.id) && (l.free || hasPremium || course.free));
 
   return (
     <AppLayout>
@@ -74,9 +78,23 @@ export default function CourseDetail() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Kurs-Fortschritt</span>
-                <span className="text-sm text-muted-foreground">{getCoursePercent(course.id, course.lessons.length)}%</span>
+                <span className="text-sm text-muted-foreground">{coursePercent}%</span>
               </div>
-              <Progress value={getCoursePercent(course.id, course.lessons.length)} />
+              <Progress value={coursePercent} />
+              {nextLesson && coursePercent < 100 && (
+                <Button asChild size="sm" className="mt-3">
+                  <Link to={`/kurse/${courseId}/lektion/${nextLesson.id}`}>
+                    <Play className="h-4 w-4 mr-1" />
+                    {coursePercent > 0 ? "Weitermachen" : "Kurs starten"}
+                  </Link>
+                </Button>
+              )}
+              {coursePercent >= 100 && (
+                <p className="text-sm text-primary font-medium mt-2">
+                  <CheckCircle2 className="h-4 w-4 inline mr-1" />
+                  Kurs abgeschlossen!
+                </p>
+              )}
             </CardContent>
           </Card>
         )}
@@ -90,9 +108,9 @@ export default function CourseDetail() {
             {freeLessons.map((lesson, idx) => {
               const done = isLessonComplete(lesson.id);
               return (
-                <button
+                <Link
                   key={lesson.id}
-                  onClick={() => !done && markLessonComplete(course.id, lesson.id)}
+                  to={`/kurse/${courseId}/lektion/${lesson.id}`}
                   className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-accent transition-colors text-left"
                 >
                   <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
@@ -105,7 +123,7 @@ export default function CourseDetail() {
                     <p className="text-xs text-muted-foreground">{lesson.duration}</p>
                   </div>
                   {done ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Play className="h-4 w-4 text-primary" />}
-                </button>
+                </Link>
               );
             })}
           </CardContent>
@@ -124,15 +142,9 @@ export default function CourseDetail() {
               {premiumLessons.map((lesson, idx) => {
                 const canAccess = hasPremium || course.free;
                 const done = isLessonComplete(lesson.id);
-                return (
-                  <button
-                    key={lesson.id}
-                    disabled={!canAccess}
-                    onClick={() => canAccess && !done && markLessonComplete(course.id, lesson.id)}
-                    className={`w-full flex items-center gap-4 p-3 rounded-xl text-left ${
-                      canAccess ? "hover:bg-accent cursor-pointer" : "opacity-60"
-                    }`}
-                  >
+
+                const inner = (
+                  <>
                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
                       done ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
                     }`}>
@@ -148,7 +160,24 @@ export default function CourseDetail() {
                         ? <CheckCircle2 className="h-4 w-4 text-primary" />
                         : <Play className="h-4 w-4 text-primary" />
                     }
-                  </button>
+                  </>
+                );
+
+                return canAccess ? (
+                  <Link
+                    key={lesson.id}
+                    to={`/kurse/${courseId}/lektion/${lesson.id}`}
+                    className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-accent transition-colors text-left"
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div
+                    key={lesson.id}
+                    className="w-full flex items-center gap-4 p-3 rounded-xl opacity-60"
+                  >
+                    {inner}
+                  </div>
                 );
               })}
 
