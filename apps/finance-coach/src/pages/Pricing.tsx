@@ -1,13 +1,19 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, Zap } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, Sparkles, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { createCheckoutSession } from "@fintutto/shared";
 
 const PLANS = [
   {
+    id: "free",
     name: "Free",
     price: "0",
     period: "fuer immer",
+    productKey: "",
+    stripePriceId: "",
     features: [
       "Kontostand-Dashboard",
       "3 Budget-Kategorien",
@@ -18,9 +24,12 @@ const PLANS = [
     highlight: false,
   },
   {
+    id: "premium",
     name: "Premium",
     price: "4,99",
     period: "/Monat",
+    productKey: "fintutto_finance_coach_premium",
+    stripePriceId: import.meta.env.VITE_STRIPE_PRICE_FINANCE_COACH_PREMIUM || "",
     features: [
       "Alles aus Free",
       "Unbegrenzte Budget-Kategorien",
@@ -35,9 +44,12 @@ const PLANS = [
     badge: "Beliebt",
   },
   {
+    id: "forecast",
     name: "AI Forecast",
     price: "+2,99",
     period: "/Monat Add-on",
+    productKey: "fintutto_ai_forecast_addon",
+    stripePriceId: import.meta.env.VITE_STRIPE_PRICE_AI_FORECAST_ADDON || "",
     features: [
       "Alles aus Premium",
       "KI-Cashflow-Prognose",
@@ -52,6 +64,44 @@ const PLANS = [
 ];
 
 export default function Pricing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (plan: typeof PLANS[number]) => {
+    if (!plan.stripePriceId) {
+      // Free plan - just redirect to register or dashboard
+      if (user) {
+        navigate("/dashboard");
+      } else {
+        navigate("/register");
+      }
+      return;
+    }
+
+    if (!user) {
+      navigate("/register");
+      return;
+    }
+
+    setLoadingPlan(plan.id);
+    try {
+      const url = await createCheckoutSession({
+        priceId: plan.stripePriceId,
+        userId: user.id,
+        userEmail: user.email || "",
+        tierId: plan.id,
+        productKey: plan.productKey,
+        successUrl: `${window.location.origin}/dashboard?upgraded=true`,
+        cancelUrl: `${window.location.origin}/preise`,
+      });
+      window.location.href = url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-20 max-w-5xl">
@@ -81,7 +131,7 @@ export default function Pricing() {
               <CardContent className="p-7">
                 <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-4xl font-black">{plan.price}\u20ac</span>
+                  <span className="text-4xl font-black">{plan.price}{"\u20ac"}</span>
                   <span className="text-muted-foreground text-sm">{plan.period}</span>
                 </div>
 
@@ -95,10 +145,19 @@ export default function Pricing() {
                 </div>
 
                 <Button
-                  className={`w-full ${plan.highlight ? "" : ""}`}
+                  className="w-full"
                   variant={plan.highlight ? "default" : "outline"}
+                  disabled={loadingPlan === plan.id}
+                  onClick={() => handleSubscribe(plan)}
                 >
-                  {plan.cta}
+                  {loadingPlan === plan.id ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Weiterleitung...
+                    </>
+                  ) : (
+                    plan.cta
+                  )}
                 </Button>
               </CardContent>
             </Card>

@@ -5,7 +5,10 @@ import {
   Wallet, TrendingUp, TrendingDown, PiggyBank,
   ArrowUpRight, ArrowDownRight, Brain
 } from "lucide-react";
-import { formatEuro } from "@fintutto/shared";
+import { formatEuro, getUpgradeSuggestions } from "@fintutto/shared";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const MOCK_STATS = {
   balance: 4823.50,
@@ -27,6 +30,43 @@ const MOCK_AI_INSIGHT = {
   title: "Spar-Tipp",
   text: "Du gibst 14% mehr fuer Lebensmittel aus als im Vormonat. Versuch diese Woche einen Meal-Prep Tag einzubauen - das spart durchschnittlich 35 EUR/Woche.",
 };
+
+function CrossAppSuggestions() {
+  const { entitlements } = useEntitlements();
+  const userKeys = entitlements.map((e) => e.feature_key);
+  const suggestions = getUpgradeSuggestions("finance-coach", userKeys, 2);
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Fintutto Oekosystem</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {suggestions.map((s) => (
+            <div key={s.entitlementKey} className="flex items-start gap-3 p-3 rounded-xl bg-muted/30 border border-border/30">
+              <span className="text-2xl">{s.appIcon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">{s.app}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{s.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-primary font-medium">{s.price}</span>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" asChild>
+                    <a href={s.upgradeUrl} target="_blank" rel="noopener noreferrer">
+                      Ansehen <ExternalLink className="h-3 w-3 ml-1" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Dashboard() {
   return (
@@ -125,6 +165,9 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Cross-App Suggestions */}
+        <CrossAppSuggestions />
 
         {/* Recent Transactions */}
         <Card>

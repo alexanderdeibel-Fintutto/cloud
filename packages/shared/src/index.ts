@@ -173,3 +173,7 @@ export { createSupabaseClient, type CreateSupabaseClientOptions } from './supaba
 
 // Entitlements engine (FinTech Universe)
 export * from './entitlements'
+
+// Cross-app monetization (PremiumTeaser, upgrade suggestions)
+export { getPremiumTeaserConfig, getUpgradeSuggestions, CROSS_APP_UPGRADES } from './components/PremiumTeaser'
+export type { PremiumTeaserProps, UpgradePromptConfig } from './components/PremiumTeaser'

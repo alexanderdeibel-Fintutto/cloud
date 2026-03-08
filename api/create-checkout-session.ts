@@ -13,11 +13,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, userEmail, tierId } = req.body
+    const { priceId, userId, userEmail, tierId, productKey, successUrl, cancelUrl, referralCode } = req.body
 
     if (!priceId) {
       return res.status(400).json({ error: 'Price ID is required' })
     }
+
+    const origin = req.headers.origin || ''
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -28,14 +30,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/checkout/cancel`,
+      success_url: successUrl || `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${origin}/checkout/cancel`,
       customer_email: userEmail || undefined,
       metadata: {
         userId: userId || '',
         tierId: tierId || '',
         creditsLimit: String(PLAN_CREDIT_LIMITS[tierId] || 3),
+        productKey: productKey || '',
+        referralCode: referralCode || '',
       },
+      subscription_data: productKey ? {
+        metadata: {
+          productKey: productKey,
+        },
+      } : undefined,
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       locale: 'de',
