@@ -83,6 +83,8 @@ export const APP_CATEGORIES = {
   finanzen: 'Finanzen & Tools',
   lifestyle: 'Lifestyle',
   sales: 'Sales & B2B',
+  bildung: 'Bildung & Lernen',
+  karriere: 'Karriere & Soziales',
 } as const
 
 export type AppCategory = keyof typeof APP_CATEGORIES
@@ -103,7 +105,7 @@ export const FINTUTTO_APPS = {
     slug: 'ablesung',
     description: 'Zählerablesung & Verbrauchserfassung',
     icon: '📊',
-    url: 'https://ablesung.fintutto.cloud',
+    url: 'https://zaehler.fintutto.cloud',
     category: 'immobilien' as AppCategory,
   },
   hausmeisterPro: {
@@ -111,7 +113,7 @@ export const FINTUTTO_APPS = {
     slug: 'hausmeister-pro',
     description: 'Hausmeister- & Gebäudeverwaltung',
     icon: '🔧',
-    url: 'https://hausmeister.fintutto.cloud',
+    url: 'https://hausmeisterpro.fintutto.cloud',
     category: 'immobilien' as AppCategory,
   },
   mieter: {
@@ -119,7 +121,7 @@ export const FINTUTTO_APPS = {
     slug: 'mieter',
     description: 'Mieter-Portal & Tools',
     icon: '🏡',
-    url: 'https://mieter.fintutto.cloud',
+    url: 'https://mieter.fintutto.de',
     category: 'immobilien' as AppCategory,
   },
   vermieterPortal: {
@@ -152,7 +154,7 @@ export const FINTUTTO_APPS = {
     slug: 'bescheidboxer',
     description: 'Steuerbescheid-Prüfer',
     icon: '📋',
-    url: 'https://bescheidboxer.fintutto.cloud',
+    url: 'https://app.bescheidboxer.de',
     category: 'finanzen' as AppCategory,
   },
   adminHub: {
@@ -177,7 +179,7 @@ export const FINTUTTO_APPS = {
     slug: 'pflanzen-manager',
     description: 'Zimmerpflanzen-Pflege & Tracking',
     icon: '🌱',
-    url: 'https://pflanzen.fintutto.cloud',
+    url: 'https://zimmerpflanze.fintutto.cloud',
     category: 'lifestyle' as AppCategory,
   },
   personaltrainer: {
@@ -185,7 +187,7 @@ export const FINTUTTO_APPS = {
     slug: 'personaltrainer',
     description: 'Fitness-Coaching & Trainingspläne',
     icon: '💪',
-    url: 'https://fittutto.fintutto.cloud',
+    url: 'https://fitness.fintutto.cloud',
     category: 'lifestyle' as AppCategory,
   },
   luggageX: {
@@ -210,8 +212,81 @@ export const FINTUTTO_APPS = {
     slug: 'command-center',
     description: 'Fintutto Steuerungszentrale',
     icon: '🎛️',
-    url: 'https://command.fintutto.cloud',
+    url: 'https://commander.fintutto.cloud',
     category: 'sales' as AppCategory,
+  },
+  // --- Neue Apps ---
+  financeCoach: {
+    name: 'Finance Coach',
+    slug: 'finance-coach',
+    description: 'KI-gestütztes Finanz-Coaching',
+    icon: '💰',
+    url: 'https://finance-coach.fintutto.cloud',
+    category: 'finanzen' as AppCategory,
+  },
+  financeMentor: {
+    name: 'Finance Mentor',
+    slug: 'finance-mentor',
+    description: 'Investment-Strategien & Vermögensaufbau',
+    icon: '📈',
+    url: 'https://finance-mentor.fintutto.cloud',
+    category: 'finanzen' as AppCategory,
+  },
+  arbeitslosPortal: {
+    name: 'Arbeitslos-Portal',
+    slug: 'arbeitslos-portal',
+    description: 'Unterstützung bei Arbeitslosigkeit',
+    icon: '🤝',
+    url: 'https://arbeitslos-portal.fintutto.cloud',
+    category: 'karriere' as AppCategory,
+  },
+  aiGuide: {
+    name: 'AI Guide',
+    slug: 'ai-guide',
+    description: 'Universeller KI-Assistent',
+    icon: '🤖',
+    url: 'https://ai-guide.fintutto.cloud',
+    category: 'bildung' as AppCategory,
+  },
+  lernApp: {
+    name: 'LernApp',
+    slug: 'lern-app',
+    description: 'Lernen mit KI-Unterstützung',
+    icon: '📚',
+    url: 'https://lernen.fintutto.cloud',
+    category: 'bildung' as AppCategory,
+  },
+  guideTranslatorSales: {
+    name: 'GuideTranslator Sales',
+    slug: 'guidetranslator-sales',
+    description: 'B2B-Vertrieb für GuideTranslator',
+    icon: '💼',
+    url: 'https://sales.translator.fintutto.cloud',
+    category: 'sales' as AppCategory,
+  },
+  consumerGuideTranslator: {
+    name: 'GuideTranslator Consumer',
+    slug: 'consumer-guidetranslator',
+    description: 'Übersetzer für Kreuzfahrt-Gäste',
+    icon: '🛳️',
+    url: 'https://consumer.guidetranslator.com',
+    category: 'sales' as AppCategory,
+  },
+  bizPortal: {
+    name: 'Biz Portal',
+    slug: 'biz-portal',
+    description: 'Business-Tools für Selbstständige',
+    icon: '🏢',
+    url: 'https://biz.fintutto.cloud',
+    category: 'sales' as AppCategory,
+  },
+  fintuttoCloud: {
+    name: 'Fintutto Cloud',
+    slug: 'fintutto-cloud',
+    description: 'Die Startseite des Ökosystems',
+    icon: '☁️',
+    url: 'https://www.fintutto.cloud',
+    category: 'finanzen' as AppCategory,
   },
 } as const
 
