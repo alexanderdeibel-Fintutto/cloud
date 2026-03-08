@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.learn_courses (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
-  category TEXT NOT NULL, -- budgeting, investing, taxes, credit, emergency_fund, insurance
+  category TEXT NOT NULL, -- budgeting, investing, taxes, credit, emergency_fund, insurance, mindset, saving, freedom
   difficulty TEXT DEFAULT 'beginner' CHECK (difficulty IN ('beginner', 'intermediate', 'advanced')),
   is_premium BOOLEAN DEFAULT false,
   lesson_count INT DEFAULT 0,
@@ -62,13 +62,20 @@ CREATE POLICY "own_certificates" ON public.learn_certificates FOR ALL USING (use
 -- Seed: Basis-Kurse
 INSERT INTO public.learn_courses (title, description, category, difficulty, is_premium, lesson_count, estimated_minutes, sort_order) VALUES
   ('Budgetierung Grundlagen', 'Lerne die Basics der persoenlichen Finanzplanung', 'budgeting', 'beginner', false, 5, 30, 1),
-  ('ETFs verstehen', 'Einfuehrung in ETF-Investing fuer Einsteiger', 'investing', 'beginner', false, 6, 45, 2),
-  ('Steuern fuer Arbeitnehmer', 'Steuererklaerung und Absetzmoeglichkeiten verstehen', 'taxes', 'beginner', false, 4, 25, 3),
-  ('Kredite und Schuldenmanagement', 'Richtig mit Krediten umgehen und Schulden abbauen', 'credit', 'beginner', false, 5, 35, 4),
-  ('Notfallfonds aufbauen', 'Finanzielle Sicherheit durch Ruecklagen', 'emergency_fund', 'beginner', false, 3, 20, 5),
-  ('Fortgeschrittenes Investing', 'Portfoliotheorie, Diversifikation, Rebalancing', 'investing', 'intermediate', true, 8, 60, 6),
-  ('Steuern fuer Freelancer', 'EUeR, Umsatzsteuer, Abschreibungen fuer Selbststaendige', 'taxes', 'intermediate', true, 7, 50, 7),
-  ('Immobilien als Investment', 'Rendite, Finanzierung, Steuervorteile bei Immobilien', 'investing', 'advanced', true, 6, 45, 8),
-  ('Versicherungen optimieren', 'Welche Versicherungen braucht man wirklich?', 'insurance', 'beginner', true, 5, 30, 9),
-  ('Altersvorsorge planen', 'Rente, Riester, Ruerup, betriebliche Altersvorsorge', 'investing', 'intermediate', true, 7, 55, 10)
+  ('Dein Finanz-Mindset', 'Warum deine Ueberzeugungen ueber Geld dein Konto bestimmen', 'mindset', 'beginner', false, 6, 50, 2),
+  ('Schulden strategisch abbauen', 'Verschaffe dir Ueberblick und werde systematisch schuldenfrei', 'budgeting', 'beginner', false, 5, 40, 3),
+  ('ETFs verstehen', 'Einfuehrung in ETF-Investing fuer Einsteiger', 'investing', 'beginner', false, 6, 45, 4),
+  ('Steuern fuer Arbeitnehmer', 'Steuererklaerung und Absetzmoeglichkeiten verstehen', 'taxes', 'beginner', false, 4, 25, 5),
+  ('Kredite und Schuldenmanagement', 'Richtig mit Krediten umgehen und Schulden abbauen', 'credit', 'beginner', false, 5, 35, 6),
+  ('Notfallfonds aufbauen', 'Finanzielle Sicherheit durch Ruecklagen', 'emergency_fund', 'beginner', false, 3, 20, 7),
+  ('Automatisch Vermoegen aufbauen', 'Richte ein System ein das dein Vermoegen im Hintergrund wachsen laesst', 'saving', 'beginner', true, 7, 60, 8),
+  ('Der Weg zur finanziellen Freiheit', 'Von der Absicherung bis zur Unabhaengigkeit in vier Stufen', 'freedom', 'beginner', true, 8, 90, 9),
+  ('Passives Einkommen aufbauen', 'Einkommensquellen die auch ohne taegliche Arbeit fliessen', 'investing', 'intermediate', true, 9, 120, 10),
+  ('Einkommen gezielt steigern', 'Strategien fuer Gehaltsverhandlung Nebeneinkuenfte und Positionierung', 'freedom', 'intermediate', true, 8, 90, 11),
+  ('Fortgeschrittenes Investing', 'Portfoliotheorie, Diversifikation, Rebalancing', 'investing', 'intermediate', true, 8, 60, 12),
+  ('Steuern fuer Freelancer', 'EUeR, Umsatzsteuer, Abschreibungen fuer Selbststaendige', 'taxes', 'intermediate', true, 7, 50, 13),
+  ('Immobilien als Investment', 'Rendite, Finanzierung, Steuervorteile bei Immobilien', 'investing', 'advanced', true, 6, 45, 14),
+  ('Vermoegen schuetzen und erhalten', 'Wie du dein Vermoegen vor Inflation und Risiken bewahrst', 'freedom', 'advanced', true, 8, 90, 15),
+  ('Versicherungen optimieren', 'Welche Versicherungen braucht man wirklich?', 'insurance', 'beginner', true, 5, 30, 16),
+  ('Altersvorsorge planen', 'Rente, Riester, Ruerup, betriebliche Altersvorsorge', 'investing', 'intermediate', true, 7, 55, 17)
 ON CONFLICT DO NOTHING;
