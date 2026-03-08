@@ -157,6 +157,12 @@ export const FINTUTTO_APPS = {
     description: 'B2B Finance Intelligence API',
     icon: '🔌',
   },
+  secondBrain: {
+    name: 'SecondBrain',
+    slug: 'secondbrain',
+    description: 'Intelligentes Wissensmanagement mit KI',
+    icon: '🧠',
+  },
 } as const
 
 // Re-export all database types
