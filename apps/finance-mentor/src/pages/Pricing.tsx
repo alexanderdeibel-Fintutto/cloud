@@ -1,13 +1,19 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, GraduationCap, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, GraduationCap, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { createCheckoutSession } from "@fintutto/shared";
 
 const PLANS = [
   {
+    id: "free",
     name: "Free",
     price: "0",
     period: "fuer immer",
+    productKey: "",
+    stripePriceId: "",
     features: [
       "2 kostenlose Grundlagen-Kurse",
       "Erste Lektionen aller Kurse",
@@ -18,9 +24,12 @@ const PLANS = [
     highlight: false,
   },
   {
+    id: "premium",
     name: "Premium",
     price: "4,99",
     period: "/Monat",
+    productKey: "fintutto_learn_premium",
+    stripePriceId: import.meta.env.VITE_STRIPE_PRICE_LEARN_PREMIUM || "",
     features: [
       "Alle Kurse freigeschaltet",
       "Zertifikate nach Abschluss",
@@ -34,9 +43,12 @@ const PLANS = [
     badge: "Beliebt",
   },
   {
+    id: "bundle",
     name: "Kursbundle",
     price: "29,99",
     period: "einmalig",
+    productKey: "fintutto_learn_kursbundle",
+    stripePriceId: import.meta.env.VITE_STRIPE_PRICE_LEARN_BUNDLE || "",
     features: [
       "Alle Kurse dauerhaft freigeschaltet",
       "Alle Zertifikate",
@@ -49,6 +61,43 @@ const PLANS = [
 ];
 
 export default function Pricing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (plan: typeof PLANS[number]) => {
+    if (!plan.stripePriceId) {
+      if (user) {
+        navigate("/dashboard");
+      } else {
+        navigate("/register");
+      }
+      return;
+    }
+
+    if (!user) {
+      navigate("/register");
+      return;
+    }
+
+    setLoadingPlan(plan.id);
+    try {
+      const url = await createCheckoutSession({
+        priceId: plan.stripePriceId,
+        userId: user.id,
+        userEmail: user.email || "",
+        tierId: plan.id,
+        productKey: plan.productKey,
+        successUrl: `${window.location.origin}/dashboard?upgraded=true`,
+        cancelUrl: `${window.location.origin}/preise`,
+      });
+      window.location.href = url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-20 max-w-5xl">
@@ -78,7 +127,7 @@ export default function Pricing() {
               <CardContent className="p-7">
                 <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-4xl font-black">{plan.price}\u20ac</span>
+                  <span className="text-4xl font-black">{plan.price}{"\u20ac"}</span>
                   <span className="text-muted-foreground text-sm">{plan.period}</span>
                 </div>
 
@@ -91,8 +140,20 @@ export default function Pricing() {
                   ))}
                 </div>
 
-                <Button className="w-full" variant={plan.highlight ? "default" : "outline"}>
-                  {plan.cta}
+                <Button
+                  className="w-full"
+                  variant={plan.highlight ? "default" : "outline"}
+                  disabled={loadingPlan === plan.id}
+                  onClick={() => handleSubscribe(plan)}
+                >
+                  {loadingPlan === plan.id ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Weiterleitung...
+                    </>
+                  ) : (
+                    plan.cta
+                  )}
                 </Button>
               </CardContent>
             </Card>

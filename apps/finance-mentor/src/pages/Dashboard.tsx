@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AppLayout } from "@/components/AppLayout";
-import { BookOpen, Award, Clock, ArrowRight, Play, Flame } from "lucide-react";
+import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink } from "lucide-react";
 import { COURSES, LEVEL_LABELS } from "@/lib/courses";
+import { getUpgradeSuggestions } from "@fintutto/shared";
+import { useEntitlements } from "@/hooks/useEntitlements";
 
 export default function Dashboard() {
   // Mock user progress
@@ -103,7 +105,47 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
+        {/* Cross-App Suggestions */}
+        <EcosystemSuggestions />
       </div>
     </AppLayout>
+  );
+}
+
+function EcosystemSuggestions() {
+  const { entitlements } = useEntitlements();
+  const userKeys = entitlements.map((e) => e.feature_key);
+  const suggestions = getUpgradeSuggestions("finance-mentor", userKeys, 2);
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Fintutto Oekosystem</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {suggestions.map((s) => (
+            <div key={s.entitlementKey} className="flex items-start gap-3 p-3 rounded-xl bg-muted/30 border border-border/30">
+              <span className="text-2xl">{s.appIcon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">{s.app}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{s.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-primary font-medium">{s.price}</span>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" asChild>
+                    <a href={s.upgradeUrl} target="_blank" rel="noopener noreferrer">
+                      Ansehen <ExternalLink className="h-3 w-3 ml-1" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
