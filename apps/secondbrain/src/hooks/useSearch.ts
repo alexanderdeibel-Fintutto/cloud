@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -8,6 +8,7 @@ export function useSearch() {
   const { user } = useAuth()
   const [query, setQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<string[]>([])
+  const lastLoggedQuery = useRef('')
 
   const toggleFilter = useCallback((filter: string) => {
     setActiveFilters((prev) =>
@@ -36,6 +37,18 @@ export function useSearch() {
 
       const { data, error } = await q
       if (error) throw error
+
+      // Log search activity (debounce: only log if query changed)
+      if (query.trim() !== lastLoggedQuery.current) {
+        lastLoggedQuery.current = query.trim()
+        supabase.from('sb_activity_log').insert({
+          user_id: user.id,
+          action: 'search',
+          entity_type: 'document',
+          metadata: { query: query.trim(), results_count: data?.length || 0 },
+        }).then(() => {})
+      }
+
       return (data || []) as Document[]
     },
     enabled: !!user && !!query.trim(),

@@ -7,6 +7,7 @@ import SearchBar from '@/components/search/SearchBar'
 import DocumentGrid from '@/components/documents/DocumentGrid'
 import DocumentViewer from '@/components/documents/DocumentViewer'
 import { useDocuments, useToggleFavorite, useDeleteDocument } from '@/hooks/useDocuments'
+import { useLogActivity } from '@/hooks/useActivityLog'
 import type { Document } from '@/components/documents/DocumentCard'
 
 export default function DocumentsPage() {
@@ -18,6 +19,17 @@ export default function DocumentsPage() {
   const { data: documents = [], isLoading } = useDocuments({ search: search || undefined })
   const toggleFavorite = useToggleFavorite()
   const deleteDocument = useDeleteDocument()
+  const logActivity = useLogActivity()
+
+  const handleView = (doc: Document) => {
+    setSelectedDoc(doc)
+    logActivity.mutate({
+      action: 'view',
+      entity_type: 'document',
+      entity_id: doc.id,
+      metadata: { title: doc.title },
+    })
+  }
 
   const toggleFilter = (filter: string) => {
     setActiveFilters((prev) =>
@@ -69,7 +81,7 @@ export default function DocumentsPage() {
       ) : (
         <DocumentGrid
           documents={filteredDocs}
-          onView={setSelectedDoc}
+          onView={handleView}
           onFavorite={(doc) => toggleFavorite.mutate(doc)}
           onDelete={(doc) => deleteDocument.mutate(doc)}
           emptyMessage={search ? 'Keine Ergebnisse für deine Suche' : 'Noch keine Dokumente hochgeladen'}
