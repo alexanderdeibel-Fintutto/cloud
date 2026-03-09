@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AppLayout } from "@/components/AppLayout";
-import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink, Route } from "lucide-react";
-import { LEVEL_LABELS, LEARNING_PATHS, COURSES as ALL_COURSES } from "@/lib/courses";
+import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink, Route, BarChart3 } from "lucide-react";
+import { LEVEL_LABELS, LEARNING_PATHS, COURSES as ALL_COURSES, CATEGORIES } from "@/lib/courses";
 import { getUpgradeSuggestions } from "@fintutto/shared";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useCourses } from "@/hooks/useCourses";
@@ -154,6 +154,44 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
+        {/* Category Progress */}
+        {completedLessons > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Fortschritt nach Kategorie
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {CATEGORIES.map((cat) => {
+                  const catCourses = courses.filter((c) => c.category === cat);
+                  const catLessons = catCourses.reduce((s, c) => s + c.lessons.length, 0);
+                  const catCompleted = catCourses.reduce((s, c) => {
+                    return s + c.lessons.filter((l) =>
+                      lessonProgress.some((p) => p.lesson_id === l.id && p.course_id === c.id && p.progress >= 100)
+                    ).length;
+                  }, 0);
+                  const pct = catLessons > 0 ? Math.round((catCompleted / catLessons) * 100) : 0;
+                  if (catCompleted === 0) return null;
+                  return (
+                    <div key={cat} className="flex items-center gap-3 p-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium truncate">{cat}</span>
+                          <span className="text-xs text-muted-foreground">{catCompleted}/{catLessons}</span>
+                        </div>
+                        <Progress value={pct} className="h-1.5" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Learning Paths Teaser */}
         <div>

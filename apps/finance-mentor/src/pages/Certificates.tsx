@@ -6,6 +6,7 @@ import { Award, Download, BookOpen, Hash } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { generateCertificatePDF } from "@/lib/generate-certificate-pdf";
 
 interface Certificate {
   id: string;
@@ -82,9 +83,21 @@ export default function Certificates() {
                   <p className="text-xs text-primary font-medium mb-4">
                     Ergebnis: {cert.finalScore}%
                   </p>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      generateCertificatePDF({
+                        name: user?.user_metadata?.full_name || user?.email || "Teilnehmer/in",
+                        courseTitle: cert.courseTitle,
+                        date: cert.date,
+                        certificateNumber: cert.certificateNumber,
+                        score: cert.finalScore,
+                      })
+                    }
+                  >
                     <Download className="h-4 w-4 mr-2" />
-                    PDF herunterladen
+                    Zertifikat herunterladen
                   </Button>
                 </CardContent>
               </Card>
