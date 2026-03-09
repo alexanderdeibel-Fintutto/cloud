@@ -31,11 +31,36 @@ export default function Dashboard() {
     (c) => getCoursePercent(c.id, c.lessons.length) >= 100
   ).length;
 
-  // Suggest courses the user hasn't started yet
+  // Smart recommendations: one per category, prefer free beginner courses first
   const notStartedCourses = courses.filter(
     (c) => getCoursePercent(c.id, c.lessons.length) === 0
   );
-  const recommendedCourses = notStartedCourses.length > 0 ? notStartedCourses.slice(0, 3) : courses.slice(0, 3);
+  const recommendedCourses = (() => {
+    if (notStartedCourses.length === 0) return courses.slice(0, 3);
+    // Diversify by category, prefer free beginner courses
+    const seenCategories = new Set<string>();
+    const sorted = [...notStartedCourses].sort((a, b) => {
+      const scoreA = (a.free ? 0 : 1) + (a.level === "anfaenger" ? 0 : a.level === "fortgeschritten" ? 1 : 2);
+      const scoreB = (b.free ? 0 : 1) + (b.level === "anfaenger" ? 0 : b.level === "fortgeschritten" ? 1 : 2);
+      return scoreA - scoreB;
+    });
+    const picks: typeof courses = [];
+    for (const c of sorted) {
+      if (picks.length >= 3) break;
+      if (!seenCategories.has(c.category)) {
+        picks.push(c);
+        seenCategories.add(c.category);
+      }
+    }
+    // Fill remaining slots if fewer than 3 categories available
+    if (picks.length < 3) {
+      for (const c of sorted) {
+        if (picks.length >= 3) break;
+        if (!picks.includes(c)) picks.push(c);
+      }
+    }
+    return picks;
+  })();
 
   return (
     <AppLayout>
