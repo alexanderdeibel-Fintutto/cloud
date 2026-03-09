@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Brain, Search, Menu, LogOut, User, Moon, Sun, Grid3X3 } from 'lucide-react'
+import { Brain, Search, Menu, LogOut, User, Moon, Sun, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,11 +11,16 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
 import { AppSwitcher } from '@fintutto/shared'
+import { useDocuments } from '@/hooks/useDocuments'
 
 export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: () => void }) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const [darkMode, setDarkMode] = useState(true)
+  const { data: documents = [] } = useDocuments()
+  const pendingCount = documents.filter(d =>
+    d.status === 'action_required' || d.priority === 'urgent' || !d.status || d.status === 'inbox'
+  ).length
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -60,6 +65,23 @@ export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: ()
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
           <AppSwitcher currentAppSlug="secondbrain" />
+
+          {/* Notification bell */}
+          {user && pendingCount > 0 && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => navigate('/eingang')}
+              title={`${pendingCount} Dokumente im Eingang`}
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {pendingCount > 9 ? '9+' : pendingCount}
+              </span>
+            </Button>
+          )}
+
           <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>

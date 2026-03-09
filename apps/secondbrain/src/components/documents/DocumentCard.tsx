@@ -1,6 +1,7 @@
-import { FileText, Image, File, MoreVertical, Star, Trash2, FolderOpen, Eye, AlertTriangle, Clock } from 'lucide-react'
+import { FileText, Image, File, MoreVertical, Star, Trash2, FolderOpen, Eye, AlertTriangle, Clock, Receipt } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -87,6 +88,7 @@ export default function DocumentCard({
 }: DocumentCardProps) {
   const Icon = fileTypeIcons[doc.file_type] || File
   const colorClass = fileTypeColors[doc.file_type] || fileTypeColors.other
+  const docTypeInfo = doc.document_type ? DOCUMENT_TYPES[doc.document_type] : null
 
   const handleClick = () => {
     if (selectionMode && onSelect) {
@@ -98,9 +100,14 @@ export default function DocumentCard({
 
   return (
     <div
-      className={`doc-card group cursor-pointer relative ${selected ? 'ring-2 ring-primary border-primary' : ''}`}
+      className={`doc-card group cursor-pointer relative overflow-hidden ${selected ? 'ring-2 ring-primary border-primary' : ''}`}
       onClick={handleClick}
     >
+      {/* Colored top strip based on document type */}
+      {docTypeInfo && (
+        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ backgroundColor: docTypeInfo.color }} />
+      )}
+
       {/* Selection indicator */}
       {selectionMode && (
         <div className="absolute top-2.5 left-2.5 z-10">
@@ -228,6 +235,16 @@ export default function DocumentCard({
       {doc.status === 'inbox' && doc.ocr_status === 'completed' && (
         <div className="flex items-center gap-1 text-[10px] text-blue-500 mb-2">
           <Clock className="w-3 h-3" /> Im Eingang
+        </div>
+      )}
+
+      {/* Amount */}
+      {doc.amount && doc.amount > 0 && (
+        <div className="flex items-center gap-1 mb-2">
+          <Receipt className="w-3 h-3 text-green-500" />
+          <span className="text-xs font-semibold text-green-600 dark:text-green-400">
+            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: doc.currency || 'EUR' }).format(doc.amount)}
+          </span>
         </div>
       )}
 

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
+import GlobalDropZone from './GlobalDropZone'
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -17,6 +18,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      <GlobalDropZone />
     </div>
   )
 }
