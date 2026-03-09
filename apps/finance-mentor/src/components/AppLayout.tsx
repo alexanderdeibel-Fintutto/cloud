@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, BookOpen, Award, Settings,
-  LogOut, ChevronRight, Route, BookOpenCheck, Calculator
+  LogOut, ChevronRight, Route, BookOpenCheck, Calculator, ClipboardCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { path: "/zertifikate", label: "Zertifikate", icon: Award },
   { path: "/glossar", label: "Glossar", icon: BookOpenCheck },
   { path: "/rechner", label: "Rechner", icon: Calculator },
+  { path: "/checkliste", label: "Checkliste", icon: ClipboardCheck },
   { path: "/einstellungen", label: "Einstellungen", icon: Settings },
 ];
 

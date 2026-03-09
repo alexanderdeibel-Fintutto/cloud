@@ -13,6 +13,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Certificates from "./pages/Certificates";
 import Glossary from "./pages/Glossary";
 import Calculators from "./pages/Calculators";
+import Checklist from "./pages/Checklist";
 import Settings from "./pages/Settings";
 import Pricing from "./pages/Pricing";
 
@@ -50,6 +51,9 @@ const App = () => (
         } />
         <Route path="/rechner" element={
           <ProtectedRoute><Calculators /></ProtectedRoute>
+        } />
+        <Route path="/checkliste" element={
+          <ProtectedRoute><Checklist /></ProtectedRoute>
         } />
         <Route path="/einstellungen" element={
           <ProtectedRoute><Settings /></ProtectedRoute>

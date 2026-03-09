@@ -376,4 +376,267 @@ export const QUIZZES: Record<string, Quiz> = {
       },
     ],
   },
+
+  "automatisch-vermoegen-aufbauen": {
+    courseId: "automatisch-vermoegen-aufbauen",
+    title: "Quiz: Automatisch Vermoegen aufbauen",
+    questions: [
+      {
+        question: "Was bedeutet 'Pay Yourself First'?",
+        options: ["Luxusgueter zuerst kaufen", "Am Gehaltstag zuerst den Sparbetrag abzweigen", "Schulden zuerst tilgen", "Mehr Gehalt fordern"],
+        correct: 1,
+        explanation: "Bei 'Pay Yourself First' geht dein Sparbetrag automatisch am Gehaltstag weg – bevor du Geld fuer andere Dinge ausgibst.",
+      },
+      {
+        question: "Was ist das 3-Toepfe-System?",
+        options: ["Drei Bankkonten fuer drei Personen", "Notgroschen + mittelfristige Ziele + langfristiger Vermoegensaufbau", "Drei verschiedene ETFs", "Aktien, Anleihen, Krypto"],
+        correct: 1,
+        explanation: "Topf 1: Notgroschen (Tagesgeld). Topf 2: Mittelfristige Ziele (1-5 Jahre). Topf 3: Langfristiger Vermoegensaufbau (ETFs, 10+ Jahre).",
+      },
+      {
+        question: "Wie solltest du mit Gehaltserhoehungen umgehen?",
+        options: ["Alles ausgeben", "Die Haelfte zusaetzlich sparen", "Nichts aendern", "Sofort in Krypto investieren"],
+        correct: 1,
+        explanation: "Lifestyle-Inflation vermeiden: Bei jeder Gehaltserhoehung die Haelfte des Mehrbetrags zusaetzlich sparen. So steigt deine Sparquote automatisch.",
+      },
+    ],
+  },
+
+  "immobilien-investment": {
+    courseId: "immobilien-investment",
+    title: "Quiz: Immobilien-Investment",
+    questions: [
+      {
+        question: "Ab welchem Kaufpreis-Miete-Faktor gilt Kaufen als teuer?",
+        options: ["Ueber 15", "Ueber 20", "Ueber 25", "Ueber 10"],
+        correct: 2,
+        explanation: "Ab einem Faktor von 25 (Kaufpreis = 25x Jahresmiete) gilt eine Immobilie als teuer. In vielen deutschen Staedten liegt er bei 30-40x.",
+      },
+      {
+        question: "Wie hoch sind die Kaufnebenkosten bei einer Immobilie?",
+        options: ["1-3%", "5-7%", "10-15%", "20%"],
+        correct: 2,
+        explanation: "Grunderwerbsteuer (3,5-6,5%), Notarkosten (ca. 1,5%), Grundbuch (ca. 0,5%) und Makler (3-7%) ergeben zusammen 10-15%.",
+      },
+      {
+        question: "Was sind REITs?",
+        options: ["Mietvertraege", "Boersengehandelte Immobilienfonds", "Baukredite", "Immobilien-Versicherungen"],
+        correct: 1,
+        explanation: "REITs (Real Estate Investment Trusts) sind boersengehandelte Unternehmen, die in Immobilien investieren – eine liquide Alternative zum direkten Immobilienkauf.",
+      },
+    ],
+  },
+
+  "kredite-schuldenmanagement": {
+    courseId: "kredite-schuldenmanagement",
+    title: "Quiz: Kredite & Schuldenmanagement",
+    questions: [
+      {
+        question: "Was sind 'gute Schulden'?",
+        options: ["Schulden unter 1.000 Euro", "Schulden fuer wertsteigernde Investments", "Alle zinslosen Schulden", "Schulden bei Freunden"],
+        correct: 1,
+        explanation: "Gute Schulden finanzieren Vermoegenswerte (Immobilien, Bildung, Geschaeft), die im Wert steigen oder Einkommen generieren.",
+      },
+      {
+        question: "Was ist eine Umschuldung?",
+        options: ["Schulden ignorieren", "Mehrere teure Kredite in einen guenstigeren zusammenfassen", "Mehr Schulden aufnehmen", "Schulden an andere uebertragen"],
+        correct: 1,
+        explanation: "Bei einer Umschuldung ersetzt du teure Kredite durch einen guenstigeren Gesamtkredit – das kann Hunderte Euro Zinsen sparen.",
+      },
+      {
+        question: "Wann ist die Avalanche-Methode besser als die Schneeball-Methode?",
+        options: ["Immer", "Wenn man mathematisch optimal Zinsen sparen will", "Nie", "Bei kleinen Schulden"],
+        correct: 1,
+        explanation: "Die Avalanche-Methode (hoechster Zins zuerst) spart am meisten Geld, erfordert aber mehr Geduld bis zum ersten Erfolgserlebnis.",
+      },
+    ],
+  },
+
+  "altersvorsorge-planen": {
+    courseId: "altersvorsorge-planen",
+    title: "Quiz: Altersvorsorge planen",
+    questions: [
+      {
+        question: "Wie viel Prozent des Bruttoeinkommens ersetzt die gesetzliche Rente ca.?",
+        options: ["70-80%", "60%", "48%", "30%"],
+        correct: 2,
+        explanation: "Die gesetzliche Rente ersetzt durchschnittlich ca. 48% des letzten Bruttoeinkommens – der Rest ist die Rentenluecke.",
+      },
+      {
+        question: "Wie viel muss der Arbeitgeber mindestens zur bAV zuschieaen?",
+        options: ["5%", "10%", "15%", "25%"],
+        correct: 2,
+        explanation: "Der Arbeitgeber muss mindestens 15% Zuschuss zur betrieblichen Altersvorsorge zahlen, wenn der Arbeitnehmer per Entgeltumwandlung einzahlt.",
+      },
+      {
+        question: "Was kostet 10 Jahre spaeter mit dem Investieren anzufangen (200 Euro/Monat, 7%)?",
+        options: ["Ca. 50.000 Euro", "Ca. 100.000 Euro", "Ca. 250.000 Euro", "Kaum etwas"],
+        correct: 2,
+        explanation: "Wer mit 25 startet hat mit 65 ca. 480.000 Euro, wer mit 35 startet ca. 230.000 Euro – die Differenz von 250.000 Euro ist der Preis des Wartens.",
+      },
+    ],
+  },
+
+  "psychologie-des-geldes": {
+    courseId: "psychologie-des-geldes",
+    title: "Quiz: Psychologie des Geldes",
+    questions: [
+      {
+        question: "Was ist der groesste Unterschied zwischen 'reich' und 'wohlhabend'?",
+        options: ["Kein Unterschied", "Reich = hohes Einkommen, Wohlhabend = hohes Vermoegen", "Reich = viele Autos", "Wohlhabend = viele Haeuser"],
+        correct: 1,
+        explanation: "Reich sein ist sichtbar (teures Auto, Uhr). Wohlhabend sein ist das, was man NICHT sieht – Geld das investiert ist und Freiheit schafft.",
+      },
+      {
+        question: "Was ist der 'Hedonic Treadmill'-Effekt?",
+        options: ["Sport macht reich", "Wir gewoehnen uns schnell an mehr Besitz und wollen immer mehr", "Laufen spart Geld", "Fitness-Abos sind zu teuer"],
+        correct: 1,
+        explanation: "Wir gewoehnen uns schnell an einen hoeheren Lebensstandard. Das neue Auto fuehlt sich nach 3 Monaten normal an – dann will man das naechste.",
+      },
+      {
+        question: "Was ist der wichtigste Faktor fuer finanziellen Erfolg laut Studien?",
+        options: ["Hohes Einkommen", "Gute Bildung", "Verhalten und Gewohnheiten", "Glueck"],
+        correct: 2,
+        explanation: "Studien zeigen: Finanzverhalten (Sparquote, Disziplin, langfristiges Denken) ist wichtiger als Einkommen oder Bildungsgrad.",
+      },
+    ],
+  },
+
+  "denkfallen-geldentscheidungen": {
+    courseId: "denkfallen-geldentscheidungen",
+    title: "Quiz: Denkfallen bei Geldentscheidungen",
+    questions: [
+      {
+        question: "Was ist die 'Dispositionseffekt'-Falle?",
+        options: ["Zu viel Dispo nutzen", "Gewinner zu frueh verkaufen und Verlierer zu lange halten", "Zu viele Konten haben", "Nur an einem Tag handeln"],
+        correct: 1,
+        explanation: "Anleger verkaufen Gewinner-Aktien zu frueh (um den Gewinn zu sichern) und halten Verlierer zu lange (in der Hoffnung auf Erholung).",
+      },
+      {
+        question: "Was ist der 'Dunning-Kruger-Effekt' beim Investieren?",
+        options: ["Anfaenger ueberschaetzen ihr Wissen", "Experten sind immer besser", "Mehr Wissen = mehr Rendite", "Unwissen schuetzt vor Verlusten"],
+        correct: 0,
+        explanation: "Anfaenger ueberschaetzen oft ihre Faehigkeiten und unterschaetzen die Komplexitaet der Maerkte – was zu riskanten Entscheidungen fuehrt.",
+      },
+      {
+        question: "Wie schuetzt man sich am besten vor Denkfallen?",
+        options: ["Mehr Nachrichten lesen", "Einen festen Investmentplan haben und sich daran halten", "Auf sein Bauchgefuehl hoeren", "Nur Einzelaktien kaufen"],
+        correct: 1,
+        explanation: "Ein vorher definierter Plan (z.B. monatlicher Sparplan, feste Regeln) schuetzt vor emotionalen Fehlentscheidungen.",
+      },
+    ],
+  },
+
+  "boersenpsychologie": {
+    courseId: "boersenpsychologie",
+    title: "Quiz: Boersenpsychologie",
+    questions: [
+      {
+        question: "Was passiert typischerweise am Ende einer Boerenblase?",
+        options: ["Langsamer Rueckgang", "Die Euphorie ist am groessten und alle kaufen", "Alle verkaufen rechtzeitig", "Der Staat greift ein"],
+        correct: 1,
+        explanation: "Am Hoehepunkt einer Blase ist die Euphorie maximal. 'Diesmal ist alles anders' ist der teuerste Satz an der Boerse.",
+      },
+      {
+        question: "Was ist Contrarian Investing?",
+        options: ["Mit der Masse gehen", "Gegen den Trend investieren", "Nur in Anleihen investieren", "Daytrading"],
+        correct: 1,
+        explanation: "Contrarian Investing heisst: Kaufen wenn andere panisch verkaufen, verkaufen wenn andere euphorisch kaufen. Erfordert starke Nerven.",
+      },
+    ],
+  },
+
+  "krisensicheres-portfolio": {
+    courseId: "krisensicheres-portfolio",
+    title: "Quiz: Krisensicheres Portfolio",
+    questions: [
+      {
+        question: "Was ist die wichtigste Regel fuer ein krisensicheres Portfolio?",
+        options: ["Alles in Gold", "Breite Diversifikation ueber Anlageklassen", "Timing des Marktes", "Cash halten"],
+        correct: 1,
+        explanation: "Diversifikation ueber verschiedene Anlageklassen (Aktien, Anleihen, Gold, Cash) schuetzt am besten gegen Krisen.",
+      },
+      {
+        question: "Wie sollte man sich in einem Crash verhalten?",
+        options: ["Sofort alles verkaufen", "Nichts tun und den Sparplan weiterlaufen lassen", "Alles in Krypto umschichten", "Auf Tipps hoeren"],
+        correct: 1,
+        explanation: "Historisch erholen sich Maerkte immer. Wer im Crash den Sparplan weiterlaeen laesst, kauft guenstig ein und profitiert langfristig.",
+      },
+      {
+        question: "Was ist ein 'All-Weather-Portfolio'?",
+        options: ["Nur Aktien", "Ein Portfolio das in allen Marktphasen funktionieren soll", "Nur sichere Anlagen", "Daytrading-Strategie"],
+        correct: 1,
+        explanation: "Ein All-Weather-Portfolio kombiniert verschiedene Anlageklassen so, dass es in Boom, Rezession, Inflation und Deflation bestehen kann.",
+      },
+    ],
+  },
+
+  "vermoegen-schuetzen": {
+    courseId: "vermoegen-schuetzen",
+    title: "Quiz: Vermoegen schuetzen",
+    questions: [
+      {
+        question: "Was gehoert in einen Notfallordner?",
+        options: ["Nur Bankdaten", "Kontouebersicht, Depotdaten, Versicherungen, Vollmachten, Testament", "Nur das Testament", "Passwort-Liste"],
+        correct: 1,
+        explanation: "Ein vollstaendiger Notfallordner enthaelt alle wichtigen Finanzinformationen, Vollmachten und Vorsorgedokumente fuer den Ernstfall.",
+      },
+      {
+        question: "Wann sind Krypto-Gewinne in Deutschland steuerfrei?",
+        options: ["Immer", "Nach 1 Jahr Haltedauer", "Nach 5 Jahren", "Nie"],
+        correct: 1,
+        explanation: "Private Veraeusserungsgewinne aus Kryptowaehrungen sind nach einer Haltedauer von mindestens einem Jahr steuerfrei.",
+      },
+    ],
+  },
+
+  "einkommen-steigern": {
+    courseId: "einkommen-steigern",
+    title: "Quiz: Einkommen steigern",
+    questions: [
+      {
+        question: "Was ist der effektivste Weg, sein Gehalt zu erhoehen?",
+        options: ["Laenger arbeiten", "Regelmaessige Gehaltsverhandlungen mit dokumentierten Erfolgen", "Den Chef bitten", "Nur auf Befoerderungen warten"],
+        correct: 1,
+        explanation: "Wer seine Erfolge dokumentiert und regelmaessig (alle 12-18 Monate) verhandelt, verdient im Schnitt deutlich mehr als passive Arbeitnehmer.",
+      },
+      {
+        question: "Warum ist Sichtbarkeit wichtiger als harte Arbeit allein?",
+        options: ["Weil Chefs faul sind", "Weil Leistung nur zaehlt, wenn sie wahrgenommen wird", "Sichtbarkeit ist nicht wichtig", "Weil man sonst gekuendigt wird"],
+        correct: 1,
+        explanation: "Die beste Arbeit nuetzt nichts, wenn niemand davon weiss. Teile deine Ergebnisse proaktiv, prasentiere in Meetings, mache deine Erfolge sichtbar.",
+      },
+      {
+        question: "Was ist die 'Skill-Stack'-Strategie?",
+        options: ["Nur eine Faehigkeit perfektionieren", "Mehrere komplementaere Faehigkeiten kombinieren", "Alle Faehigkeiten gleichzeitig lernen", "Nur technische Skills zaehlen"],
+        correct: 1,
+        explanation: "Die Kombination von 2-3 gefragten Faehigkeiten macht dich wertvoller als in einer einzelnen Top-1% zu sein. Beispiel: Coding + Design + Marketing.",
+      },
+    ],
+  },
+
+  "steuern-fuer-freelancer": {
+    courseId: "steuern-fuer-freelancer",
+    title: "Quiz: Steuern fuer Freelancer",
+    questions: [
+      {
+        question: "Was ist die Kleinunternehmerregelung?",
+        options: ["Man zahlt keine Steuern", "Umsatz unter 22.000 Euro/Jahr: keine Umsatzsteuer erheben", "Man braucht keinen Steuerberater", "Gewerbesteuerbefreiung"],
+        correct: 1,
+        explanation: "Bei Umsatz unter 22.000 Euro (Vorjahr) und 50.000 Euro (laufendes Jahr) kannst du auf die Umsatzsteuer verzichten – vereinfacht die Buchhaltung.",
+      },
+      {
+        question: "Was ist eine EUeR?",
+        options: ["Eine Steuerart", "Einnahmen-Ueberschuss-Rechnung zur Gewinnermittlung", "Ein Formular", "Eine Versicherung"],
+        correct: 1,
+        explanation: "Die EUeR ist die einfachste Form der Gewinnermittlung: Einnahmen minus Ausgaben = Gewinn. Fuer die meisten Freelancer und Kleinunternehmer ausreichend.",
+      },
+      {
+        question: "Welche Steuervorauszahlungen muss ein Freelancer leisten?",
+        options: ["Keine", "Einkommensteuer-Vorauszahlungen vierteljährlich", "Nur am Jahresende", "Nur Umsatzsteuer"],
+        correct: 1,
+        explanation: "Das Finanzamt setzt quartalsweise Einkommensteuer-Vorauszahlungen fest, basierend auf dem voraussichtlichen Jahresgewinn.",
+      },
+    ],
+  },
 };
