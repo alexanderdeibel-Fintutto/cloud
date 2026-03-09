@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { LEVEL_LABELS } from "@/lib/courses";
 import { LESSON_CONTENT } from "@/lib/lesson-content";
+import { QUIZZES } from "@/lib/quizzes";
+import { CourseQuiz } from "@/components/CourseQuiz";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useCourses } from "@/hooks/useCourses";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
@@ -225,6 +227,11 @@ export default function CourseDetail() {
               )}
             </CardContent>
           </Card>
+        )}
+
+        {/* Course Quiz */}
+        {courseId && QUIZZES[courseId] && (
+          <CourseQuiz quiz={QUIZZES[courseId]} />
         )}
       </div>
     </AppLayout>

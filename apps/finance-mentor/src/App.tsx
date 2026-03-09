@@ -12,6 +12,7 @@ import LearningPaths from "./pages/LearningPaths";
 import CourseDetail from "./pages/CourseDetail";
 import Certificates from "./pages/Certificates";
 import Glossary from "./pages/Glossary";
+import Calculators from "./pages/Calculators";
 import Settings from "./pages/Settings";
 import Pricing from "./pages/Pricing";
 
@@ -46,6 +47,9 @@ const App = () => (
         } />
         <Route path="/glossar" element={
           <ProtectedRoute><Glossary /></ProtectedRoute>
+        } />
+        <Route path="/rechner" element={
+          <ProtectedRoute><Calculators /></ProtectedRoute>
         } />
         <Route path="/einstellungen" element={
           <ProtectedRoute><Settings /></ProtectedRoute>
