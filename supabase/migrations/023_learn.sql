@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS public.learn_certificates (
 ALTER TABLE public.learn_certificates ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "own_certificates" ON public.learn_certificates FOR ALL USING (user_id = auth.uid());
 
--- Seed: Alle Kurse (24 Kurse, ~165 Lektionen)
+-- Seed: Alle Kurse (26 Kurse, ~180 Lektionen)
 INSERT INTO public.learn_courses (title, description, category, difficulty, is_premium, lesson_count, estimated_minutes, sort_order) VALUES
   -- Grundlagen
   ('Budgetierung Grundlagen', 'Lerne die Basics der persoenlichen Finanzplanung', 'budgeting', 'beginner', false, 6, 45, 1),
@@ -92,5 +92,9 @@ INSERT INTO public.learn_courses (title, description, category, difficulty, is_p
   ('Altersvorsorge planen', 'Rente Riester Ruerup betriebliche Altersvorsorge', 'investing', 'intermediate', true, 8, 90, 21),
   -- Finanzielle Freiheit
   ('Der Weg zur finanziellen Freiheit', 'Von der Absicherung bis zur Unabhaengigkeit in vier Stufen', 'freedom', 'beginner', true, 11, 120, 22),
-  ('Vermoegen schuetzen und erhalten', 'Wie du dein Vermoegen vor Inflation und Risiken bewahrst', 'freedom', 'advanced', true, 10, 100, 23)
+  ('Vermoegen schuetzen und erhalten', 'Wie du dein Vermoegen vor Inflation und Risiken bewahrst', 'freedom', 'advanced', true, 10, 100, 23),
+  -- Grundlagen: Paar-Finanzen
+  ('Finanzen als Paar', 'Gemeinsame Konten faire Aufteilung und finanzielle Ziele als Team', 'budgeting', 'beginner', false, 6, 50, 24),
+  -- Investieren: Krypto
+  ('Krypto verstehen', 'Bitcoin Ethereum Blockchain Risiken und Portfolio-Beimischung', 'investing', 'intermediate', true, 8, 80, 25)
 ON CONFLICT DO NOTHING;
