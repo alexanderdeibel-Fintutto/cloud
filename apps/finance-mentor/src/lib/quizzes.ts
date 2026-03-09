@@ -208,4 +208,172 @@ export const QUIZZES: Record<string, Quiz> = {
       },
     ],
   },
+
+  "paar-finanzen": {
+    courseId: "paar-finanzen",
+    title: "Quiz: Finanzen als Paar",
+    questions: [
+      {
+        question: "Was ist das Drei-Konten-Modell fuer Paare?",
+        options: ["Drei Sparkonten", "Gemeinsames Konto + je ein persoenliches Konto", "Drei Anlagekonten", "Drei Kreditkarten"],
+        correct: 1,
+        explanation: "Das Drei-Konten-Modell: Ein gemeinsames Konto fuer Fixkosten und gemeinsame Ausgaben, plus je ein persoenliches Konto fuer individuelle Freiheit.",
+      },
+      {
+        question: "Wann sollten Paare ueber Geld sprechen?",
+        options: ["Nur bei Problemen", "Regelmaessig und proaktiv", "Nie – Geld ist Privatsache", "Erst nach der Hochzeit"],
+        correct: 1,
+        explanation: "Regelmaessige Finanzgespraeche (z.B. monatlich) verhindern Konflikte und stellen sicher, dass beide an gemeinsamen Zielen arbeiten.",
+      },
+      {
+        question: "Welcher Fehler ist bei Paar-Finanzen am haeufigsten?",
+        options: ["Zu viel sparen", "Keine gemeinsamen Finanzziele definieren", "Zu frueh investieren", "Getrennte Konten"],
+        correct: 1,
+        explanation: "Ohne gemeinsame Ziele zieht jeder in eine andere Richtung. Setzt euch zusammen und definiert, worauf ihr spart.",
+      },
+    ],
+  },
+
+  "krypto-grundlagen": {
+    courseId: "krypto-grundlagen",
+    title: "Quiz: Krypto-Grundlagen",
+    questions: [
+      {
+        question: "Was ist eine Blockchain?",
+        options: ["Ein Bankensystem", "Eine dezentrale, faelschungssichere Datenbank", "Eine Kryptowaehrung", "Ein Zahlungsdienst"],
+        correct: 1,
+        explanation: "Die Blockchain ist eine dezentrale Datenbank, in der Transaktionen in verketteten Bloecken gespeichert werden.",
+      },
+      {
+        question: "Was bedeutet 'Not your keys, not your coins'?",
+        options: ["Du brauchst einen physischen Schluessel", "Nur wer die privaten Schluessel besitzt, kontrolliert die Coins", "Krypto ist unsicher", "Man braucht immer eine Boerse"],
+        correct: 1,
+        explanation: "Wenn du deine Coins auf einer Boerse laesst, kontrolliert die Boerse sie. Nur in deiner eigenen Wallet hast du die volle Kontrolle.",
+      },
+      {
+        question: "Was ist der maximale Vorrat an Bitcoin?",
+        options: ["Unbegrenzt", "21 Millionen", "100 Millionen", "1 Milliarde"],
+        correct: 1,
+        explanation: "Bitcoin hat eine fest programmierte Obergrenze von 21 Millionen Stueck, was kuenstliche Knappheit erzeugt.",
+      },
+      {
+        question: "Wie viel Prozent deines Portfolios solltest du maximal in Krypto investieren (konservative Empfehlung)?",
+        options: ["1-5%", "20-30%", "50%", "100%"],
+        correct: 0,
+        explanation: "Aufgrund der hohen Volatilitaet empfehlen die meisten Experten maximal 1-5% des Gesamtportfolios in Krypto zu investieren.",
+      },
+    ],
+  },
+
+  "steuern-fuer-arbeitnehmer": {
+    courseId: "steuern-fuer-arbeitnehmer",
+    title: "Quiz: Steuern fuer Arbeitnehmer",
+    questions: [
+      {
+        question: "Wie hoch ist die Abgeltungssteuer auf Kapitalertraege in Deutschland?",
+        options: ["19%", "25%", "30%", "42%"],
+        correct: 1,
+        explanation: "Die Abgeltungssteuer betraegt pauschal 25% plus Solidaritaetszuschlag und ggf. Kirchensteuer.",
+      },
+      {
+        question: "Wie hoch ist der Sparerpauschbetrag fuer Einzelpersonen (2024)?",
+        options: ["500 Euro", "801 Euro", "1.000 Euro", "2.000 Euro"],
+        correct: 2,
+        explanation: "Seit 2023 betraegt der Sparerpauschbetrag 1.000 Euro fuer Einzelpersonen und 2.000 Euro fuer Ehepaare.",
+      },
+      {
+        question: "Was kann man als Arbeitnehmer von der Steuer absetzen?",
+        options: ["Nur die Fahrtkosten", "Werbungskosten wie Fahrtkosten, Arbeitszimmer, Fortbildungen", "Nichts", "Nur Versicherungen"],
+        correct: 1,
+        explanation: "Arbeitnehmer koennen diverse Werbungskosten absetzen: Pendlerpauschale, Arbeitszimmer, Fachliteratur, Fortbildungen, Arbeitsmittel u.v.m.",
+      },
+      {
+        question: "Was ist die Pendlerpauschale pro Kilometer (erste 20 km)?",
+        options: ["0,15 Euro", "0,30 Euro", "0,38 Euro", "0,50 Euro"],
+        correct: 1,
+        explanation: "Die Entfernungspauschale betraegt 0,30 Euro pro Kilometer fuer die ersten 20 km und 0,38 Euro ab dem 21. Kilometer.",
+      },
+    ],
+  },
+
+  "versicherungen-optimieren": {
+    courseId: "versicherungen-optimieren",
+    title: "Quiz: Versicherungen optimieren",
+    questions: [
+      {
+        question: "Welche Versicherung ist fuer fast jeden ein absolutes Muss?",
+        options: ["Handyversicherung", "Haftpflichtversicherung", "Glasversicherung", "Reisegepaeckversicherung"],
+        correct: 1,
+        explanation: "Die private Haftpflicht schuetzt dich vor Schadenersatzanspruechen Dritter – in Deutschland haftest du unbegrenzt mit deinem Vermoegen.",
+      },
+      {
+        question: "Was versichert eine BU-Versicherung?",
+        options: ["Dein Auto", "Dein Einkommen bei Berufsunfaehigkeit", "Dein Haus", "Deine Reisen"],
+        correct: 1,
+        explanation: "Die Berufsunfaehigkeitsversicherung sichert dein Einkommen, falls du deinen Beruf aus gesundheitlichen Gruenden nicht mehr ausueben kannst.",
+      },
+      {
+        question: "Welche Versicherung ist in der Regel ueberfluessig?",
+        options: ["Haftpflicht", "BU-Versicherung", "Handyversicherung", "Krankenversicherung"],
+        correct: 2,
+        explanation: "Handyversicherungen haben oft hohe Selbstbeteiligungen und viele Ausschluesse. Besser: Geld fuer einen Ersatz zuruecklegen.",
+      },
+    ],
+  },
+
+  "finanzielle-freiheit": {
+    courseId: "finanzielle-freiheit",
+    title: "Quiz: Finanzielle Freiheit",
+    questions: [
+      {
+        question: "Was bedeutet 'finanzielle Freiheit'?",
+        options: ["Reich sein", "Keine Schulden haben", "Passives Einkommen deckt die Lebenshaltungskosten", "Viel Geld verdienen"],
+        correct: 2,
+        explanation: "Finanzielle Freiheit = dein passives Einkommen (Dividenden, Mieteinnahmen etc.) reicht aus, um deine Ausgaben zu decken, ohne arbeiten zu muessen.",
+      },
+      {
+        question: "Wie berechnet man sein 'FIRE Number' (Financial Independence)?",
+        options: ["Jahresgehalt x 10", "Jaehrliche Ausgaben x 25", "Monatliche Sparrate x 100", "Vermoegen x 4"],
+        correct: 1,
+        explanation: "Die FIRE-Zahl: Jaehrliche Ausgaben x 25. Bei 30.000 Euro/Jahr Ausgaben brauchst du 750.000 Euro Vermoegen.",
+      },
+      {
+        question: "Was ist der groesste Hebel auf dem Weg zur finanziellen Freiheit?",
+        options: ["Die richtige Aktie finden", "Sparquote erhoehen", "Lotto spielen", "Krypto kaufen"],
+        correct: 1,
+        explanation: "Die Sparquote ist der groesste Hebel: Sie bestimmt, wie schnell du dein Ziel erreichst. 50% Sparquote = ca. 17 Jahre bis FIRE.",
+      },
+      {
+        question: "Was bedeutet 'Lean FIRE'?",
+        options: ["Sehr sportlich leben", "Finanzielle Freiheit mit minimalen Ausgaben", "Nur in Tech-Aktien investieren", "Wenig arbeiten"],
+        correct: 1,
+        explanation: "Lean FIRE bedeutet, finanzielle Freiheit mit einem bescheidenen Lebensstil zu erreichen – niedrigere Ausgaben = kleineres benoetigtes Portfolio.",
+      },
+    ],
+  },
+
+  "fortgeschrittenes-investing": {
+    courseId: "fortgeschrittenes-investing",
+    title: "Quiz: Fortgeschrittenes Investieren",
+    questions: [
+      {
+        question: "Was ist ein Rebalancing?",
+        options: ["Neues Geld investieren", "Die urspruengliche Portfolio-Gewichtung wiederherstellen", "Alle Aktien verkaufen", "Den Broker wechseln"],
+        correct: 1,
+        explanation: "Beim Rebalancing stellst du die Ziel-Allokation wieder her, z.B. von 80/20 Aktien/Anleihen zurueck auf die Ursprungsgewichtung.",
+      },
+      {
+        question: "Was bedeutet ein KGV (Kurs-Gewinn-Verhaeltnis) von 20?",
+        options: ["Die Aktie steigt um 20%", "Du zahlst das 20-fache des Jahresgewinns", "Die Dividende betraegt 20%", "Der Kurs ist 20 Euro"],
+        correct: 1,
+        explanation: "Ein KGV von 20 heisst: Der Aktienkurs ist 20-mal so hoch wie der Gewinn pro Aktie. Hoeheres KGV = teurere Bewertung.",
+      },
+      {
+        question: "Was ist der Unterschied zwischen physischer und synthetischer ETF-Replikation?",
+        options: ["Physisch kauft die Aktien, synthetisch nutzt Swap-Vertraege", "Kein Unterschied", "Physisch ist immer besser", "Synthetisch hat keine Kosten"],
+        correct: 0,
+        explanation: "Physische ETFs kaufen die enthaltenen Wertpapiere tatsaechlich, synthetische bilden die Rendite ueber Swap-Geschaefte mit einer Bank nach.",
+      },
+    ],
+  },
 };

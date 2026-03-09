@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AppLayout } from "@/components/AppLayout";
-import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink, Route, BarChart3 } from "lucide-react";
+import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink, Route, BarChart3, Lightbulb, Trophy } from "lucide-react";
 import { LEVEL_LABELS, LEARNING_PATHS, COURSES as ALL_COURSES, CATEGORIES } from "@/lib/courses";
+import { ACHIEVEMENTS, getDailyTip } from "@/lib/achievements";
+import type { AchievementStats } from "@/lib/achievements";
 import { getUpgradeSuggestions } from "@fintutto/shared";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useCourses } from "@/hooks/useCourses";
@@ -232,10 +234,111 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Daily Tip */}
+        <DailyTip />
+
+        {/* Achievements */}
+        <AchievementBadges
+          completedLessons={completedLessons}
+          completedCourses={completedCourseCount}
+          lessonProgress={lessonProgress}
+          courses={courses}
+        />
+
         {/* Cross-App Suggestions */}
         <EcosystemSuggestions />
       </div>
     </AppLayout>
+  );
+}
+
+function DailyTip() {
+  const { tip, source } = getDailyTip();
+  return (
+    <Card className="border-amber-500/20 bg-amber-500/5">
+      <CardContent className="p-5">
+        <div className="flex items-start gap-3">
+          <Lightbulb className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-xs font-semibold text-amber-400 mb-1">Tipp des Tages</p>
+            <p className="text-sm leading-relaxed">{tip}</p>
+            {source && (
+              <p className="text-xs text-muted-foreground mt-1">— {source}</p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AchievementBadges({
+  completedLessons,
+  completedCourses,
+  lessonProgress,
+  courses,
+}: {
+  completedLessons: number;
+  completedCourses: number;
+  lessonProgress: { course_id: string; lesson_id: string; progress: number; quiz_score: number | null }[];
+  courses: { id: string; category: string; lessons: { id: string }[] }[];
+}) {
+  const categoriesStarted = new Set(
+    lessonProgress
+      .filter((p) => p.progress >= 100)
+      .map((p) => courses.find((c) => c.id === p.course_id)?.category)
+      .filter(Boolean)
+  ).size;
+
+  const learningHours = Math.round(completedLessons * 0.15 * 10) / 10;
+  const quizzesPassed = lessonProgress.filter((p) => p.quiz_score !== null && p.quiz_score >= 60).length;
+
+  const stats: AchievementStats = {
+    completedLessons,
+    completedCourses,
+    totalQuizzesPassed: quizzesPassed,
+    categoriesStarted,
+    learningHours,
+  };
+
+  const earned = ACHIEVEMENTS.filter((a) => a.condition(stats));
+  const locked = ACHIEVEMENTS.filter((a) => !a.condition(stats));
+
+  if (completedLessons === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-amber-400" />
+          Erfolge ({earned.length}/{ACHIEVEMENTS.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-3">
+          {earned.map((a) => (
+            <div
+              key={a.id}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20"
+              title={a.description}
+            >
+              <span className="text-lg">{a.icon}</span>
+              <span className="text-xs font-medium">{a.title}</span>
+            </div>
+          ))}
+          {locked.slice(0, 4).map((a) => (
+            <div
+              key={a.id}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/50 opacity-40"
+              title={a.description}
+            >
+              <span className="text-lg grayscale">{a.icon}</span>
+              <span className="text-xs font-medium">{a.title}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
