@@ -13,7 +13,8 @@ import { useDocumentStats, useDocuments } from '@/hooks/useDocuments'
 import { useCollections } from '@/hooks/useCollections'
 import { useCompanies } from '@/hooks/useCompanies'
 import { useUpcomingDeadlines, daysUntil, deadlineUrgency } from '@/hooks/useDeadlines'
-import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
+import { DOCUMENT_TYPES, TARGET_APPS } from '@/hooks/useWorkflows'
+import { useDocumentLinks } from '@/hooks/useWorkflows'
 import { formatFileSize, formatRelativeTime } from '@/lib/utils'
 import { FINTUTTO_APPS } from '@fintutto/shared'
 
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const { data: collections = [] } = useCollections()
   const { data: companies = [] } = useCompanies()
   const { data: upcomingDeadlines = [] } = useUpcomingDeadlines(14)
+  const { data: recentLinks = [] } = useDocumentLinks()
 
   if (!user) {
     return <LandingHero />
@@ -296,6 +298,39 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Recent Forwards / Activity */}
+      {recentLinks.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
+            <ArrowRight className="w-4 h-4 text-muted-foreground" /> Letzte Weiterleitungen
+          </h2>
+          <div className="space-y-1.5">
+            {recentLinks.slice(0, 4).map((link) => {
+              const app = TARGET_APPS[link.target_app]
+              const doc = recentDocs?.find(d => d.id === link.document_id)
+              return (
+                <div key={link.id} className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card">
+                  <span className="text-base leading-none">{app?.icon || '📄'}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {doc?.title || 'Dokument'} → {app?.label || link.target_app}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">{formatRelativeTime(link.linked_at)}</p>
+                  </div>
+                  {app?.url && (
+                    <a href={app.url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="ghost" size="sm" className="text-xs h-6 px-2">
+                        <ExternalLink className="w-3 h-3" />
+                      </Button>
+                    </a>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Recent Documents */}
       <div>

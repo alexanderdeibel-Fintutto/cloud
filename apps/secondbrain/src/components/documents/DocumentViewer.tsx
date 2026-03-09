@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { type Document, type CollectionInfo } from './DocumentCard'
 import { formatRelativeTime, formatFileSize } from '@/lib/utils'
 import { supabase } from '@/integrations/supabase'
-import { DOCUMENT_TYPES, DOCUMENT_STATUS, TARGET_APPS } from '@/hooks/useWorkflows'
+import { DOCUMENT_TYPES, DOCUMENT_STATUS, TARGET_APPS, getSmartRouting } from '@/hooks/useWorkflows'
 import { toast } from 'sonner'
 
 interface DocumentViewerProps {
@@ -222,6 +222,7 @@ export default function DocumentViewer({
   const typeInfo = DOCUMENT_TYPES[doc.document_type || 'other'] || DOCUMENT_TYPES.other
   const statusInfo = DOCUMENT_STATUS[doc.status || 'inbox'] || DOCUMENT_STATUS.inbox
   const assignedCompany = companies.find(c => c.id === doc.company_id)
+  const smartRouting = getSmartRouting(doc.document_type)
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -386,6 +387,39 @@ export default function DocumentViewer({
               ))}
             </div>
           </div>
+
+          {/* Smart Routing Suggestion */}
+          {smartRouting && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-lg shrink-0">
+                {smartRouting.primary.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-primary flex items-center gap-1">
+                  <Brain className="w-3 h-3" /> KI-Empfehlung
+                </p>
+                <p className="text-[11px] text-muted-foreground">{smartRouting.reason}</p>
+              </div>
+              <Button
+                size="sm"
+                className="text-[11px] h-7 shrink-0"
+                onClick={() => handleForwardToApp(smartRouting.primary.key)}
+              >
+                {smartRouting.primary.label}
+                <ArrowRight className="w-3 h-3 ml-1" />
+              </Button>
+              {smartRouting.secondary && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-[11px] h-6 shrink-0"
+                  onClick={() => handleForwardToApp(smartRouting.secondary!.key)}
+                >
+                  {smartRouting.secondary.label}
+                </Button>
+              )}
+            </div>
+          )}
 
           {/* Forward to App */}
           <div>

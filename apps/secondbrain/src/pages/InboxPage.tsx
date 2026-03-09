@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { useDocuments, useToggleFavorite } from '@/hooks/useDocuments'
 import { useCollections, useAddDocumentToCollection } from '@/hooks/useCollections'
 import { useCompanies, useAssignCompany } from '@/hooks/useCompanies'
-import { useUpdateDocumentStatus, useUpdateDocumentMeta, DOCUMENT_TYPES, DOCUMENT_STATUS, TARGET_APPS } from '@/hooks/useWorkflows'
+import { useUpdateDocumentStatus, useUpdateDocumentMeta, DOCUMENT_TYPES, DOCUMENT_STATUS, TARGET_APPS, getSmartRouting } from '@/hooks/useWorkflows'
 import { useCreateDocumentLink } from '@/hooks/useWorkflows'
 import { useLogActivity } from '@/hooks/useActivityLog'
 import DocumentViewer from '@/components/documents/DocumentViewer'
@@ -225,6 +225,41 @@ export default function InboxPage() {
                 {/* Expanded actions */}
                 {isExpanded && (
                   <div className="px-4 pb-4 pt-0 space-y-3 border-t border-border/50 mt-0 animate-fade-in-up">
+                    {/* Smart routing suggestion */}
+                    {(() => {
+                      const routing = getSmartRouting(doc.document_type)
+                      if (!routing) return null
+                      return (
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-lg shrink-0">
+                            {routing.primary.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-primary">KI-Empfehlung</p>
+                            <p className="text-[11px] text-muted-foreground">{routing.reason}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="text-xs h-7 shrink-0"
+                            onClick={() => handleForward(doc, routing.primary.key)}
+                          >
+                            {routing.primary.label}
+                            <ArrowRight className="w-3 h-3 ml-1" />
+                          </Button>
+                          {routing.secondary && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-7 shrink-0"
+                              onClick={() => handleForward(doc, routing.secondary!.key)}
+                            >
+                              {routing.secondary.label}
+                            </Button>
+                          )}
+                        </div>
+                      )
+                    })()}
+
                     {/* Company assignment */}
                     <div>
                       <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Firma zuordnen</p>

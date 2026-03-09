@@ -71,6 +71,104 @@ export const TARGET_APPS: Record<string, { label: string; description: string; c
   'vermieter-portal': { label: 'Vermieter Portal', description: 'Vermieter-Rechner & Tools', color: '#a855f7', url: 'https://vermieter.fintutto.de', icon: '🏢' },
 }
 
+// Smart routing: suggest best target app based on document type
+export const SMART_ROUTING: Record<string, { primary: string; secondary?: string; reason: string }> = {
+  rechnung: { primary: 'financial-compass', secondary: 'fintutto-biz', reason: 'Rechnung in Buchhaltung erfassen' },
+  beleg: { primary: 'financial-compass', secondary: 'fintutto-biz', reason: 'Beleg verbuchen' },
+  bescheid: { primary: 'bescheidboxer', reason: 'Bescheid auf Fehler prüfen' },
+  steuerbescheid: { primary: 'bescheidboxer', reason: 'Steuerbescheid prüfen lassen' },
+  mahnung: { primary: 'financial-compass', reason: 'Zahlung prüfen & nachverfolgen' },
+  vertrag: { primary: 'fintutto-portal', secondary: 'vermietify', reason: 'Vertrag archivieren & prüfen' },
+  mietvertrag: { primary: 'vermietify', secondary: 'vermieter-portal', reason: 'Mietvertrag in Verwaltung erfassen' },
+  kuendigung: { primary: 'vermietify', secondary: 'fintutto-portal', reason: 'Kündigung bearbeiten' },
+  kontoauszug: { primary: 'financial-compass', reason: 'Kontoauszug abgleichen' },
+  lohnabrechnung: { primary: 'financial-compass', secondary: 'fintutto-biz', reason: 'Gehalt verbuchen' },
+  versicherung: { primary: 'fintutto-portal', reason: 'Versicherung prüfen & verwalten' },
+  angebot: { primary: 'fintutto-biz', reason: 'Angebot in Projekte übernehmen' },
+  quittung: { primary: 'financial-compass', reason: 'Quittung verbuchen' },
+}
+
+// Get smart routing suggestion for a document
+export function getSmartRouting(documentType?: string | null) {
+  if (!documentType || !SMART_ROUTING[documentType]) return null
+  const routing = SMART_ROUTING[documentType]
+  const primaryApp = TARGET_APPS[routing.primary]
+  const secondaryApp = routing.secondary ? TARGET_APPS[routing.secondary] : null
+  return {
+    primary: { key: routing.primary, ...primaryApp },
+    secondary: secondaryApp ? { key: routing.secondary!, ...secondaryApp } : null,
+    reason: routing.reason,
+  }
+}
+
+// Auto-routing rules (user-configurable)
+export interface AutoRoutingRule {
+  id: string
+  user_id: string
+  document_type: string
+  target_app: string
+  auto_forward: boolean
+  auto_status: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export function useAutoRoutingRules() {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ['auto-routing-rules', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sb_auto_routing_rules')
+        .select('*')
+        .eq('user_id', user!.id)
+        .eq('is_active', true)
+        .order('document_type')
+
+      if (error) {
+        // Table might not exist yet, return empty
+        if (error.code === '42P01') return []
+        throw error
+      }
+      return data as AutoRoutingRule[]
+    },
+    enabled: !!user,
+  })
+}
+
+export function useSaveAutoRoutingRule() {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (rule: {
+      document_type: string
+      target_app: string
+      auto_forward?: boolean
+      auto_status?: string
+    }) => {
+      const { error } = await supabase
+        .from('sb_auto_routing_rules')
+        .upsert({
+          user_id: user!.id,
+          document_type: rule.document_type,
+          target_app: rule.target_app,
+          auto_forward: rule.auto_forward ?? true,
+          auto_status: rule.auto_status || null,
+          is_active: true,
+        }, { onConflict: 'user_id,document_type' })
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auto-routing-rules'] })
+      toast.success('Auto-Routing Regel gespeichert')
+    },
+    onError: () => toast.error('Fehler beim Speichern'),
+  })
+}
+
 export function useWorkflowTemplates(documentType?: string) {
   const { user } = useAuth()
 
