@@ -1,17 +1,16 @@
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Star } from 'lucide-react'
 import DocumentGrid from '@/components/documents/DocumentGrid'
-import DocumentViewer from '@/components/documents/DocumentViewer'
 import { useDocuments, useToggleFavorite, useDeleteDocument } from '@/hooks/useDocuments'
 import { useCollections, useAddDocumentToCollection } from '@/hooks/useCollections'
 import type { Document } from '@/components/documents/DocumentCard'
 import { toast } from 'sonner'
 
 export default function FavoritesPage() {
+  const navigate = useNavigate()
   const { data: documents = [], isLoading } = useDocuments({ favorites: true })
   const { data: collections = [] } = useCollections()
   const addToCollection = useAddDocumentToCollection()
-  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
   const toggleFavorite = useToggleFavorite()
   const deleteDocument = useDeleteDocument()
 
@@ -34,7 +33,7 @@ export default function FavoritesPage() {
           Favoriten
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Deine markierten Dokumente
+          {documents.length} markierte Dokument{documents.length !== 1 ? 'e' : ''}
         </p>
       </div>
 
@@ -47,22 +46,12 @@ export default function FavoritesPage() {
       ) : (
         <DocumentGrid
           documents={documents}
-          onView={setSelectedDoc}
+          onView={(doc) => navigate(`/dokumente/${doc.id}`)}
           onFavorite={(doc) => toggleFavorite.mutate(doc)}
           onDelete={(doc) => deleteDocument.mutate(doc)}
           onAddToCollection={handleAddToCollection}
           collections={collectionInfos}
           emptyMessage="Noch keine Favoriten. Markiere Dokumente mit dem Stern-Symbol."
-        />
-      )}
-
-      {selectedDoc && (
-        <DocumentViewer
-          document={selectedDoc}
-          onClose={() => setSelectedDoc(null)}
-          onFavorite={(doc) => toggleFavorite.mutate(doc)}
-          onAddToCollection={handleAddToCollection}
-          collections={collectionInfos}
         />
       )}
     </div>

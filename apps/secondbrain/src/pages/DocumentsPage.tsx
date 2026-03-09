@@ -14,6 +14,7 @@ import { useLogActivity } from '@/hooks/useActivityLog'
 import { useUpdateDocumentStatus, useCreateDocumentLink, TARGET_APPS, DOCUMENT_TYPES } from '@/hooks/useWorkflows'
 import { supabase } from '@/integrations/supabase'
 import type { Document } from '@/components/documents/DocumentCard'
+import MergeDialog from '@/components/documents/MergeDialog'
 import { formatFileSize, formatRelativeTime } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -35,6 +36,7 @@ export default function DocumentsPage() {
   const updateStatus = useUpdateDocumentStatus()
   const createLink = useCreateDocumentLink()
   const [bulkTag, setBulkTag] = useState('')
+  const [mergeOpen, setMergeOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'type' | 'amount'>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -354,14 +356,27 @@ export default function DocumentsPage() {
           <Copy className="w-5 h-5 text-orange-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">
-              {duplicates.length} mogliche Duplikat{duplicates.length > 1 ? 'e' : ''} erkannt
+              {duplicates.length} mögliche Duplikat{duplicates.length > 1 ? 'e' : ''} erkannt
             </p>
             <p className="text-xs text-muted-foreground">
               {duplicates.slice(0, 3).map(g => `"${g[0].title}" (${g.length}x)`).join(', ')}
               {duplicates.length > 3 && ` und ${duplicates.length - 3} weitere`}
             </p>
           </div>
+          <Button variant="outline" size="sm" className="shrink-0" onClick={() => setMergeOpen(true)}>
+            <Copy className="w-3.5 h-3.5 mr-1.5" />
+            Zusammenführen
+          </Button>
         </div>
+      )}
+
+      {/* Merge dialog */}
+      {duplicates.length > 0 && (
+        <MergeDialog
+          duplicateGroups={duplicates}
+          open={mergeOpen}
+          onClose={() => setMergeOpen(false)}
+        />
       )}
 
       {/* Documents */}
