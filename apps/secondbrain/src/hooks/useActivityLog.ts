@@ -12,21 +12,29 @@ export interface ActivityEntry {
   created_at: string
 }
 
-export function useActivityLog(limit = 50) {
+export function useActivityLog(limitOrEntityId?: number | string) {
   const { user } = useAuth()
+  const isEntityId = typeof limitOrEntityId === 'string'
+  const limit = typeof limitOrEntityId === 'number' ? limitOrEntityId : 50
 
   return useQuery({
-    queryKey: ['activity-log', user?.id, limit],
+    queryKey: ['activity-log', user?.id, limitOrEntityId],
     queryFn: async (): Promise<ActivityEntry[]> => {
       if (!user) return []
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('sb_activity_log')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(limit)
 
+      if (isEntityId) {
+        query = query.eq('entity_id', limitOrEntityId)
+      }
+
+      query = query.limit(limit)
+
+      const { data, error } = await query
       if (error) throw error
       return (data || []) as ActivityEntry[]
     },

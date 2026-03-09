@@ -84,7 +84,7 @@ export default function CommandPalette() {
         label: doc.title,
         sublabel: typeInfo.label + (doc.sender ? ` — ${doc.sender}` : ''),
         icon: <FileText className="w-4 h-4" />,
-        action: () => go('/dokumente'),
+        action: () => go(`/dokumente/${doc.id}`),
         category: 'document' as const,
       }
     }),

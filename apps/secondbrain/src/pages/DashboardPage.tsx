@@ -348,7 +348,7 @@ export default function DashboardPage() {
             {recentDocs.slice(0, 5).map((doc) => {
               const typeInfo = DOCUMENT_TYPES[doc.document_type || 'other'] || DOCUMENT_TYPES.other
               return (
-                <Link key={doc.id} to="/dokumente">
+                <Link key={doc.id} to={`/dokumente/${doc.id}`}>
                   <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors">
                     <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">

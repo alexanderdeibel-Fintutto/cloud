@@ -271,7 +271,7 @@ export default function DocumentViewer({
                 size="icon"
                 title="Link kopieren"
                 onClick={() => {
-                  const url = `${window.location.origin}/dokumente?doc=${doc.id}`
+                  const url = `${window.location.origin}/dokumente/${doc.id}`
                   navigator.clipboard.writeText(url)
                   toast.success('Link kopiert!')
                 }}

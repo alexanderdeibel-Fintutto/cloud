@@ -1,13 +1,21 @@
-import { useState, useEffect } from 'react'
-import { Search, FileText, Clock, X } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  Search, FileText, Clock, X, Filter, Building2, CalendarClock,
+  Receipt, Tag, ChevronDown, RotateCcw,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
 import SearchBar from '@/components/search/SearchBar'
 import DocumentGrid from '@/components/documents/DocumentGrid'
 import DocumentViewer from '@/components/documents/DocumentViewer'
 import { useSearch } from '@/hooks/useSearch'
-import { useToggleFavorite, useDeleteDocument } from '@/hooks/useDocuments'
+import { useDocuments, useToggleFavorite, useDeleteDocument } from '@/hooks/useDocuments'
 import { useCollections, useAddDocumentToCollection } from '@/hooks/useCollections'
+import { useCompanies } from '@/hooks/useCompanies'
+import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
 import type { Document } from '@/components/documents/DocumentCard'
 import { toast } from 'sonner'
 
@@ -32,15 +40,76 @@ function clearRecentSearches() {
 }
 
 export default function SearchPage() {
+  const navigate = useNavigate()
   const { query, setQuery, results, isLoading, activeFilters, toggleFilter } = useSearch()
+  const { data: allDocuments = [] } = useDocuments()
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
   const [recentSearches, setRecentSearches] = useState<string[]>(getRecentSearches())
   const toggleFavorite = useToggleFavorite()
   const deleteDocument = useDeleteDocument()
   const { data: collections = [] } = useCollections()
+  const { data: companies = [] } = useCompanies()
   const addToCollection = useAddDocumentToCollection()
 
+  // Advanced filters
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [filterDocType, setFilterDocType] = useState<string | null>(null)
+  const [filterCompany, setFilterCompany] = useState<string | null>(null)
+  const [filterDateFrom, setFilterDateFrom] = useState('')
+  const [filterDateTo, setFilterDateTo] = useState('')
+  const [filterAmountMin, setFilterAmountMin] = useState('')
+  const [filterAmountMax, setFilterAmountMax] = useState('')
+  const [filterTag, setFilterTag] = useState<string | null>(null)
+  const [filterStatus, setFilterStatus] = useState<string | null>(null)
+
   const collectionInfos = collections.map((c) => ({ id: c.id, name: c.name, color: c.color }))
+
+  // Collect unique tags from all documents
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    allDocuments.forEach(d => d.tags.forEach(t => tagSet.add(t)))
+    return Array.from(tagSet).sort()
+  }, [allDocuments])
+
+  const activeAdvancedCount = [filterDocType, filterCompany, filterDateFrom, filterDateTo, filterAmountMin, filterAmountMax, filterTag, filterStatus].filter(Boolean).length
+
+  const resetAdvanced = () => {
+    setFilterDocType(null)
+    setFilterCompany(null)
+    setFilterDateFrom('')
+    setFilterDateTo('')
+    setFilterAmountMin('')
+    setFilterAmountMax('')
+    setFilterTag(null)
+    setFilterStatus(null)
+  }
+
+  // Apply advanced filters on top of search results
+  const filteredResults = useMemo(() => {
+    let docs = query.trim() ? results : allDocuments
+    if (filterDocType) docs = docs.filter(d => d.document_type === filterDocType)
+    if (filterCompany) docs = docs.filter(d => d.company_id === filterCompany)
+    if (filterStatus) docs = docs.filter(d => d.status === filterStatus)
+    if (filterTag) docs = docs.filter(d => d.tags.includes(filterTag))
+    if (filterDateFrom) {
+      const from = new Date(filterDateFrom)
+      docs = docs.filter(d => new Date(d.created_at) >= from)
+    }
+    if (filterDateTo) {
+      const to = new Date(filterDateTo)
+      to.setHours(23, 59, 59, 999)
+      docs = docs.filter(d => new Date(d.created_at) <= to)
+    }
+    if (filterAmountMin) {
+      const min = parseFloat(filterAmountMin)
+      if (!isNaN(min)) docs = docs.filter(d => d.amount != null && d.amount >= min)
+    }
+    if (filterAmountMax) {
+      const max = parseFloat(filterAmountMax)
+      if (!isNaN(max)) docs = docs.filter(d => d.amount != null && d.amount <= max)
+    }
+    return docs
+  }, [query, results, allDocuments, filterDocType, filterCompany, filterDateFrom, filterDateTo, filterAmountMin, filterAmountMax, filterTag, filterStatus])
 
   // Save searches when results come in
   useEffect(() => {
@@ -49,6 +118,10 @@ export default function SearchPage() {
       setRecentSearches(getRecentSearches())
     }
   }, [results])
+
+  const handleView = (doc: Document) => {
+    navigate(`/dokumente/${doc.id}`)
+  }
 
   const handleAddToCollection = (doc: Document, collectionId: string) => {
     addToCollection.mutate(
@@ -64,6 +137,8 @@ export default function SearchPage() {
     clearRecentSearches()
     setRecentSearches([])
   }
+
+  const hasQuery = query.trim() || activeAdvancedCount > 0
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -87,11 +162,185 @@ export default function SearchPage() {
         autoFocus
       />
 
+      {/* Advanced Filter Toggle */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant={showAdvanced ? 'secondary' : 'outline'}
+          size="sm"
+          className="text-xs"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+        >
+          <Filter className="w-3.5 h-3.5 mr-1.5" />
+          Erweiterte Filter
+          {activeAdvancedCount > 0 && (
+            <Badge variant="default" className="ml-1.5 text-[9px] h-4 px-1">{activeAdvancedCount}</Badge>
+          )}
+          <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+        </Button>
+        {activeAdvancedCount > 0 && (
+          <Button variant="ghost" size="sm" className="text-xs h-7" onClick={resetAdvanced}>
+            <RotateCcw className="w-3 h-3 mr-1" /> Filter zurucksetzen
+          </Button>
+        )}
+      </div>
+
+      {/* Advanced Filters Panel */}
+      {showAdvanced && (
+        <Card className="animate-fade-in-up">
+          <CardContent className="p-4 space-y-4">
+            {/* Row 1: Document Type + Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1 mb-2">
+                  <FileText className="w-3 h-3" /> Dokumenttyp
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(DOCUMENT_TYPES).map(([key, info]) => (
+                    <Button
+                      key={key}
+                      variant={filterDocType === key ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-[11px] h-6 px-2"
+                      onClick={() => setFilterDocType(filterDocType === key ? null : key)}
+                    >
+                      <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: info.color }} />
+                      {info.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">Status</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { key: 'inbox', label: 'Eingang' },
+                    { key: 'processing', label: 'In Bearbeitung' },
+                    { key: 'action_required', label: 'Aktion nötig' },
+                    { key: 'done', label: 'Erledigt' },
+                    { key: 'archived', label: 'Archiviert' },
+                  ].map(s => (
+                    <Button
+                      key={s.key}
+                      variant={filterStatus === s.key ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-[11px] h-6 px-2"
+                      onClick={() => setFilterStatus(filterStatus === s.key ? null : s.key)}
+                    >
+                      {s.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Row 2: Company + Tags */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {companies.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground flex items-center gap-1 mb-2">
+                    <Building2 className="w-3 h-3" /> Firma
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {companies.map(c => (
+                      <Button
+                        key={c.id}
+                        variant={filterCompany === c.id ? 'default' : 'outline'}
+                        size="sm"
+                        className="text-[11px] h-6 px-2"
+                        onClick={() => setFilterCompany(filterCompany === c.id ? null : c.id)}
+                      >
+                        <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: c.color }} />
+                        {c.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {allTags.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground flex items-center gap-1 mb-2">
+                    <Tag className="w-3 h-3" /> Tag
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {allTags.slice(0, 20).map(tag => (
+                      <Button
+                        key={tag}
+                        variant={filterTag === tag ? 'default' : 'outline'}
+                        size="sm"
+                        className="text-[11px] h-6 px-2"
+                        onClick={() => setFilterTag(filterTag === tag ? null : tag)}
+                      >
+                        {tag}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Row 3: Date Range + Amount Range */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1 mb-2">
+                  <CalendarClock className="w-3 h-3" /> Zeitraum
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={filterDateFrom}
+                    onChange={e => setFilterDateFrom(e.target.value)}
+                    className="h-8 text-xs"
+                    placeholder="Von"
+                  />
+                  <span className="text-xs text-muted-foreground">bis</span>
+                  <Input
+                    type="date"
+                    value={filterDateTo}
+                    onChange={e => setFilterDateTo(e.target.value)}
+                    className="h-8 text-xs"
+                    placeholder="Bis"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1 mb-2">
+                  <Receipt className="w-3 h-3" /> Betrag (EUR)
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={filterAmountMin}
+                    onChange={e => setFilterAmountMin(e.target.value)}
+                    className="h-8 text-xs"
+                    placeholder="Min"
+                    min="0"
+                    step="0.01"
+                  />
+                  <span className="text-xs text-muted-foreground">bis</span>
+                  <Input
+                    type="number"
+                    value={filterAmountMax}
+                    onChange={e => setFilterAmountMax(e.target.value)}
+                    className="h-8 text-xs"
+                    placeholder="Max"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Results */}
-      {query.trim() ? (
+      {hasQuery ? (
         <>
           <p className="text-sm text-muted-foreground">
-            {isLoading ? 'Suche...' : `${results.length} Ergebnis${results.length !== 1 ? 'se' : ''} für "${query}"`}
+            {isLoading ? 'Suche...' : `${filteredResults.length} Ergebnis${filteredResults.length !== 1 ? 'se' : ''}${query.trim() ? ` für "${query}"` : ''}`}
           </p>
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -101,8 +350,8 @@ export default function SearchPage() {
             </div>
           ) : (
             <DocumentGrid
-              documents={results}
-              onView={setSelectedDoc}
+              documents={filteredResults}
+              onView={handleView}
               onFavorite={(doc) => toggleFavorite.mutate(doc)}
               onDelete={(doc) => deleteDocument.mutate(doc)}
               onAddToCollection={handleAddToCollection}
@@ -140,13 +389,40 @@ export default function SearchPage() {
             </div>
           )}
 
+          {/* Quick filter shortcuts */}
+          <div>
+            <p className="text-sm font-medium text-muted-foreground mb-3">Schnellfilter</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {[
+                { label: 'Rechnungen', type: 'rechnung', icon: '🧾' },
+                { label: 'Bescheide', type: 'bescheid', icon: '📋' },
+                { label: 'Vertrage', type: 'vertrag', icon: '📝' },
+                { label: 'Mahnungen', type: 'mahnung', icon: '⚠️' },
+              ].map(shortcut => (
+                <button
+                  key={shortcut.type}
+                  onClick={() => { setFilterDocType(shortcut.type); setShowAdvanced(true) }}
+                  className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card hover:bg-accent hover:border-primary/30 transition-colors text-left"
+                >
+                  <span className="text-xl">{shortcut.icon}</span>
+                  <div>
+                    <p className="text-sm font-medium">{shortcut.label}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {allDocuments.filter(d => d.document_type === shortcut.type).length} Dokumente
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Empty state */}
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
               <FileText className="w-8 h-8 text-primary" />
             </div>
             <p className="text-muted-foreground mb-1">
-              Gib einen Suchbegriff ein, um deine Dokumente zu durchsuchen
+              Gib einen Suchbegriff ein oder nutze die erweiterten Filter
             </p>
             <p className="text-xs text-muted-foreground">
               Tipp: Drücke <kbd className="px-1.5 py-0.5 rounded border bg-muted text-[10px] font-mono">/</kbd> um von überall zu suchen
