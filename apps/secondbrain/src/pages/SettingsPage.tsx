@@ -239,6 +239,34 @@ export default function SettingsPage() {
       {/* Notifications */}
       <NotificationPreferences />
 
+      {/* Onboarding */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Brain className="w-4 h-4" />
+            Onboarding
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Tour erneut starten</p>
+              <p className="text-xs text-muted-foreground">Die Willkommens-Tour noch einmal anzeigen</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem('sb-onboarding-complete')
+                toast.success('Onboarding wird beim nachsten Seitenaufruf angezeigt')
+              }}
+            >
+              Tour starten
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Danger Zone */}
       <Card className="border-destructive/30">
         <CardHeader>

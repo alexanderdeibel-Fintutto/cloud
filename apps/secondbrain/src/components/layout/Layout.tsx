@@ -5,9 +5,13 @@ import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
 import GlobalDropZone from './GlobalDropZone'
 import CommandPalette from '@/components/CommandPalette'
+import OnboardingOverlay, { useOnboarding } from '@/components/OnboardingOverlay'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { user } = useAuth()
+  const { showOnboarding, complete: completeOnboarding } = useOnboarding()
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -21,6 +25,7 @@ export default function Layout() {
       </div>
       <GlobalDropZone />
       <CommandPalette />
+      {user && showOnboarding && <OnboardingOverlay onComplete={completeOnboarding} />}
     </div>
   )
 }
