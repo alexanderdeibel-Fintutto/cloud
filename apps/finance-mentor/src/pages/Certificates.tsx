@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/AppLayout";
-import { Award, Download, BookOpen, Hash } from "lucide-react";
+import { Award, Download, BookOpen, Hash, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,51 @@ interface Certificate {
   date: string;
   certificateNumber: string;
   finalScore: number;
+}
+
+function generateCertPDF(cert: Certificate, userName: string) {
+  const width = 842;
+  const height = 595;
+
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+  <rect width="${width}" height="${height}" fill="#0f172a"/>
+  <rect x="20" y="20" width="${width - 40}" height="${height - 40}" fill="none" stroke="#6366f1" stroke-width="2" rx="12"/>
+  <rect x="28" y="28" width="${width - 56}" height="${height - 56}" fill="none" stroke="#6366f1" stroke-width="0.5" stroke-dasharray="6 4" rx="8"/>
+
+  <text x="${width / 2}" y="100" text-anchor="middle" fill="#6366f1" font-family="serif" font-size="14" letter-spacing="6">FINTUTTO FINANCE MENTOR</text>
+  <text x="${width / 2}" y="160" text-anchor="middle" fill="#e2e8f0" font-family="serif" font-size="40" font-weight="bold">ZERTIFIKAT</text>
+
+  <text x="${width / 2}" y="220" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14">Hiermit wird bescheinigt, dass</text>
+  <text x="${width / 2}" y="265" text-anchor="middle" fill="#e2e8f0" font-family="serif" font-size="28" font-weight="bold">${escapeXml(userName)}</text>
+  <line x1="250" y1="280" x2="592" y2="280" stroke="#6366f1" stroke-width="1"/>
+
+  <text x="${width / 2}" y="320" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14">den Kurs erfolgreich abgeschlossen hat:</text>
+  <text x="${width / 2}" y="360" text-anchor="middle" fill="#a78bfa" font-family="serif" font-size="22" font-style="italic">&quot;${escapeXml(cert.courseTitle)}&quot;</text>
+
+  <text x="${width / 2}" y="410" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14">Ergebnis: ${cert.finalScore}%  |  Datum: ${cert.date}</text>
+
+  <text x="${width / 2}" y="490" text-anchor="middle" fill="#475569" font-family="monospace" font-size="11">Zertifikat-Nr: ${escapeXml(cert.certificateNumber)}</text>
+
+  <text x="${width / 2}" y="545" text-anchor="middle" fill="#334155" font-family="sans-serif" font-size="10">portal.fintutto.cloud  |  Verifizierbar unter fintutto.cloud/verify</text>
+</svg>`;
+
+  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Zertifikat_${cert.certificateNumber}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 export default function Certificates() {
@@ -82,9 +127,13 @@ export default function Certificates() {
                   <p className="text-xs text-primary font-medium mb-4">
                     Ergebnis: {cert.finalScore}%
                   </p>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generateCertPDF(cert, user?.email || "Teilnehmer/in")}
+                  >
                     <Download className="h-4 w-4 mr-2" />
-                    PDF herunterladen
+                    Zertifikat herunterladen
                   </Button>
                 </CardContent>
               </Card>
