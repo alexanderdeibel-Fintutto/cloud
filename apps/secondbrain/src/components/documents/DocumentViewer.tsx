@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Download, Star, Tag, Clock, FileText, Brain, FolderOpen, RefreshCw, Plus, AlertTriangle } from 'lucide-react'
+import { X, Download, Star, Tag, Clock, FileText, Brain, FolderOpen, RefreshCw, Plus, AlertTriangle, Edit3, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -28,6 +28,28 @@ export default function DocumentViewer({
   const [newTag, setNewTag] = useState('')
   const [tags, setTags] = useState<string[]>(doc.tags)
   const [isRetryingOcr, setIsRetryingOcr] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [editTitle, setEditTitle] = useState(doc.title)
+
+  const handleSaveTitle = async () => {
+    const title = editTitle.trim()
+    if (!title || title === doc.title) {
+      setIsEditingTitle(false)
+      return
+    }
+    const { error } = await supabase
+      .from('sb_documents')
+      .update({ title })
+      .eq('id', doc.id)
+
+    if (error) {
+      toast.error('Fehler beim Umbenennen')
+      setEditTitle(doc.title)
+    } else {
+      doc.title = title
+    }
+    setIsEditingTitle(false)
+  }
 
   const handleDownload = async () => {
     try {
@@ -114,7 +136,28 @@ export default function DocumentViewer({
         {/* Header */}
         <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-md border-b border-border p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold truncate pr-4">{doc.title}</h2>
+            {isEditingTitle ? (
+              <div className="flex items-center gap-1.5 flex-1 pr-4">
+                <Input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTitle(); if (e.key === 'Escape') setIsEditingTitle(false) }}
+                  autoFocus
+                  className="h-8 text-lg font-semibold"
+                />
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleSaveTitle}>
+                  <Check className="w-4 h-4 text-green-500" />
+                </Button>
+              </div>
+            ) : (
+              <h2
+                className="text-lg font-semibold truncate pr-4 cursor-pointer hover:text-primary transition-colors group/title flex items-center gap-1.5"
+                onClick={() => setIsEditingTitle(true)}
+              >
+                {doc.title}
+                <Edit3 className="w-3.5 h-3.5 opacity-0 group-hover/title:opacity-50 shrink-0" />
+              </h2>
+            )}
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={() => onFavorite(doc)}>
                 <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />

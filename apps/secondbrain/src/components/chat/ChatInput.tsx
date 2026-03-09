@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, Paperclip } from 'lucide-react'
+import { Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface ChatInputProps {
@@ -34,7 +34,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
   return (
     <div className="flex items-end gap-2">
-      <div className="flex-1 flex items-end gap-2 rounded-xl border border-border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all">
+      <div className="flex-1 rounded-xl border border-border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all">
         <textarea
           ref={textareaRef}
           value={input}
@@ -43,11 +43,8 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           placeholder="Frag dein SecondBrain..."
           disabled={disabled}
           rows={1}
-          className="flex-1 bg-transparent text-sm resize-none focus:outline-none placeholder:text-muted-foreground min-h-[36px] py-1.5"
+          className="w-full bg-transparent text-sm resize-none focus:outline-none placeholder:text-muted-foreground min-h-[36px] py-1.5"
         />
-        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" type="button">
-          <Paperclip className="w-4 h-4 text-muted-foreground" />
-        </Button>
       </div>
       <Button
         size="icon"
