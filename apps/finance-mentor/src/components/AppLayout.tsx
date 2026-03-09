@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, BookOpen, Award, Settings,
-  LogOut, GraduationCap, ChevronRight, Route
+  LogOut, ChevronRight, Route, BookOpenCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,8 +14,33 @@ const NAV_ITEMS = [
   { path: "/lernpfade", label: "Lernpfade", icon: Route },
   { path: "/kurse", label: "Kurse", icon: BookOpen },
   { path: "/zertifikate", label: "Zertifikate", icon: Award },
+  { path: "/glossar", label: "Glossar", icon: BookOpenCheck },
   { path: "/einstellungen", label: "Einstellungen", icon: Settings },
 ];
+
+function AppLogo({ className = "h-10 w-10" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" className={className}>
+      <circle cx="20" cy="20" r="18" stroke="url(#logo-grad)" strokeWidth="3" />
+      <text
+        x="20" y="26"
+        textAnchor="middle"
+        fill="url(#logo-grad)"
+        fontWeight="800"
+        fontSize="22"
+        fontFamily="system-ui, sans-serif"
+      >
+        F
+      </text>
+      <defs>
+        <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+          <stop stopColor="#a855f7" />
+          <stop offset="1" stopColor="#6366f1" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -26,9 +51,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden lg:flex w-64 flex-col border-r border-border/50 bg-background p-4">
         <div className="flex items-center gap-3 px-3 py-4 mb-6">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
-            <GraduationCap className="h-5 w-5 text-white" />
-          </div>
+          <AppLogo className="h-10 w-10" />
           <div>
             <h1 className="font-bold text-lg">Finance Mentor</h1>
             <p className="text-xs text-muted-foreground">Finanz-Education</p>
@@ -81,9 +104,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col">
         <header className="lg:hidden flex items-center justify-between border-b border-border/50 p-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-white" />
-            </div>
+            <AppLogo className="h-8 w-8" />
             <span className="font-bold">Finance Mentor</span>
           </div>
         </header>

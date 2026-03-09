@@ -46,11 +46,21 @@ export function generateCertificatePDF(data: CertificateData): void {
   ctx.lineTo(WIDTH - 100, 80);
   ctx.stroke();
 
+  // Logo: Ring with F
+  ctx.textAlign = "center";
+  ctx.strokeStyle = "#6366f1";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(WIDTH / 2, 118, 18, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "#a855f7";
+  ctx.font = "bold 22px system-ui, -apple-system, sans-serif";
+  ctx.fillText("F", WIDTH / 2, 126);
+
   // Fintutto Logo Text
   ctx.fillStyle = "#6366f1";
-  ctx.font = "bold 18px system-ui, -apple-system, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("FINTUTTO FINANCE MENTOR", WIDTH / 2, 130);
+  ctx.font = "bold 14px system-ui, -apple-system, sans-serif";
+  ctx.fillText("FINTUTTO FINANCE MENTOR", WIDTH / 2, 155);
 
   // Certificate Title
   ctx.fillStyle = "#e2e8f0";

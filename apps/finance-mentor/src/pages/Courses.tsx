@@ -6,6 +6,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { BookOpen, Award, Clock, Lock, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { LEVEL_LABELS } from "@/lib/courses";
+import { LESSON_CONTENT } from "@/lib/lesson-content";
 import { useCourses } from "@/hooks/useCourses";
 
 export default function Courses() {
@@ -19,8 +20,18 @@ export default function Courses() {
   );
 
   const filtered = courses.filter((course) => {
-    const matchSearch = course.title.toLowerCase().includes(search.toLowerCase()) ||
-      course.description.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchTitle = course.title.toLowerCase().includes(q) ||
+      course.description.toLowerCase().includes(q);
+    // Also search through lesson content
+    const matchContent = q.length >= 3 && course.lessons.some((l) => {
+      const content = LESSON_CONTENT[`${course.id}::${l.id}`];
+      if (!content) return false;
+      return content.summary.toLowerCase().includes(q) ||
+        content.keyTakeaway.toLowerCase().includes(q) ||
+        content.sections.some((s) => s.heading.toLowerCase().includes(q) || s.body.toLowerCase().includes(q));
+    });
+    const matchSearch = matchTitle || matchContent;
     const matchCategory = category === "Alle" || course.category === category;
     return matchSearch && matchCategory;
   });
