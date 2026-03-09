@@ -194,6 +194,31 @@
 
 /* === PRINT === */
 @media print {
-  .no-print, nav, .sidebar { display: none !important; }
-  body { background: white !important; color: black !important; }
+  .no-print, nav, .sidebar, header, aside,
+  [data-sonner-toaster], .fixed { display: none !important; }
+
+  body, html {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt !important;
+  }
+
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .doc-card, [class*="border"] {
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+
+  a { text-decoration: none !important; color: black !important; }
+  button { display: none !important; }
+  .print-show { display: block !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  @page { margin: 1.5cm; }
 }

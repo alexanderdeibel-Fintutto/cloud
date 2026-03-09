@@ -50,15 +50,18 @@ export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: ()
           </Link>
         </div>
 
-        {/* Center: Search */}
+        {/* Center: Search - opens Command Palette */}
         <button
-          onClick={() => navigate('/suche')}
+          onClick={() => {
+            // Dispatch Ctrl+K to open command palette
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))
+          }}
           className="hidden md:flex items-center gap-2 h-9 px-4 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground hover:bg-muted transition-colors w-80"
         >
           <Search className="w-4 h-4" />
-          <span>Dokumente durchsuchen...</span>
+          <span>Suche, Seiten, Aktionen...</span>
           <kbd className="ml-auto text-[10px] bg-background px-1.5 py-0.5 rounded border border-border font-mono">
-            /
+            Ctrl+K
           </kbd>
         </button>
 

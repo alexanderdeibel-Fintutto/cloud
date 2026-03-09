@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Upload, Brain, Zap, Shield, FileText, FolderOpen, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,6 +27,7 @@ const features = [
 
 export default function UploadPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const uploadDocument = useUploadDocument()
   const { data: collections = [] } = useCollections()
   const addToCollection = useAddDocumentToCollection()
@@ -37,6 +38,18 @@ export default function UploadPage() {
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState('')
   const [newCollectionName, setNewCollectionName] = useState('')
+
+  // Pick up files dropped on the GlobalDropZone
+  useEffect(() => {
+    if (searchParams.get('dropped') === 'true') {
+      const pendingFiles = (window as unknown as { __pendingFiles?: File[] }).__pendingFiles
+      if (pendingFiles && pendingFiles.length > 0) {
+        handleUpload(pendingFiles)
+        delete (window as unknown as { __pendingFiles?: File[] }).__pendingFiles
+        sessionStorage.removeItem('pendingUploadFiles')
+      }
+    }
+  }, [searchParams])
 
   const handleUpload = async (files: File[]) => {
     try {

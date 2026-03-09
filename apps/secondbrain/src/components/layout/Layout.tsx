@@ -4,6 +4,7 @@ import Header from './Header'
 import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
 import GlobalDropZone from './GlobalDropZone'
+import CommandPalette from '@/components/CommandPalette'
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -19,6 +20,7 @@ export default function Layout() {
         </main>
       </div>
       <GlobalDropZone />
+      <CommandPalette />
     </div>
   )
 }

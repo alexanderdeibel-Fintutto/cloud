@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   X, Download, Star, Tag, Clock, FileText, Brain, FolderOpen, RefreshCw, Plus,
-  AlertTriangle, Edit3, Check, Building2, ArrowRight, CalendarClock, Save, Receipt, Mail,
+  AlertTriangle, Edit3, Check, Building2, ArrowRight, CalendarClock, Save, Receipt, Mail, Printer,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -262,6 +262,9 @@ export default function DocumentViewer({
               </Button>
               <Button variant="ghost" size="icon" onClick={handleDownload}>
                 <Download className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => window.print()} title="Drucken">
+                <Printer className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
                 <X className="w-4 h-4" />
