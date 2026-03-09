@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Inbox, ArrowRight, Building2, Tag, CheckCircle, AlertTriangle, Clock, Filter, Eye } from 'lucide-react'
+import { Inbox, ArrowRight, Building2, Tag, CheckCircle, AlertTriangle, Clock, Filter, Eye, CheckSquare, Square, Archive, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useDocuments, useToggleFavorite } from '@/hooks/useDocuments'
@@ -9,6 +9,7 @@ import { useCompanies, useAssignCompany } from '@/hooks/useCompanies'
 import { useUpdateDocumentStatus, useUpdateDocumentMeta, DOCUMENT_TYPES, DOCUMENT_STATUS, TARGET_APPS, getSmartRouting } from '@/hooks/useWorkflows'
 import { useCreateDocumentLink } from '@/hooks/useWorkflows'
 import { useLogActivity } from '@/hooks/useActivityLog'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import DocumentViewer from '@/components/documents/DocumentViewer'
 import type { Document } from '@/components/documents/DocumentCard'
 import { formatRelativeTime, formatFileSize } from '@/lib/utils'
@@ -21,6 +22,7 @@ export default function InboxPage() {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
   const [filter, setFilter] = useState<InboxFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const { data: documents = [], isLoading } = useDocuments()
   const { data: collections = [] } = useCollections()
@@ -96,6 +98,84 @@ export default function InboxPage() {
     }
   }
 
+  // Batch operations
+  const toggleSelect = (docId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(docId)) next.delete(docId)
+      else next.add(docId)
+      return next
+    })
+  }
+
+  const selectAll = () => {
+    if (selectedIds.size === inboxDocs.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(inboxDocs.map(d => d.id)))
+    }
+  }
+
+  const batchMarkDone = () => {
+    selectedIds.forEach(id => {
+      updateStatus.mutate({ documentId: id, status: 'done', workflowStatus: 'completed' })
+    })
+    toast.success(`${selectedIds.size} Dokumente als erledigt markiert`)
+    setSelectedIds(new Set())
+  }
+
+  const batchArchive = () => {
+    selectedIds.forEach(id => {
+      updateStatus.mutate({ documentId: id, status: 'archived' })
+    })
+    toast.success(`${selectedIds.size} Dokumente archiviert`)
+    setSelectedIds(new Set())
+  }
+
+  const batchForward = (appKey: string) => {
+    const app = TARGET_APPS[appKey]
+    selectedIds.forEach(id => {
+      createLink.mutate({
+        document_id: id,
+        target_app: appKey,
+        link_type: 'forwarded',
+      })
+    })
+    toast.success(`${selectedIds.size} Dokumente an ${app?.label || appKey} weitergeleitet`)
+    setSelectedIds(new Set())
+  }
+
+  // Keyboard shortcuts
+  const currentIndex = inboxDocs.findIndex(d => d.id === expandedId)
+  useKeyboardShortcuts({
+    onNext: useCallback(() => {
+      if (currentIndex < inboxDocs.length - 1) {
+        setExpandedId(inboxDocs[currentIndex + 1].id)
+      }
+    }, [currentIndex, inboxDocs]),
+    onPrev: useCallback(() => {
+      if (currentIndex > 0) {
+        setExpandedId(inboxDocs[currentIndex - 1].id)
+      }
+    }, [currentIndex, inboxDocs]),
+    onMarkDone: useCallback(() => {
+      if (expandedId) {
+        const doc = inboxDocs.find(d => d.id === expandedId)
+        if (doc) handleMarkDone(doc)
+      }
+    }, [expandedId, inboxDocs]),
+    onArchive: useCallback(() => {
+      if (expandedId) {
+        const doc = inboxDocs.find(d => d.id === expandedId)
+        if (doc) handleArchive(doc)
+      }
+    }, [expandedId, inboxDocs]),
+    onClose: useCallback(() => {
+      if (selectedDoc) setSelectedDoc(null)
+      else if (expandedId) setExpandedId(null)
+    }, [selectedDoc, expandedId]),
+  })
+
   const collectionInfos = collections.map(c => ({ id: c.id, name: c.name, color: c.color }))
 
   return (
@@ -111,7 +191,18 @@ export default function InboxPage() {
             {inboxDocs.length} Dokumente warten auf Bearbeitung
           </p>
         </div>
-        <Button onClick={() => navigate('/upload')}>Neues Dokument</Button>
+        <div className="flex items-center gap-2">
+          {inboxDocs.length > 0 && (
+            <Button variant="outline" size="sm" onClick={selectAll}>
+              {selectedIds.size === inboxDocs.length ? (
+                <><CheckSquare className="w-3.5 h-3.5 mr-1" /> Keine</>
+              ) : (
+                <><Square className="w-3.5 h-3.5 mr-1" /> Alle</>
+              )}
+            </Button>
+          )}
+          <Button onClick={() => navigate('/upload')}>Neues Dokument</Button>
+        </div>
       </div>
 
       {/* Filter tabs */}
@@ -134,6 +225,28 @@ export default function InboxPage() {
           In Bearbeitung ({processingCount})
         </Button>
       </div>
+
+      {/* Batch action bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-2 p-3 rounded-xl border border-primary/30 bg-primary/5 animate-fade-in-up">
+          <Badge variant="default" className="text-xs">{selectedIds.size} ausgewählt</Badge>
+          <div className="flex-1" />
+          <Button size="sm" variant="default" className="text-xs h-7" onClick={batchMarkDone}>
+            <CheckCircle className="w-3 h-3 mr-1" /> Alle erledigt
+          </Button>
+          <Button size="sm" variant="outline" className="text-xs h-7" onClick={batchArchive}>
+            <Archive className="w-3 h-3 mr-1" /> Archivieren
+          </Button>
+          {Object.entries(TARGET_APPS).slice(0, 3).map(([key, app]) => (
+            <Button key={key} size="sm" variant="outline" className="text-xs h-7" onClick={() => batchForward(key)}>
+              <span className="text-sm leading-none mr-1">{app.icon}</span> {app.label}
+            </Button>
+          ))}
+          <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => setSelectedIds(new Set())}>
+            <X className="w-3 h-3" />
+          </Button>
+        </div>
+      )}
 
       {/* Document list */}
       {isLoading ? (
@@ -170,6 +283,18 @@ export default function InboxPage() {
                   className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/30 transition-colors rounded-xl"
                   onClick={() => setExpandedId(isExpanded ? null : doc.id)}
                 >
+                  {/* Selection checkbox */}
+                  <button
+                    className="shrink-0"
+                    onClick={(e) => { e.stopPropagation(); toggleSelect(doc.id) }}
+                  >
+                    {selectedIds.has(doc.id) ? (
+                      <CheckSquare className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Square className="w-4 h-4 text-muted-foreground/40 hover:text-muted-foreground" />
+                    )}
+                  </button>
+
                   {/* Priority indicator */}
                   <div className={`w-1.5 h-12 rounded-full shrink-0 ${
                     doc.priority === 'urgent' ? 'bg-destructive' :

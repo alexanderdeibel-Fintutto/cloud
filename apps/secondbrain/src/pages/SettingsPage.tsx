@@ -1,13 +1,15 @@
 import { useState } from 'react'
-import { Settings, User, Bell, Shield, Database, LogOut, FileText, Image, File, AlertTriangle } from 'lucide-react'
+import { Settings, User, Bell, Shield, Database, LogOut, FileText, Image, File, AlertTriangle, ArrowRight, Zap, Keyboard } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { useDocumentStats } from '@/hooks/useDocuments'
 import { useClearActivityLog } from '@/hooks/useActivityLog'
+import { DOCUMENT_TYPES, TARGET_APPS, SMART_ROUTING } from '@/hooks/useWorkflows'
 import { supabase } from '@/integrations/supabase'
 import { formatFileSize } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -151,6 +153,86 @@ export default function SettingsPage() {
               {stats?.ocrCompleted || 0} abgeschlossen, {stats?.ocrPending || 0} ausstehend
             </span>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Auto-Routing Rules */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Smart Auto-Routing
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Dokumente werden automatisch der passenden Fintutto-App zugeordnet. Die KI schlägt basierend auf dem Dokumenttyp die beste App vor.
+          </p>
+          <Separator />
+          <div className="space-y-2">
+            {Object.entries(SMART_ROUTING).map(([docType, routing]) => {
+              const typeInfo = DOCUMENT_TYPES[docType]
+              const primaryApp = TARGET_APPS[routing.primary]
+              const secondaryApp = routing.secondary ? TARGET_APPS[routing.secondary] : null
+              if (!typeInfo || !primaryApp) return null
+              return (
+                <div key={docType} className="flex items-center gap-3 py-2 px-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                  <Badge variant="outline" className="text-[10px] shrink-0" style={{ borderColor: typeInfo.color, color: typeInfo.color }}>
+                    {typeInfo.label}
+                  </Badge>
+                  <ArrowRight className="w-3 h-3 text-muted-foreground shrink-0" />
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    <span className="text-sm leading-none">{primaryApp.icon}</span>
+                    <span className="text-sm font-medium truncate">{primaryApp.label}</span>
+                  </div>
+                  {secondaryApp && (
+                    <div className="flex items-center gap-1 text-muted-foreground shrink-0">
+                      <span className="text-xs">oder</span>
+                      <span className="text-sm leading-none">{secondaryApp.icon}</span>
+                      <span className="text-xs">{secondaryApp.label}</span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Routing-Vorschläge erscheinen im Eingangskorb und Dokumenten-Viewer. Du entscheidest per Klick ob weitergeleitet wird.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Keyboard Shortcuts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Keyboard className="w-4 h-4" />
+            Tastenkürzel
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          {[
+            { keys: ['/', 'Ctrl+K'], label: 'Suche öffnen' },
+            { keys: ['N'], label: 'Neues Dokument hochladen' },
+            { keys: ['I'], label: 'Eingangskorb öffnen' },
+            { keys: ['D'], label: 'Dokumente öffnen' },
+            { keys: ['C'], label: 'KI-Chat öffnen' },
+            { keys: ['Esc'], label: 'Dialog/Viewer schließen' },
+            { keys: ['J / K'], label: 'Nächstes/Vorheriges Dokument' },
+            { keys: ['E'], label: 'Dokument als erledigt markieren' },
+            { keys: ['A'], label: 'Dokument archivieren' },
+          ].map((shortcut) => (
+            <div key={shortcut.label} className="flex items-center justify-between py-1.5">
+              <span className="text-sm text-muted-foreground">{shortcut.label}</span>
+              <div className="flex items-center gap-1">
+                {shortcut.keys.map((key) => (
+                  <kbd key={key} className="px-1.5 py-0.5 text-[10px] font-mono bg-muted border border-border rounded">
+                    {key}
+                  </kbd>
+                ))}
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
