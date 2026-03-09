@@ -5,6 +5,7 @@ import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
 import GlobalDropZone from './GlobalDropZone'
 import CommandPalette from '@/components/CommandPalette'
+import ShortcutsOverlay from '@/components/ShortcutsOverlay'
 import OnboardingOverlay, { useOnboarding } from '@/components/OnboardingOverlay'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -25,6 +26,7 @@ export default function Layout() {
       </div>
       <GlobalDropZone />
       <CommandPalette />
+      <ShortcutsOverlay />
       {user && showOnboarding && <OnboardingOverlay onComplete={completeOnboarding} />}
     </div>
   )

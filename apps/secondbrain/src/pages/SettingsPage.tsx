@@ -111,34 +111,43 @@ export default function SettingsPage() {
               <span className="text-muted-foreground">{formatFileSize(STORAGE_LIMIT)} Limit</span>
             </div>
             <Progress value={storagePercent} className="h-2" />
+            {storagePercent > 80 && (
+              <p className="text-xs text-orange-500 mt-1 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                {storagePercent > 95 ? 'Speicher fast voll!' : 'Speicher wird knapp'}
+              </p>
+            )}
           </div>
 
           <Separator />
 
+          {/* Visual storage breakdown bar */}
+          <StorageBreakdownBar stats={stats} />
+
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="flex items-center gap-2 text-sm">
-              <FileText className="w-4 h-4 text-red-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
               <div>
                 <p className="font-medium">{stats?.byType.pdf || 0}</p>
                 <p className="text-xs text-muted-foreground">PDFs</p>
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <Image className="w-4 h-4 text-blue-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
               <div>
                 <p className="font-medium">{stats?.byType.image || 0}</p>
                 <p className="text-xs text-muted-foreground">Bilder</p>
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <FileText className="w-4 h-4 text-green-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
               <div>
                 <p className="font-medium">{stats?.byType.text || 0}</p>
                 <p className="text-xs text-muted-foreground">Texte</p>
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <File className="w-4 h-4 text-muted-foreground" />
+              <div className="w-2.5 h-2.5 rounded-full bg-gray-400" />
               <div>
                 <p className="font-medium">{stats?.byType.other || 0}</p>
                 <p className="text-xs text-muted-foreground">Sonstige</p>
@@ -150,9 +159,16 @@ export default function SettingsPage() {
 
           <div className="flex items-center justify-between text-sm">
             <span>OCR-Verarbeitung</span>
-            <span className="text-muted-foreground">
-              {stats?.ocrCompleted || 0} abgeschlossen, {stats?.ocrPending || 0} ausstehend
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-muted-foreground">
+                {stats?.ocrCompleted || 0} abgeschlossen
+              </span>
+              {(stats?.ocrPending || 0) > 0 && (
+                <Badge variant="outline" className="text-[10px] text-orange-500 border-orange-500/30">
+                  {stats?.ocrPending} ausstehend
+                </Badge>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -545,6 +561,41 @@ function ThemeSettings() {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function StorageBreakdownBar({ stats }: { stats: ReturnType<typeof useDocumentStats>['data'] }) {
+  const total = stats?.total || 0
+  if (total === 0) return null
+
+  const segments = [
+    { count: stats?.byType.pdf || 0, color: 'bg-red-500', label: 'PDFs' },
+    { count: stats?.byType.image || 0, color: 'bg-blue-500', label: 'Bilder' },
+    { count: stats?.byType.text || 0, color: 'bg-green-500', label: 'Texte' },
+    { count: stats?.byType.other || 0, color: 'bg-gray-400', label: 'Sonstige' },
+  ].filter(s => s.count > 0)
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium text-muted-foreground">Verteilung nach Typ</p>
+      <div className="flex h-3 rounded-full overflow-hidden bg-muted">
+        {segments.map((seg, i) => (
+          <div
+            key={i}
+            className={`${seg.color} transition-all duration-500`}
+            style={{ width: `${(seg.count / total) * 100}%` }}
+            title={`${seg.label}: ${seg.count} (${Math.round((seg.count / total) * 100)}%)`}
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-3 flex-wrap">
+        {segments.map((seg, i) => (
+          <span key={i} className="text-[10px] text-muted-foreground">
+            {seg.label} {Math.round((seg.count / total) * 100)}%
+          </span>
+        ))}
+      </div>
+    </div>
   )
 }
 
