@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS public.learn_certificates (
 ALTER TABLE public.learn_certificates ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "own_certificates" ON public.learn_certificates FOR ALL USING (user_id = auth.uid());
 
--- Seed: Basis-Kurse
+-- Seed: Alle Kurse (24 Kurse, ~165 Lektionen)
 INSERT INTO public.learn_courses (title, description, category, difficulty, is_premium, lesson_count, estimated_minutes, sort_order) VALUES
   -- Grundlagen
   ('Budgetierung Grundlagen', 'Lerne die Basics der persoenlichen Finanzplanung', 'budgeting', 'beginner', false, 6, 45, 1),
@@ -67,12 +67,12 @@ INSERT INTO public.learn_courses (title, description, category, difficulty, is_p
   ('Schulden strategisch abbauen', 'Verschaffe dir Ueberblick und werde systematisch schuldenfrei', 'budgeting', 'beginner', false, 5, 40, 3),
   -- Sparen
   ('Notfallfonds aufbauen', 'Finanzielle Sicherheit durch Ruecklagen', 'emergency_fund', 'beginner', false, 4, 30, 4),
-  ('Automatisch Vermoegen aufbauen', 'Richte ein System ein das dein Vermoegen im Hintergrund wachsen laesst', 'saving', 'beginner', true, 7, 60, 5),
+  ('Automatisch Vermoegen aufbauen', 'Richte ein System ein das dein Vermoegen im Hintergrund wachsen laesst', 'saving', 'beginner', true, 9, 70, 5),
   -- Investieren
   ('ETFs verstehen', 'Einfuehrung in ETF-Investing fuer Einsteiger', 'investing', 'beginner', false, 10, 90, 6),
-  ('Passives Einkommen aufbauen', 'Einkommensquellen die auch ohne taegliche Arbeit fliessen', 'investing', 'intermediate', true, 9, 120, 7),
+  ('Passives Einkommen aufbauen', 'Einkommensquellen die auch ohne taegliche Arbeit fliessen', 'investing', 'intermediate', true, 11, 130, 7),
   ('Immobilien als Investment', 'Rendite, Finanzierung, Steuervorteile bei Immobilien', 'investing', 'advanced', true, 9, 120, 8),
-  ('Fortgeschrittenes Investing', 'Portfoliotheorie, Diversifikation, Rebalancing', 'investing', 'intermediate', true, 8, 60, 9),
+  ('Fortgeschrittenes Investieren', 'Portfoliotheorie, Sicherheitsmarge und systematische Anlagestrategien', 'investing', 'intermediate', true, 10, 120, 9),
   -- Geld-Psychologie
   ('Die Psychologie des Geldes', 'Warum wir irrational mit Geld umgehen und wie du bessere Entscheidungen triffst', 'psychology', 'beginner', true, 9, 90, 10),
   ('Denkfallen bei Geldentscheidungen', 'Verlustaversion Ankereffekte und andere kognitive Verzerrungen umgehen', 'psychology', 'intermediate', true, 9, 90, 11),
@@ -84,13 +84,13 @@ INSERT INTO public.learn_courses (title, description, category, difficulty, is_p
   ('Zeitlose Geld-Prinzipien', 'Bewaehrte Weisheiten ueber Geld in moderner Anwendung', 'income', 'beginner', false, 7, 60, 15),
   ('Einkommen gezielt steigern', 'Strategien fuer Gehaltsverhandlung Nebeneinkuenfte und Positionierung', 'income', 'intermediate', true, 10, 100, 16),
   -- Steuern
-  ('Steuern fuer Arbeitnehmer', 'Steuererklaerung und Absetzmoeglichkeiten verstehen', 'taxes', 'beginner', false, 4, 25, 17),
-  ('Kredite und Schuldenmanagement', 'Richtig mit Krediten umgehen und Schulden abbauen', 'credit', 'beginner', false, 5, 35, 18),
-  ('Steuern fuer Freelancer', 'EUeR, Umsatzsteuer, Abschreibungen fuer Selbststaendige', 'taxes', 'intermediate', true, 7, 50, 19),
+  ('Steuern fuer Arbeitnehmer', 'Steuererklaerung und Absetzmoeglichkeiten verstehen', 'taxes', 'beginner', false, 8, 90, 17),
+  ('Steuern fuer Freelancer und Selbststaendige', 'EUeR Umsatzsteuer Abschreibungen und Vorauszahlungen', 'taxes', 'intermediate', true, 8, 90, 18),
+  ('Kredite und Schuldenmanagement', 'Richtig mit Krediten umgehen Zinsen vergleichen und optimieren', 'credit', 'beginner', false, 6, 50, 19),
   -- Vorsorge & Schutz
-  ('Versicherungen optimieren', 'Welche Versicherungen braucht man wirklich?', 'insurance', 'beginner', true, 5, 30, 20),
-  ('Altersvorsorge planen', 'Rente, Riester, Ruerup, betriebliche Altersvorsorge', 'investing', 'intermediate', true, 7, 55, 21),
+  ('Versicherungen optimieren', 'Welche Versicherungen brauchst du wirklich und wo zahlst du zu viel', 'insurance', 'beginner', true, 8, 70, 20),
+  ('Altersvorsorge planen', 'Rente Riester Ruerup betriebliche Altersvorsorge', 'investing', 'intermediate', true, 8, 90, 21),
   -- Finanzielle Freiheit
-  ('Der Weg zur finanziellen Freiheit', 'Von der Absicherung bis zur Unabhaengigkeit in vier Stufen', 'freedom', 'beginner', true, 8, 90, 22),
+  ('Der Weg zur finanziellen Freiheit', 'Von der Absicherung bis zur Unabhaengigkeit in vier Stufen', 'freedom', 'beginner', true, 11, 120, 22),
   ('Vermoegen schuetzen und erhalten', 'Wie du dein Vermoegen vor Inflation und Risiken bewahrst', 'freedom', 'advanced', true, 10, 100, 23)
 ON CONFLICT DO NOTHING;
