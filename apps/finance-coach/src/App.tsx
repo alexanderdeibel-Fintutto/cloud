@@ -8,6 +8,7 @@ import Register from "./pages/auth/Register";
 // App Pages
 import Dashboard from "./pages/Dashboard";
 import Budget from "./pages/Budget";
+import Transactions from "./pages/Transactions";
 import SavingsGoals from "./pages/SavingsGoals";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
@@ -32,6 +33,9 @@ const App = () => (
         } />
         <Route path="/budget" element={
           <ProtectedRoute><Budget /></ProtectedRoute>
+        } />
+        <Route path="/transaktionen" element={
+          <ProtectedRoute><Transactions /></ProtectedRoute>
         } />
         <Route path="/sparziele" element={
           <ProtectedRoute><SavingsGoals /></ProtectedRoute>

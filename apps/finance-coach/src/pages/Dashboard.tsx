@@ -3,7 +3,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { Progress } from "@/components/ui/progress";
 import {
   Wallet, TrendingUp, TrendingDown, PiggyBank,
-  ArrowUpRight, ArrowDownRight, Brain, ExternalLink, Info
+  ArrowUpRight, ArrowDownRight, Brain, ExternalLink, Info,
+  AlertTriangle
 } from "lucide-react";
 import { formatEuro, getUpgradeSuggestions } from "@fintutto/shared";
 import { useEntitlements } from "@/hooks/useEntitlements";
@@ -100,6 +101,38 @@ export default function Dashboard() {
             </Card>
           ))}
         </div>
+
+        {/* Budget Threshold Warnings */}
+        {(() => {
+          const overBudget = budgetItems.filter((b) => b.spent > b.budget);
+          const nearLimit = budgetItems.filter(
+            (b) => b.spent <= b.budget && b.budget > 0 &&
+              (b.spent / b.budget) >= (budgets.find((bb) => bb.category === b.label)?.alert_threshold ?? 0.8)
+          );
+          const alerts = [...overBudget, ...nearLimit];
+          if (alerts.length === 0) return null;
+          return (
+            <div className="space-y-2">
+              {overBudget.map((b) => (
+                <div key={b.label} className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                  <AlertTriangle className="h-5 w-5 text-red-400 shrink-0" />
+                  <p className="text-sm">
+                    <span className="font-semibold">{b.label}</span>: Budget ueberschritten!{" "}
+                    {formatEuro(b.spent)} von {formatEuro(b.budget)} ({formatEuro(b.spent - b.budget)} ueber Limit)
+                  </p>
+                </div>
+              ))}
+              {nearLimit.map((b) => (
+                <div key={b.label} className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+                  <p className="text-sm">
+                    <span className="font-semibold">{b.label}</span>: {Math.round((b.spent / b.budget) * 100)}% des Budgets aufgebraucht ({formatEuro(b.budget - b.spent)} verbleibend)
+                  </p>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Sparziel Progress */}

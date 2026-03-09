@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,11 +6,25 @@ import { Label } from "@/components/ui/label";
 import { AppLayout } from "@/components/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
-import { Crown, ExternalLink } from "lucide-react";
+import { Crown, ExternalLink, Sun, Moon } from "lucide-react";
+
+function useThemeToggle() {
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  function toggle() {
+    const next = !isDark;
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("fintutto-theme", next ? "dark" : "light");
+    setIsDark(next);
+  }
+
+  return { isDark, toggle };
+}
 
 export default function Settings() {
   const { user } = useAuth();
   const { entitlements } = useEntitlements();
+  const { isDark, toggle: toggleTheme } = useThemeToggle();
 
   const learnEntitlements = entitlements.filter((e) =>
     e.feature_key.startsWith("learn_")
@@ -61,6 +76,27 @@ export default function Settings() {
                 </Button>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Theme */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Darstellung</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">Farbschema</p>
+                <p className="text-xs text-muted-foreground">
+                  {isDark ? "Dunkler Modus aktiv" : "Heller Modus aktiv"}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={toggleTheme}>
+                {isDark ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
+                {isDark ? "Hell" : "Dunkel"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

@@ -248,7 +248,8 @@ export default function LessonViewer() {
   const navigate = useNavigate();
   const { courses } = useCourses();
   const { hasFeature } = useEntitlements();
-  const { isLessonComplete, markLessonComplete, getCoursePercent } = useCourseProgress(courseId);
+  const { isLessonComplete, markLessonComplete, getCoursePercent, checkAndGrantCertificate } = useCourseProgress(courseId);
+  const [certGranted, setCertGranted] = useState(false);
 
   const [content, setContent] = useState<ContentBlock[]>([]);
   const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
@@ -325,15 +326,24 @@ export default function LessonViewer() {
     );
   }
 
+  async function tryGrantCert() {
+    if (course && courseId) {
+      const granted = await checkAndGrantCertificate(courseId, course.lessons.length);
+      if (granted) setCertGranted(true);
+    }
+  }
+
   async function handleQuizComplete(score: number) {
     if (courseId && lessonId) {
       await markLessonComplete(courseId, lessonId, score);
+      await tryGrantCert();
     }
   }
 
   async function handleMarkComplete() {
     if (courseId && lessonId && !done) {
       await markLessonComplete(courseId, lessonId);
+      await tryGrantCert();
     }
   }
 
@@ -392,6 +402,23 @@ export default function LessonViewer() {
             <CheckCircle2 className="h-5 w-5 mr-2" />
             Lektion abschliessen
           </Button>
+        )}
+
+        {/* Certificate Banner */}
+        {certGranted && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-6 text-center">
+              <Award className="h-12 w-12 text-primary mx-auto mb-3" />
+              <h3 className="text-xl font-bold mb-2">Zertifikat erhalten!</h3>
+              <p className="text-muted-foreground text-sm mb-4">
+                Du hast alle Lektionen in &ldquo;{course.title}&rdquo; abgeschlossen.
+                Dein Zertifikat findest du unter Zertifikate.
+              </p>
+              <Button asChild>
+                <Link to="/zertifikate">Zertifikate ansehen</Link>
+              </Button>
+            </CardContent>
+          </Card>
         )}
 
         {/* Lesson Navigation */}

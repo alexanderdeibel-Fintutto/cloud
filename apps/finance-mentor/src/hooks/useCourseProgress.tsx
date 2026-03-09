@@ -79,6 +79,48 @@ export function useCourseProgress(courseId?: string) {
     await fetchProgress();
   };
 
+  const checkAndGrantCertificate = async (cId: string, totalLessons: number): Promise<boolean> => {
+    if (!user || totalLessons === 0) return false;
+
+    const completed = lessonProgress.filter(
+      (p) => p.course_id === cId && p.progress >= 100
+    ).length;
+
+    if (completed < totalLessons) return false;
+
+    // Check if certificate already exists
+    const { data: existing } = await supabase
+      .from("learn_certificates")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("course_id", cId)
+      .limit(1);
+
+    if (existing && existing.length > 0) return false;
+
+    // Calculate average quiz score
+    const quizScores = lessonProgress
+      .filter((p) => p.course_id === cId && p.quiz_score != null)
+      .map((p) => p.quiz_score as number);
+    const avgScore = quizScores.length > 0
+      ? Math.round(quizScores.reduce((s, q) => s + q, 0) / quizScores.length)
+      : 100;
+
+    // Generate certificate number: FMC-YYYYMMDD-XXXX
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const certNumber = `FMC-${dateStr}-${rand}`;
+
+    await supabase.from("learn_certificates").insert({
+      user_id: user.id,
+      course_id: cId,
+      certificate_number: certNumber,
+      final_score: avgScore,
+    });
+
+    return true;
+  };
+
   const isLessonComplete = (lessonId: string): boolean => {
     return lessonProgress.some(
       (p) => p.lesson_id === lessonId && p.progress >= 100
@@ -99,6 +141,7 @@ export function useCourseProgress(courseId?: string) {
     markLessonComplete,
     isLessonComplete,
     getCoursePercent,
+    checkAndGrantCertificate,
     refresh: fetchProgress,
   };
 }

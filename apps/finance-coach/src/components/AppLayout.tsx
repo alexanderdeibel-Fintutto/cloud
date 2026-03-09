@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, PiggyBank, TrendingUp, Settings,
-  LogOut, Wallet, Brain, ChevronRight
+  LogOut, Wallet, Brain, ChevronRight, ArrowLeftRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 
 const NAV_ITEMS = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/transaktionen", label: "Transaktionen", icon: ArrowLeftRight },
   { path: "/budget", label: "Budget", icon: PiggyBank },
   { path: "/sparziele", label: "Sparziele", icon: TrendingUp },
   { path: "/insights", label: "KI-Insights", icon: Brain },
@@ -90,7 +91,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
         {/* Mobile Bottom Nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-border/50 flex z-50">
-          {NAV_ITEMS.slice(0, 4).map((item) => {
+          {NAV_ITEMS.slice(0, 5).map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
