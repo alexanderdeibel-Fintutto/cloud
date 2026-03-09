@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Plus, CheckSquare, X, FolderOpen, Trash2, Tag } from 'lucide-react'
+import { FileText, Plus, CheckSquare, X, FolderOpen, Trash2, Tag, ArrowRight, CheckCircle, Archive } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import SearchBar from '@/components/search/SearchBar'
 import DocumentGrid from '@/components/documents/DocumentGrid'
 import DocumentViewer from '@/components/documents/DocumentViewer'
@@ -10,6 +11,8 @@ import { useDocuments, useToggleFavorite, useDeleteDocument } from '@/hooks/useD
 import { useCollections, useAddDocumentToCollection } from '@/hooks/useCollections'
 import { useCompanies } from '@/hooks/useCompanies'
 import { useLogActivity } from '@/hooks/useActivityLog'
+import { useUpdateDocumentStatus, useCreateDocumentLink, TARGET_APPS } from '@/hooks/useWorkflows'
+import { supabase } from '@/integrations/supabase'
 import type { Document } from '@/components/documents/DocumentCard'
 import { toast } from 'sonner'
 
@@ -28,6 +31,9 @@ export default function DocumentsPage() {
   const deleteDocument = useDeleteDocument()
   const addToCollection = useAddDocumentToCollection()
   const logActivity = useLogActivity()
+  const updateStatus = useUpdateDocumentStatus()
+  const createLink = useCreateDocumentLink()
+  const [bulkTag, setBulkTag] = useState('')
 
   const collectionInfos = useMemo(
     () => collections.map((c) => ({ id: c.id, name: c.name, color: c.color })),
@@ -78,6 +84,52 @@ export default function DocumentsPage() {
       addToCollection.mutate({ documentId: docId, collectionId })
     }
     toast.success(`${selectedIds.size} Dokumente zugeordnet`)
+    setSelectedIds(new Set())
+    setSelectionMode(false)
+  }
+
+  const handleBulkDone = () => {
+    for (const docId of selectedIds) {
+      updateStatus.mutate({ documentId: docId, status: 'done', workflowStatus: 'completed' })
+    }
+    toast.success(`${selectedIds.size} Dokumente als erledigt markiert`)
+    setSelectedIds(new Set())
+    setSelectionMode(false)
+  }
+
+  const handleBulkArchive = () => {
+    for (const docId of selectedIds) {
+      updateStatus.mutate({ documentId: docId, status: 'archived' })
+    }
+    toast.success(`${selectedIds.size} Dokumente archiviert`)
+    setSelectedIds(new Set())
+    setSelectionMode(false)
+  }
+
+  const handleBulkForward = (appKey: string) => {
+    for (const docId of selectedIds) {
+      createLink.mutate({ document_id: docId, target_app: appKey, link_type: 'forwarded' })
+    }
+    const app = TARGET_APPS[appKey]
+    toast.success(`${selectedIds.size} Dokumente an ${app?.label || appKey} weitergeleitet`)
+    setSelectedIds(new Set())
+    setSelectionMode(false)
+  }
+
+  const handleBulkTag = async () => {
+    const tag = bulkTag.trim()
+    if (!tag) return
+    const docs = documents.filter(d => selectedIds.has(d.id))
+    for (const doc of docs) {
+      if (!doc.tags.includes(tag)) {
+        await supabase
+          .from('sb_documents')
+          .update({ tags: [...doc.tags, tag] })
+          .eq('id', doc.id)
+      }
+    }
+    toast.success(`Tag "${tag}" zu ${docs.length} Dokumenten hinzugefügt`)
+    setBulkTag('')
     setSelectedIds(new Set())
     setSelectionMode(false)
   }
@@ -142,27 +194,53 @@ export default function DocumentsPage() {
 
       {/* Batch action bar */}
       {selectionMode && selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/30 bg-primary/5 animate-fade-in-up">
-          <Badge variant="default">{selectedIds.size} ausgewählt</Badge>
-          <div className="flex items-center gap-2 ml-auto">
-            {collections.map((col) => (
-              <Button
-                key={col.id}
-                variant="outline"
-                size="sm"
-                onClick={() => handleBulkAddToCollection(col.id)}
-              >
-                <span className="w-2.5 h-2.5 rounded-full mr-1.5" style={{ backgroundColor: col.color }} />
+        <div className="space-y-2 animate-fade-in-up">
+          <div className="flex items-center gap-2 p-3 rounded-xl border border-primary/30 bg-primary/5">
+            <Badge variant="default" className="text-xs">{selectedIds.size} ausgewählt</Badge>
+            <div className="flex-1" />
+            <Button size="sm" variant="default" className="text-xs h-7" onClick={handleBulkDone}>
+              <CheckCircle className="w-3 h-3 mr-1" /> Erledigt
+            </Button>
+            <Button size="sm" variant="outline" className="text-xs h-7" onClick={handleBulkArchive}>
+              <Archive className="w-3 h-3 mr-1" /> Archiv
+            </Button>
+            {collections.slice(0, 3).map((col) => (
+              <Button key={col.id} variant="outline" size="sm" className="text-xs h-7" onClick={() => handleBulkAddToCollection(col.id)}>
+                <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: col.color }} />
                 {col.name}
               </Button>
             ))}
-            <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-              Löschen
+            <Button variant="destructive" size="sm" className="text-xs h-7" onClick={handleBulkDelete}>
+              <Trash2 className="w-3 h-3 mr-1" /> Löschen
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => { setSelectedIds(new Set()); setSelectionMode(false) }}>
+            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => { setSelectedIds(new Set()); setSelectionMode(false) }}>
               <X className="w-3.5 h-3.5" />
             </Button>
+          </div>
+
+          {/* Bulk tag + forward row */}
+          <div className="flex items-center gap-2 px-3">
+            <div className="flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                value={bulkTag}
+                onChange={e => setBulkTag(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleBulkTag()}
+                placeholder="Tag hinzufügen..."
+                className="h-7 w-36 text-xs"
+              />
+              <Button variant="outline" size="sm" className="text-xs h-7" onClick={handleBulkTag} disabled={!bulkTag.trim()}>
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+            <div className="flex-1" />
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Weiterleiten:</span>
+            {Object.entries(TARGET_APPS).slice(0, 4).map(([key, app]) => (
+              <Button key={key} variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => handleBulkForward(key)}>
+                <span className="text-sm leading-none mr-1">{app.icon}</span>
+                {app.label}
+              </Button>
+            ))}
           </div>
         </div>
       )}

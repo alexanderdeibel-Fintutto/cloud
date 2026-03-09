@@ -24,8 +24,9 @@ export function useKeyboardShortcuts(handlers?: ShortcutHandlers) {
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         switch (e.key) {
           case '/':
+            // Open command palette (handled by CommandPalette component via Ctrl+K dispatch)
             e.preventDefault()
-            navigate('/suche')
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))
             return
           case 'n':
           case 'N':
@@ -55,12 +56,7 @@ export function useKeyboardShortcuts(handlers?: ShortcutHandlers) {
         }
       }
 
-      // Ctrl+K for search
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault()
-        navigate('/suche')
-        return
-      }
+      // Ctrl+K is handled by CommandPalette component directly
 
       // Context-specific shortcuts
       if (handlers && !e.ctrlKey && !e.metaKey && !e.altKey) {

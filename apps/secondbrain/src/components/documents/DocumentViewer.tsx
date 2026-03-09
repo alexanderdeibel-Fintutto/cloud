@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   X, Download, Star, Tag, Clock, FileText, Brain, FolderOpen, RefreshCw, Plus,
-  AlertTriangle, Edit3, Check, Building2, ArrowRight, CalendarClock, Save, Receipt, Mail, Printer,
+  AlertTriangle, Edit3, Check, Building2, ArrowRight, CalendarClock, Save, Receipt, Mail, Printer, Share2, Link2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -265,6 +265,18 @@ export default function DocumentViewer({
               </Button>
               <Button variant="ghost" size="icon" onClick={() => window.print()} title="Drucken">
                 <Printer className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Link kopieren"
+                onClick={() => {
+                  const url = `${window.location.origin}/dokumente?doc=${doc.id}`
+                  navigator.clipboard.writeText(url)
+                  toast.success('Link kopiert!')
+                }}
+              >
+                <Link2 className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
                 <X className="w-4 h-4" />

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Search, FileText, Upload, MessageSquare, Inbox, Building2, CalendarClock,
   FolderOpen, Star, Clock, Settings, BarChart3, ArrowRight, Brain, X,
+  Download, Moon, Sun, Printer,
 } from 'lucide-react'
 import { useDocuments } from '@/hooks/useDocuments'
 import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
@@ -90,10 +91,35 @@ export default function CommandPalette() {
     [documents]
   )
 
-  const allItems = useMemo(() => [...pages, ...docItems], [pages, docItems])
+  const actions: CommandItem[] = useMemo(() => [
+    {
+      id: 'action-upload', label: 'Neues Dokument hochladen', sublabel: 'Scannen & KI-Analyse starten',
+      icon: <Upload className="w-4 h-4" />, action: () => go('/upload'), category: 'action',
+    },
+    {
+      id: 'action-darkmode', label: 'Dark Mode umschalten',
+      icon: <Moon className="w-4 h-4" />,
+      action: () => { document.documentElement.classList.toggle('dark'); setOpen(false) },
+      category: 'action',
+    },
+    {
+      id: 'action-print', label: 'Seite drucken',
+      icon: <Printer className="w-4 h-4" />,
+      action: () => { setOpen(false); setTimeout(() => window.print(), 200) },
+      category: 'action',
+    },
+    {
+      id: 'action-export', label: 'CSV Export',  sublabel: 'Alle Dokumente exportieren',
+      icon: <Download className="w-4 h-4" />,
+      action: () => go('/statistiken'),
+      category: 'action',
+    },
+  ], [])
+
+  const allItems = useMemo(() => [...pages, ...actions, ...docItems], [pages, actions, docItems])
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return pages.slice(0, 8)
+    if (!query.trim()) return [...pages.slice(0, 8), ...actions.slice(0, 3)]
     const q = query.toLowerCase()
     return allItems.filter(item =>
       item.label.toLowerCase().includes(q) ||
