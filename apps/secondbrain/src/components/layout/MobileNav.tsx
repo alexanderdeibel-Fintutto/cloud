@@ -14,6 +14,7 @@ import {
   Building2,
   CalendarClock,
   BarChart3,
+  Calendar,
   ExternalLink,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -37,6 +38,7 @@ const organizeNav = [
   { to: '/favoriten', icon: Star, label: 'Favoriten' },
   { to: '/verlauf', icon: Clock, label: 'Verlauf' },
   { to: '/statistiken', icon: BarChart3, label: 'Statistiken' },
+  { to: '/zeitstrahl', icon: Calendar, label: 'Zeitstrahl' },
 ]
 
 const ecosystemApps = [

@@ -15,6 +15,7 @@ import {
   CalendarClock,
   ExternalLink,
   BarChart3,
+  Calendar,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -36,6 +37,7 @@ const organizeNav = [
   { to: '/favoriten', icon: Star, label: 'Favoriten' },
   { to: '/verlauf', icon: Clock, label: 'Verlauf' },
   { to: '/statistiken', icon: BarChart3, label: 'Statistiken' },
+  { to: '/zeitstrahl', icon: Calendar, label: 'Zeitstrahl' },
 ]
 
 export default function Sidebar() {

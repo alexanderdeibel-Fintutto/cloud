@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Settings, User, Bell, Shield, Database, LogOut, FileText, Image, File, AlertTriangle, ArrowRight, Zap, Keyboard } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Settings, User, Bell, Shield, Database, LogOut, FileText, Image, File, AlertTriangle, ArrowRight, Zap, Keyboard, BellOff, CalendarClock, Inbox, Brain } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -237,19 +237,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Notifications */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Bell className="w-4 h-4" />
-            Benachrichtigungen
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Benachrichtigungseinstellungen werden bald verfügbar sein.
-          </p>
-        </CardContent>
-      </Card>
+      <NotificationPreferences />
 
       {/* Danger Zone */}
       <Card className="border-destructive/30">
@@ -320,5 +308,180 @@ export default function SettingsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+const NOTIFICATION_PREFS_KEY = 'sb-notification-prefs'
+
+interface NotifPrefs {
+  deadlineReminders: boolean
+  deadlineReminderDays: number
+  inboxAlerts: boolean
+  ocrComplete: boolean
+  actionRequired: boolean
+  weeklyDigest: boolean
+  soundEnabled: boolean
+}
+
+const DEFAULT_PREFS: NotifPrefs = {
+  deadlineReminders: true,
+  deadlineReminderDays: 3,
+  inboxAlerts: true,
+  ocrComplete: true,
+  actionRequired: true,
+  weeklyDigest: false,
+  soundEnabled: false,
+}
+
+function loadNotifPrefs(): NotifPrefs {
+  try {
+    const saved = localStorage.getItem(NOTIFICATION_PREFS_KEY)
+    return saved ? { ...DEFAULT_PREFS, ...JSON.parse(saved) } : DEFAULT_PREFS
+  } catch { return DEFAULT_PREFS }
+}
+
+function NotificationPreferences() {
+  const [prefs, setPrefs] = useState<NotifPrefs>(loadNotifPrefs)
+
+  useEffect(() => {
+    localStorage.setItem(NOTIFICATION_PREFS_KEY, JSON.stringify(prefs))
+  }, [prefs])
+
+  const toggle = (key: keyof NotifPrefs) => {
+    setPrefs(prev => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Bell className="w-4 h-4" />
+          Benachrichtigungen
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Deadline Reminders */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <CalendarClock className="w-4 h-4 text-orange-500" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Fristen-Erinnerungen</p>
+              <p className="text-xs text-muted-foreground">
+                Erinnerung {prefs.deadlineReminderDays} Tage vor Fristablauf
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={prefs.deadlineReminderDays}
+              onChange={e => setPrefs(p => ({ ...p, deadlineReminderDays: Number(e.target.value) }))}
+              className="h-7 text-xs rounded border border-border bg-background px-1.5"
+              disabled={!prefs.deadlineReminders}
+            >
+              {[1, 2, 3, 5, 7, 14].map(d => (
+                <option key={d} value={d}>{d} Tage</option>
+              ))}
+            </select>
+            <ToggleSwitch checked={prefs.deadlineReminders} onChange={() => toggle('deadlineReminders')} />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Inbox Alerts */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <Inbox className="w-4 h-4 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Eingangs-Benachrichtigungen</p>
+              <p className="text-xs text-muted-foreground">Neue Dokumente im Eingang anzeigen</p>
+            </div>
+          </div>
+          <ToggleSwitch checked={prefs.inboxAlerts} onChange={() => toggle('inboxAlerts')} />
+        </div>
+
+        <Separator />
+
+        {/* OCR Complete */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Brain className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">OCR abgeschlossen</p>
+              <p className="text-xs text-muted-foreground">Benachrichtigung wenn Texterkennung fertig ist</p>
+            </div>
+          </div>
+          <ToggleSwitch checked={prefs.ocrComplete} onChange={() => toggle('ocrComplete')} />
+        </div>
+
+        <Separator />
+
+        {/* Action Required */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Aktion erforderlich</p>
+              <p className="text-xs text-muted-foreground">Dokumente die Bearbeitung benötigen</p>
+            </div>
+          </div>
+          <ToggleSwitch checked={prefs.actionRequired} onChange={() => toggle('actionRequired')} />
+        </div>
+
+        <Separator />
+
+        {/* Weekly Digest */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-green-500" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Wochenbericht</p>
+              <p className="text-xs text-muted-foreground">Wöchentliche Zusammenfassung deiner Aktivitäten</p>
+            </div>
+          </div>
+          <ToggleSwitch checked={prefs.weeklyDigest} onChange={() => toggle('weeklyDigest')} />
+        </div>
+
+        <Separator />
+
+        {/* Sound */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+              <BellOff className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Töne</p>
+              <p className="text-xs text-muted-foreground">Akustische Benachrichtigungen aktivieren</p>
+            </div>
+          </div>
+          <ToggleSwitch checked={prefs.soundEnabled} onChange={() => toggle('soundEnabled')} />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${checked ? 'bg-primary' : 'bg-muted'}`}
+    >
+      <span className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg transition-transform ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
+    </button>
   )
 }

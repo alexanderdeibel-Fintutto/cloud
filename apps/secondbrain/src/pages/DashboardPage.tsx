@@ -1,8 +1,9 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   FileText, Upload, MessageSquare, Search, Brain, HardDrive, Star, Zap,
   ArrowRight, Clock, FolderOpen, AlertTriangle, TrendingUp, Inbox,
-  Building2, CalendarClock, Receipt, ExternalLink,
+  Building2, CalendarClock, Receipt, ExternalLink, Eye,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ import { useCompanies } from '@/hooks/useCompanies'
 import { useUpcomingDeadlines, daysUntil, deadlineUrgency } from '@/hooks/useDeadlines'
 import { DOCUMENT_TYPES, TARGET_APPS } from '@/hooks/useWorkflows'
 import { useDocumentLinks } from '@/hooks/useWorkflows'
+import { useActivityLog } from '@/hooks/useActivityLog'
 import { formatFileSize, formatRelativeTime } from '@/lib/utils'
 import { FINTUTTO_APPS } from '@fintutto/shared'
 
@@ -28,6 +30,20 @@ export default function DashboardPage() {
   const { data: companies = [] } = useCompanies()
   const { data: upcomingDeadlines = [] } = useUpcomingDeadlines(14)
   const { data: recentLinks = [] } = useDocumentLinks()
+  const { data: activityLog = [] } = useActivityLog(30)
+
+  // Recently viewed documents (unique, from activity log)
+  const recentlyViewed = useMemo(() => {
+    if (!recentDocs) return []
+    const viewedIds = activityLog
+      .filter(a => a.action === 'view' && a.entity_type === 'document' && a.entity_id)
+      .map(a => a.entity_id!)
+    const uniqueIds = [...new Set(viewedIds)]
+    return uniqueIds
+      .map(id => recentDocs.find(d => d.id === id))
+      .filter(Boolean)
+      .slice(0, 5) as typeof recentDocs
+  }, [activityLog, recentDocs])
 
   if (!user) {
     return <LandingHero />
@@ -326,6 +342,41 @@ export default function DashboardPage() {
                     </a>
                   )}
                 </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Recently Viewed */}
+      {recentlyViewed.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold flex items-center gap-1.5">
+              <Eye className="w-4 h-4 text-muted-foreground" /> Zuletzt angesehen
+            </h2>
+            <Link to="/verlauf">
+              <Button variant="ghost" size="sm" className="text-xs h-7">Verlauf</Button>
+            </Link>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {recentlyViewed.map(doc => {
+              const typeInfo = DOCUMENT_TYPES[doc.document_type || 'other'] || DOCUMENT_TYPES.other
+              return (
+                <Link key={doc.id} to={`/dokumente/${doc.id}`} className="shrink-0">
+                  <div className="w-[180px] p-3 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                      {doc.document_type && doc.document_type !== 'other' && (
+                        <Badge variant="outline" className="text-[9px] px-1 py-0" style={{ borderColor: typeInfo.color, color: typeInfo.color }}>
+                          {typeInfo.label}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs font-medium truncate">{doc.title}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{formatRelativeTime(doc.created_at)}</p>
+                  </div>
+                </Link>
               )
             })}
           </div>
