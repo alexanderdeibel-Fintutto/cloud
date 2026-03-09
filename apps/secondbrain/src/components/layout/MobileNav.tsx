@@ -10,16 +10,22 @@ import {
   FolderOpen,
   Star,
   Clock,
+  Inbox,
+  Building2,
+  CalendarClock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/eingang', icon: Inbox, label: 'Eingangskorb' },
   { to: '/dokumente', icon: FileText, label: 'Dokumente' },
-  { to: '/upload', icon: Upload, label: 'Upload' },
+  { to: '/upload', icon: Upload, label: 'Scannen' },
   { to: '/chat', icon: MessageSquare, label: 'KI-Chat' },
   { to: '/suche', icon: Search, label: 'Suche' },
+  { to: '/firmen', icon: Building2, label: 'Firmen' },
+  { to: '/fristen', icon: CalendarClock, label: 'Fristen' },
   { to: '/sammlungen', icon: FolderOpen, label: 'Sammlungen' },
   { to: '/favoriten', icon: Star, label: 'Favoriten' },
   { to: '/verlauf', icon: Clock, label: 'Verlauf' },

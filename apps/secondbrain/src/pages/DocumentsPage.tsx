@@ -8,6 +8,7 @@ import DocumentGrid from '@/components/documents/DocumentGrid'
 import DocumentViewer from '@/components/documents/DocumentViewer'
 import { useDocuments, useToggleFavorite, useDeleteDocument } from '@/hooks/useDocuments'
 import { useCollections, useAddDocumentToCollection } from '@/hooks/useCollections'
+import { useCompanies } from '@/hooks/useCompanies'
 import { useLogActivity } from '@/hooks/useActivityLog'
 import type { Document } from '@/components/documents/DocumentCard'
 import { toast } from 'sonner'
@@ -22,6 +23,7 @@ export default function DocumentsPage() {
 
   const { data: documents = [], isLoading } = useDocuments({ search: search || undefined })
   const { data: collections = [] } = useCollections()
+  const { data: companies = [] } = useCompanies()
   const toggleFavorite = useToggleFavorite()
   const deleteDocument = useDeleteDocument()
   const addToCollection = useAddDocumentToCollection()
@@ -203,6 +205,7 @@ export default function DocumentsPage() {
           onFavorite={(doc) => toggleFavorite.mutate(doc)}
           onAddToCollection={handleAddToCollection}
           collections={collectionInfos}
+          companies={companies.map(c => ({ id: c.id, name: c.name, color: c.color }))}
         />
       )}
     </div>

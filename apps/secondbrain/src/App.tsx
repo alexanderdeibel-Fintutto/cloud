@@ -8,10 +8,13 @@ import Layout from '@/components/layout/Layout'
 import DashboardPage from '@/pages/DashboardPage'
 
 // Lazy-loaded pages
+const InboxPage = lazy(() => import('@/pages/InboxPage'))
 const DocumentsPage = lazy(() => import('@/pages/DocumentsPage'))
 const UploadPage = lazy(() => import('@/pages/UploadPage'))
 const ChatPage = lazy(() => import('@/pages/ChatPage'))
 const SearchPage = lazy(() => import('@/pages/SearchPage'))
+const CompaniesPage = lazy(() => import('@/pages/CompaniesPage'))
+const DeadlinesPage = lazy(() => import('@/pages/DeadlinesPage'))
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage'))
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
 const HistoryPage = lazy(() => import('@/pages/HistoryPage'))
@@ -36,10 +39,13 @@ function App() {
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardPage />} />
+              <Route path="eingang" element={<InboxPage />} />
               <Route path="dokumente" element={<DocumentsPage />} />
               <Route path="upload" element={<UploadPage />} />
               <Route path="chat" element={<ChatPage />} />
               <Route path="suche" element={<SearchPage />} />
+              <Route path="firmen" element={<CompaniesPage />} />
+              <Route path="fristen" element={<DeadlinesPage />} />
               <Route path="sammlungen" element={<CollectionsPage />} />
               <Route path="favoriten" element={<FavoritesPage />} />
               <Route path="verlauf" element={<HistoryPage />} />

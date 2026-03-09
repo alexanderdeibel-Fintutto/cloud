@@ -1,4 +1,4 @@
-import { FileText, Image, File, MoreVertical, Star, Trash2, FolderOpen, Eye } from 'lucide-react'
+import { FileText, Image, File, MoreVertical, Star, Trash2, FolderOpen, Eye, AlertTriangle, Clock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,20 @@ export interface Document {
   created_at: string
   updated_at: string
   storage_path: string
+  // Power-Upgrade fields
+  company_id?: string | null
+  document_type?: string
+  priority?: string
+  status?: string
+  sender?: string | null
+  receiver?: string | null
+  document_date?: string | null
+  amount?: number | null
+  currency?: string
+  reference_number?: string | null
+  notes?: string | null
+  workflow_status?: string
+  ai_metadata?: Record<string, unknown>
 }
 
 export interface CollectionInfo {
@@ -175,6 +189,45 @@ export default function DocumentCard({
               +{doc.tags.length - 3}
             </Badge>
           )}
+        </div>
+      )}
+
+      {/* Document Type & Priority */}
+      {(doc.document_type && doc.document_type !== 'other') || doc.priority === 'urgent' || doc.priority === 'high' ? (
+        <div className="flex items-center gap-1.5 mb-2">
+          {doc.document_type && doc.document_type !== 'other' && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize">
+              {doc.document_type === 'rechnung' ? 'Rechnung' :
+               doc.document_type === 'brief' ? 'Brief' :
+               doc.document_type === 'bescheid' ? 'Bescheid' :
+               doc.document_type === 'vertrag' ? 'Vertrag' :
+               doc.document_type === 'mahnung' ? 'Mahnung' :
+               doc.document_type === 'beleg' ? 'Beleg' :
+               doc.document_type}
+            </Badge>
+          )}
+          {doc.priority === 'urgent' && (
+            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+              <AlertTriangle className="w-2.5 h-2.5 mr-0.5" /> Dringend
+            </Badge>
+          )}
+          {doc.priority === 'high' && (
+            <Badge className="text-[10px] px-1.5 py-0 bg-orange-500 hover:bg-orange-600">
+              Wichtig
+            </Badge>
+          )}
+        </div>
+      ) : null}
+
+      {/* Status indicator */}
+      {doc.status === 'action_required' && (
+        <div className="flex items-center gap-1 text-[10px] text-destructive mb-2">
+          <AlertTriangle className="w-3 h-3" /> Aktion erforderlich
+        </div>
+      )}
+      {doc.status === 'inbox' && doc.ocr_status === 'completed' && (
+        <div className="flex items-center gap-1 text-[10px] text-blue-500 mb-2">
+          <Clock className="w-3 h-3" /> Im Eingang
         </div>
       )}
 

@@ -10,19 +10,25 @@ import {
   FolderOpen,
   Star,
   Clock,
+  Inbox,
+  Building2,
+  CalendarClock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 
 const mainNav = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/eingang', icon: Inbox, label: 'Eingangskorb' },
   { to: '/dokumente', icon: FileText, label: 'Dokumente' },
-  { to: '/upload', icon: Upload, label: 'Upload' },
+  { to: '/upload', icon: Upload, label: 'Scannen' },
   { to: '/chat', icon: MessageSquare, label: 'KI-Chat' },
   { to: '/suche', icon: Search, label: 'Suche' },
 ]
 
-const secondaryNav = [
+const organizeNav = [
+  { to: '/firmen', icon: Building2, label: 'Firmen' },
+  { to: '/fristen', icon: CalendarClock, label: 'Fristen' },
   { to: '/sammlungen', icon: FolderOpen, label: 'Sammlungen' },
   { to: '/favoriten', icon: Star, label: 'Favoriten' },
   { to: '/verlauf', icon: Clock, label: 'Verlauf' },
@@ -41,7 +47,7 @@ export default function Sidebar() {
           </div>
           <div>
             <h2 className="text-sm font-bold text-foreground">SecondBrain</h2>
-            <p className="text-[10px] text-muted-foreground">Wissensmanagement</p>
+            <p className="text-[10px] text-muted-foreground">Dokumenten-KI-Zentrale</p>
           </div>
         </div>
       </div>
@@ -49,7 +55,7 @@ export default function Sidebar() {
       <Separator />
 
       {/* Main Navigation */}
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Hauptmenü
         </p>
@@ -70,9 +76,9 @@ export default function Sidebar() {
         <Separator className="my-3" />
 
         <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Bibliothek
+          Organisation
         </p>
-        {secondaryNav.map((item) => (
+        {organizeNav.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

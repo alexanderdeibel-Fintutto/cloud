@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { X, Download, Star, Tag, Clock, FileText, Brain, FolderOpen, RefreshCw, Plus, AlertTriangle, Edit3, Check } from 'lucide-react'
+import {
+  X, Download, Star, Tag, Clock, FileText, Brain, FolderOpen, RefreshCw, Plus,
+  AlertTriangle, Edit3, Check, Building2, ArrowRight, CalendarClock, Save, Receipt, Mail,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -8,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { type Document, type CollectionInfo } from './DocumentCard'
 import { formatRelativeTime, formatFileSize } from '@/lib/utils'
 import { supabase } from '@/integrations/supabase'
+import { DOCUMENT_TYPES, DOCUMENT_STATUS, TARGET_APPS } from '@/hooks/useWorkflows'
 import { toast } from 'sonner'
 
 interface DocumentViewerProps {
@@ -16,6 +20,7 @@ interface DocumentViewerProps {
   onFavorite: (doc: Document) => void
   onAddToCollection?: (doc: Document, collectionId: string) => void
   collections?: CollectionInfo[]
+  companies?: Array<{ id: string; name: string; color: string }>
 }
 
 export default function DocumentViewer({
@@ -24,12 +29,16 @@ export default function DocumentViewer({
   onFavorite,
   onAddToCollection,
   collections = [],
+  companies = [],
 }: DocumentViewerProps) {
   const [newTag, setNewTag] = useState('')
   const [tags, setTags] = useState<string[]>(doc.tags)
   const [isRetryingOcr, setIsRetryingOcr] = useState(false)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [editTitle, setEditTitle] = useState(doc.title)
+  const [notes, setNotes] = useState(doc.notes || '')
+  const [isSavingNotes, setIsSavingNotes] = useState(false)
+  const [notesChanged, setNotesChanged] = useState(false)
 
   const handleSaveTitle = async () => {
     const title = editTitle.trim()
@@ -116,6 +125,7 @@ export default function DocumentViewer({
           storagePath: doc.storage_path,
           fileType: doc.file_type,
           mimeType: '',
+          fileName: doc.title,
         },
       })
       toast.success('OCR-Verarbeitung neu gestartet')
@@ -125,6 +135,79 @@ export default function DocumentViewer({
       setIsRetryingOcr(false)
     }
   }
+
+  const handleSaveNotes = async () => {
+    setIsSavingNotes(true)
+    const { error } = await supabase
+      .from('sb_documents')
+      .update({ notes: notes.trim() || null })
+      .eq('id', doc.id)
+
+    if (error) {
+      toast.error('Fehler beim Speichern')
+    } else {
+      doc.notes = notes.trim() || null
+      setNotesChanged(false)
+      toast.success('Notizen gespeichert')
+    }
+    setIsSavingNotes(false)
+  }
+
+  const handleSetDocType = async (docType: string) => {
+    const { error } = await supabase
+      .from('sb_documents')
+      .update({ document_type: docType })
+      .eq('id', doc.id)
+
+    if (!error) {
+      doc.document_type = docType
+      toast.success('Dokumenttyp gesetzt')
+    }
+  }
+
+  const handleAssignCompany = async (companyId: string) => {
+    const { error } = await supabase
+      .from('sb_documents')
+      .update({ company_id: companyId })
+      .eq('id', doc.id)
+
+    if (!error) {
+      doc.company_id = companyId
+      toast.success('Firma zugeordnet')
+    }
+  }
+
+  const handleSetStatus = async (status: string) => {
+    const { error } = await supabase
+      .from('sb_documents')
+      .update({ status })
+      .eq('id', doc.id)
+
+    if (!error) {
+      doc.status = status
+      toast.success('Status aktualisiert')
+    }
+  }
+
+  const handleForwardToApp = async (appKey: string) => {
+    const { error } = await supabase
+      .from('sb_document_links')
+      .insert({
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        document_id: doc.id,
+        target_app: appKey,
+        link_type: 'forwarded',
+      })
+
+    if (!error) {
+      const app = TARGET_APPS[appKey]
+      toast.success(`An ${app?.label || appKey} weitergeleitet`)
+    }
+  }
+
+  const typeInfo = DOCUMENT_TYPES[doc.document_type || 'other'] || DOCUMENT_TYPES.other
+  const statusInfo = DOCUMENT_STATUS[doc.status || 'inbox'] || DOCUMENT_STATUS.inbox
+  const assignedCompany = companies.find(c => c.id === doc.company_id)
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -170,11 +253,38 @@ export default function DocumentViewer({
               </Button>
             </div>
           </div>
+
+          {/* Status badges row */}
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <Badge variant="outline" className="text-[10px]" style={{ borderColor: typeInfo.color, color: typeInfo.color }}>
+              {typeInfo.label}
+            </Badge>
+            <Badge variant="outline" className="text-[10px]" style={{ borderColor: statusInfo.color, color: statusInfo.color }}>
+              {statusInfo.label}
+            </Badge>
+            {doc.priority === 'urgent' && (
+              <Badge variant="destructive" className="text-[10px]">Dringend</Badge>
+            )}
+            {doc.priority === 'high' && (
+              <Badge className="text-[10px] bg-orange-500">Wichtig</Badge>
+            )}
+            {assignedCompany && (
+              <Badge variant="outline" className="text-[10px]">
+                <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: assignedCompany.color }} />
+                {assignedCompany.name}
+              </Badge>
+            )}
+            {doc.amount && (
+              <Badge variant="secondary" className="text-[10px] font-medium">
+                {new Intl.NumberFormat('de-DE', { style: 'currency', currency: doc.currency || 'EUR' }).format(doc.amount)}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-6">
-          {/* Meta */}
+        <div className="p-4 space-y-5">
+          {/* Meta info */}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <FileText className="w-4 h-4" />
@@ -184,22 +294,120 @@ export default function DocumentViewer({
               <Clock className="w-4 h-4" />
               {formatRelativeTime(doc.created_at)}
             </div>
+            {doc.sender && (
+              <div className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" />
+                Von: {doc.sender}
+              </div>
+            )}
+            {doc.reference_number && (
+              <div className="flex items-center gap-1.5">
+                <Receipt className="w-3.5 h-3.5" />
+                Ref: {doc.reference_number}
+              </div>
+            )}
+            {doc.document_date && (
+              <div className="flex items-center gap-1.5">
+                <CalendarClock className="w-3.5 h-3.5" />
+                Dok.-Datum: {new Date(doc.document_date).toLocaleDateString('de-DE')}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions: Document Type */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Dokumenttyp</p>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(DOCUMENT_TYPES).slice(0, 10).map(([key, info]) => (
+                <Button
+                  key={key}
+                  variant={doc.document_type === key ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-[11px] h-6 px-2"
+                  onClick={() => handleSetDocType(key)}
+                >
+                  {info.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Company Assignment */}
+          {companies.length > 0 && (
+            <div>
+              <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide flex items-center gap-1">
+                <Building2 className="w-3 h-3" /> Firma
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {companies.map(c => (
+                  <Button
+                    key={c.id}
+                    variant={doc.company_id === c.id ? 'default' : 'outline'}
+                    size="sm"
+                    className="text-[11px] h-6 px-2"
+                    onClick={() => handleAssignCompany(c.id)}
+                  >
+                    <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: c.color }} />
+                    {c.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Status */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Status</p>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(DOCUMENT_STATUS).map(([key, info]) => (
+                <Button
+                  key={key}
+                  variant={doc.status === key ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-[11px] h-6 px-2"
+                  onClick={() => handleSetStatus(key)}
+                >
+                  {info.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Forward to App */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide flex items-center gap-1">
+              <ArrowRight className="w-3 h-3" /> Weiterleiten an
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(TARGET_APPS).map(([key, app]) => (
+                <Button
+                  key={key}
+                  variant="outline"
+                  size="sm"
+                  className="text-[11px] h-6 px-2"
+                  onClick={() => handleForwardToApp(key)}
+                >
+                  <ArrowRight className="w-2.5 h-2.5 mr-1" />
+                  {app.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {/* Collection assignment */}
           {collections.length > 0 && onAddToCollection && (
             <div>
-              <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
-                <FolderOpen className="w-3.5 h-3.5" /> Zu Sammlung hinzufügen
+              <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide flex items-center gap-1">
+                <FolderOpen className="w-3 h-3" /> Sammlung
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {collections.map((col) => (
                   <button
                     key={col.id}
                     onClick={() => onAddToCollection(doc, col.id)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border hover:border-primary/30 hover:bg-accent text-xs transition-colors"
+                    className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-border hover:border-primary/30 hover:bg-accent text-[11px] transition-colors"
                   >
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: col.color }} />
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: col.color }} />
                     {col.name}
                   </button>
                 ))}
@@ -209,19 +417,19 @@ export default function DocumentViewer({
 
           {/* Tags - editable */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5" /> Tags
+            <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide flex items-center gap-1">
+              <Tag className="w-3 h-3" /> Tags
             </p>
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-2">
               {tags.map((tag) => (
                 <Badge
                   key={tag}
                   variant="secondary"
-                  className="cursor-pointer hover:bg-destructive/20 transition-colors group/tag"
+                  className="cursor-pointer hover:bg-destructive/20 transition-colors group/tag text-[11px]"
                   onClick={() => handleRemoveTag(tag)}
                 >
                   {tag}
-                  <X className="w-3 h-3 ml-1 opacity-0 group-hover/tag:opacity-100" />
+                  <X className="w-2.5 h-2.5 ml-1 opacity-0 group-hover/tag:opacity-100" />
                 </Badge>
               ))}
               {tags.length === 0 && (
@@ -234,17 +442,47 @@ export default function DocumentViewer({
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
                 placeholder="Neuen Tag hinzufügen..."
-                className="h-8 text-xs"
+                className="h-7 text-xs"
               />
-              <Button variant="outline" size="sm" className="h-8 shrink-0" onClick={handleAddTag} disabled={!newTag.trim()}>
-                <Plus className="w-3.5 h-3.5" />
+              <Button variant="outline" size="sm" className="h-7 shrink-0" onClick={handleAddTag} disabled={!newTag.trim()}>
+                <Plus className="w-3 h-3" />
               </Button>
             </div>
           </div>
 
           <Separator />
 
-          {/* Tabs */}
+          {/* Notes / Quick-Finder */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                <Edit3 className="w-3 h-3" /> Notizen / Quick-Finder
+              </p>
+              {notesChanged && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-[11px] h-6"
+                  onClick={handleSaveNotes}
+                  disabled={isSavingNotes}
+                >
+                  <Save className="w-3 h-3 mr-1" />
+                  Speichern
+                </Button>
+              )}
+            </div>
+            <textarea
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none resize-none min-h-[80px]"
+              placeholder="Eigene Notizen, Zusammenfassung, Quick-Finder Keywords..."
+              value={notes}
+              onChange={e => { setNotes(e.target.value); setNotesChanged(true) }}
+              onBlur={() => notesChanged && handleSaveNotes()}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Tabs: Summary & Text */}
           <Tabs defaultValue="summary">
             <TabsList className="w-full">
               <TabsTrigger value="summary" className="flex-1">KI-Zusammenfassung</TabsTrigger>
