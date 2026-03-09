@@ -8,6 +8,7 @@ import Register from "./pages/auth/Register";
 // App Pages
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
+import LearningPaths from "./pages/LearningPaths";
 import CourseDetail from "./pages/CourseDetail";
 import Certificates from "./pages/Certificates";
 import Settings from "./pages/Settings";
@@ -29,6 +30,9 @@ const App = () => (
         {/* Protected Routes */}
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
+        } />
+        <Route path="/lernpfade" element={
+          <ProtectedRoute><LearningPaths /></ProtectedRoute>
         } />
         <Route path="/kurse" element={
           <ProtectedRoute><Courses /></ProtectedRoute>

@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AppLayout } from "@/components/AppLayout";
-import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink } from "lucide-react";
-import { LEVEL_LABELS } from "@/lib/courses";
+import { BookOpen, Award, Clock, ArrowRight, Play, Flame, ExternalLink, Route } from "lucide-react";
+import { LEVEL_LABELS, LEARNING_PATHS, COURSES as ALL_COURSES } from "@/lib/courses";
 import { getUpgradeSuggestions } from "@fintutto/shared";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useCourses } from "@/hooks/useCourses";
@@ -127,6 +127,45 @@ export default function Dashboard() {
                 </Card>
               </Link>
             ))}
+          </div>
+        </div>
+
+        {/* Learning Paths Teaser */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Lernpfade</h2>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/lernpfade">Alle Pfade</Link>
+            </Button>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {LEARNING_PATHS.slice(0, 2).map((path) => {
+              const pathCourses = path.courseIds
+                .map((id) => ALL_COURSES.find((c) => c.id === id))
+                .filter(Boolean) as typeof ALL_COURSES;
+              const overallPercent = pathCourses.length > 0
+                ? Math.round(pathCourses.reduce((sum, c) => sum + getCoursePercent(c.id, c.lessons.length), 0) / pathCourses.length)
+                : 0;
+              return (
+                <Link key={path.id} to="/lernpfade">
+                  <Card className="h-full hover:border-primary/30 transition-colors">
+                    <CardContent className="p-5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${path.icon} flex items-center justify-center shadow-lg`}>
+                          <Route className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-sm">{path.title}</h3>
+                          <p className="text-xs text-muted-foreground">{pathCourses.length} Kurse &middot; ca. {path.estimatedWeeks} Wochen</p>
+                        </div>
+                        <span className="text-sm font-bold">{overallPercent}%</span>
+                      </div>
+                      <Progress value={overallPercent} className="h-1.5" />
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         </div>
 

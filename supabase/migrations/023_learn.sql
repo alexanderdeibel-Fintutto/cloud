@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.learn_courses (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
-  category TEXT NOT NULL, -- budgeting, investing, taxes, credit, emergency_fund, insurance, mindset, saving, freedom
+  category TEXT NOT NULL, -- budgeting, investing, taxes, credit, emergency_fund, insurance, mindset, saving, freedom, psychology, market, income
   difficulty TEXT DEFAULT 'beginner' CHECK (difficulty IN ('beginner', 'intermediate', 'advanced')),
   is_premium BOOLEAN DEFAULT false,
   lesson_count INT DEFAULT 0,
@@ -61,21 +61,36 @@ CREATE POLICY "own_certificates" ON public.learn_certificates FOR ALL USING (use
 
 -- Seed: Basis-Kurse
 INSERT INTO public.learn_courses (title, description, category, difficulty, is_premium, lesson_count, estimated_minutes, sort_order) VALUES
-  ('Budgetierung Grundlagen', 'Lerne die Basics der persoenlichen Finanzplanung', 'budgeting', 'beginner', false, 5, 30, 1),
-  ('Dein Finanz-Mindset', 'Warum deine Ueberzeugungen ueber Geld dein Konto bestimmen', 'mindset', 'beginner', false, 6, 50, 2),
+  -- Grundlagen
+  ('Budgetierung Grundlagen', 'Lerne die Basics der persoenlichen Finanzplanung', 'budgeting', 'beginner', false, 6, 45, 1),
+  ('Dein Finanz-Mindset', 'Warum deine Ueberzeugungen ueber Geld dein Konto bestimmen', 'mindset', 'beginner', false, 8, 60, 2),
   ('Schulden strategisch abbauen', 'Verschaffe dir Ueberblick und werde systematisch schuldenfrei', 'budgeting', 'beginner', false, 5, 40, 3),
-  ('ETFs verstehen', 'Einfuehrung in ETF-Investing fuer Einsteiger', 'investing', 'beginner', false, 6, 45, 4),
-  ('Steuern fuer Arbeitnehmer', 'Steuererklaerung und Absetzmoeglichkeiten verstehen', 'taxes', 'beginner', false, 4, 25, 5),
-  ('Kredite und Schuldenmanagement', 'Richtig mit Krediten umgehen und Schulden abbauen', 'credit', 'beginner', false, 5, 35, 6),
-  ('Notfallfonds aufbauen', 'Finanzielle Sicherheit durch Ruecklagen', 'emergency_fund', 'beginner', false, 3, 20, 7),
-  ('Automatisch Vermoegen aufbauen', 'Richte ein System ein das dein Vermoegen im Hintergrund wachsen laesst', 'saving', 'beginner', true, 7, 60, 8),
-  ('Der Weg zur finanziellen Freiheit', 'Von der Absicherung bis zur Unabhaengigkeit in vier Stufen', 'freedom', 'beginner', true, 8, 90, 9),
-  ('Passives Einkommen aufbauen', 'Einkommensquellen die auch ohne taegliche Arbeit fliessen', 'investing', 'intermediate', true, 9, 120, 10),
-  ('Einkommen gezielt steigern', 'Strategien fuer Gehaltsverhandlung Nebeneinkuenfte und Positionierung', 'freedom', 'intermediate', true, 8, 90, 11),
-  ('Fortgeschrittenes Investing', 'Portfoliotheorie, Diversifikation, Rebalancing', 'investing', 'intermediate', true, 8, 60, 12),
-  ('Steuern fuer Freelancer', 'EUeR, Umsatzsteuer, Abschreibungen fuer Selbststaendige', 'taxes', 'intermediate', true, 7, 50, 13),
-  ('Immobilien als Investment', 'Rendite, Finanzierung, Steuervorteile bei Immobilien', 'investing', 'advanced', true, 6, 45, 14),
-  ('Vermoegen schuetzen und erhalten', 'Wie du dein Vermoegen vor Inflation und Risiken bewahrst', 'freedom', 'advanced', true, 8, 90, 15),
-  ('Versicherungen optimieren', 'Welche Versicherungen braucht man wirklich?', 'insurance', 'beginner', true, 5, 30, 16),
-  ('Altersvorsorge planen', 'Rente, Riester, Ruerup, betriebliche Altersvorsorge', 'investing', 'intermediate', true, 7, 55, 17)
+  -- Sparen
+  ('Notfallfonds aufbauen', 'Finanzielle Sicherheit durch Ruecklagen', 'emergency_fund', 'beginner', false, 4, 30, 4),
+  ('Automatisch Vermoegen aufbauen', 'Richte ein System ein das dein Vermoegen im Hintergrund wachsen laesst', 'saving', 'beginner', true, 7, 60, 5),
+  -- Investieren
+  ('ETFs verstehen', 'Einfuehrung in ETF-Investing fuer Einsteiger', 'investing', 'beginner', false, 10, 90, 6),
+  ('Passives Einkommen aufbauen', 'Einkommensquellen die auch ohne taegliche Arbeit fliessen', 'investing', 'intermediate', true, 9, 120, 7),
+  ('Immobilien als Investment', 'Rendite, Finanzierung, Steuervorteile bei Immobilien', 'investing', 'advanced', true, 9, 120, 8),
+  ('Fortgeschrittenes Investing', 'Portfoliotheorie, Diversifikation, Rebalancing', 'investing', 'intermediate', true, 8, 60, 9),
+  -- Geld-Psychologie
+  ('Die Psychologie des Geldes', 'Warum wir irrational mit Geld umgehen und wie du bessere Entscheidungen triffst', 'psychology', 'beginner', true, 9, 90, 10),
+  ('Denkfallen bei Geldentscheidungen', 'Verlustaversion Ankereffekte und andere kognitive Verzerrungen umgehen', 'psychology', 'intermediate', true, 9, 90, 11),
+  -- Boerse verstehen
+  ('Boersenpsychologie verstehen', 'Wie Emotionen die Maerkte bewegen und warum die Masse meist falsch liegt', 'market', 'intermediate', true, 9, 90, 12),
+  ('Dein krisensicheres Portfolio', 'Ein Portfolio das in jeder Marktlage stabil bleibt', 'market', 'advanced', true, 9, 120, 13),
+  -- Einkommen
+  ('Denke wie ein Investor', 'Vermoegenswerte vs Verbindlichkeiten und Cashflow-Denken', 'income', 'beginner', true, 8, 60, 14),
+  ('Zeitlose Geld-Prinzipien', 'Bewaehrte Weisheiten ueber Geld in moderner Anwendung', 'income', 'beginner', false, 7, 60, 15),
+  ('Einkommen gezielt steigern', 'Strategien fuer Gehaltsverhandlung Nebeneinkuenfte und Positionierung', 'income', 'intermediate', true, 10, 100, 16),
+  -- Steuern
+  ('Steuern fuer Arbeitnehmer', 'Steuererklaerung und Absetzmoeglichkeiten verstehen', 'taxes', 'beginner', false, 4, 25, 17),
+  ('Kredite und Schuldenmanagement', 'Richtig mit Krediten umgehen und Schulden abbauen', 'credit', 'beginner', false, 5, 35, 18),
+  ('Steuern fuer Freelancer', 'EUeR, Umsatzsteuer, Abschreibungen fuer Selbststaendige', 'taxes', 'intermediate', true, 7, 50, 19),
+  -- Vorsorge & Schutz
+  ('Versicherungen optimieren', 'Welche Versicherungen braucht man wirklich?', 'insurance', 'beginner', true, 5, 30, 20),
+  ('Altersvorsorge planen', 'Rente, Riester, Ruerup, betriebliche Altersvorsorge', 'investing', 'intermediate', true, 7, 55, 21),
+  -- Finanzielle Freiheit
+  ('Der Weg zur finanziellen Freiheit', 'Von der Absicherung bis zur Unabhaengigkeit in vier Stufen', 'freedom', 'beginner', true, 8, 90, 22),
+  ('Vermoegen schuetzen und erhalten', 'Wie du dein Vermoegen vor Inflation und Risiken bewahrst', 'freedom', 'advanced', true, 10, 100, 23)
 ON CONFLICT DO NOTHING;
