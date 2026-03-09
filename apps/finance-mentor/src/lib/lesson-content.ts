@@ -1262,4 +1262,262 @@ export const LESSON_CONTENT: Record<string, LessonContent> = {
     exercise:
       "Welche 2-3 Faehigkeiten sind in deinem Berufsfeld am gefragtesten? Wie gut bist du darin auf einer Skala von 1-10?",
   },
+
+  // ────────────────────────────────────────────────────────────────
+  // Automatisch Vermoegen aufbauen
+  // ────────────────────────────────────────────────────────────────
+  "automatisch-vermoegen-aufbauen::1": {
+    summary:
+      "Automatisierung ist der Schluessel zu erfolgreichem Vermoegensaufbau – was automatisch passiert, wird nicht vergessen.",
+    sections: [
+      {
+        heading: "Das Prinzip der Automatisierung",
+        body: "Willenskraft ist begrenzt. Wer jeden Monat aktiv entscheiden muss, ob und wie viel er spart, wird frueher oder spaeter aufhoeren. Automatische Sparplaene und Dauerauftraege umgehen dieses Problem komplett.",
+      },
+      {
+        heading: "Pay Yourself First",
+        body: "Richte am Gehaltstag einen automatischen Transfer ein: Zuerst geht dein Sparbetrag weg, dann lebst du vom Rest. Die meisten merken nach 2-3 Monaten keinen Unterschied im Lebensstil.",
+      },
+      {
+        heading: "Das Setup in 30 Minuten",
+        body: "1. Tagesgeldkonto fuer den Notgroschen eroeffnen. 2. Depot mit ETF-Sparplan einrichten. 3. Dauerauftrag am 1. des Monats. Fertig – ab jetzt baut sich dein Vermoegen von alleine auf.",
+      },
+    ],
+    keyTakeaway:
+      "Automatisiere deinen Vermoegensaufbau – dann brauchst du keine Disziplin, sondern nur ein gutes Setup.",
+    exercise:
+      "Richte heute einen automatischen Sparplan ein – egal ob 25 Euro oder 500 Euro. Der erste Schritt zaehlt mehr als die Hoehe.",
+  },
+  "automatisch-vermoegen-aufbauen::2": {
+    summary:
+      "Die optimale Sparquote finden und das Vermoegen auf Autopilot wachsen lassen.",
+    sections: [
+      {
+        heading: "Die richtige Sparquote finden",
+        body: "Beginne mit 10-20% deines Nettoeinkommens. Jede Gehaltserhoehung: Haelfte davon zusaetzlich sparen. So steigt deine Sparquote automatisch, ohne dass du Verzicht spuerst.",
+      },
+      {
+        heading: "Das 3-Toepfe-System",
+        body: "Topf 1: Notgroschen (3-6 Monate, Tagesgeld). Topf 2: Mittelfristige Ziele (Auto, Urlaub, 1-5 Jahre, Festgeld). Topf 3: Langfristiger Vermoegensaufbau (ETF-Sparplan, 10+ Jahre).",
+      },
+      {
+        heading: "Automatisch Rebalancen",
+        body: "Viele Broker bieten automatisches Rebalancing an. Wenn nicht, reicht es, einmal pro Jahr zu pruefen, ob deine Aufteilung noch stimmt.",
+      },
+    ],
+    keyTakeaway:
+      "Teile dein Geld in drei Toepfe auf und lass jeden einzelnen automatisch wachsen.",
+    exercise:
+      "Berechne deine aktuelle Sparquote (Gespartes / Nettoeinkommen x 100). Wie hoch ist sie? Wo willst du hin?",
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Immobilien-Investment
+  // ────────────────────────────────────────────────────────────────
+  "immobilien-investment::1": {
+    summary:
+      "Immobilien koennen ein starker Baustein im Portfolio sein – wenn man die Zahlen versteht und emotionale Entscheidungen vermeidet.",
+    sections: [
+      {
+        heading: "Kaufen vs. Mieten – die ehrliche Rechnung",
+        body: "Die Faustregel: Wenn der Kaufpreis mehr als das 25-fache der Jahresmiete betraegt, ist Mieten oft guenstiger. In vielen deutschen Staedten liegt das Verhaeltnis bei 30-40x – das macht Kaufen als reines Investment oft unattraktiv.",
+      },
+      {
+        heading: "Die versteckten Kosten",
+        body: "Kaufnebenkosten (Grunderwerbsteuer, Notar, Makler) betragen 10-15% des Kaufpreises. Dazu kommen Instandhaltung (ca. 1-2% des Wertes/Jahr), Hausgeld, Versicherungen und moeglicherweise Leerstand.",
+      },
+      {
+        heading: "Hebelwirkung verstehen",
+        body: "Der Hebel bei Immobilien: Mit 20% Eigenkapital kontrollierst du 100% des Objekts. Bei 3% Wertsteigerung machst du 15% auf dein Eigenkapital. Aber Achtung: Der Hebel wirkt auch in die andere Richtung.",
+      },
+    ],
+    keyTakeaway:
+      "Immobilien sind eine Investition, keine emotionale Entscheidung. Rechne kalt durch: Rendite, Kosten, Risiken.",
+    exercise:
+      "Recherchiere den Kaufpreis-Miete-Faktor fuer deine Stadt. Ist Kaufen oder Mieten wirtschaftlich sinnvoller?",
+  },
+  "immobilien-investment::2": {
+    summary:
+      "Immobilien als Kapitalanlage: Wie du die richtige Immobilie findest und die Rendite berechnest.",
+    sections: [
+      {
+        heading: "Bruttomietrendite berechnen",
+        body: "Formel: (Jahreskaltmiete / Kaufpreis) x 100. Unter 4% brutto ist in der Regel unattraktiv. Gute Objekte liegen bei 5-8% brutto, was netto nach Kosten 3-5% bedeutet.",
+      },
+      {
+        heading: "Lage, Lage, Lage – aber richtig",
+        body: "Nicht nur die beste Lage zaehlt. B-Staedte mit Bevoelkerungswachstum, Universitaeten und wirtschaftlichem Potenzial bieten oft bessere Renditen als ueberteuerte A-Staedte.",
+      },
+      {
+        heading: "REITs als Alternative",
+        body: "Keine 200.000 Euro? REITs (Real Estate Investment Trusts) ermoeglichen Immobilieninvestments ab wenigen Euro. Diversifiziert, liquide und ohne die Arbeit eines Vermieters.",
+      },
+    ],
+    keyTakeaway:
+      "Du musst keine Immobilie kaufen, um von Immobilien zu profitieren. REITs bieten eine einfache Alternative.",
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Kredite & Schuldenmanagement
+  // ────────────────────────────────────────────────────────────────
+  "kredite-schuldenmanagement::1": {
+    summary:
+      "Nicht alle Schulden sind gleich – lerne den Unterschied zwischen guten und schlechten Schulden.",
+    sections: [
+      {
+        heading: "Gute vs. schlechte Schulden",
+        body: "Gute Schulden finanzieren Vermoegenswerte, die im Wert steigen oder Einkommen generieren (Immobilien, Bildung, Geschaeft). Schlechte Schulden finanzieren Konsum, der sofort an Wert verliert (Auto auf Kredit, Urlaub auf Pump).",
+      },
+      {
+        heading: "Die wahren Kosten eines Kredits",
+        body: "Ein Konsumkredit ueber 10.000 Euro mit 8% Zinsen und 5 Jahren Laufzeit kostet dich ueber 2.100 Euro an Zinsen. Das sind 21% mehr als der Kaufpreis. Immer den Gesamtbetrag anschauen, nicht nur die Monatsrate!",
+      },
+      {
+        heading: "Der Dispo – die teuerste Falle",
+        body: "Dispositionskredite kosten 10-15% Zinsen. Bei 3.000 Euro Dispo zahlst du 300-450 Euro Zinsen pro Jahr – fuer nichts. Erster Schritt: Dispo auf 0 bringen, z.B. durch einen guenstigeren Ratenkredit zur Umschuldung.",
+      },
+    ],
+    keyTakeaway:
+      "Tilge teure Schulden zuerst. Jeder Euro Zinsersparnis ist eine garantierte Rendite.",
+    exercise:
+      "Liste alle deine Schulden auf: Betrag, Zinssatz, Monatsrate. Sortiere nach Zinssatz – die teuerste Schuld zuerst angreifen.",
+  },
+  "kredite-schuldenmanagement::2": {
+    summary:
+      "Strategien zur Schuldenfreiheit: Avalanche vs. Schneeball und wann Umschuldung Sinn macht.",
+    sections: [
+      {
+        heading: "Avalanche-Methode (mathematisch optimal)",
+        body: "Zahle alle Schulden mit Mindestrate ab, stecke jeden uebrigen Euro in die Schuld mit dem hoechsten Zinssatz. Spart am meisten Geld, dauert aber bis zum ersten Erfolgserlebnis.",
+      },
+      {
+        heading: "Schneeball-Methode (psychologisch effektiv)",
+        body: "Zahle zuerst die kleinste Schuld komplett ab, dann die naechstgroessere. Jeder getilgte Kredit gibt Motivation. Studien zeigen: Menschen bleiben mit dieser Methode eher dran.",
+      },
+      {
+        heading: "Umschuldung pruefen",
+        body: "Wenn du mehrere teure Kredite hast, kann eine Umschuldung auf einen guenstigeren Gesamtkredit Hunderte Euro sparen. Voraussetzung: gute Bonitaet und keine neuen Schulden aufnehmen!",
+      },
+    ],
+    keyTakeaway:
+      "Die beste Schuldenstrategie ist die, die du durchhaeltst. Waehle Avalanche oder Schneeball – Hauptsache, du startest.",
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Altersvorsorge planen
+  // ────────────────────────────────────────────────────────────────
+  "altersvorsorge-planen::1": {
+    summary:
+      "Die gesetzliche Rente reicht fuer die meisten nicht – private Vorsorge ist keine Option, sondern Pflicht.",
+    sections: [
+      {
+        heading: "Die Rentenluecke berechnen",
+        body: "Faustregel: Die gesetzliche Rente ersetzt ca. 48% des letzten Bruttoeinkommens. Bei 3.500 Euro brutto sind das ca. 1.680 Euro Rente – davon gehen noch Steuern und Krankenversicherung ab. Die Luecke zu deinem gewuenschten Lebensstandard musst du selbst schliessen.",
+      },
+      {
+        heading: "Die drei Saeulen der Altersvorsorge",
+        body: "Saeule 1: Gesetzliche Rente (Basis, aber nicht genug). Saeule 2: Betriebliche Altersvorsorge (Arbeitgeberzuschuss mitnehmen!). Saeule 3: Private Vorsorge (ETFs, Riester, Ruerup, Immobilien).",
+      },
+      {
+        heading: "Zeit ist der groesste Hebel",
+        body: "Wer mit 25 anfaengt und 200 Euro/Monat bei 7% Rendite investiert, hat mit 65 ca. 480.000 Euro. Wer erst mit 35 anfaengt, kommt auf ca. 230.000 Euro. 10 Jahre spaeter starten kostet ueber 250.000 Euro.",
+      },
+    ],
+    keyTakeaway:
+      "Berechne deine Rentenluecke und starte jetzt – jedes Jahr Verzoegerung kostet dich Zehntausende Euro.",
+    exercise:
+      "Fordere deinen Rentenbescheid an (deutsche-rentenversicherung.de) und berechne: Wie gross ist deine Luecke zum gewuenschten Einkommen?",
+  },
+  "altersvorsorge-planen::2": {
+    summary:
+      "Private Vorsorge-Optionen im Vergleich: ETF-Sparplan, Riester, Ruerup und betriebliche Altersvorsorge.",
+    sections: [
+      {
+        heading: "ETF-Sparplan (flexibelste Option)",
+        body: "Vorteile: Niedrige Kosten, hohe Flexibilitaet, gute historische Rendite (7-8% p.a.). Nachteile: Keine staatliche Foerderung, Abgeltungssteuer auf Gewinne. Ideal fuer: Alle, die flexibel bleiben wollen.",
+      },
+      {
+        heading: "Riester-Rente (fuer Familien)",
+        body: "175 Euro Grundzulage + 300 Euro pro Kind pro Jahr. Lohnt sich besonders fuer Geringverdiener mit Kindern. Achtung: Oft hohe Kosten und eingeschraenkte Fondsauswahl. Vergleiche unbedingt die Angebote!",
+      },
+      {
+        heading: "Betriebliche Altersvorsorge (bAV)",
+        body: "Pflicht: Dein Arbeitgeber muss mindestens 15% Zuschuss zahlen. Vorteil: Beitraege sind steuer- und sozialabgabenfrei. Nachteil: Im Alter voll steuerpflichtig. Immer mitnehmen, wenn der Arbeitgeber gut bezuschusst!",
+      },
+    ],
+    keyTakeaway:
+      "Es gibt keine perfekte Loesung – die beste Vorsorge kombiniert mehrere Bausteine. Starte mit einem ETF-Sparplan und ergaenze nach Bedarf.",
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Vermoegen schuetzen
+  // ────────────────────────────────────────────────────────────────
+  "vermoegen-schuetzen::1": {
+    summary:
+      "Vermoegen aufbauen ist nur die halbe Miete – du musst es auch gegen Risiken und Fehler schuetzen.",
+    sections: [
+      {
+        heading: "Die 4 groessten Vermoegensrisiken",
+        body: "1. Inflation (schleichender Wertverlust). 2. Steuern (legale Optimierung nutzen). 3. Emotionale Fehler (Panikverkaeufe). 4. Konzentration (alles in einer Anlageklasse). Gegen jedes Risiko gibt es eine Strategie.",
+      },
+      {
+        heading: "Diversifikation als Schutzschild",
+        body: "Verteile dein Vermoegen auf verschiedene Anlageklassen (Aktien, Anleihen, Immobilien, Cash), Regionen (Europa, USA, Asien) und Sektoren. Korrelation beachten: Gold und Aktien bewegen sich oft gegenlaeufig.",
+      },
+      {
+        heading: "Versicherungen als Grundschutz",
+        body: "Haftpflicht, BU, Krankenversicherung – die drei Pflichtversicherungen. Alles andere ist optional und oft ueberteuert. Faustregel: Nur Risiken versichern, die dich finanziell ruinieren koennten.",
+      },
+    ],
+    keyTakeaway:
+      "Schuetze dein Vermoegen genauso aktiv wie du es aufbaust. Diversifikation + richtige Versicherungen = solides Fundament.",
+    exercise:
+      "Mache einen Vermoegenscheck: Wie ist dein Vermoegen aktuell verteilt? Wo bist du zu konzentriert?",
+  },
+  "vermoegen-schuetzen::2": {
+    summary:
+      "Steueroptimierung, Notfallplaene und langfristiger Vermoegenserhalt fuer Fortgeschrittene.",
+    sections: [
+      {
+        heading: "Legale Steueroptimierung",
+        body: "Sparerpauschbetrag ausschoepfen (1.000 Euro/Person). Verlustverrechnung nutzen. Haltedauer beachten (Kryptos nach 1 Jahr steuerfrei). Steuerberater lohnt sich oft ab 50.000 Euro Kapitalertraegen.",
+      },
+      {
+        heading: "Der Notfallordner",
+        body: "Was passiert mit deinem Vermoegen, wenn dir etwas passiert? Erstelle einen Ordner mit: Kontouebersicht, Depotdaten, Versicherungen, Vollmachten, Patientenverfuegung, Testament.",
+      },
+      {
+        heading: "Generationenvermoegen denken",
+        body: "Langfristiger Vermoegenserhalt bedeutet: Investiert bleiben, niedrige Kosten, steuereffizient, und die naechste Generation in Finanzbildung einbeziehen. Vermoegen ohne Wissen geht oft in 2-3 Generationen verloren.",
+      },
+    ],
+    keyTakeaway:
+      "Vermoegensschutz ist kein einmaliges Event, sondern ein laufender Prozess. Plane fuer alle Szenarien.",
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // ETF-Grundlagen (etf-grundlagen Kurs)
+  // ────────────────────────────────────────────────────────────────
+  "etf-grundlagen::1": {
+    summary:
+      "ETFs haben das Investieren fuer alle demokratisiert – lerne die Grundlagen, bevor du dein Geld einsetzt.",
+    sections: [
+      {
+        heading: "Was macht ETFs so besonders?",
+        body: "ETFs kombinieren die Diversifikation eines Fonds mit der Handelbarkeit einer Aktie. Du kaufst mit einem einzigen Produkt Hunderte oder Tausende Unternehmen – zu Kosten von oft nur 0,1-0,3% pro Jahr.",
+      },
+      {
+        heading: "Aktive Fonds vs. ETFs",
+        body: "Ueber 90% der aktiv gemanagten Fonds schlagen ihren Vergleichsindex langfristig nicht. Trotzdem verlangen sie 1-2% Gebuehren pro Jahr. ETFs bilden den Index einfach nach – und gewinnen durch die niedrigeren Kosten.",
+      },
+      {
+        heading: "Den richtigen ETF waehlen",
+        body: "Kriterien: 1. Index (MSCI World, FTSE All-World). 2. TER unter 0,3%. 3. Fondsgroesse ueber 100 Mio. Euro. 4. Thesaurierend oder ausschuettend? 5. Physisch replizierend bevorzugen.",
+      },
+    ],
+    keyTakeaway:
+      "ETFs sind das einfachste und kostenguenstigste Werkzeug fuer den langfristigen Vermoegensaufbau.",
+    exercise:
+      "Vergleiche auf justETF.com drei MSCI-World-ETFs: TER, Fondsgroesse, Tracking Difference. Welcher gefaellt dir am besten?",
+  },
 };

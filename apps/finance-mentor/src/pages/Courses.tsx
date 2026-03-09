@@ -3,16 +3,19 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/AppLayout";
-import { BookOpen, Award, Clock, Lock, Search } from "lucide-react";
+import { BookOpen, Award, Clock, Lock, Search, Heart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { LEVEL_LABELS } from "@/lib/courses";
 import { LESSON_CONTENT } from "@/lib/lesson-content";
 import { useCourses } from "@/hooks/useCourses";
+import { useBookmarks } from "@/hooks/useBookmarks";
 
 export default function Courses() {
   const { courses, loading } = useCourses();
+  const { toggleBookmark, isBookmarked, bookmarks } = useBookmarks();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Alle");
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const categories = useMemo(
     () => ["Alle", ...new Set(courses.map((c) => c.category))],
@@ -33,7 +36,8 @@ export default function Courses() {
     });
     const matchSearch = matchTitle || matchContent;
     const matchCategory = category === "Alle" || course.category === category;
-    return matchSearch && matchCategory;
+    const matchFavorite = !showFavorites || isBookmarked(course.id);
+    return matchSearch && matchCategory && matchFavorite;
   });
 
   return (
@@ -56,6 +60,19 @@ export default function Courses() {
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0 scrollbar-hide">
+            {bookmarks.length > 0 && (
+              <button
+                onClick={() => setShowFavorites(!showFavorites)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  showFavorites
+                    ? "bg-red-500/20 text-red-400"
+                    : "bg-secondary text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                <Heart className={`h-3.5 w-3.5 ${showFavorites ? "fill-current" : ""}`} />
+                Favoriten ({bookmarks.length})
+              </button>
+            )}
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -75,7 +92,15 @@ export default function Courses() {
         {/* Course Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((course) => (
-            <Link key={course.id} to={`/kurse/${course.id}`}>
+            <div key={course.id} className="relative">
+              <button
+                onClick={(e) => { e.preventDefault(); toggleBookmark(course.id); }}
+                className="absolute top-4 right-4 z-10 p-1.5 rounded-lg hover:bg-accent transition-colors"
+                title={isBookmarked(course.id) ? "Favorit entfernen" : "Als Favorit merken"}
+              >
+                <Heart className={`h-4 w-4 transition-colors ${isBookmarked(course.id) ? "fill-red-400 text-red-400" : "text-muted-foreground"}`} />
+              </button>
+              <Link to={`/kurse/${course.id}`}>
               <Card className="h-full hover:border-primary/30 transition-all group">
                 <div className={`h-2 rounded-t-2xl bg-gradient-to-r ${course.icon}`} />
                 <CardContent className="p-6">
@@ -113,7 +138,8 @@ export default function Courses() {
                   )}
                 </CardContent>
               </Card>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/AppLayout";
 import {
   BookOpen, Award, Clock, Lock, Play, CheckCircle2,
-  ArrowLeft, Users, ChevronDown, ChevronUp, Lightbulb, Target
+  ArrowLeft, Users, ChevronDown, ChevronUp, Lightbulb, Target, Heart
 } from "lucide-react";
 import { LEVEL_LABELS } from "@/lib/courses";
 import { LESSON_CONTENT } from "@/lib/lesson-content";
@@ -14,6 +14,7 @@ import { CourseQuiz } from "@/components/CourseQuiz";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useCourses } from "@/hooks/useCourses";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
+import { useBookmarks } from "@/hooks/useBookmarks";
 import { Progress } from "@/components/ui/progress";
 
 export default function CourseDetail() {
@@ -22,6 +23,7 @@ export default function CourseDetail() {
   const { courses } = useCourses();
   const course = courses.find((c) => c.id === courseId);
   const { isLessonComplete, markLessonComplete, getCoursePercent } = useCourseProgress(courseId);
+  const { toggleBookmark, isBookmarked } = useBookmarks();
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
 
   const hasPremium = hasFeature("learn_premium_courses");
@@ -61,8 +63,17 @@ export default function CourseDetail() {
           <div className={`h-16 w-16 rounded-2xl bg-gradient-to-br ${course.icon} flex items-center justify-center shadow-lg shrink-0`}>
             <BookOpen className="h-8 w-8 text-white" />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">{course.title}</h1>
+          <div className="flex-1">
+            <div className="flex items-start justify-between">
+              <h1 className="text-3xl font-bold">{course.title}</h1>
+              <button
+                onClick={() => toggleBookmark(course.id)}
+                className="p-2 rounded-lg hover:bg-accent transition-colors shrink-0"
+                title={isBookmarked(course.id) ? "Favorit entfernen" : "Als Favorit merken"}
+              >
+                <Heart className={`h-5 w-5 transition-colors ${isBookmarked(course.id) ? "fill-red-400 text-red-400" : "text-muted-foreground"}`} />
+              </button>
+            </div>
             <p className="text-muted-foreground mt-1">{course.description}</p>
             <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {course.duration}</span>
