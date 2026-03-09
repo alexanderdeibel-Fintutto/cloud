@@ -15,6 +15,7 @@ import {
   CalendarClock,
   BarChart3,
   Calendar,
+  Tag,
   ExternalLink,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -36,6 +37,7 @@ const organizeNav = [
   { to: '/fristen', icon: CalendarClock, label: 'Fristen' },
   { to: '/sammlungen', icon: FolderOpen, label: 'Sammlungen' },
   { to: '/favoriten', icon: Star, label: 'Favoriten' },
+  { to: '/tags', icon: Tag, label: 'Tags' },
   { to: '/verlauf', icon: Clock, label: 'Verlauf' },
   { to: '/statistiken', icon: BarChart3, label: 'Statistiken' },
   { to: '/zeitstrahl', icon: Calendar, label: 'Zeitstrahl' },

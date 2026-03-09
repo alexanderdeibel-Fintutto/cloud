@@ -22,6 +22,7 @@ const HistoryPage = lazy(() => import('@/pages/HistoryPage'))
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage'))
 const DocumentDetailPage = lazy(() => import('@/pages/DocumentDetailPage'))
 const TimelinePage = lazy(() => import('@/pages/TimelinePage'))
+const TagsPage = lazy(() => import('@/pages/TagsPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
@@ -57,6 +58,7 @@ function App() {
               <Route path="verlauf" element={<HistoryPage />} />
               <Route path="statistiken" element={<AnalyticsPage />} />
               <Route path="zeitstrahl" element={<TimelinePage />} />
+              <Route path="tags" element={<TagsPage />} />
               <Route path="einstellungen" element={<SettingsPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="registrieren" element={<RegisterPage />} />
