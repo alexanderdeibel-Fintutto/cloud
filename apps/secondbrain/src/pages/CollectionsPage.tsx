@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FolderOpen, Plus, Trash2, Edit3, MoreVertical } from 'lucide-react'
+import { FolderOpen, Plus, Trash2, Edit3, MoreVertical, ArrowLeft, FileText } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -11,7 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { useCollections, useCreateCollection, useDeleteCollection, useUpdateCollection } from '@/hooks/useCollections'
+import DocumentGrid from '@/components/documents/DocumentGrid'
+import DocumentViewer from '@/components/documents/DocumentViewer'
+import { useCollections, useCreateCollection, useDeleteCollection, useUpdateCollection, useRemoveDocumentFromCollection, type Collection } from '@/hooks/useCollections'
+import { useToggleFavorite, useDeleteDocument } from '@/hooks/useDocuments'
+import { useCollectionDocuments } from '@/hooks/useCollections'
+import type { Document } from '@/components/documents/DocumentCard'
 import { toast } from 'sonner'
 
 const colorOptions = [
@@ -28,11 +33,18 @@ export default function CollectionsPage() {
   const createCollection = useCreateCollection()
   const deleteCollection = useDeleteCollection()
   const updateCollection = useUpdateCollection()
+  const toggleFavorite = useToggleFavorite()
+  const deleteDocument = useDeleteDocument()
+  const removeFromCollection = useRemoveDocumentFromCollection()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [color, setColor] = useState('#6366f1')
+  const [activeCollection, setActiveCollection] = useState<Collection | null>(null)
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
+
+  const { data: collectionDocs = [] } = useCollectionDocuments(activeCollection?.id || null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,7 +64,7 @@ export default function CollectionsPage() {
     }
   }
 
-  const handleEdit = (col: typeof collections[0]) => {
+  const handleEdit = (col: Collection) => {
     setEditId(col.id)
     setName(col.name)
     setDescription(col.description || '')
@@ -63,10 +75,19 @@ export default function CollectionsPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteCollection.mutateAsync(id)
+      if (activeCollection?.id === id) setActiveCollection(null)
       toast.success('Sammlung gelöscht')
     } catch {
       toast.error('Fehler beim Löschen')
     }
+  }
+
+  const handleRemoveDoc = (doc: Document) => {
+    if (!activeCollection) return
+    removeFromCollection.mutate(
+      { documentId: doc.id, collectionId: activeCollection.id },
+      { onSuccess: () => toast.success('Aus Sammlung entfernt') }
+    )
   }
 
   const resetForm = () => {
@@ -75,6 +96,47 @@ export default function CollectionsPage() {
     setName('')
     setDescription('')
     setColor('#6366f1')
+  }
+
+  // Collection detail view
+  if (activeCollection) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => setActiveCollection(null)}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: activeCollection.color + '1a', color: activeCollection.color }}
+          >
+            <FolderOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{activeCollection.name}</h1>
+            {activeCollection.description && (
+              <p className="text-sm text-muted-foreground">{activeCollection.description}</p>
+            )}
+          </div>
+        </div>
+
+        <DocumentGrid
+          documents={collectionDocs}
+          onView={setSelectedDoc}
+          onFavorite={(doc) => toggleFavorite.mutate(doc)}
+          onDelete={handleRemoveDoc}
+          emptyMessage="Keine Dokumente in dieser Sammlung. Weise Dokumente über die Dokumente-Seite zu."
+        />
+
+        {selectedDoc && (
+          <DocumentViewer
+            document={selectedDoc}
+            onClose={() => setSelectedDoc(null)}
+            onFavorite={(doc) => toggleFavorite.mutate(doc)}
+          />
+        )}
+      </div>
+    )
   }
 
   return (
@@ -171,7 +233,11 @@ export default function CollectionsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {collections.map((col) => (
-            <Card key={col.id} className="cursor-pointer hover:border-primary/30 hover:shadow-md transition-all hover:-translate-y-0.5 group">
+            <Card
+              key={col.id}
+              className="cursor-pointer hover:border-primary/30 hover:shadow-md transition-all hover:-translate-y-0.5 group"
+              onClick={() => setActiveCollection(col)}
+            >
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div
@@ -182,16 +248,21 @@ export default function CollectionsPage() {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <MoreVertical className="w-3.5 h-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEdit(col)}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(col) }}>
                         <Edit3 className="w-4 h-4 mr-2" /> Bearbeiten
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(col.id)}>
+                      <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleDelete(col.id) }}>
                         <Trash2 className="w-4 h-4 mr-2" /> Löschen
                       </DropdownMenuItem>
                     </DropdownMenuContent>

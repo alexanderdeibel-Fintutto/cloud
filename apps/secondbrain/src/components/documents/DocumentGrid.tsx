@@ -1,11 +1,16 @@
-import DocumentCard, { type Document } from './DocumentCard'
+import DocumentCard, { type Document, type CollectionInfo } from './DocumentCard'
 
 interface DocumentGridProps {
   documents: Document[]
   onView: (doc: Document) => void
   onFavorite: (doc: Document) => void
   onDelete: (doc: Document) => void
+  onAddToCollection?: (doc: Document, collectionId: string) => void
+  collections?: CollectionInfo[]
   emptyMessage?: string
+  selectedIds?: Set<string>
+  onSelect?: (doc: Document) => void
+  selectionMode?: boolean
 }
 
 export default function DocumentGrid({
@@ -13,7 +18,12 @@ export default function DocumentGrid({
   onView,
   onFavorite,
   onDelete,
+  onAddToCollection,
+  collections = [],
   emptyMessage = 'Keine Dokumente gefunden',
+  selectedIds,
+  onSelect,
+  selectionMode = false,
 }: DocumentGridProps) {
   if (documents.length === 0) {
     return (
@@ -37,6 +47,11 @@ export default function DocumentGrid({
           onView={onView}
           onFavorite={onFavorite}
           onDelete={onDelete}
+          onAddToCollection={onAddToCollection}
+          collections={collections}
+          selected={selectedIds?.has(doc.id)}
+          onSelect={onSelect}
+          selectionMode={selectionMode}
         />
       ))}
     </div>

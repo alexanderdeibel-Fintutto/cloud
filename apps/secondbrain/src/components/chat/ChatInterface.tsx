@@ -1,27 +1,72 @@
-import { useState, useRef, useEffect } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import { Brain, Sparkles } from 'lucide-react'
 import ChatMessage, { type Message } from './ChatMessage'
 import ChatInput from './ChatInput'
+import type { Document } from '@/components/documents/DocumentCard'
 
-const SUGGESTIONS = [
-  'Was steht in meinem Mietvertrag über Kündigungsfristen?',
-  'Fasse meine letzten Nebenkostenabrechnungen zusammen',
-  'Welche Dokumente habe ich zum Thema Kaution?',
-  'Erstelle eine Checkliste für meine Steuererklärung',
+const FALLBACK_SUGGESTIONS = [
+  'Welche Dokumente habe ich?',
+  'Fasse meine neuesten Dokumente zusammen',
+  'Was sind die wichtigsten Inhalte?',
+  'Erstelle eine Übersicht meiner Unterlagen',
 ]
 
 interface ChatInterfaceProps {
   messages: Message[]
   isLoading: boolean
   onSendMessage: (content: string) => void
+  documents?: Document[]
 }
 
-export default function ChatInterface({ messages, isLoading, onSendMessage }: ChatInterfaceProps) {
+function generateSuggestions(docs: Document[]): string[] {
+  if (docs.length === 0) return FALLBACK_SUGGESTIONS
+
+  const suggestions: string[] = []
+
+  // Suggest based on document titles
+  const recent = docs.slice(0, 3)
+  if (recent.length > 0) {
+    suggestions.push(`Was steht in "${recent[0].title}"?`)
+  }
+
+  // Suggest based on tags
+  const allTags = docs.flatMap((d) => d.tags)
+  const tagCounts: Record<string, number> = {}
+  for (const tag of allTags) {
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1
+  }
+  const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 2)
+  for (const [tag] of topTags) {
+    suggestions.push(`Welche Dokumente habe ich zum Thema ${tag}?`)
+  }
+
+  // Suggest summaries
+  if (docs.length >= 3) {
+    suggestions.push('Fasse meine letzten 3 Dokumente zusammen')
+  }
+
+  // Suggest based on document types
+  const hasPdf = docs.some((d) => d.file_type === 'pdf')
+  const hasImage = docs.some((d) => d.file_type === 'image')
+  if (hasPdf) suggestions.push('Was steht in meinen PDFs?')
+  if (hasImage) suggestions.push('Welche Texte wurden aus meinen Bildern erkannt?')
+
+  // If recent doc has summary, suggest deeper question
+  if (recent.length > 1 && recent[1].summary) {
+    suggestions.push(`Vergleiche "${recent[0].title}" mit "${recent[1].title}"`)
+  }
+
+  return suggestions.slice(0, 4)
+}
+
+export default function ChatInterface({ messages, isLoading, onSendMessage, documents = [] }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const suggestions = useMemo(() => generateSuggestions(documents), [documents])
 
   return (
     <div className="flex flex-col h-full">
@@ -41,7 +86,7 @@ export default function ChatInterface({ messages, isLoading, onSendMessage }: Ch
 
             {/* Suggestions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg w-full">
-              {SUGGESTIONS.map((suggestion) => (
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => onSendMessage(suggestion)}

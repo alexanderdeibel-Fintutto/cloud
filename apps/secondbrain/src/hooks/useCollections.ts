@@ -129,7 +129,36 @@ export function useAddDocumentToCollection() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] })
+      queryClient.invalidateQueries({ queryKey: ['collection-documents'] })
     },
+  })
+}
+
+export function useCollectionDocuments(collectionId: string | null) {
+  return useQuery({
+    queryKey: ['collection-documents', collectionId],
+    queryFn: async () => {
+      if (!collectionId) return []
+
+      const { data: links, error: linkError } = await supabase
+        .from('sb_document_collections')
+        .select('document_id')
+        .eq('collection_id', collectionId)
+
+      if (linkError) throw linkError
+      if (!links || links.length === 0) return []
+
+      const docIds = links.map((l) => l.document_id)
+      const { data: docs, error: docError } = await supabase
+        .from('sb_documents')
+        .select('*')
+        .in('id', docIds)
+        .order('created_at', { ascending: false })
+
+      if (docError) throw docError
+      return docs || []
+    },
+    enabled: !!collectionId,
   })
 }
 
@@ -148,6 +177,7 @@ export function useRemoveDocumentFromCollection() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] })
+      queryClient.invalidateQueries({ queryKey: ['collection-documents'] })
     },
   })
 }

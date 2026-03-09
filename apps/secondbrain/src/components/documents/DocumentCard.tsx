@@ -7,6 +7,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu'
 import { formatRelativeTime, formatFileSize } from '@/lib/utils'
 
@@ -24,6 +27,12 @@ export interface Document {
   created_at: string
   updated_at: string
   storage_path: string
+}
+
+export interface CollectionInfo {
+  id: string
+  name: string
+  color: string
 }
 
 const fileTypeIcons: Record<string, typeof FileText> = {
@@ -44,14 +53,49 @@ interface DocumentCardProps {
   onView: (doc: Document) => void
   onFavorite: (doc: Document) => void
   onDelete: (doc: Document) => void
+  onAddToCollection?: (doc: Document, collectionId: string) => void
+  collections?: CollectionInfo[]
+  selected?: boolean
+  onSelect?: (doc: Document) => void
+  selectionMode?: boolean
 }
 
-export default function DocumentCard({ document: doc, onView, onFavorite, onDelete }: DocumentCardProps) {
+export default function DocumentCard({
+  document: doc,
+  onView,
+  onFavorite,
+  onDelete,
+  onAddToCollection,
+  collections = [],
+  selected = false,
+  onSelect,
+  selectionMode = false,
+}: DocumentCardProps) {
   const Icon = fileTypeIcons[doc.file_type] || File
   const colorClass = fileTypeColors[doc.file_type] || fileTypeColors.other
 
+  const handleClick = () => {
+    if (selectionMode && onSelect) {
+      onSelect(doc)
+    } else {
+      onView(doc)
+    }
+  }
+
   return (
-    <div className="doc-card group cursor-pointer" onClick={() => onView(doc)}>
+    <div
+      className={`doc-card group cursor-pointer relative ${selected ? 'ring-2 ring-primary border-primary' : ''}`}
+      onClick={handleClick}
+    >
+      {/* Selection indicator */}
+      {selectionMode && (
+        <div className="absolute top-2.5 left-2.5 z-10">
+          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${selected ? 'bg-primary border-primary text-white' : 'border-muted-foreground/40 bg-background'}`}>
+            {selected && <svg className="w-3 h-3" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" fill="none" /></svg>}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClass}`}>
@@ -76,9 +120,31 @@ export default function DocumentCard({ document: doc, onView, onFavorite, onDele
               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(doc) }}>
                 <Eye className="w-4 h-4 mr-2" /> Ansehen
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FolderOpen className="w-4 h-4 mr-2" /> Zu Sammlung
-              </DropdownMenuItem>
+              {collections.length > 0 ? (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <FolderOpen className="w-4 h-4 mr-2" /> Zu Sammlung
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {collections.map((col) => (
+                      <DropdownMenuItem
+                        key={col.id}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onAddToCollection?.(doc, col.id)
+                        }}
+                      >
+                        <span className="w-3 h-3 rounded-full shrink-0 mr-2" style={{ backgroundColor: col.color }} />
+                        {col.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              ) : (
+                <DropdownMenuItem disabled>
+                  <FolderOpen className="w-4 h-4 mr-2" /> Keine Sammlungen
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(doc) }}>
                 <Trash2 className="w-4 h-4 mr-2" /> Löschen
@@ -123,6 +189,12 @@ export default function DocumentCard({ document: doc, onView, onFavorite, onDele
         <div className="mt-2 flex items-center gap-1.5 text-[10px] text-primary">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           OCR-Erkennung läuft...
+        </div>
+      )}
+      {doc.ocr_status === 'failed' && (
+        <div className="mt-2 flex items-center gap-1.5 text-[10px] text-destructive">
+          <div className="w-1.5 h-1.5 rounded-full bg-destructive" />
+          OCR fehlgeschlagen
         </div>
       )}
     </div>
