@@ -18,6 +18,7 @@ const DeadlinesPage = lazy(() => import('@/pages/DeadlinesPage'))
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage'))
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
 const HistoryPage = lazy(() => import('@/pages/HistoryPage'))
+const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
@@ -49,6 +50,7 @@ function App() {
               <Route path="sammlungen" element={<CollectionsPage />} />
               <Route path="favoriten" element={<FavoritesPage />} />
               <Route path="verlauf" element={<HistoryPage />} />
+              <Route path="statistiken" element={<AnalyticsPage />} />
               <Route path="einstellungen" element={<SettingsPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="registrieren" element={<RegisterPage />} />

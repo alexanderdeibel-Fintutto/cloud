@@ -47,6 +47,11 @@ export function useKeyboardShortcuts(handlers?: ShortcutHandlers) {
             e.preventDefault()
             navigate('/chat')
             return
+          case 's':
+          case 'S':
+            e.preventDefault()
+            navigate('/statistiken')
+            return
         }
       }
 
