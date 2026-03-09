@@ -13,9 +13,11 @@ import {
   Inbox,
   Building2,
   CalendarClock,
+  ExternalLink,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
+import { FINTUTTO_APPS } from '@fintutto/shared'
 
 const mainNav = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -91,6 +93,31 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Ecosystem Links */}
+      <div className="p-3 border-t border-border">
+        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Fintutto Apps
+        </p>
+        {[
+          FINTUTTO_APPS.portal,
+          FINTUTTO_APPS.financialCompass,
+          FINTUTTO_APPS.bescheidboxer,
+          FINTUTTO_APPS.fintuttoBiz,
+        ].map((app) => (
+          <a
+            key={app.slug}
+            href={app.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sidebar-item text-muted-foreground hover:text-foreground group/eco"
+          >
+            <span className="text-base leading-none">{app.icon}</span>
+            <span className="flex-1 truncate">{app.name}</span>
+            <ExternalLink className="w-3 h-3 opacity-0 group-hover/eco:opacity-50 transition-opacity" />
+          </a>
+        ))}
+      </div>
 
       {/* Bottom */}
       <div className="p-3 border-t border-border">

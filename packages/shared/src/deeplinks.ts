@@ -153,6 +153,56 @@ export function vermieterRechnerLink(rechner: string, data: RentData): string {
   return `${FINTUTTO_APPS.vermieterPortal.url}/rechner/${rechner}${qs ? `?${qs}` : ''}`
 }
 
+// ─── SecondBrain deep links ──────────────────────────────────
+
+export function secondBrainDocumentLink(docId: string, highlight?: string): string {
+  const params = new URLSearchParams()
+  if (highlight) params.set('highlight', highlight)
+  const qs = params.toString()
+  return `${FINTUTTO_APPS.secondBrain.url}/dokumente/${docId}${qs ? `?${qs}` : ''}`
+}
+
+export function secondBrainSearchLink(query: string): string {
+  return `${FINTUTTO_APPS.secondBrain.url}/suche?q=${encodeURIComponent(query)}`
+}
+
+export function secondBrainUploadLink(category?: string): string {
+  const params = new URLSearchParams()
+  if (category) params.set('category', category)
+  const qs = params.toString()
+  return `${FINTUTTO_APPS.secondBrain.url}/upload${qs ? `?${qs}` : ''}`
+}
+
+// Financial Compass deep links
+export function financialCompassLink(section?: string, data?: { amount?: number; category?: string }): string {
+  const params = new URLSearchParams()
+  if (data?.amount) params.set('amount', String(data.amount))
+  if (data?.category) params.set('category', data.category)
+  const qs = params.toString()
+  const path = section ? `/${section}` : ''
+  return `${FINTUTTO_APPS.financialCompass.url}${path}${qs ? `?${qs}` : ''}`
+}
+
+// Fintutto Biz deep links
+export function fintuttoBizLink(section?: string, data?: { amount?: number; client?: string }): string {
+  const params = new URLSearchParams()
+  if (data?.amount) params.set('amount', String(data.amount))
+  if (data?.client) params.set('client', data.client)
+  const qs = params.toString()
+  const path = section ? `/${section}` : ''
+  return `${FINTUTTO_APPS.fintuttoBiz.url}${path}${qs ? `?${qs}` : ''}`
+}
+
+// BescheidBoxer deep links
+export function bescheidboxerLink(data?: { type?: string; amount?: number; date?: string }): string {
+  const params = new URLSearchParams()
+  if (data?.type) params.set('type', data.type)
+  if (data?.amount) params.set('amount', String(data.amount))
+  if (data?.date) params.set('date', data.date)
+  const qs = params.toString()
+  return `${FINTUTTO_APPS.bescheidboxer.url}${qs ? `?${qs}` : ''}`
+}
+
 // Convenience: all cross-app links for a property/unit
 export function getCrossAppLinks(data: RentData & PropertyData & MeterData) {
   return {

@@ -82,88 +82,135 @@ export function modKey() {
   return isMac() ? '\u2318' : 'Ctrl'
 }
 
+// App categories for grouped navigation
+export const APP_CATEGORIES = {
+  property: 'Immobilien & Vermietung',
+  finance: 'Finanzen & Business',
+  tools: 'Produktivitat & Tools',
+  platform: 'Plattform',
+} as const
+
+export type AppCategory = keyof typeof APP_CATEGORIES
+
 // Fintutto Ecosystem App Registry
 export const FINTUTTO_APPS = {
   vermietify: {
     name: 'Vermietify',
     slug: 'vermietify',
-    description: 'Immobilienverwaltung für Vermieter',
+    description: 'Immobilienverwaltung fur Vermieter',
     icon: '🏠',
+    url: 'https://vermietify.fintutto.de',
+    category: 'property' as AppCategory,
   },
   ablesung: {
     name: 'Ablesung',
     slug: 'ablesung',
-    description: 'Zählerablesung & Verbrauchserfassung',
+    description: 'Zahlerablesung & Verbrauchserfassung',
     icon: '📊',
+    url: 'https://ablesung.fintutto.de',
+    category: 'property' as AppCategory,
   },
   hausmeisterPro: {
     name: 'HausmeisterPro',
     slug: 'hausmeister-pro',
-    description: 'Hausmeister- & Gebäudeverwaltung',
+    description: 'Hausmeister- & Gebaudeverwaltung',
     icon: '🔧',
+    url: 'https://hausmeister.fintutto.de',
+    category: 'property' as AppCategory,
   },
   mieter: {
     name: 'Mieter',
     slug: 'mieter',
     description: 'Mieter-Portal & Tools',
     icon: '🏡',
+    url: 'https://mieter.fintutto.de',
+    category: 'property' as AppCategory,
   },
   bescheidboxer: {
     name: 'BescheidBoxer',
     slug: 'bescheidboxer',
-    description: 'Steuerbescheid-Prüfer',
+    description: 'Steuerbescheid-Prufer',
     icon: '📋',
+    url: 'https://bescheidboxer.fintutto.de',
+    category: 'finance' as AppCategory,
   },
   portal: {
     name: 'Fintutto Portal',
     slug: 'portal',
     description: 'Rechner, Checker & Formulare',
     icon: '🧮',
+    url: 'https://portal.fintutto.de',
+    category: 'finance' as AppCategory,
+  },
+  vermieterPortal: {
+    name: 'Vermieter Portal',
+    slug: 'vermieter-portal',
+    description: 'Vermieter-Rechner & Tools',
+    icon: '🏢',
+    url: 'https://vermieter.fintutto.de',
+    category: 'property' as AppCategory,
   },
   adminHub: {
     name: 'Admin-Hub',
     slug: 'admin-hub',
     description: 'Zentrale Verwaltung',
     icon: '⚙️',
+    url: 'https://admin.fintutto.de',
+    category: 'platform' as AppCategory,
   },
   financialCompass: {
     name: 'Financial Compass',
     slug: 'financial-compass',
-    description: 'Finanzübersicht & Buchhaltung',
+    description: 'Finanzubersicht & Buchhaltung',
     icon: '🧭',
+    url: 'https://compass.fintutto.de',
+    category: 'finance' as AppCategory,
   },
-  // ─── NEW: FinTech Universe Apps ──────────────────────────────
+  // ─── FinTech Universe Apps ──────────────────────────────
   financeCoach: {
     name: 'Finance Coach',
     slug: 'finance-coach',
     description: 'KI-Finanzberatung & Budgetierung',
     icon: '💰',
+    url: 'https://coach.fintutto.de',
+    category: 'finance' as AppCategory,
   },
   fintuttoBiz: {
     name: 'Fintutto Biz',
     slug: 'fintutto-biz',
     description: 'Freelancer Finance OS',
     icon: '💼',
+    url: 'https://biz.fintutto.de',
+    category: 'finance' as AppCategory,
   },
   financeMentor: {
     name: 'Finance Mentor',
     slug: 'finance-mentor',
     description: 'Finanz-Education & Zertifikate',
     icon: '📚',
+    url: 'https://mentor.fintutto.de',
+    category: 'tools' as AppCategory,
   },
   fintuttoApi: {
     name: 'Fintutto API',
     slug: 'fintutto-api',
     description: 'B2B Finance Intelligence API',
     icon: '🔌',
+    url: 'https://api.fintutto.de',
+    category: 'platform' as AppCategory,
   },
   secondBrain: {
     name: 'SecondBrain',
     slug: 'secondbrain',
     description: 'Intelligentes Wissensmanagement mit KI',
     icon: '🧠',
+    url: 'https://secondbrain.fintutto.de',
+    category: 'tools' as AppCategory,
   },
 } as const
+
+export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
+export type FintuttoApp = (typeof FINTUTTO_APPS)[FintuttoAppKey]
 
 // Re-export all database types
 export * from './types/database'
@@ -179,3 +226,10 @@ export { createSupabaseClient, type CreateSupabaseClientOptions } from './supaba
 
 // Entitlements engine (FinTech Universe)
 export * from './entitlements'
+
+// Cross-app components
+export { AppSwitcher } from './components/AppSwitcher'
+export { CrossAppRecommendations } from './components/CrossAppRecommendations'
+
+// Deep links
+export * from './deeplinks'

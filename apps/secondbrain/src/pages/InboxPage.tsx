@@ -83,6 +83,17 @@ export default function InboxPage() {
       target_app: appKey,
       link_type: 'forwarded',
     })
+
+    // Open target app with document context
+    const app = TARGET_APPS[appKey]
+    if (app?.url) {
+      const params = new URLSearchParams()
+      params.set('ref', 'secondbrain')
+      params.set('doc_id', doc.id)
+      if (doc.document_type) params.set('type', doc.document_type)
+      if (doc.amount) params.set('amount', String(doc.amount))
+      window.open(`${app.url}?${params}`, '_blank', 'noopener,noreferrer')
+    }
   }
 
   const collectionInfos = collections.map(c => ({ id: c.id, name: c.name, color: c.color }))
@@ -253,18 +264,19 @@ export default function InboxPage() {
 
                     {/* Forward to app */}
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Weiterleiten an</p>
+                      <p className="text-[11px] font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Weiterleiten an App</p>
                       <div className="flex flex-wrap gap-1.5">
                         {Object.entries(TARGET_APPS).map(([key, app]) => (
                           <Button
                             key={key}
                             variant="outline"
                             size="sm"
-                            className="text-xs h-7"
+                            className="text-xs h-7 gap-1.5"
                             onClick={() => handleForward(doc, key)}
                           >
-                            <ArrowRight className="w-3 h-3 mr-1" />
+                            <span className="text-sm leading-none">{app.icon}</span>
                             {app.label}
+                            <ArrowRight className="w-3 h-3 opacity-50" />
                           </Button>
                         ))}
                       </div>

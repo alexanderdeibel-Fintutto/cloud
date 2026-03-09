@@ -61,14 +61,14 @@ export const DOCUMENT_STATUS: Record<string, { label: string; color: string }> =
   archived: { label: 'Archiviert', color: '#6b7280' },
 }
 
-// Target apps for routing
-export const TARGET_APPS: Record<string, { label: string; description: string; color: string }> = {
-  'fintutto-portal': { label: 'FinTutto', description: 'Finanzverwaltung', color: '#6366f1' },
-  'financial-compass': { label: 'Financial Compass', description: 'Finanzplanung', color: '#3b82f6' },
-  'bescheidboxer': { label: 'BescheidBoxer', description: 'Bescheide & Widersprüche', color: '#f59e0b' },
-  'miet-recht': { label: 'MietRecht', description: 'Mietrechtliche Dokumente', color: '#10b981' },
-  'widerspruch-jobcenter': { label: 'Widerspruch JC', description: 'Jobcenter Widersprüche', color: '#ef4444' },
-  'vermieter-portal': { label: 'Vermieter Portal', description: 'Vermieterdokumente', color: '#8b5cf6' },
+// Target apps for routing (with real URLs for cross-app navigation)
+export const TARGET_APPS: Record<string, { label: string; description: string; color: string; url: string; icon: string }> = {
+  'fintutto-portal': { label: 'FinTutto Portal', description: 'Rechner, Checker & Formulare', color: '#6366f1', url: 'https://portal.fintutto.de', icon: '🧮' },
+  'financial-compass': { label: 'Financial Compass', description: 'Finanzubersicht & Buchhaltung', color: '#3b82f6', url: 'https://compass.fintutto.de', icon: '🧭' },
+  'bescheidboxer': { label: 'BescheidBoxer', description: 'Bescheide & Widerspruche', color: '#f59e0b', url: 'https://bescheidboxer.fintutto.de', icon: '📋' },
+  'fintutto-biz': { label: 'Fintutto Biz', description: 'Freelancer Finance OS', color: '#10b981', url: 'https://biz.fintutto.de', icon: '💼' },
+  'vermietify': { label: 'Vermietify', description: 'Immobilienverwaltung', color: '#8b5cf6', url: 'https://vermietify.fintutto.de', icon: '🏠' },
+  'vermieter-portal': { label: 'Vermieter Portal', description: 'Vermieter-Rechner & Tools', color: '#a855f7', url: 'https://vermieter.fintutto.de', icon: '🏢' },
 }
 
 export function useWorkflowTemplates(documentType?: string) {

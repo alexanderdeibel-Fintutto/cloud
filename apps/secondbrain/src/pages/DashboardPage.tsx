@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   FileText, Upload, MessageSquare, Search, Brain, HardDrive, Star, Zap,
   ArrowRight, Clock, FolderOpen, AlertTriangle, TrendingUp, Inbox,
-  Building2, CalendarClock, Receipt,
+  Building2, CalendarClock, Receipt, ExternalLink,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import { useCompanies } from '@/hooks/useCompanies'
 import { useUpcomingDeadlines, daysUntil, deadlineUrgency } from '@/hooks/useDeadlines'
 import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
 import { formatFileSize, formatRelativeTime } from '@/lib/utils'
+import { FINTUTTO_APPS } from '@fintutto/shared'
 
 const STORAGE_LIMIT = 500 * 1024 * 1024
 
@@ -265,6 +266,35 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Ecosystem Quick Links */}
+      <div>
+        <h2 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
+          <Zap className="w-4 h-4 text-muted-foreground" /> Dokument weiterleiten an
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          {[
+            FINTUTTO_APPS.portal,
+            FINTUTTO_APPS.financialCompass,
+            FINTUTTO_APPS.bescheidboxer,
+            FINTUTTO_APPS.fintuttoBiz,
+            FINTUTTO_APPS.vermietify,
+            FINTUTTO_APPS.vermieterPortal,
+          ].map((app) => (
+            <a
+              key={app.slug}
+              href={app.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card hover:border-primary/30 hover:bg-accent/50 transition-all group"
+            >
+              <span className="text-2xl">{app.icon}</span>
+              <span className="text-xs font-medium text-center leading-tight">{app.name}</span>
+              <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* Recent Documents */}

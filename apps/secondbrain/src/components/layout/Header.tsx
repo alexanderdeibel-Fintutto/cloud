@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Brain, Search, Menu, LogOut, User, Moon, Sun } from 'lucide-react'
+import { Brain, Search, Menu, LogOut, User, Moon, Sun, Grid3X3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
+import { AppSwitcher } from '@fintutto/shared'
 
 export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: () => void }) {
   const { user, signOut } = useAuth()
@@ -58,6 +59,7 @@ export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: ()
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          <AppSwitcher currentAppSlug="secondbrain" />
           <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
