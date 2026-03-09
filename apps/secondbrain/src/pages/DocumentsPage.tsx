@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { FileText, Plus, CheckSquare, X, FolderOpen, Trash2, Tag, ArrowRight, CheckCircle, Archive, Download, Grid3X3, List } from 'lucide-react'
+import { FileText, Plus, CheckSquare, X, FolderOpen, Trash2, Tag, ArrowRight, CheckCircle, Archive, Download, Grid3X3, List, ArrowUpDown, ChevronUp, ChevronDown, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -36,6 +36,8 @@ export default function DocumentsPage() {
   const createLink = useCreateDocumentLink()
   const [bulkTag, setBulkTag] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'type' | 'amount'>('date')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
 
   const collectionInfos = useMemo(
     () => collections.map((c) => ({ id: c.id, name: c.name, color: c.color })),
@@ -153,8 +155,33 @@ export default function DocumentsPage() {
       weekAgo.setDate(weekAgo.getDate() - 7)
       docs = docs.filter((d) => new Date(d.created_at) >= weekAgo)
     }
+    // Sort
+    docs = [...docs].sort((a, b) => {
+      let cmp = 0
+      switch (sortBy) {
+        case 'name': cmp = a.title.localeCompare(b.title); break
+        case 'type': cmp = (a.document_type || 'zzz').localeCompare(b.document_type || 'zzz'); break
+        case 'amount': cmp = (a.amount || 0) - (b.amount || 0); break
+        case 'date': default: cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime(); break
+      }
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+
     return docs
-  }, [documents, activeFilters])
+  }, [documents, activeFilters, sortBy, sortDir])
+
+  // Duplicate detection
+  const duplicates = useMemo(() => {
+    const groups = new Map<string, Document[]>()
+    documents.forEach(doc => {
+      const key = doc.title.toLowerCase().replace(/[^a-z0-9äöüß]/g, '').trim()
+      if (!key) return
+      const list = groups.get(key) || []
+      list.push(doc)
+      groups.set(key, list)
+    })
+    return Array.from(groups.values()).filter(g => g.length > 1)
+  }, [documents])
 
   const handleExportCSV = (docs: Document[]) => {
     const bom = '\uFEFF'
@@ -195,6 +222,29 @@ export default function DocumentsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Sort */}
+          <div className="flex items-center gap-1">
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as typeof sortBy)}
+              className="h-7 text-xs rounded border border-border bg-background px-1.5"
+            >
+              <option value="date">Datum</option>
+              <option value="name">Name</option>
+              <option value="type">Typ</option>
+              <option value="amount">Betrag</option>
+            </select>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+              title={sortDir === 'asc' ? 'Aufsteigend' : 'Absteigend'}
+            >
+              {sortDir === 'asc' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </Button>
+          </div>
+
           {/* View toggle */}
           <div className="flex items-center border border-border rounded-lg overflow-hidden">
             <button
@@ -297,6 +347,22 @@ export default function DocumentsPage() {
         activeFilters={activeFilters}
         onFilterToggle={toggleFilter}
       />
+
+      {/* Duplicate warning */}
+      {duplicates.length > 0 && (
+        <div className="flex items-center gap-3 p-3 rounded-xl border border-orange-400/50 bg-orange-50/50 dark:bg-orange-950/20">
+          <Copy className="w-5 h-5 text-orange-500 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">
+              {duplicates.length} mogliche Duplikat{duplicates.length > 1 ? 'e' : ''} erkannt
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {duplicates.slice(0, 3).map(g => `"${g[0].title}" (${g.length}x)`).join(', ')}
+              {duplicates.length > 3 && ` und ${duplicates.length - 3} weitere`}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Documents */}
       {isLoading ? (

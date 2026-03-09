@@ -9,23 +9,18 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/AuthContext'
-import { useState } from 'react'
+import { useTheme } from '@/contexts/ThemeContext'
 import { AppSwitcher } from '@fintutto/shared'
 import { useDocuments } from '@/hooks/useDocuments'
 
 export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: () => void }) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
-  const [darkMode, setDarkMode] = useState(true)
+  const { resolvedTheme, toggleTheme } = useTheme()
   const { data: documents = [] } = useDocuments()
   const pendingCount = documents.filter(d =>
     d.status === 'action_required' || d.priority === 'urgent' || !d.status || d.status === 'inbox'
   ).length
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    document.documentElement.classList.toggle('dark')
-  }
 
   return (
     <header className="h-14 border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-40 no-print">
@@ -85,8 +80,8 @@ export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: ()
             </Button>
           )}
 
-          <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} title={resolvedTheme === 'dark' ? 'Helles Design' : 'Dunkles Design'}>
+            {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
 
           {user ? (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Settings, User, Bell, Shield, Database, LogOut, FileText, Image, File, AlertTriangle, ArrowRight, Zap, Keyboard, BellOff, CalendarClock, Inbox, Brain } from 'lucide-react'
+import { Settings, User, Bell, Shield, Database, LogOut, FileText, Image, File, AlertTriangle, ArrowRight, Zap, Keyboard, BellOff, CalendarClock, Inbox, Brain, Moon, Sun, Monitor } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import { useDocumentStats } from '@/hooks/useDocuments'
 import { useClearActivityLog } from '@/hooks/useActivityLog'
 import { DOCUMENT_TYPES, TARGET_APPS, SMART_ROUTING } from '@/hooks/useWorkflows'
@@ -237,6 +238,9 @@ export default function SettingsPage() {
       </Card>
 
       {/* Notifications */}
+      {/* Theme */}
+      <ThemeSettings />
+
       <NotificationPreferences />
 
       {/* Onboarding */}
@@ -494,6 +498,50 @@ function NotificationPreferences() {
             </div>
           </div>
           <ToggleSwitch checked={prefs.soundEnabled} onChange={() => toggle('soundEnabled')} />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ThemeSettings() {
+  const { theme, setTheme } = useTheme()
+
+  const options = [
+    { value: 'light' as const, label: 'Hell', icon: Sun, desc: 'Helles Design verwenden' },
+    { value: 'dark' as const, label: 'Dunkel', icon: Moon, desc: 'Dunkles Design verwenden' },
+    { value: 'system' as const, label: 'System', icon: Monitor, desc: 'Systemeinstellung folgen' },
+  ]
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Moon className="w-4 h-4" />
+          Erscheinungsbild
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-3 gap-3">
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setTheme(opt.value)}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                theme === opt.value
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/30'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                theme === opt.value ? 'bg-primary/10' : 'bg-muted'
+              }`}>
+                <opt.icon className={`w-5 h-5 ${theme === opt.value ? 'text-primary' : 'text-muted-foreground'}`} />
+              </div>
+              <span className="text-sm font-medium">{opt.label}</span>
+              <span className="text-[10px] text-muted-foreground text-center">{opt.desc}</span>
+            </button>
+          ))}
         </div>
       </CardContent>
     </Card>

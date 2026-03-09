@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useDocuments } from '@/hooks/useDocuments'
 import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
+import { useTheme } from '@/contexts/ThemeContext'
 
 interface CommandItem {
   id: string
@@ -25,6 +26,7 @@ export default function CommandPalette() {
   const listRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { data: documents = [] } = useDocuments()
+  const { toggleTheme, resolvedTheme } = useTheme()
 
   // Open on Ctrl+K or /
   useEffect(() => {
@@ -98,9 +100,9 @@ export default function CommandPalette() {
       icon: <Upload className="w-4 h-4" />, action: () => go('/upload'), category: 'action',
     },
     {
-      id: 'action-darkmode', label: 'Dark Mode umschalten',
-      icon: <Moon className="w-4 h-4" />,
-      action: () => { document.documentElement.classList.toggle('dark'); setOpen(false) },
+      id: 'action-darkmode', label: resolvedTheme === 'dark' ? 'Helles Design' : 'Dunkles Design',
+      icon: resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />,
+      action: () => { toggleTheme(); setOpen(false) },
       category: 'action',
     },
     {
