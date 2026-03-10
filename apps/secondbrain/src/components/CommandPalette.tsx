@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Search, FileText, Upload, MessageSquare, Inbox, Building2, CalendarClock,
   FolderOpen, Star, Clock, Settings, BarChart3, Calendar, ArrowRight, Brain, X,
-  Download, Moon, Sun, Printer,
+  Download, Moon, Sun, Printer, Tag,
 } from 'lucide-react'
 import { useDocuments } from '@/hooks/useDocuments'
 import { DOCUMENT_TYPES } from '@/hooks/useWorkflows'
@@ -76,6 +76,7 @@ export default function CommandPalette() {
     { id: 'history', label: 'Verlauf', icon: <Clock className="w-4 h-4" />, action: () => go('/verlauf'), category: 'page' },
     { id: 'analytics', label: 'Statistiken', sublabel: 'Analysen & Export', icon: <BarChart3 className="w-4 h-4" />, action: () => go('/statistiken'), category: 'page' },
     { id: 'timeline', label: 'Zeitstrahl', sublabel: 'Chronologische Ansicht', icon: <Calendar className="w-4 h-4" />, action: () => go('/zeitstrahl'), category: 'page' },
+    { id: 'tags', label: 'Tags verwalten', sublabel: 'Tags umbenennen, zusammenführen, löschen', icon: <Tag className="w-4 h-4" />, action: () => go('/tags'), category: 'page' },
     { id: 'settings', label: 'Einstellungen', icon: <Settings className="w-4 h-4" />, action: () => go('/einstellungen'), category: 'page' },
   ], [])
 

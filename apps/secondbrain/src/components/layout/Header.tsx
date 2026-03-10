@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Brain, Search, Menu, LogOut, User, Moon, Sun, Bell } from 'lucide-react'
+import { Brain, Search, Menu, LogOut, User, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,16 +11,12 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { AppSwitcher } from '@fintutto/shared'
-import { useDocuments } from '@/hooks/useDocuments'
+import NotificationCenter from '@/components/NotificationCenter'
 
 export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: () => void }) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const { resolvedTheme, toggleTheme } = useTheme()
-  const { data: documents = [] } = useDocuments()
-  const pendingCount = documents.filter(d =>
-    d.status === 'action_required' || d.priority === 'urgent' || !d.status || d.status === 'inbox'
-  ).length
 
   return (
     <header className="h-14 border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-40 no-print">
@@ -64,21 +60,8 @@ export default function Header({ onToggleMobileMenu }: { onToggleMobileMenu?: ()
         <div className="flex items-center gap-2">
           <AppSwitcher currentAppSlug="secondbrain" />
 
-          {/* Notification bell */}
-          {user && pendingCount > 0 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={() => navigate('/eingang')}
-              title={`${pendingCount} Dokumente im Eingang`}
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                {pendingCount > 9 ? '9+' : pendingCount}
-              </span>
-            </Button>
-          )}
+          {/* Notification Center */}
+          {user && <NotificationCenter />}
 
           <Button variant="ghost" size="icon" onClick={toggleTheme} title={resolvedTheme === 'dark' ? 'Helles Design' : 'Dunkles Design'}>
             {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
