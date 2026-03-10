@@ -13,6 +13,7 @@ import { useClearActivityLog } from '@/hooks/useActivityLog'
 import { DOCUMENT_TYPES, TARGET_APPS, SMART_ROUTING } from '@/hooks/useWorkflows'
 import { supabase } from '@/integrations/supabase'
 import { formatFileSize } from '@/lib/utils'
+import DataExport from '@/components/DataExport'
 import { toast } from 'sonner'
 
 const STORAGE_LIMIT = 500 * 1024 * 1024 // 500 MB
@@ -253,7 +254,9 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Notifications */}
+      {/* Data Export */}
+      <DataExport />
+
       {/* Theme */}
       <ThemeSettings />
 
