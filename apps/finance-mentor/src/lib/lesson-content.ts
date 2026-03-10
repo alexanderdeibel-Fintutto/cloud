@@ -1496,9 +1496,9 @@ export const LESSON_CONTENT: Record<string, LessonContent> = {
   },
 
   // ────────────────────────────────────────────────────────────────
-  // ETF-Grundlagen (etf-grundlagen Kurs)
+  // ETF-Investieren – Lesson 3: Den richtigen ETF waehlen
   // ────────────────────────────────────────────────────────────────
-  "etf-grundlagen::1": {
+  "etf-investieren::3": {
     summary:
       "ETFs haben das Investieren fuer alle demokratisiert – lerne die Grundlagen, bevor du dein Geld einsetzt.",
     sections: [

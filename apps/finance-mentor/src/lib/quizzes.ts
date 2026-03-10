@@ -85,8 +85,8 @@ export const QUIZZES: Record<string, Quiz> = {
     ],
   },
 
-  "etf-grundlagen": {
-    courseId: "etf-grundlagen",
+  "etf-investieren": {
+    courseId: "etf-investieren",
     title: "Quiz: ETF-Grundlagen",
     questions: [
       {

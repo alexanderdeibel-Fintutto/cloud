@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, BookOpen, Award, Settings,
-  LogOut, ChevronRight, Route, BookOpenCheck, Calculator, ClipboardCheck
+  LogOut, ChevronRight, Route, BookOpenCheck, Calculator, ClipboardCheck,
+  MoreHorizontal, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,6 +21,10 @@ const NAV_ITEMS = [
   { path: "/checkliste", label: "Checkliste", icon: ClipboardCheck },
   { path: "/einstellungen", label: "Einstellungen", icon: Settings },
 ];
+
+// Only show these in the mobile bottom bar
+const MOBILE_NAV = NAV_ITEMS.slice(0, 4); // Dashboard, Lernpfade, Kurse, Zertifikate
+const MOBILE_MORE = NAV_ITEMS.slice(4);   // Glossar, Rechner, Checkliste, Einstellungen
 
 function AppLogo({ className = "h-10 w-10" }: { className?: string }) {
   return (
@@ -47,6 +53,9 @@ function AppLogo({ className = "h-10 w-10" }: { className?: string }) {
 export function AppLayout({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
   const location = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  const isMoreActive = MOBILE_MORE.some((item) => location.pathname.startsWith(item.path));
 
   return (
     <div className="flex min-h-screen">
@@ -113,12 +122,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
         {/* Mobile Bottom Nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-border/50 flex z-50">
-          {NAV_ITEMS.map((item) => {
+          {MOBILE_NAV.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setMoreOpen(false)}
                 className={cn(
                   "flex-1 flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors",
                   isActive ? "text-primary" : "text-muted-foreground"
@@ -129,7 +139,43 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          {/* More button */}
+          <button
+            onClick={() => setMoreOpen(!moreOpen)}
+            className={cn(
+              "flex-1 flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors",
+              moreOpen || isMoreActive ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            {moreOpen ? <X className="h-5 w-5" /> : <MoreHorizontal className="h-5 w-5" />}
+            Mehr
+          </button>
         </nav>
+
+        {/* Mobile "More" Panel */}
+        {moreOpen && (
+          <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur border-t border-border/50 z-40 p-3">
+            <div className="grid grid-cols-4 gap-2">
+              {MOBILE_MORE.map((item) => {
+                const isActive = location.pathname.startsWith(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMoreOpen(false)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 py-3 rounded-xl text-[11px] font-medium transition-colors",
+                      isActive ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-accent"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto p-6 pb-24 lg:pb-6">
