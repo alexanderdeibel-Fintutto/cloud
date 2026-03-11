@@ -52,7 +52,13 @@ export function useUploadDocument() {
           .from('secondbrain-docs')
           .upload(filePath, file)
 
-        if (storageError) throw storageError
+        if (storageError) {
+          console.error('[Storage Upload Error]', storageError)
+          if (storageError.message?.includes('Bucket not found') || storageError.message?.includes('not found')) {
+            throw new Error('Storage-Bucket "secondbrain-docs" existiert nicht. Bitte im Supabase Dashboard erstellen.')
+          }
+          throw new Error(`Storage-Fehler: ${storageError.message}`)
+        }
 
         // Create DB record
         const fileType = file.type.startsWith('image/') ? 'image'
@@ -77,7 +83,10 @@ export function useUploadDocument() {
           .select()
           .single()
 
-        if (dbError) throw dbError
+        if (dbError) {
+          console.error('[DB Insert Error]', dbError)
+          throw new Error(`Datenbank-Fehler: ${dbError.message}`)
+        }
         results.push(data)
 
         // Trigger OCR processing (edge function)

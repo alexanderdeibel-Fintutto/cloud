@@ -63,8 +63,10 @@ export default function UploadPage() {
       toast.success(`${files.length} ${files.length === 1 ? 'Dokument' : 'Dokumente'} hochgeladen`)
       // Show organize dialog
       setShowOrganizeDialog(true)
-    } catch {
-      toast.error('Fehler beim Hochladen')
+    } catch (err: any) {
+      const msg = err?.message || err?.error_description || 'Unbekannter Fehler'
+      console.error('[Upload Error]', err)
+      toast.error(`Fehler beim Hochladen: ${msg}`)
     }
   }
 
