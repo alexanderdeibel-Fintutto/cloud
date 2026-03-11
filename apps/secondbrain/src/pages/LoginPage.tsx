@@ -21,7 +21,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await signIn(email, password)
-      navigate('/')
+      navigate('/dashboard')
       toast.success('Willkommen zurück!')
     } catch (err: any) {
       toast.error(err.message || 'Anmeldung fehlgeschlagen')

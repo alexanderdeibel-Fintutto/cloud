@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 
 const mainNav = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/dokumente', icon: FileText, label: 'Dokumente' },
   { to: '/upload', icon: Upload, label: 'Upload' },
   { to: '/chat', icon: MessageSquare, label: 'KI-Chat' },

@@ -25,7 +25,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await signUp(email, password, name)
-      navigate('/')
+      navigate('/dashboard')
       toast.success('Konto erstellt! Bitte bestätige deine E-Mail.')
     } catch (err: any) {
       toast.error(err.message || 'Registrierung fehlgeschlagen')

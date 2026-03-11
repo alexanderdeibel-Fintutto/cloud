@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/dokumente', icon: FileText, label: 'Dokumente' },
   { to: '/upload', icon: Upload, label: 'Upload' },
   { to: '/chat', icon: MessageSquare, label: 'KI-Chat' },
@@ -47,7 +47,7 @@ export default function MobileNav({ open, onClose }: { open: boolean; onClose: (
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
+              end={item.to === '/dashboard'}
               onClick={onClose}
               className={({ isActive }) =>
                 cn('sidebar-item', isActive && 'sidebar-item-active')

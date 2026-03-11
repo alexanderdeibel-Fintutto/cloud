@@ -39,14 +39,16 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes without Layout */}
-            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/registrieren" element={<RegisterPage />} />
             <Route path="/impressum" element={<ImpressumPage />} />
             <Route path="/datenschutz" element={<DatenschutzPage />} />
             <Route path="/agb" element={<AgbPage />} />
 
             {/* App routes with Layout */}
-            <Route path="/" element={<Layout />}>
-              <Route index element={<DashboardPage />} />
+            <Route element={<Layout />}>
+              <Route path="dashboard" element={<DashboardPage />} />
               <Route path="dokumente" element={<DocumentsPage />} />
               <Route path="upload" element={<UploadPage />} />
               <Route path="chat" element={<ChatPage />} />
@@ -55,8 +57,6 @@ function App() {
               <Route path="favoriten" element={<FavoritesPage />} />
               <Route path="verlauf" element={<HistoryPage />} />
               <Route path="einstellungen" element={<SettingsPage />} />
-              <Route path="login" element={<LoginPage />} />
-              <Route path="registrieren" element={<RegisterPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
