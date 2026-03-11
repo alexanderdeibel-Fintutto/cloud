@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import {
   FileText, Upload, MessageSquare, Search, Brain, HardDrive, Star, Zap,
   ArrowRight, Clock, FolderOpen, AlertTriangle, TrendingUp, Inbox,
@@ -46,7 +46,7 @@ export default function DashboardPage() {
   }, [activityLog, recentDocs])
 
   if (!user) {
-    return <LandingHero />
+    return <Navigate to="/willkommen" replace />
   }
 
   const storagePercent = stats ? Math.min((stats.totalSize / STORAGE_LIMIT) * 100, 100) : 0
@@ -447,55 +447,3 @@ export default function DashboardPage() {
   )
 }
 
-// Landing page for non-authenticated users
-function LandingHero() {
-  return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center p-6 text-center">
-      <div className="relative mb-8">
-        <div className="w-28 h-28 rounded-3xl gradient-brain flex items-center justify-center animate-pulse-brain">
-          <Brain className="w-14 h-14 text-white" />
-        </div>
-        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary/20 animate-float" />
-        <div className="absolute -bottom-1 -left-3 w-6 h-6 rounded-full bg-primary/15 animate-float" style={{ animationDelay: '1s' }} />
-      </div>
-
-      <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-        Dein <span className="gradient-brain-text">SecondBrain</span>
-      </h1>
-      <p className="text-lg text-muted-foreground max-w-xl mb-2">
-        Das ultimative Dokumenten-KI-Tool. Jedes Papier nur einmal anfassen — scannen, kategorisieren, weiterleiten.
-      </p>
-      <p className="text-sm text-muted-foreground max-w-lg mb-8">
-        Automatische Analyse, Firmenzuordnung, Fristen-Tracking, Cross-App Routing. Alles KI-gestützt.
-      </p>
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Link to="/login">
-          <Button size="xl" variant="glow">
-            Jetzt starten
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mt-16">
-        {[
-          { icon: Upload, title: 'Scannen & OCR', desc: 'Dokument hochladen, KI analysiert automatisch' },
-          { icon: Brain, title: 'Auto-Kategorisierung', desc: 'Typ, Firma, Fristen — alles automatisch erkannt' },
-          { icon: CalendarClock, title: 'Fristen-Tracking', desc: 'Nie wieder eine Widerspruchsfrist verpassen' },
-          { icon: ArrowRight, title: 'Cross-App Routing', desc: 'Rechnungen an FinTutto, Bescheide an BescheidBoxer' },
-        ].map((feature) => (
-          <Card key={feature.title} className="text-left">
-            <CardContent className="p-5">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                <feature.icon className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
-              <p className="text-xs text-muted-foreground">{feature.desc}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
-}

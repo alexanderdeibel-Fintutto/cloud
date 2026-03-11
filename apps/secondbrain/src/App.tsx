@@ -28,6 +28,11 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
+// Public pages (outside Layout)
+const LandingPage = lazy(() => import('@/pages/LandingPage'))
+const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
+const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
+
 function PageLoader() {
   return (
     <div className="flex items-center justify-center h-[calc(100vh-3.5rem)]">
@@ -43,6 +48,12 @@ function App() {
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            {/* Public pages (no sidebar/header) */}
+            <Route path="/willkommen" element={<LandingPage />} />
+            <Route path="/impressum" element={<ImpressumPage />} />
+            <Route path="/datenschutz" element={<DatenschutzPage />} />
+
+            {/* App pages (with Layout) */}
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardPage />} />
               <Route path="eingang" element={<InboxPage />} />
