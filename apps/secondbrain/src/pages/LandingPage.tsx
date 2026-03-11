@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Brain, Upload, Search, FileText, ArrowRight, Shield, Zap, Building2,
@@ -166,7 +167,7 @@ export default function LandingPage() {
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-1/4 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-primary/8 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
         </div>
 
         <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-24 text-center">
@@ -502,10 +503,8 @@ export default function LandingPage() {
 }
 
 // FAQ Accordion Item
-import { useState as useStateLocal } from 'react'
-
 function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useStateLocal(false)
+  const [open, setOpen] = useState(false)
 
   return (
     <button
