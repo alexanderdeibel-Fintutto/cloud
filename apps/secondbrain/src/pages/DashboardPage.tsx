@@ -23,7 +23,7 @@ import { FINTUTTO_APPS } from '@fintutto/shared'
 const STORAGE_LIMIT = 500 * 1024 * 1024
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const { data: stats } = useDocumentStats()
   const { data: recentDocs } = useDocuments()
   const { data: collections = [] } = useCollections()
@@ -44,6 +44,14 @@ export default function DashboardPage() {
       .filter(Boolean)
       .slice(0, 5) as typeof recentDocs
   }, [activityLog, recentDocs])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-3.5rem)]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   if (!user) {
     return <Navigate to="/willkommen" replace />

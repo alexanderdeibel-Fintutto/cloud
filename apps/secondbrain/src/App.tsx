@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import Layout from '@/components/layout/Layout'
 
 // Eagerly loaded
@@ -44,6 +45,7 @@ function PageLoader() {
 function App() {
   return (
     <ThemeProvider>
+    <ErrorBoundary>
     <AuthProvider>
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
@@ -80,6 +82,7 @@ function App() {
         <Toaster position="top-right" richColors />
       </BrowserRouter>
     </AuthProvider>
+    </ErrorBoundary>
     </ThemeProvider>
   )
 }
