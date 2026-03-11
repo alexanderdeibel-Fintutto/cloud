@@ -159,6 +159,10 @@ import GewStAnrechnungPage from './pages/GewStAnrechnungPage'
 import SteuerlicheOptimierungTimingPage from './pages/SteuerlicheOptimierungTimingPage'
 import AuslandseinkunftePage from './pages/AuslandseinkunftePage'
 import SteuerberaterKostenPage from './pages/SteuerberaterKostenPage'
+import NachzahlungenRechnerPage from './pages/NachzahlungenRechnerPage'
+import RenteneintrittOptimierungPage from './pages/RenteneintrittOptimierungPage'
+import FahrtenbuchVsEinProzentPage from './pages/FahrtenbuchVsEinProzentPage'
+import UnternehmensformVergleichPage from './pages/UnternehmensformVergleichPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -337,6 +341,10 @@ function App() {
             <Route path="timing-optimierung" element={<SteuerlicheOptimierungTimingPage />} />
             <Route path="auslandseinkuenfte" element={<AuslandseinkunftePage />} />
             <Route path="steuerberater-kosten" element={<SteuerberaterKostenPage />} />
+            <Route path="nachzahlungen-rechner" element={<NachzahlungenRechnerPage />} />
+            <Route path="renteneintritt-optimierung" element={<RenteneintrittOptimierungPage />} />
+            <Route path="fahrtenbuch-vs-1prozent" element={<FahrtenbuchVsEinProzentPage />} />
+            <Route path="unternehmensform-vergleich" element={<UnternehmensformVergleichPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

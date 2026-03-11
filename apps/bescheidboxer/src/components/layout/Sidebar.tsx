@@ -98,6 +98,8 @@ import {
   Table2,
   FlaskConical,
   Globe,
+  AlertTriangle,
+  CarFront,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -240,6 +242,10 @@ const navigation = [
   { name: 'Timing-Optimierung', href: '/timing-optimierung', icon: CalendarClock },
   { name: 'Auslandseinkünfte', href: '/auslandseinkuenfte', icon: Globe },
   { name: 'Steuerberater-Kosten', href: '/steuerberater-kosten', icon: Briefcase },
+  { name: 'Nachzahlungen & Zinsen', href: '/nachzahlungen-rechner', icon: AlertTriangle },
+  { name: 'Renteneintritt', href: '/renteneintritt-optimierung', icon: Clock },
+  { name: 'Fahrtenbuch vs. 1%', href: '/fahrtenbuch-vs-1prozent', icon: CarFront },
+  { name: 'Unternehmensform', href: '/unternehmensform-vergleich', icon: Building },
   { name: 'Daten-Export', href: '/daten-export', icon: FolderDown },
   { name: 'Bericht', href: '/bericht', icon: FileDown },
   { name: 'Jahresbericht', href: '/jahresbericht', icon: BarChart3 },

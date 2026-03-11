@@ -105,6 +105,8 @@ import {
   Table2,
   FlaskConical,
   Globe,
+  AlertTriangle,
+  CarFront,
 } from 'lucide-react'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -292,6 +294,10 @@ export default function CommandPalette() {
     { id: 'nav-timing', label: 'Timing-Optimierung', description: 'Einnahmen & Ausgaben zeitlich steuern', icon: CalendarClock, category: 'navigation', keywords: ['timing', 'verschieben', 'vorziehen', 'jahresende', 'zufluss'], action: () => runAndClose(() => navigate('/timing-optimierung')) },
     { id: 'nav-ausland', label: 'Auslandseinkünfte', description: 'DBA & Anrechnung/Freistellung', icon: Globe, category: 'navigation', keywords: ['ausland', 'dba', 'anrechnung', 'freistellung', 'progressionsvorbehalt'], action: () => runAndClose(() => navigate('/auslandseinkuenfte')) },
     { id: 'nav-stb-kosten', label: 'Steuerberater-Kosten', description: 'Beratungskosten absetzen', icon: Briefcase, category: 'navigation', keywords: ['steuerberater', 'beratung', 'kosten', 'werbungskosten', 'betriebsausgaben'], action: () => runAndClose(() => navigate('/steuerberater-kosten')) },
+    { id: 'nav-nachzahlungen', label: 'Nachzahlungen & Zinsen', description: 'Säumniszuschläge & Strafzinsen berechnen', icon: AlertTriangle, category: 'navigation', keywords: ['nachzahlung', 'säumnis', 'zinsen', 'strafzinsen', 'verspätung', '233a', '240'], action: () => runAndClose(() => navigate('/nachzahlungen-rechner')) },
+    { id: 'nav-renteneintritt', label: 'Renteneintritt-Optimierung', description: 'Frühverrentung vs. Aufschub', icon: Clock, category: 'navigation', keywords: ['rente', 'renteneintritt', 'frühverrentung', 'aufschub', 'abschlag', 'zuschlag', 'break-even'], action: () => runAndClose(() => navigate('/renteneintritt-optimierung')) },
+    { id: 'nav-fahrtenbuch', label: 'Fahrtenbuch vs. 1%-Regelung', description: 'Dienstwagen-Besteuerung vergleichen', icon: CarFront, category: 'navigation', keywords: ['fahrtenbuch', '1%', 'dienstwagen', 'firmenwagen', 'geldwerter vorteil', 'bruttolistenpreis'], action: () => runAndClose(() => navigate('/fahrtenbuch-vs-1prozent')) },
+    { id: 'nav-unternehmensform', label: 'Unternehmensform-Vergleich', description: 'GmbH vs. Einzelunternehmen vs. Freiberufler', icon: Building2, category: 'navigation', keywords: ['gmbh', 'einzelunternehmen', 'freiberufler', 'rechtsform', 'körperschaftsteuer', 'unternehmensform'], action: () => runAndClose(() => navigate('/unternehmensform-vergleich')) },
     { id: 'nav-settings', label: 'Einstellungen', description: 'Konto & Einstellungen', icon: Settings, category: 'navigation', keywords: ['einstellungen', 'konto', 'passwort'], action: () => runAndClose(() => navigate('/einstellungen')) },
 
     // Aktionen
