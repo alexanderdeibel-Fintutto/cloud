@@ -19,6 +19,10 @@ const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
+const LandingPage = lazy(() => import('@/pages/LandingPage'))
+const ImpressumPage = lazy(() => import('@/pages/ImpressumPage'))
+const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage'))
+const AgbPage = lazy(() => import('@/pages/AgbPage'))
 
 function PageLoader() {
   return (
@@ -34,6 +38,13 @@ function App() {
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            {/* Public routes without Layout */}
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/impressum" element={<ImpressumPage />} />
+            <Route path="/datenschutz" element={<DatenschutzPage />} />
+            <Route path="/agb" element={<AgbPage />} />
+
+            {/* App routes with Layout */}
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardPage />} />
               <Route path="dokumente" element={<DocumentsPage />} />

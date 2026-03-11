@@ -12,6 +12,10 @@ import CourseDetail from "./pages/CourseDetail";
 import Certificates from "./pages/Certificates";
 import Settings from "./pages/Settings";
 import Pricing from "./pages/Pricing";
+import LandingPage from "./pages/LandingPage";
+import ImpressumPage from "./pages/ImpressumPage";
+import DatenschutzPage from "./pages/DatenschutzPage";
+import AgbPage from "./pages/AgbPage";
 
 // Components
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -21,10 +25,13 @@ const App = () => (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/preise" element={<Pricing />} />
+        <Route path="/impressum" element={<ImpressumPage />} />
+        <Route path="/datenschutz" element={<DatenschutzPage />} />
+        <Route path="/agb" element={<AgbPage />} />
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={
