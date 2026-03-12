@@ -163,6 +163,10 @@ import NachzahlungenRechnerPage from './pages/NachzahlungenRechnerPage'
 import RenteneintrittOptimierungPage from './pages/RenteneintrittOptimierungPage'
 import FahrtenbuchVsEinProzentPage from './pages/FahrtenbuchVsEinProzentPage'
 import UnternehmensformVergleichPage from './pages/UnternehmensformVergleichPage'
+import KleinunternehmerregelungPage from './pages/KleinunternehmerregelungPage'
+import SpekulationssteuerPage from './pages/SpekulationssteuerPage'
+import BetriebsausgabenPage from './pages/BetriebsausgabenPage'
+import DoppelbesteuerungsabkommenPage from './pages/DoppelbesteuerungsabkommenPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -345,6 +349,10 @@ function App() {
             <Route path="renteneintritt-optimierung" element={<RenteneintrittOptimierungPage />} />
             <Route path="fahrtenbuch-vs-1prozent" element={<FahrtenbuchVsEinProzentPage />} />
             <Route path="unternehmensform-vergleich" element={<UnternehmensformVergleichPage />} />
+            <Route path="kleinunternehmer" element={<KleinunternehmerregelungPage />} />
+            <Route path="spekulationssteuer" element={<SpekulationssteuerPage />} />
+            <Route path="betriebsausgaben" element={<BetriebsausgabenPage />} />
+            <Route path="doppelbesteuerung" element={<DoppelbesteuerungsabkommenPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
