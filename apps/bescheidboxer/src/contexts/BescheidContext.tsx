@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import { useBescheide } from '../hooks/use-bescheide'
-import type { Bescheid, Frist, Einspruch, DashboardStats } from '../types/bescheid'
+import type { Bescheid, Frist, Einspruch, DashboardStats, Pruefungsergebnis } from '../types/bescheid'
 
 interface BescheidContextValue {
   bescheide: Bescheid[]
@@ -38,6 +38,7 @@ interface BescheidContextValue {
     frist: string
   }) => Promise<Einspruch | null>
   toggleFrist: (id: string) => Promise<void>
+  runAnalyse: (id: string) => Promise<Pruefungsergebnis | undefined>
 }
 
 const BescheidContext = createContext<BescheidContextValue | null>(null)

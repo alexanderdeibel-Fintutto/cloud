@@ -30,6 +30,10 @@ const APP_PROMPTS: Record<string, string> = {
   rechner: `{{BASE_PROMPT}}
 
 {{RECHNER_PROMPT}}`,
+
+  bescheidboxer: `{{BASE_PROMPT}}
+
+{{BESCHEIDBOXER_PROMPT}}`,
 };
 
 // Rate Limits pro Tier
@@ -60,7 +64,7 @@ const TIER_MAX_TOKENS = {
 };
 
 interface AIRequest {
-  appId: "vermietify" | "mieterapp" | "formulare" | "rechner";
+  appId: "vermietify" | "mieterapp" | "formulare" | "rechner" | "bescheidboxer";
   userTier: "free" | "basic" | "pro" | "business";
   prompt: string;
   context?: string;

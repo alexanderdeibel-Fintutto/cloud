@@ -3,6 +3,7 @@ import type { Bescheid, Frist, Einspruch, DashboardStats } from '../types/besche
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../integrations/supabase/client'
 import { useMockData } from './use-mock-data'
+import { analyseBescheid } from '../lib/analyse-engine'
 
 function mapBescheid(row: Record<string, unknown>): Bescheid {
   return {
@@ -409,6 +410,40 @@ export function useBescheide() {
     return false
   }, [user?.id, bescheide])
 
+  // Run analysis on a Bescheid
+  const runAnalyse = useCallback(async (id: string) => {
+    const bescheid = bescheide.find(b => b.id === id)
+    if (!bescheid) return
+
+    // Set status to in_pruefung
+    setBescheide(prev => prev.map(b => b.id === id ? { ...b, status: 'in_pruefung' as const } : b))
+
+    // Simulate brief processing delay
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    // Run the analysis engine
+    const pruefungsergebnis = analyseBescheid(bescheid)
+
+    // Determine new status based on result
+    const newStatus = pruefungsergebnis.empfehlung === 'einspruch' ? 'geprueft' as const : 'geprueft' as const
+
+    // Update locally
+    setBescheide(prev => prev.map(b =>
+      b.id === id ? { ...b, pruefungsergebnis, status: newStatus, updatedAt: new Date().toISOString() } : b
+    ))
+
+    // Persist to Supabase if using real data
+    if (user?.id && !id.startsWith('local-') && !id.match(/^\d+$/)) {
+      await supabase
+        .from('bescheide')
+        .update({ pruefungsergebnis, status: newStatus })
+        .eq('id', id)
+        .eq('user_id', user.id)
+    }
+
+    return pruefungsergebnis
+  }, [bescheide, user?.id])
+
   // Compute stats
   const stats: DashboardStats = {
     bescheideGesamt: bescheide.length,
@@ -432,5 +467,6 @@ export function useBescheide() {
     deleteBescheid,
     createEinspruch,
     toggleFrist,
+    runAnalyse,
   }
 }
