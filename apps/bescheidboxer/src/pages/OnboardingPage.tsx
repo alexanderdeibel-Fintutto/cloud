@@ -25,9 +25,9 @@ const STORAGE_KEY = 'bescheidboxer-onboarding-done'
 const STEPS = [
   {
     icon: Sparkles,
-    title: 'Willkommen bei Bescheidboxer!',
+    title: 'Willkommen beim Steuer-Bescheidprüfer!',
     subtitle: 'Ihre KI-gestuetzte Steuerbescheid-Pruefung',
-    description: 'Bescheidboxer prueft Ihre Steuerbescheide automatisch auf Fehler und findet Einsparpotenziale. In wenigen Schritten zeigen wir Ihnen, wie es funktioniert.',
+    description: 'Der Steuer-Bescheidprüfer prueft Ihre Steuerbescheide automatisch auf Fehler und findet Einsparpotenziale. In wenigen Schritten zeigen wir Ihnen, wie es funktioniert.',
     features: [
       { icon: FileText, text: 'Steuerbescheide hochladen und pruefen' },
       { icon: TrendingDown, text: 'Einsparpotenziale automatisch erkennen' },
@@ -63,7 +63,7 @@ const STEPS = [
     icon: ShieldAlert,
     title: 'Einspruch einlegen',
     subtitle: 'Schritt 3: Bei Bedarf handeln',
-    description: 'Wenn Fehler gefunden werden, hilft Ihnen Bescheidboxer beim Einspruch. Waehlen Sie aus professionellen Vorlagen oder erstellen Sie Ihren eigenen Text. Fristen werden automatisch ueberwacht.',
+    description: 'Wenn Fehler gefunden werden, hilft Ihnen der Steuer-Bescheidprüfer beim Einspruch. Waehlen Sie aus professionellen Vorlagen oder erstellen Sie Ihren eigenen Text. Fristen werden automatisch ueberwacht.',
     tips: [
       'Professionelle Einspruch-Vorlagen verfuegbar',
       'Automatische Fristenueberwachung',

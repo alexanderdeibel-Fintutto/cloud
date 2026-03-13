@@ -42,7 +42,7 @@ export default function BerichtExportPage() {
 
   const handleExportText = () => {
     const lines: string[] = []
-    lines.push('=== BESCHEIDBOXER - STEUERBERICHT ===')
+    lines.push('=== STEUER-BESCHEIDPRÜFER - STEUERBERICHT ===')
     lines.push(`Erstellt am: ${formatDate(new Date())}`)
     lines.push('')
 
@@ -187,7 +187,7 @@ export default function BerichtExportPage() {
       <div ref={printRef} className="space-y-6 print:space-y-4">
         {/* Report Header (print only styling) */}
         <div className="hidden print:block text-center mb-8">
-          <h1 className="text-2xl font-bold">Steuerbericht - Bescheidboxer</h1>
+          <h1 className="text-2xl font-bold">Steuerbericht - Steuer-Bescheidprüfer</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Erstellt am {formatDate(new Date())}
           </p>
@@ -517,7 +517,7 @@ export default function BerichtExportPage() {
 
         {/* Report Footer */}
         <div className="text-center text-xs text-muted-foreground py-4 print:mt-8 print:border-t">
-          <p>Erstellt mit Bescheidboxer &middot; {formatDate(new Date())}</p>
+          <p>Erstellt mit Steuer-Bescheidprüfer &middot; {formatDate(new Date())}</p>
           <p className="mt-0.5">Dieser Bericht dient der persoenlichen Dokumentation und stellt keine Steuerberatung dar.</p>
         </div>
       </div>

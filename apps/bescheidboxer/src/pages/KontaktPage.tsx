@@ -26,7 +26,7 @@ interface FaqItem {
 const FAQ: FaqItem[] = [
   {
     frage: 'Wie lade ich einen Steuerbescheid hoch?',
-    antwort: 'Gehen Sie zur Upload-Seite und ziehen Sie Ihre PDF- oder Bilddatei in den Upload-Bereich. Alternativ klicken Sie auf "Datei auswaehlen". Bescheidboxer erkennt automatisch alle wichtigen Daten per OCR.',
+    antwort: 'Gehen Sie zur Upload-Seite und ziehen Sie Ihre PDF- oder Bilddatei in den Upload-Bereich. Alternativ klicken Sie auf "Datei auswaehlen". Der Steuer-Bescheidprüfer erkennt automatisch alle wichtigen Daten per OCR.',
     kategorie: 'Upload',
   },
   {
@@ -36,12 +36,12 @@ const FAQ: FaqItem[] = [
   },
   {
     frage: 'Was kostet ein Einspruch?',
-    antwort: 'Ein Einspruch beim Finanzamt ist grundsaetzlich kostenlos. Bescheidboxer stellt Ihnen professionelle Vorlagen bereit. Nur wenn Sie einen Steuerberater beauftragen oder vor dem Finanzgericht klagen, fallen Kosten an.',
+    antwort: 'Ein Einspruch beim Finanzamt ist grundsaetzlich kostenlos. Der Steuer-Bescheidprüfer stellt Ihnen professionelle Vorlagen bereit. Nur wenn Sie einen Steuerberater beauftragen oder vor dem Finanzgericht klagen, fallen Kosten an.',
     kategorie: 'Einspruch',
   },
   {
     frage: 'Wie lange habe ich Zeit fuer einen Einspruch?',
-    antwort: 'Die Einspruchsfrist betraegt in der Regel einen Monat ab Bekanntgabe des Bescheids. Der Bescheid gilt 3 Tage nach Aufgabe zur Post als bekannt gegeben. Bescheidboxer ueberwacht diese Fristen automatisch fuer Sie.',
+    antwort: 'Die Einspruchsfrist betraegt in der Regel einen Monat ab Bekanntgabe des Bescheids. Der Bescheid gilt 3 Tage nach Aufgabe zur Post als bekannt gegeben. Der Steuer-Bescheidprüfer ueberwacht diese Fristen automatisch fuer Sie.',
     kategorie: 'Fristen',
   },
   {

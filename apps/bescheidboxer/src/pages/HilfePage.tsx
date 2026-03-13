@@ -123,15 +123,15 @@ const KATEGORIE_COLORS: Record<GlossarEntry['kategorie'], string> = {
 const FAQ = [
   {
     q: 'Mein Steuerbescheid weicht von meiner Berechnung ab. Was tun?',
-    a: 'Vergleichen Sie die einzelnen Positionen im Bescheid mit Ihrer Steuererklaerung. Bescheidboxer hilft Ihnen dabei, Abweichungen automatisch zu erkennen. Wenn Abweichungen vorliegen, koennen Sie innerhalb eines Monats Einspruch einlegen.',
+    a: 'Vergleichen Sie die einzelnen Positionen im Bescheid mit Ihrer Steuererklaerung. Der Steuer-Bescheidprüfer hilft Ihnen dabei, Abweichungen automatisch zu erkennen. Wenn Abweichungen vorliegen, koennen Sie innerhalb eines Monats Einspruch einlegen.',
   },
   {
     q: 'Wie lange habe ich Zeit fuer einen Einspruch?',
-    a: 'Sie haben einen Monat ab Bekanntgabe des Bescheids (in der Regel 3 Tage nach dem Datum auf dem Bescheid). Bescheidboxer berechnet die Frist automatisch und erinnert Sie rechtzeitig.',
+    a: 'Sie haben einen Monat ab Bekanntgabe des Bescheids (in der Regel 3 Tage nach dem Datum auf dem Bescheid). Der Steuer-Bescheidprüfer berechnet die Frist automatisch und erinnert Sie rechtzeitig.',
   },
   {
     q: 'Muss ich einen Steuerberater fuer den Einspruch beauftragen?',
-    a: 'Nein, einen Einspruch koennen Sie selbst einlegen. Bescheidboxer hilft Ihnen dabei, den Einspruch zu formulieren und als PDF zu erstellen. Bei komplexen Faellen kann es aber sinnvoll sein, einen Steuerberater hinzuzuziehen.',
+    a: 'Nein, einen Einspruch koennen Sie selbst einlegen. Der Steuer-Bescheidprüfer hilft Ihnen dabei, den Einspruch zu formulieren und als PDF zu erstellen. Bei komplexen Faellen kann es aber sinnvoll sein, einen Steuerberater hinzuzuziehen.',
   },
   {
     q: 'Kann mir durch den Einspruch ein Nachteil entstehen?',
@@ -142,7 +142,7 @@ const FAQ = [
     a: 'Das Finanzamt prueft Ihren Einspruch. Moegliche Ergebnisse: (1) Stattgabe: Ihr Einspruch wird akzeptiert und der Bescheid geaendert. (2) Teilstattgabe: Nur ein Teil wird anerkannt. (3) Einspruchsentscheidung: Ihr Einspruch wird abgelehnt. Dagegen koennen Sie beim Finanzgericht klagen.',
   },
   {
-    q: 'Sind meine Daten bei Bescheidboxer sicher?',
+    q: 'Sind meine Daten beim Steuer-Bescheidprüfer sicher?',
     a: 'Ja. Alle Daten werden verschluesselt uebertragen und in einer sicheren Datenbank mit Zugriffskontrolle gespeichert. Nur Sie haben Zugriff auf Ihre Steuerdaten. Wir geben keine Daten an Dritte weiter.',
   },
 ]

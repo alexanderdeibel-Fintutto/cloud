@@ -33,9 +33,9 @@ export default function ReferralShareCard({ referralCode, referralLink }: Referr
   }
 
   const shareViaEmail = () => {
-    const subject = encodeURIComponent('Teste Bescheidboxer - Steuerbescheide einfach pruefen')
+    const subject = encodeURIComponent('Teste Steuer-Bescheidprüfer - Steuerbescheide einfach pruefen')
     const body = encodeURIComponent(
-      `Hallo,\n\nich nutze Bescheidboxer um meine Steuerbescheide automatisch pruefen zu lassen und kann es nur empfehlen!\n\nMelde dich ueber meinen Einladungslink an:\n${referralLink}\n\nOder nutze meinen Code: ${referralCode}\n\nViele Gruesse`
+      `Hallo,\n\nich nutze den Steuer-Bescheidprüfer um meine Steuerbescheide automatisch pruefen zu lassen und kann es nur empfehlen!\n\nMelde dich ueber meinen Einladungslink an:\n${referralLink}\n\nOder nutze meinen Code: ${referralCode}\n\nViele Gruesse`
     )
     window.open(`mailto:?subject=${subject}&body=${body}`)
   }
@@ -44,8 +44,8 @@ export default function ReferralShareCard({ referralCode, referralLink }: Referr
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Bescheidboxer - Steuerbescheide pruefen',
-          text: `Teste Bescheidboxer! Mein Einladungscode: ${referralCode}`,
+          title: 'Steuer-Bescheidprüfer - Steuerbescheide pruefen',
+          text: `Teste den Steuer-Bescheidprüfer! Mein Einladungscode: ${referralCode}`,
           url: referralLink,
         })
       } catch {

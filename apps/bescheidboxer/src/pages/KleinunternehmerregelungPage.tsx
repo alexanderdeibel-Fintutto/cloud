@@ -15,9 +15,6 @@ export default function KleinunternehmerregelungPage() {
     const berechtigt = umsatzVorjahr <= grenze22000 && umsatzLaufend <= grenze50000
 
     // Kleinunternehmer: kein USt, aber auch kein Vorsteuerabzug
-    const nettoKlein = umsatzLaufend
-    const bruttoKlein = umsatzLaufend // Kunden zahlen keinen Aufschlag
-
     // Regelbesteuerung
     const anteil19 = umsatzLaufend * (ust19Anteil / 100)
     const anteil7 = umsatzLaufend * ((100 - ust19Anteil) / 100)

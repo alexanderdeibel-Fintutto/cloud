@@ -46,7 +46,7 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl">Anmelden</CardTitle>
           <CardDescription>
-            Melden Sie sich bei Ihrem Bescheidboxer-Konto an
+            Melden Sie sich bei Ihrem Steuer-Bescheidprüfer-Konto an
           </CardDescription>
         </CardHeader>
         <CardContent>

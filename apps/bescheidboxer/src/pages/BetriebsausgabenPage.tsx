@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Receipt, Info, Plus, Trash2 } from 'lucide-react'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 
 interface Ausgabe {
   id: number

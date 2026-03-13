@@ -71,7 +71,7 @@ export default function RegisterPage() {
           </div>
           <CardTitle className="text-2xl">Konto erstellen</CardTitle>
           <CardDescription>
-            Starten Sie jetzt mit dem Bescheidboxer
+            Starten Sie jetzt mit dem Steuer-Bescheidprüfer
           </CardDescription>
         </CardHeader>
         <CardContent>

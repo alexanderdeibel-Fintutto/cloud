@@ -286,7 +286,7 @@ export default function Sidebar() {
 
       <div className="mt-auto pt-4 border-t border-border/40">
         <div className="rounded-lg bg-gradient-to-br from-fintutto-blue-800 to-fintutto-blue-600 p-4 text-white">
-          <p className="text-sm font-semibold">Bescheidboxer Pro</p>
+          <p className="text-sm font-semibold">Steuer-Bescheidprüfer Pro</p>
           <p className="text-xs opacity-80 mt-1">
             Unbegrenzte Analysen & automatische Einsprueche
           </p>

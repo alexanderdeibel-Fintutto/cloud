@@ -16,7 +16,7 @@ import { Button } from './ui/button'
 const STEPS = [
   {
     icon: FileSearch,
-    title: 'Willkommen beim Bescheidboxer!',
+    title: 'Willkommen beim Steuer-Bescheidprüfer!',
     description: 'Ihr persoenlicher Assistent fuer Steuerbescheide. In wenigen Schritten zeigen wir Ihnen, wie einfach es geht.',
     color: 'from-fintutto-blue-700 to-fintutto-blue-500',
   },
@@ -41,7 +41,7 @@ const STEPS = [
   {
     icon: Clock,
     title: 'Keine Frist verpassen',
-    description: 'Der Bescheidboxer erinnert Sie rechtzeitig an alle wichtigen Fristen. So geht Ihnen nie wieder eine Frist verloren.',
+    description: 'Der Steuer-Bescheidprüfer erinnert Sie rechtzeitig an alle wichtigen Fristen. So geht Ihnen nie wieder eine Frist verloren.',
     color: 'from-amber-600 to-yellow-500',
   },
 ]

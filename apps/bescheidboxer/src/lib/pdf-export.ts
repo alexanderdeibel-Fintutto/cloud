@@ -77,7 +77,7 @@ export function exportEinspruchAsPdf(data: EinspruchPdfData) {
 <body>
   <div class="no-print" style="background: #f0f9ff; padding: 12px 20px; margin: -2.5cm -2cm 2cm -2cm; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2869ad;">
     <span style="font-family: sans-serif; font-size: 14px; color: #1a416b; font-weight: 600;">
-      Bescheidboxer by Fintutto - Einspruch-Vorschau
+      Steuer-Bescheidprüfer by Fintutto - Einspruch-Vorschau
     </span>
     <button onclick="window.print()" style="background: #2869ad; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-family: sans-serif;">
       Als PDF speichern / Drucken
@@ -111,7 +111,7 @@ export function exportEinspruchAsPdf(data: EinspruchPdfData) {
   </div>
 
   <div class="footer">
-    Erstellt mit Bescheidboxer by Fintutto | portal.fintutto.cloud
+    Erstellt mit Steuer-Bescheidprüfer by Fintutto | portal.fintutto.cloud
   </div>
 </body>
 </html>`

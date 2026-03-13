@@ -73,7 +73,7 @@ export default function Header() {
             <FileSearch className="h-5 w-5 text-white" />
           </div>
           <div className="hidden sm:block">
-            <span className="text-lg font-bold text-foreground">Bescheidboxer</span>
+            <span className="text-lg font-bold text-foreground">Steuer-Bescheidprüfer</span>
             <span className="text-xs text-muted-foreground ml-1">by Fintutto</span>
           </div>
         </Link>

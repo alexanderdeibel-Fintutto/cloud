@@ -47,7 +47,7 @@ const CHECKLISTE: ChecklistCategory[] = [
     title: 'Bescheid hochladen',
     icon: Upload,
     items: [
-      { id: 'u1', title: 'In Bescheidboxer hochladen', description: 'PDF oder Foto des Bescheids in der App hochladen' },
+      { id: 'u1', title: 'Im Steuer-Bescheidprüfer hochladen', description: 'PDF oder Foto des Bescheids in der App hochladen' },
       { id: 'u2', title: 'Grunddaten pruefen', description: 'Steuerart, Steuerjahr, Finanzamt und Aktenzeichen kontrollieren' },
       { id: 'u3', title: 'Betraege erfassen', description: 'Festgesetzte und erwartete Steuer korrekt eingeben' },
     ],

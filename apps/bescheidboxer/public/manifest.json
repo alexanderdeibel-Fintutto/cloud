@@ -1,6 +1,6 @@
 {
-  "name": "Fintutto Bescheidboxer",
-  "short_name": "Bescheidboxer",
+  "name": "Fintutto Steuer-Bescheidprüfer",
+  "short_name": "Steuer-Bescheidprüfer",
   "description": "Steuerbescheide pruefen, analysieren und Einspruch einlegen. KI-gestuetzte Bescheid-Analyse fuer optimale Steuererstattung.",
   "start_url": "/",
   "display": "standalone",

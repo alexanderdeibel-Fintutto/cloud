@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 
 const APP_CONFIG = {
   appId: 'bescheidboxer',
-  appName: 'BescheidBoxer',
+  appName: 'Steuer-Bescheidprüfer',
   primaryColor: 'from-purple-500 to-indigo-600',
   welcomeMessage: 'Hallo! Ich bin Ihr KI-Assistent fuer Steuerbescheide. Ich kann Ihnen bei der Analyse Ihrer Bescheide helfen, Einspruchsmoeglichkeiten erklaeren und steuerliche Fragen beantworten. Was moechten Sie wissen?',
   quickTopics: [

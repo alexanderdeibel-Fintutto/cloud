@@ -72,7 +72,7 @@ function generateTipps(bescheide: Bescheid[]): Tipp[] {
     tipps.push({
       id: 'fristen-beachten',
       title: 'Fristen im Blick behalten',
-      text: 'Die Einspruchsfrist betraegt einen Monat ab Zustellung. Bescheidboxer erinnert Sie automatisch.',
+      text: 'Die Einspruchsfrist betraegt einen Monat ab Zustellung. Der Steuer-Bescheidprüfer erinnert Sie automatisch.',
       priority: 'info',
     })
   }

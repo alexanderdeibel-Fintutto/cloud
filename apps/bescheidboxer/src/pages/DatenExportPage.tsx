@@ -85,7 +85,7 @@ export default function DatenExportPage() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `bescheidboxer-export-${new Date().toISOString().split('T')[0]}.json`
+        a.download = `steuer-bescheidpruefer-export-${new Date().toISOString().split('T')[0]}.json`
         a.click()
         URL.revokeObjectURL(url)
       } else if (format === 'pdf') {
@@ -93,11 +93,11 @@ export default function DatenExportPage() {
         const text = bescheide.map(b =>
           `${b.titel} | ${b.steuerjahr} | ${b.festgesetzteSteuer} EUR | Status: ${b.status}`
         ).join('\n')
-        const blob = new Blob([`Bescheidboxer Export\n${'='.repeat(40)}\n\n${text}`], { type: 'text/plain' })
+        const blob = new Blob([`Steuer-Bescheidprüfer Export\n${'='.repeat(40)}\n\n${text}`], { type: 'text/plain' })
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `bescheidboxer-bericht-${new Date().toISOString().split('T')[0]}.txt`
+        a.download = `steuer-bescheidpruefer-bericht-${new Date().toISOString().split('T')[0]}.txt`
         a.click()
         URL.revokeObjectURL(url)
       }

@@ -78,7 +78,7 @@ export default function JahresberichtPage() {
       <div ref={reportRef} className="space-y-6 print:space-y-4">
         {/* Print header */}
         <div className="hidden print:block text-center pb-4 border-b">
-          <h1 className="text-2xl font-bold">Fintutto Bescheidboxer - Jahresbericht {year}</h1>
+          <h1 className="text-2xl font-bold">Fintutto Steuer-Bescheidprüfer - Jahresbericht {year}</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Erstellt am {formatDate(new Date().toISOString())}
           </p>
@@ -274,7 +274,7 @@ export default function JahresberichtPage() {
 
         {/* Print footer */}
         <div className="hidden print:block text-center pt-4 border-t text-xs text-muted-foreground">
-          <p>Fintutto Bescheidboxer &middot; portal.fintutto.cloud &middot; Erstellt am {new Date().toLocaleDateString('de-DE')}</p>
+          <p>Fintutto Steuer-Bescheidprüfer &middot; portal.fintutto.cloud &middot; Erstellt am {new Date().toLocaleDateString('de-DE')}</p>
         </div>
       </div>
     </div>

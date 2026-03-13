@@ -183,7 +183,7 @@ export default function UpgradePage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold">Bescheidboxer upgraden</h1>
+        <h1 className="text-3xl font-bold">Steuer-Bescheidprüfer upgraden</h1>
         <p className="text-muted-foreground mt-2">
           Waehlen Sie den passenden Tarif fuer Ihre Beduerfnisse.
           Alle Tarife beinhalten eine 14-taegige Geld-zurueck-Garantie.

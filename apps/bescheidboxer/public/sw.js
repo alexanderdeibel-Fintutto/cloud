@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bescheidboxer-v1'
+const CACHE_NAME = 'steuer-bescheidpruefer-v1'
 const PRECACHE_URLS = [
   '/',
   '/index.html',
