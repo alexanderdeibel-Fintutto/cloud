@@ -1,11 +1,16 @@
-// Shared utilities and components for Fintutto apps
-export const FINTUTTO_VERSION = '1.0.0'
+// @fintutto/shared — Shared utilities, constants, and re-exports
+// Version 1.1: UI components moved to @fintutto/ui, Supabase to @fintutto/supabase
+// This file re-exports from new packages for backward compatibility.
 
-// Shared constants
+export const FINTUTTO_VERSION = '1.1.0'
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
 export const COUNTRIES = ['Deutschland', 'Österreich', 'Schweiz'] as const
 export type Country = (typeof COUNTRIES)[number]
 
-// Currency formatting
+// ─── Formatting Utilities ────────────────────────────────────────────────────
+
 export function formatEuro(amount: number): string {
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
@@ -13,7 +18,6 @@ export function formatEuro(amount: number): string {
   }).format(amount)
 }
 
-// Cent to Euro conversion
 export function centToEuro(cents: number): number {
   return cents / 100
 }
@@ -26,12 +30,12 @@ export function formatCent(cents: number): string {
   return formatEuro(centToEuro(cents))
 }
 
-// Date formatting
 export function formatDateDE(date: Date | string): string {
   return new Intl.DateTimeFormat('de-DE').format(new Date(date))
 }
 
-// Building type labels (German) - matches real vermietify schema
+// ─── Label Maps ──────────────────────────────────────────────────────────────
+
 export const BUILDING_TYPE_LABELS: Record<string, string> = {
   apartment: 'Mehrfamilienhaus',
   house: 'Einfamilienhaus',
@@ -73,7 +77,8 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   cancelled: 'Abgebrochen',
 }
 
-// Platform detection helpers
+// ─── Platform Detection ──────────────────────────────────────────────────────
+
 export function isMac() {
   return typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform)
 }
@@ -82,7 +87,8 @@ export function modKey() {
   return isMac() ? '\u2318' : 'Ctrl'
 }
 
-// App categories
+// ─── App Registry ────────────────────────────────────────────────────────────
+
 export const APP_CATEGORIES = {
   immobilien: 'Immobilien',
   fintech: 'FinTech',
@@ -92,7 +98,6 @@ export const APP_CATEGORIES = {
 export type AppCategory = keyof typeof APP_CATEGORIES
 export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
 
-// Fintutto Ecosystem App Registry
 export const FINTUTTO_APPS = {
   vermietify: {
     name: 'Vermietify',
@@ -158,7 +163,6 @@ export const FINTUTTO_APPS = {
     url: 'https://compass.fintutto.cloud',
     category: 'tools' as AppCategory,
   },
-  // ─── FinTech Universe Apps ──────────────────────────────
   financeCoach: {
     name: 'Finance Coach',
     slug: 'finance-coach',
@@ -199,8 +203,7 @@ export const FINTUTTO_APPS = {
   },
 } as const
 
-// Re-export all database types
-export * from './types/database'
+// ─── Own modules ─────────────────────────────────────────────────────────────
 
 // Credits system (canonical plan registry)
 export * from './credits'
@@ -208,16 +211,18 @@ export * from './credits'
 // Stripe utilities
 export * from './stripe'
 
-// Supabase factory
-export { createSupabaseClient, type CreateSupabaseClientOptions } from './supabase'
+// Deep-links (cross-app URL builders)
+export * from './deeplinks'
 
-// Entitlements engine (FinTech Universe)
-export * from './entitlements'
+// ─── Re-exports from @fintutto/supabase (backward compatibility) ─────────────
 
-// Cross-app monetization (PremiumTeaser, upgrade suggestions)
-export { getPremiumTeaserConfig, getUpgradeSuggestions, CROSS_APP_UPGRADES } from './components/PremiumTeaser'
-export type { PremiumTeaserProps, UpgradePromptConfig } from './components/PremiumTeaser'
+export { createSupabaseClient, type CreateSupabaseClientOptions } from '@fintutto/supabase'
+export * from '@fintutto/supabase/types'
+export * from '@fintutto/supabase/entitlements'
 
-// Cross-app navigation
-export { AppSwitcher } from './components/AppSwitcher'
-export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+// ─── Re-exports from @fintutto/ui (backward compatibility) ───────────────────
+
+export { AppSwitcher } from '@fintutto/ui'
+export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from '@fintutto/ui'
+export { getPremiumTeaserConfig, getUpgradeSuggestions, CROSS_APP_UPGRADES } from '@fintutto/ui'
+export type { PremiumTeaserProps, UpgradePromptConfig } from '@fintutto/ui'
