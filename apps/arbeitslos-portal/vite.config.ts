@@ -26,6 +26,7 @@ export default defineConfig({
             'tailwind-merge',
           ],
           'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-ocr': ['tesseract.js'],
         },
       },
     },

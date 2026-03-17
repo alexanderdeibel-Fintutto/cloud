@@ -18,16 +18,22 @@ import {
   Plus,
   FileImage,
   BookOpen,
+  Eye,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCreditsContext } from '@/contexts/CreditsContext'
+import { supabase } from '@/integrations/supabase/client'
 import {
   type BescheidPage,
+  type AnalysisResult,
   createPage,
   releasePage,
-  fileToBase64,
+  processAllPages,
+  analyzeBescheidText,
   validateFile,
 } from '@/lib/bescheid-ocr'
 
@@ -46,6 +52,37 @@ interface ScanResult {
   totalOver6Months: number
   urgency: 'hoch' | 'mittel' | 'niedrig'
   fristEnde?: string
+  ocrText?: string
+}
+
+/** Transform API analysis to our UI format */
+function transformAnalysis(analysis: AnalysisResult): ScanResult {
+  const errors: ScanError[] = [
+    ...(analysis.fehler || []).map((f) => ({
+      type: (f.schwere === 'kritisch' ? 'fehler' : f.schwere === 'warnung' ? 'warnung' : 'ok') as 'fehler' | 'warnung' | 'ok',
+      title: f.beschreibung?.split('.')[0] || 'Fehler gefunden',
+      description: f.beschreibung || '',
+      paragraph: f.paragraph,
+      betrag: f.potenziellerBetrag || undefined,
+      templateId: f.kategorie === 'kdu' ? 'widerspruch_kdu'
+        : f.kategorie === 'mehrbedarf' ? 'antrag_mehrbedarf'
+        : f.kategorie === 'einkommen' ? 'widerspruch_einkommen'
+        : undefined,
+    })),
+    ...(analysis.korrekt || []).map((k) => ({
+      type: 'ok' as const,
+      title: k.split('.')[0] || k,
+      description: k,
+    })),
+  ]
+
+  return {
+    errors,
+    totalMissing: analysis.gesamtPotenzial || 0,
+    totalOver6Months: (analysis.gesamtPotenzial || 0) * 6,
+    urgency: analysis.dringlichkeit || 'mittel',
+    fristEnde: analysis.fristende || undefined,
+  }
 }
 
 // Demo scan results for demonstration
@@ -96,14 +133,17 @@ function generateDemoScanResult(): ScanResult {
 
 export default function BescheidScanPage() {
   useDocumentTitle('BescheidScan - BescheidBoxer')
-  const [scanState, setScanState] = useState<'upload' | 'scanning' | 'result'>('upload')
+  const [scanState, setScanState] = useState<'upload' | 'ocr' | 'review' | 'analyzing' | 'result'>('upload')
   const [result, setResult] = useState<ScanResult | null>(null)
   const [pages, setPages] = useState<BescheidPage[]>([])
+  const [ocrText, setOcrText] = useState('')
   const [manualText, setManualText] = useState('')
   const [showManualInput, setShowManualInput] = useState(false)
+  const [showOcrText, setShowOcrText] = useState(false)
   const [scanProgress, setScanProgress] = useState('')
   const [dragActive, setDragActive] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [analysisError, setAnalysisError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { checkScan, useScan } = useCreditsContext()
 
@@ -144,7 +184,6 @@ export default function BescheidScanPage() {
     if (e.target.files && e.target.files.length > 0) {
       addFiles(e.target.files)
     }
-    // Reset input so same file can be selected again
     e.target.value = ''
   }
 
@@ -167,154 +206,103 @@ export default function BescheidScanPage() {
     }
   }, [addFiles])
 
-  const startAnalysis = async () => {
-    const hasPages = pages.length > 0
-    const hasManualText = manualText.trim().length > 0
+  /** Step 1: Run OCR on all uploaded pages */
+  const startOcr = async () => {
+    if (pages.length === 0 && !manualText.trim()) return
 
-    if (!hasPages && !hasManualText) return
-
-    // Credit gate
     const scanCheck = checkScan()
     if (!scanCheck.allowed) return
 
-    setScanState('scanning')
-    await useScan()
+    setScanState('ocr')
+    setScanProgress('OCR-Texterkennung wird gestartet...')
 
-    const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
-
-    // Step 1: Extract text from all pages (OCR via Vision API)
     let combinedText = ''
 
-    if (hasPages && apiEndpoint) {
-      setScanProgress('Seiten werden per OCR erfasst...')
-      const pageTexts: string[] = []
+    if (pages.length > 0) {
+      setScanProgress(`${pages.length} Seiten werden per OCR gelesen...`)
 
-      for (let i = 0; i < pages.length; i++) {
-        const page = pages[i]
-        setScanProgress(`Seite ${i + 1} von ${pages.length} wird gelesen...`)
-        setPages(prev => prev.map(p => p.id === page.id ? { ...p, status: 'processing' } : p))
-
-        try {
-          const base64 = await fileToBase64(page.file)
-          const mediaType = page.file.type || 'image/jpeg'
-
-          const response = await fetch(`${apiEndpoint}/amt-scan`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'ocr',
-              imageData: base64,
-              mediaType,
-              pageNumber: i + 1,
-              totalPages: pages.length,
-            }),
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            const text = data.extractedText || ''
-            pageTexts.push(text)
-            setPages(prev => prev.map(p =>
-              p.id === page.id ? { ...p, status: 'done', extractedText: text } : p
-            ))
-          } else {
-            setPages(prev => prev.map(p =>
-              p.id === page.id ? { ...p, status: 'error' } : p
-            ))
+      combinedText = await processAllPages(
+        pages,
+        (pageId, update) => {
+          setPages(prev => prev.map(p => p.id === pageId ? { ...p, ...update } : p))
+          if (update.status === 'processing') {
+            const page = pages.find(p => p.id === pageId)
+            if (page) {
+              setScanProgress(`Seite ${page.pageNumber} von ${pages.length} wird gelesen...`)
+            }
           }
-        } catch {
-          setPages(prev => prev.map(p =>
-            p.id === page.id ? { ...p, status: 'error' } : p
-          ))
-        }
-      }
-
-      combinedText = pageTexts.filter(Boolean).join('\n\n--- Naechste Seite ---\n\n')
+        },
+      )
     }
 
-    // Add manual text if provided
-    if (hasManualText) {
+    // Add manual text
+    if (manualText.trim()) {
       combinedText = combinedText
-        ? combinedText + '\n\n--- Manuell eingegebener Text ---\n\n' + manualText.trim()
+        ? combinedText + '\n\n[Manuell eingegebener Text]\n' + manualText.trim()
         : manualText.trim()
     }
 
-    // Step 2: Analyze the combined text
-    if (combinedText && apiEndpoint) {
-      setScanProgress('Bescheid wird auf Fehler analysiert...')
+    setOcrText(combinedText)
 
-      try {
-        const response = await fetch(`${apiEndpoint}/amt-scan`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'analyze',
-            bescheidText: combinedText,
-          }),
-        })
+    // If we got text, go to review; if not, show error
+    if (combinedText.trim()) {
+      setScanState('review')
+    } else {
+      setScanState('upload')
+      setUploadError('Kein Text erkannt. Bitte versuche es mit besseren Fotos oder gib den Text manuell ein.')
+    }
+  }
 
-        if (response.ok) {
-          const data = await response.json()
-          if (data.analysis) {
-            // Transform API response to our ScanResult format
-            const analysis = data.analysis
-            const errors: ScanError[] = [
-              ...(analysis.fehler || []).map((f: { schwere: string; beschreibung: string; paragraph: string; potenziellerBetrag: number; empfehlung: string; kategorie: string }) => ({
-                type: f.schwere === 'kritisch' ? 'fehler' as const : f.schwere === 'warnung' ? 'warnung' as const : 'ok' as const,
-                title: f.beschreibung?.split('.')[0] || 'Fehler gefunden',
-                description: f.beschreibung || '',
-                paragraph: f.paragraph,
-                betrag: f.potenziellerBetrag || undefined,
-                templateId: f.kategorie === 'kdu' ? 'widerspruch_kdu'
-                  : f.kategorie === 'mehrbedarf' ? 'antrag_mehrbedarf'
-                  : f.kategorie === 'einkommen' ? 'widerspruch_einkommen'
-                  : undefined,
-              })),
-              ...(analysis.korrekt || []).map((k: string) => ({
-                type: 'ok' as const,
-                title: k.split('.')[0] || k,
-                description: k,
-              })),
-            ]
+  /** Step 2: Send OCR text to AI for analysis */
+  const startAnalysis = async () => {
+    if (!ocrText.trim()) return
 
-            setResult({
-              errors,
-              totalMissing: analysis.gesamtPotenzial || 0,
-              totalOver6Months: (analysis.gesamtPotenzial || 0) * 6,
-              urgency: analysis.dringlichkeit || 'mittel',
-              fristEnde: analysis.fristende || undefined,
-            })
-            setScanState('result')
-            return
-          }
-        }
-      } catch {
-        // Fall through to demo
+    setScanState('analyzing')
+    setAnalysisError(null)
+    await useScan()
+
+    setScanProgress('Bescheid wird auf Fehler analysiert...')
+
+    // Get Supabase URL and key from the client config
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://aaefocdqgdgexkcrjhks.supabase.co'
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+    // Try to get a fresh session token for authenticated requests
+    let authToken = supabaseAnonKey
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.access_token) {
+        authToken = session.access_token
       }
+    } catch {
+      // Use anon key
     }
 
-    // Demo mode fallback (no API or no pages uploaded)
-    setScanProgress('Analyse laeuft...')
-    await new Promise((r) => setTimeout(r, 3500))
-    const scanResult = generateDemoScanResult()
-    setResult(scanResult)
-    setScanState('result')
+    const analysis = await analyzeBescheidText(ocrText, supabaseUrl, authToken)
+
+    if (analysis) {
+      const scanResult = transformAnalysis(analysis)
+      scanResult.ocrText = ocrText
+      setResult(scanResult)
+      setScanState('result')
+    } else {
+      // No backend available - show the OCR text and explain
+      setAnalysisError(
+        'Die KI-Analyse ist derzeit nicht verfuegbar. Der OCR-Text wurde erfolgreich extrahiert. ' +
+        'Du kannst den Text kopieren und im Chat besprechen, oder es spaeter erneut versuchen.'
+      )
+      setScanState('review')
+    }
   }
 
-  const handleDemoScan = () => {
-    setPages([])
-    setManualText('')
-    startDemoScan()
-  }
-
-  const startDemoScan = async () => {
+  const handleDemoScan = async () => {
     const scanCheck = checkScan()
     if (!scanCheck.allowed) return
 
-    setScanState('scanning')
+    setScanState('analyzing')
     await useScan()
     setScanProgress('Demo-Bescheid wird analysiert...')
-    await new Promise((r) => setTimeout(r, 3500))
+    await new Promise((r) => setTimeout(r, 2500))
     setResult(generateDemoScanResult())
     setScanState('result')
   }
@@ -323,16 +311,23 @@ export default function BescheidScanPage() {
     pages.forEach(releasePage)
     setPages([])
     setManualText('')
+    setOcrText('')
     setShowManualInput(false)
+    setShowOcrText(false)
     setScanState('upload')
     setResult(null)
     setScanProgress('')
     setUploadError(null)
+    setAnalysisError(null)
   }
 
   const errorsCount = result?.errors.filter(e => e.type === 'fehler').length || 0
   const warningsCount = result?.errors.filter(e => e.type === 'warnung').length || 0
-  const canStartScan = pages.length > 0 || manualText.trim().length > 0
+  const canStartOcr = pages.length > 0 || manualText.trim().length > 0
+  const pagesWithText = pages.filter(p => p.status === 'done' && p.extractedText && p.extractedText !== '(Kein Text erkannt)')
+  const avgConfidence = pagesWithText.length > 0
+    ? Math.round(pagesWithText.reduce((sum, p) => sum + p.confidence, 0) / pagesWithText.length)
+    : 0
 
   return (
     <div className="container py-8 max-w-4xl">
@@ -348,7 +343,7 @@ export default function BescheidScanPage() {
         </p>
       </div>
 
-      {/* Upload State */}
+      {/* ==================== UPLOAD STATE ==================== */}
       {scanState === 'upload' && (
         <div className="space-y-6">
           {/* Scan limit warning */}
@@ -372,10 +367,11 @@ export default function BescheidScanPage() {
             <CardContent className="p-4 flex items-start gap-3">
               <BookOpen className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Mehrseitiger Bescheid-Scanner</p>
+                <p className="text-sm font-medium">Mehrseitiger Bescheid-Scanner mit OCR</p>
                 <p className="text-xs text-muted-foreground">
-                  Ein Bescheid besteht oft aus 4-8 Seiten (beidseitig bedruckt). Lade alle Seiten als Fotos oder PDF hoch,
-                  damit die Analyse vollstaendig ist. Du kannst auch den Text manuell eingeben.
+                  Ein Bescheid besteht oft aus 4-8 Seiten (beidseitig bedruckt). Lade alle Seiten als Fotos hoch.
+                  Unser OCR-Scanner (Tesseract) liest den Text automatisch aus jedem Bild - direkt in deinem Browser.
+                  Danach analysiert die KI den gesamten Bescheid auf Fehler.
                 </p>
               </div>
             </CardContent>
@@ -397,8 +393,8 @@ export default function BescheidScanPage() {
                   <Upload className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
                   <h2 className="text-xl font-semibold mb-2">Bescheid-Seiten hochladen</h2>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Lade alle Seiten deines Bescheids hoch - als Fotos (JPG, PNG) oder PDF.
-                    Ziehe Dateien hierher oder klicke auf den Button.
+                    Fotografiere jede Seite deines Bescheids einzeln und lade alle Fotos hier hoch.
+                    Ziehe die Dateien hierher oder klicke auf den Button.
                   </p>
                   <Button variant="amt" size="lg" onClick={() => fileInputRef.current?.click()}>
                     <Upload className="mr-2 h-5 w-5" />
@@ -489,7 +485,7 @@ export default function BescheidScanPage() {
               <CardContent className="p-4 flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Upload-Fehler</p>
+                  <p className="text-sm font-medium">Fehler</p>
                   <p className="text-xs text-muted-foreground whitespace-pre-line">{uploadError}</p>
                 </div>
                 <button onClick={() => setUploadError(null)} className="ml-auto">
@@ -534,24 +530,24 @@ export default function BescheidScanPage() {
             </CardContent>
           </Card>
 
-          {/* Start analysis button */}
+          {/* Start OCR button */}
           <div className="flex flex-col items-center gap-3">
             <Button
               variant="amt"
               size="lg"
-              disabled={!canStartScan}
-              onClick={startAnalysis}
+              disabled={!canStartOcr}
+              onClick={startOcr}
               className="min-w-64"
             >
               <ScanSearch className="mr-2 h-5 w-5" />
               {pages.length > 0
-                ? `${pages.length} ${pages.length === 1 ? 'Seite' : 'Seiten'} analysieren`
+                ? `${pages.length} ${pages.length === 1 ? 'Seite' : 'Seiten'} scannen`
                 : manualText.trim()
-                  ? 'Text analysieren'
+                  ? 'Text uebernehmen'
                   : 'Seiten hochladen um zu starten'}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Deine Daten werden verschluesselt uebertragen und nach der Analyse geloescht.
+              Der OCR-Scan laeuft komplett in deinem Browser - deine Daten verlassen dein Geraet nicht.
             </p>
           </div>
 
@@ -589,25 +585,25 @@ export default function BescheidScanPage() {
         </div>
       )}
 
-      {/* Scanning State */}
-      {scanState === 'scanning' && (
+      {/* ==================== OCR PROCESSING STATE ==================== */}
+      {scanState === 'ocr' && (
         <Card>
           <CardContent className="p-12">
             <div className="text-center">
               <div className="relative inline-flex mb-6">
                 <div className="h-20 w-20 rounded-2xl gradient-boxer flex items-center justify-center">
-                  <Swords className="h-10 w-10 text-white" />
+                  <ScanSearch className="h-10 w-10 text-white" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 h-8 w-8 bg-white rounded-full flex items-center justify-center shadow-lg">
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               </div>
-              <h2 className="text-xl font-bold mb-2">BescheidBoxer analysiert...</h2>
+              <h2 className="text-xl font-bold mb-2">OCR-Texterkennung laeuft...</h2>
               <p className="text-muted-foreground mb-6">{scanProgress}</p>
 
               {/* Page-by-page progress */}
               {pages.length > 0 && (
-                <div className="max-w-sm mx-auto mb-6">
+                <div className="max-w-md mx-auto mb-6">
                   <div className="flex gap-1.5 justify-center flex-wrap">
                     {pages.map((page) => (
                       <div
@@ -627,18 +623,149 @@ export default function BescheidScanPage() {
                         {page.status === 'error' && <AlertCircle className="h-3 w-3" />}
                         {page.status === 'pending' && <FileImage className="h-3 w-3" />}
                         S. {page.pageNumber}
+                        {page.status === 'done' && page.confidence > 0 && (
+                          <span className="opacity-70">({page.confidence}%)</span>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
+              <p className="text-xs text-muted-foreground">
+                Die Texterkennung laeuft lokal in deinem Browser (Tesseract.js).
+                Deine Daten verlassen dein Geraet nicht.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ==================== OCR REVIEW STATE ==================== */}
+      {scanState === 'review' && (
+        <div className="space-y-6">
+          {/* OCR Summary */}
+          <Card className="border-primary/20">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-xl font-bold mb-1">OCR-Ergebnis</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {pagesWithText.length} von {pages.length} Seiten erfolgreich gelesen
+                    {avgConfidence > 0 && ` - Durchschnittliche Konfidenz: ${avgConfidence}%`}
+                  </p>
+                </div>
+                {avgConfidence > 0 && (
+                  <Badge variant={avgConfidence >= 70 ? 'default' : 'destructive'}>
+                    {avgConfidence}% Konfidenz
+                  </Badge>
+                )}
+              </div>
+
+              {/* Per-page status */}
+              <div className="flex gap-1.5 flex-wrap mb-4">
+                {pages.map((page) => (
+                  <div
+                    key={page.id}
+                    className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                      page.status === 'done' && page.extractedText !== '(Kein Text erkannt)'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    {page.status === 'done' && page.extractedText !== '(Kein Text erkannt)' ? (
+                      <CheckCircle2 className="h-3 w-3" />
+                    ) : (
+                      <AlertCircle className="h-3 w-3" />
+                    )}
+                    S. {page.pageNumber}
+                    {page.confidence > 0 && <span className="opacity-70">({page.confidence}%)</span>}
+                  </div>
+                ))}
+              </div>
+
+              {/* Extracted text preview */}
+              <button
+                onClick={() => setShowOcrText(!showOcrText)}
+                className="flex items-center gap-2 text-sm text-primary hover:underline mb-2"
+              >
+                <Eye className="h-4 w-4" />
+                Erkannten Text {showOcrText ? 'verbergen' : 'anzeigen'}
+                {showOcrText ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </button>
+
+              {showOcrText && (
+                <div className="mt-2">
+                  <textarea
+                    className="w-full h-64 px-4 py-3 rounded-lg border border-input bg-muted/50 text-sm font-mono"
+                    value={ocrText}
+                    onChange={(e) => setOcrText(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Du kannst den erkannten Text hier korrigieren oder ergaenzen bevor die Analyse startet.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Analysis error */}
+          {analysisError && (
+            <Card className="border-warning/40 bg-warning/5">
+              <CardContent className="p-4 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Analyse nicht verfuegbar</p>
+                  <p className="text-xs text-muted-foreground">{analysisError}</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button variant="amt" size="lg" onClick={startAnalysis} disabled={!ocrText.trim()}>
+              <Swords className="mr-2 h-5 w-5" />
+              Jetzt KI-Analyse starten
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/chat">
+                <FileText className="mr-2 h-5 w-5" />
+                Text im Chat besprechen
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" onClick={resetAll}>
+              Zurueck
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center">
+            Die KI-Analyse wird ueber unseren Server durchgefuehrt. Deine Daten werden verschluesselt uebertragen und nach der Analyse geloescht.
+          </p>
+        </div>
+      )}
+
+      {/* ==================== ANALYZING STATE ==================== */}
+      {scanState === 'analyzing' && (
+        <Card>
+          <CardContent className="p-12">
+            <div className="text-center">
+              <div className="relative inline-flex mb-6">
+                <div className="h-20 w-20 rounded-2xl gradient-boxer flex items-center justify-center">
+                  <Swords className="h-10 w-10 text-white" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 h-8 w-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              </div>
+              <h2 className="text-xl font-bold mb-2">BescheidBoxer analysiert...</h2>
+              <p className="text-muted-foreground mb-6">{scanProgress}</p>
               <div className="max-w-sm mx-auto space-y-3">
                 {[
-                  'Seiten werden per OCR gelesen...',
                   'Regelsaetze werden geprueft...',
                   'Mehrbedarfe werden analysiert...',
                   'KdU wird berechnet...',
+                  'Fristen werden geprueft...',
                   'Fehler werden identifiziert...',
                 ].map((step, i) => (
                   <div key={step} className="flex items-center gap-2 text-sm animate-fade-in" style={{ animationDelay: `${i * 600}ms` }}>
@@ -652,7 +779,7 @@ export default function BescheidScanPage() {
         </Card>
       )}
 
-      {/* Result State */}
+      {/* ==================== RESULT STATE ==================== */}
       {scanState === 'result' && result && (
         <div className="space-y-6">
           {/* Summary Banner */}
@@ -681,9 +808,7 @@ export default function BescheidScanPage() {
                   {pages.length > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
                       Analysiert: {pages.length} {pages.length === 1 ? 'Seite' : 'Seiten'}
-                      {pages.filter(p => p.status === 'done').length < pages.length &&
-                        ` (${pages.filter(p => p.status === 'error').length} mit Lesefehler)`
-                      }
+                      {avgConfidence > 0 && ` (OCR-Konfidenz: ${avgConfidence}%)`}
                     </p>
                   )}
                 </div>
@@ -764,6 +889,27 @@ export default function BescheidScanPage() {
               </div>
             ))}
           </div>
+
+          {/* Show OCR text in results */}
+          {ocrText && (
+            <Card>
+              <CardContent className="p-4">
+                <button
+                  onClick={() => setShowOcrText(!showOcrText)}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+                >
+                  <Eye className="h-4 w-4" />
+                  Erkannter OCR-Text {showOcrText ? 'verbergen' : 'anzeigen'}
+                  {showOcrText ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                </button>
+                {showOcrText && (
+                  <pre className="mt-3 p-4 bg-muted/50 rounded-lg text-xs font-mono whitespace-pre-wrap max-h-64 overflow-y-auto">
+                    {ocrText}
+                  </pre>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Action Buttons */}
           {errorsCount > 0 && (

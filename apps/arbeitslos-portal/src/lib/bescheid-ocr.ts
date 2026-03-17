@@ -1,5 +1,8 @@
 // OCR Processing for Bescheide (multi-page document scanning)
-// Supports multiple pages (images/PDFs) since a Bescheid typically has 4-8 pages (front+back)
+// Uses Tesseract.js for real client-side OCR text extraction
+// Supports multiple pages since a Bescheid typically has 4-8 pages (front+back)
+
+import Tesseract from 'tesseract.js'
 
 export interface BescheidPage {
   id: string
@@ -7,15 +10,8 @@ export interface BescheidPage {
   previewUrl: string
   status: 'pending' | 'processing' | 'done' | 'error'
   extractedText: string
+  confidence: number
   pageNumber: number
-}
-
-export interface BescheidOcrResult {
-  pages: BescheidPage[]
-  combinedText: string
-  totalPages: number
-  status: 'idle' | 'processing' | 'done' | 'error'
-  errorMessage?: string
 }
 
 /** Create a new page entry from a file */
@@ -26,6 +22,7 @@ export function createPage(file: File, pageNumber: number): BescheidPage {
     previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : '',
     status: 'pending',
     extractedText: '',
+    confidence: 0,
     pageNumber,
   }
 }
@@ -38,47 +35,33 @@ export function releasePage(page: BescheidPage): void {
 }
 
 /**
- * Extract text from a single page using the Claude Vision API via our backend.
- * Falls back to a local placeholder when no API is configured.
+ * Extract text from a single image file using Tesseract.js (client-side OCR).
+ * Uses German language model for best results with Bescheide.
  */
-export async function extractTextFromPage(
-  page: BescheidPage,
-  apiEndpoint?: string,
-): Promise<string> {
-  // Try server-side OCR via Vision API
-  if (apiEndpoint) {
-    try {
-      const formData = new FormData()
-      formData.append('file', page.file)
-      formData.append('action', 'ocr')
-
-      const response = await fetch(`${apiEndpoint}/amt-scan`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.extractedText) {
-          return data.extractedText
-        }
+export async function ocrExtractText(
+  file: File,
+  onProgress?: (progress: number) => void,
+): Promise<{ text: string; confidence: number }> {
+  const result = await Tesseract.recognize(file, 'deu', {
+    logger: (info) => {
+      if (info.status === 'recognizing text' && onProgress) {
+        onProgress(Math.round(info.progress * 100))
       }
-    } catch {
-      // Fall through to manual input prompt
-    }
-  }
+    },
+  })
 
-  // No API available - return empty to signal manual input needed
-  return ''
+  return {
+    text: result.data.text.trim(),
+    confidence: Math.round(result.data.confidence),
+  }
 }
 
 /**
- * Process all pages: extract text from each, then combine.
- * Returns a callback-based approach so the UI can update per-page.
+ * Process all pages with Tesseract.js OCR.
+ * Calls onPageUpdate for each page so the UI can show real-time progress.
  */
 export async function processAllPages(
   pages: BescheidPage[],
-  apiEndpoint: string | undefined,
   onPageUpdate: (pageId: string, update: Partial<BescheidPage>) => void,
 ): Promise<string> {
   const texts: string[] = []
@@ -87,25 +70,101 @@ export async function processAllPages(
     onPageUpdate(page.id, { status: 'processing' })
 
     try {
-      const text = await extractTextFromPage(page, apiEndpoint)
-      texts.push(text)
-      onPageUpdate(page.id, { status: 'done', extractedText: text })
-    } catch {
-      onPageUpdate(page.id, { status: 'error', extractedText: '' })
+      const { text, confidence } = await ocrExtractText(page.file, (progress) => {
+        // Could add a progress field to BescheidPage if needed
+        onPageUpdate(page.id, { status: 'processing', extractedText: `OCR ${progress}%...` })
+      })
+
+      if (text) {
+        texts.push(`[Seite ${page.pageNumber}]\n${text}`)
+      }
+
+      onPageUpdate(page.id, {
+        status: 'done',
+        extractedText: text || '(Kein Text erkannt)',
+        confidence,
+      })
+    } catch (err) {
+      console.error(`OCR error on page ${page.pageNumber}:`, err)
+      onPageUpdate(page.id, {
+        status: 'error',
+        extractedText: '',
+        confidence: 0,
+      })
     }
   }
 
-  return texts.filter(Boolean).join('\n\n--- Seite ---\n\n')
+  return texts.filter(Boolean).join('\n\n')
 }
 
-/** Convert a File to a base64 data URL (for sending images to APIs) */
-export function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
+/**
+ * Send combined bescheid text to the Supabase Edge Function for AI analysis.
+ * Falls back to the VITE_AI_API_ENDPOINT if configured.
+ */
+export async function analyzeBescheidText(
+  bescheidText: string,
+  supabaseUrl?: string,
+  supabaseAnonKey?: string,
+): Promise<AnalysisResult | null> {
+  // Try Supabase Edge Function first
+  if (supabaseUrl && supabaseAnonKey) {
+    try {
+      const response = await fetch(`${supabaseUrl}/functions/v1/amt-scan`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({ action: 'analyze', bescheidText }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.analysis) return data.analysis
+      }
+    } catch {
+      // Fall through to API endpoint
+    }
+  }
+
+  // Try VITE_AI_API_ENDPOINT as fallback
+  const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
+  if (apiEndpoint) {
+    try {
+      const response = await fetch(`${apiEndpoint}/amt-scan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyze', bescheidText }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.analysis) return data.analysis
+      }
+    } catch {
+      // No backend available
+    }
+  }
+
+  return null
+}
+
+export interface AnalysisResult {
+  zusammenfassung: string
+  fehler: Array<{
+    kategorie: string
+    schwere: string
+    beschreibung: string
+    paragraph?: string
+    potenziellerBetrag?: number
+    empfehlung?: string
+  }>
+  korrekt: string[]
+  gesamtPotenzial: number
+  dringlichkeit: 'hoch' | 'mittel' | 'niedrig'
+  naechsteSchritte: string[]
+  fristende?: string | null
 }
 
 /** Validate file type and size */
