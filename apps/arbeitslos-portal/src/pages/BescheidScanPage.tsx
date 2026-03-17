@@ -1,10 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   ScanSearch,
   Upload,
-  Camera,
   FileText,
   AlertCircle,
   CheckCircle2,
@@ -15,11 +14,22 @@ import {
   Euro,
   Clock,
   Shield,
+  X,
+  Plus,
+  FileImage,
+  BookOpen,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCreditsContext } from '@/contexts/CreditsContext'
+import {
+  type BescheidPage,
+  createPage,
+  releasePage,
+  fileToBase64,
+  validateFile,
+} from '@/lib/bescheid-ocr'
 
 interface ScanError {
   type: 'fehler' | 'warnung' | 'ok'
@@ -88,54 +98,203 @@ export default function BescheidScanPage() {
   useDocumentTitle('BescheidScan - BescheidBoxer')
   const [scanState, setScanState] = useState<'upload' | 'scanning' | 'result'>('upload')
   const [result, setResult] = useState<ScanResult | null>(null)
-  const [fileName, setFileName] = useState<string>('')
-  const [, setSelectedFile] = useState<File | null>(null)
+  const [pages, setPages] = useState<BescheidPage[]>([])
+  const [manualText, setManualText] = useState('')
+  const [showManualInput, setShowManualInput] = useState(false)
+  const [scanProgress, setScanProgress] = useState('')
+  const [dragActive, setDragActive] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { checkScan, useScan } = useCreditsContext()
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setFileName(file.name)
-      setSelectedFile(file)
-      startScan(file)
+  const addFiles = useCallback((files: FileList | File[]) => {
+    setUploadError(null)
+    const newPages: BescheidPage[] = []
+    const errors: string[] = []
+
+    Array.from(files).forEach((file) => {
+      const validation = validateFile(file)
+      if (!validation.valid) {
+        errors.push(`${file.name}: ${validation.error}`)
+        return
+      }
+      newPages.push(createPage(file, pages.length + newPages.length + 1))
+    })
+
+    if (errors.length > 0) {
+      setUploadError(errors.join('\n'))
     }
+
+    if (newPages.length > 0) {
+      setPages(prev => [...prev, ...newPages])
+    }
+  }, [pages.length])
+
+  const removePage = (pageId: string) => {
+    setPages(prev => {
+      const page = prev.find(p => p.id === pageId)
+      if (page) releasePage(page)
+      return prev
+        .filter(p => p.id !== pageId)
+        .map((p, i) => ({ ...p, pageNumber: i + 1 }))
+    })
   }
 
-  const startScan = async (file?: File) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      addFiles(e.target.files)
+    }
+    // Reset input so same file can be selected again
+    e.target.value = ''
+  }
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true)
+    } else if (e.type === 'dragleave') {
+      setDragActive(false)
+    }
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    if (e.dataTransfer.files?.length) {
+      addFiles(e.dataTransfer.files)
+    }
+  }, [addFiles])
+
+  const startAnalysis = async () => {
+    const hasPages = pages.length > 0
+    const hasManualText = manualText.trim().length > 0
+
+    if (!hasPages && !hasManualText) return
+
     // Credit gate
     const scanCheck = checkScan()
-    if (!scanCheck.allowed) {
-      return
-    }
+    if (!scanCheck.allowed) return
 
     setScanState('scanning')
     await useScan()
 
-    // Try API first, fall back to demo
-    try {
-      const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
-      if (apiEndpoint && file) {
-        const formData = new FormData()
-        formData.append('file', file)
+    const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
 
+    // Step 1: Extract text from all pages (OCR via Vision API)
+    let combinedText = ''
+
+    if (hasPages && apiEndpoint) {
+      setScanProgress('Seiten werden per OCR erfasst...')
+      const pageTexts: string[] = []
+
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i]
+        setScanProgress(`Seite ${i + 1} von ${pages.length} wird gelesen...`)
+        setPages(prev => prev.map(p => p.id === page.id ? { ...p, status: 'processing' } : p))
+
+        try {
+          const base64 = await fileToBase64(page.file)
+          const mediaType = page.file.type || 'image/jpeg'
+
+          const response = await fetch(`${apiEndpoint}/amt-scan`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'ocr',
+              imageData: base64,
+              mediaType,
+              pageNumber: i + 1,
+              totalPages: pages.length,
+            }),
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            const text = data.extractedText || ''
+            pageTexts.push(text)
+            setPages(prev => prev.map(p =>
+              p.id === page.id ? { ...p, status: 'done', extractedText: text } : p
+            ))
+          } else {
+            setPages(prev => prev.map(p =>
+              p.id === page.id ? { ...p, status: 'error' } : p
+            ))
+          }
+        } catch {
+          setPages(prev => prev.map(p =>
+            p.id === page.id ? { ...p, status: 'error' } : p
+          ))
+        }
+      }
+
+      combinedText = pageTexts.filter(Boolean).join('\n\n--- Naechste Seite ---\n\n')
+    }
+
+    // Add manual text if provided
+    if (hasManualText) {
+      combinedText = combinedText
+        ? combinedText + '\n\n--- Manuell eingegebener Text ---\n\n' + manualText.trim()
+        : manualText.trim()
+    }
+
+    // Step 2: Analyze the combined text
+    if (combinedText && apiEndpoint) {
+      setScanProgress('Bescheid wird auf Fehler analysiert...')
+
+      try {
         const response = await fetch(`${apiEndpoint}/amt-scan`, {
           method: 'POST',
-          body: formData,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'analyze',
+            bescheidText: combinedText,
+          }),
         })
 
         if (response.ok) {
           const data = await response.json()
-          setResult(data)
-          setScanState('result')
-          return
+          if (data.analysis) {
+            // Transform API response to our ScanResult format
+            const analysis = data.analysis
+            const errors: ScanError[] = [
+              ...(analysis.fehler || []).map((f: { schwere: string; beschreibung: string; paragraph: string; potenziellerBetrag: number; empfehlung: string; kategorie: string }) => ({
+                type: f.schwere === 'kritisch' ? 'fehler' as const : f.schwere === 'warnung' ? 'warnung' as const : 'ok' as const,
+                title: f.beschreibung?.split('.')[0] || 'Fehler gefunden',
+                description: f.beschreibung || '',
+                paragraph: f.paragraph,
+                betrag: f.potenziellerBetrag || undefined,
+                templateId: f.kategorie === 'kdu' ? 'widerspruch_kdu'
+                  : f.kategorie === 'mehrbedarf' ? 'antrag_mehrbedarf'
+                  : f.kategorie === 'einkommen' ? 'widerspruch_einkommen'
+                  : undefined,
+              })),
+              ...(analysis.korrekt || []).map((k: string) => ({
+                type: 'ok' as const,
+                title: k.split('.')[0] || k,
+                description: k,
+              })),
+            ]
+
+            setResult({
+              errors,
+              totalMissing: analysis.gesamtPotenzial || 0,
+              totalOver6Months: (analysis.gesamtPotenzial || 0) * 6,
+              urgency: analysis.dringlichkeit || 'mittel',
+              fristEnde: analysis.fristende || undefined,
+            })
+            setScanState('result')
+            return
+          }
         }
+      } catch {
+        // Fall through to demo
       }
-    } catch {
-      // Fall through to demo
     }
 
-    // Demo mode fallback
+    // Demo mode fallback (no API or no pages uploaded)
+    setScanProgress('Analyse laeuft...')
     await new Promise((r) => setTimeout(r, 3500))
     const scanResult = generateDemoScanResult()
     setResult(scanResult)
@@ -143,13 +302,37 @@ export default function BescheidScanPage() {
   }
 
   const handleDemoScan = () => {
-    setFileName('Bescheid_Jobcenter_2026.pdf')
-    setSelectedFile(null)
-    startScan()
+    setPages([])
+    setManualText('')
+    startDemoScan()
+  }
+
+  const startDemoScan = async () => {
+    const scanCheck = checkScan()
+    if (!scanCheck.allowed) return
+
+    setScanState('scanning')
+    await useScan()
+    setScanProgress('Demo-Bescheid wird analysiert...')
+    await new Promise((r) => setTimeout(r, 3500))
+    setResult(generateDemoScanResult())
+    setScanState('result')
+  }
+
+  const resetAll = () => {
+    pages.forEach(releasePage)
+    setPages([])
+    setManualText('')
+    setShowManualInput(false)
+    setScanState('upload')
+    setResult(null)
+    setScanProgress('')
+    setUploadError(null)
   }
 
   const errorsCount = result?.errors.filter(e => e.type === 'fehler').length || 0
   const warningsCount = result?.errors.filter(e => e.type === 'warnung').length || 0
+  const canStartScan = pages.length > 0 || manualText.trim().length > 0
 
   return (
     <div className="container py-8 max-w-4xl">
@@ -160,8 +343,8 @@ export default function BescheidScanPage() {
         </div>
         <h1 className="text-3xl font-bold mb-2">BescheidScan</h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Lade deinen Bescheid hoch und unsere KI prueft ihn auf Fehler.
-          Wir finden was dir zusteht - in Sekunden statt Stunden.
+          Scanne alle Seiten deines Bescheids - unsere KI liest und prueft alles auf Fehler.
+          Ein Bescheid hat oft mehrere Seiten - lade einfach alle hoch.
         </p>
       </div>
 
@@ -184,38 +367,193 @@ export default function BescheidScanPage() {
             </Card>
           )}
 
-          <Card className="border-dashed border-2 hover:border-primary/40 transition-colors">
-            <CardContent className="p-12">
-              <div className="text-center">
-                <Upload className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
-                <h2 className="text-xl font-semibold mb-2">Bescheid hochladen</h2>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Lade deinen Bewilligungsbescheid, Aenderungsbescheid oder Sanktionsbescheid hoch.
-                  Wir akzeptieren PDF, JPG und PNG.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button variant="amt" size="lg" onClick={() => fileInputRef.current?.click()}>
-                    <Upload className="mr-2 h-5 w-5" />
-                    Datei auswaehlen
-                  </Button>
-                  <Button variant="outline" size="lg" onClick={() => fileInputRef.current?.click()}>
-                    <Camera className="mr-2 h-5 w-5" />
-                    Foto aufnehmen
-                  </Button>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-                <p className="text-xs text-muted-foreground mt-4">
-                  Deine Daten werden verschluesselt uebertragen und nach der Analyse geloescht.
+          {/* Multi-page info banner */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 flex items-start gap-3">
+              <BookOpen className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Mehrseitiger Bescheid-Scanner</p>
+                <p className="text-xs text-muted-foreground">
+                  Ein Bescheid besteht oft aus 4-8 Seiten (beidseitig bedruckt). Lade alle Seiten als Fotos oder PDF hoch,
+                  damit die Analyse vollstaendig ist. Du kannst auch den Text manuell eingeben.
                 </p>
               </div>
             </CardContent>
           </Card>
+
+          {/* Drop zone for uploading pages */}
+          <Card
+            className={`border-dashed border-2 transition-colors ${
+              dragActive ? 'border-primary bg-primary/5' : 'hover:border-primary/40'
+            }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <CardContent className="p-8">
+              {pages.length === 0 ? (
+                <div className="text-center">
+                  <Upload className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+                  <h2 className="text-xl font-semibold mb-2">Bescheid-Seiten hochladen</h2>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Lade alle Seiten deines Bescheids hoch - als Fotos (JPG, PNG) oder PDF.
+                    Ziehe Dateien hierher oder klicke auf den Button.
+                  </p>
+                  <Button variant="amt" size="lg" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="mr-2 h-5 w-5" />
+                    Seiten auswaehlen
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                  <p className="text-xs text-muted-foreground mt-4">
+                    JPG, PNG, WebP, HEIC, PDF - max. 20 MB pro Datei - Mehrfachauswahl moeglich
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold">
+                      {pages.length} {pages.length === 1 ? 'Seite' : 'Seiten'} hochgeladen
+                    </h3>
+                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      Weitere Seiten
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,.pdf"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                  </div>
+
+                  {/* Page thumbnails */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {pages.map((page) => (
+                      <div
+                        key={page.id}
+                        className="relative group border rounded-lg overflow-hidden bg-muted/50"
+                      >
+                        {page.previewUrl ? (
+                          <img
+                            src={page.previewUrl}
+                            alt={`Seite ${page.pageNumber}`}
+                            className="w-full h-32 object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-32 flex items-center justify-center">
+                            <FileText className="h-8 w-8 text-muted-foreground/50" />
+                          </div>
+                        )}
+                        <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                          S. {page.pageNumber}
+                        </div>
+                        <button
+                          onClick={() => removePage(page.id)}
+                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                        <div className="p-1.5 text-xs text-muted-foreground truncate">
+                          {page.file.name}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add more button as tile */}
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed rounded-lg h-32 flex flex-col items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                    >
+                      <Plus className="h-6 w-6 mb-1" />
+                      <span className="text-xs">Seite hinzufuegen</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Upload error */}
+          {uploadError && (
+            <Card className="border-destructive/40 bg-destructive/5">
+              <CardContent className="p-4 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Upload-Fehler</p>
+                  <p className="text-xs text-muted-foreground whitespace-pre-line">{uploadError}</p>
+                </div>
+                <button onClick={() => setUploadError(null)} className="ml-auto">
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Manual text input toggle */}
+          <Card>
+            <CardContent className="p-4">
+              <button
+                onClick={() => setShowManualInput(!showManualInput)}
+                className="flex items-center gap-2 w-full text-left"
+              >
+                <FileText className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Text manuell eingeben</p>
+                  <p className="text-xs text-muted-foreground">
+                    Alternativ oder ergaenzend: Bescheid-Text abtippen oder einfuegen
+                  </p>
+                </div>
+                <span className="text-xs text-primary">{showManualInput ? 'Schliessen' : 'Oeffnen'}</span>
+              </button>
+
+              {showManualInput && (
+                <div className="mt-4">
+                  <textarea
+                    className="w-full h-48 px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring text-sm font-mono"
+                    placeholder={`Gib hier den Text deines Bescheids ein oder fuege ihn ein...\n\nBeispiel:\nBewilligungsbescheid\nAktenzeichen: 123-456-789\nBewilligungszeitraum: 01.01.2026 - 31.12.2026\nRegelbedarf: 563,00 EUR\nKosten der Unterkunft: 450,00 EUR\n...`}
+                    value={manualText}
+                    onChange={(e) => setManualText(e.target.value)}
+                  />
+                  {manualText.trim() && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {manualText.trim().split(/\s+/).length} Woerter eingegeben
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Start analysis button */}
+          <div className="flex flex-col items-center gap-3">
+            <Button
+              variant="amt"
+              size="lg"
+              disabled={!canStartScan}
+              onClick={startAnalysis}
+              className="min-w-64"
+            >
+              <ScanSearch className="mr-2 h-5 w-5" />
+              {pages.length > 0
+                ? `${pages.length} ${pages.length === 1 ? 'Seite' : 'Seiten'} analysieren`
+                : manualText.trim()
+                  ? 'Text analysieren'
+                  : 'Seiten hochladen um zu starten'}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Deine Daten werden verschluesselt uebertragen und nach der Analyse geloescht.
+            </p>
+          </div>
 
           {/* Demo Button */}
           <div className="text-center">
@@ -265,10 +603,39 @@ export default function BescheidScanPage() {
                 </div>
               </div>
               <h2 className="text-xl font-bold mb-2">BescheidBoxer analysiert...</h2>
-              <p className="text-muted-foreground mb-6">{fileName}</p>
+              <p className="text-muted-foreground mb-6">{scanProgress}</p>
+
+              {/* Page-by-page progress */}
+              {pages.length > 0 && (
+                <div className="max-w-sm mx-auto mb-6">
+                  <div className="flex gap-1.5 justify-center flex-wrap">
+                    {pages.map((page) => (
+                      <div
+                        key={page.id}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                          page.status === 'done'
+                            ? 'bg-green-100 text-green-700'
+                            : page.status === 'processing'
+                            ? 'bg-blue-100 text-blue-700'
+                            : page.status === 'error'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {page.status === 'processing' && <Loader2 className="h-3 w-3 animate-spin" />}
+                        {page.status === 'done' && <CheckCircle2 className="h-3 w-3" />}
+                        {page.status === 'error' && <AlertCircle className="h-3 w-3" />}
+                        {page.status === 'pending' && <FileImage className="h-3 w-3" />}
+                        S. {page.pageNumber}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="max-w-sm mx-auto space-y-3">
                 {[
-                  'Bescheid wird gelesen...',
+                  'Seiten werden per OCR gelesen...',
                   'Regelsaetze werden geprueft...',
                   'Mehrbedarfe werden analysiert...',
                   'KdU wird berechnet...',
@@ -309,6 +676,14 @@ export default function BescheidScanPage() {
                     <p className="text-muted-foreground">
                       {warningsCount > 0 && `Plus ${warningsCount} Warnung(en) zum Pruefen. `}
                       Handlung empfohlen!
+                    </p>
+                  )}
+                  {pages.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Analysiert: {pages.length} {pages.length === 1 ? 'Seite' : 'Seiten'}
+                      {pages.filter(p => p.status === 'done').length < pages.length &&
+                        ` (${pages.filter(p => p.status === 'error').length} mit Lesefehler)`
+                      }
                     </p>
                   )}
                 </div>
@@ -420,7 +795,7 @@ export default function BescheidScanPage() {
 
           {/* New Scan */}
           <div className="text-center">
-            <Button variant="outline" onClick={() => { setScanState('upload'); setResult(null); setFileName(''); }}>
+            <Button variant="outline" onClick={resetAll}>
               Neuen Bescheid scannen
             </Button>
           </div>
