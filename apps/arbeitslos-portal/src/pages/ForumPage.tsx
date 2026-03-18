@@ -33,112 +33,8 @@ interface ForumPost {
   isResolved: boolean
 }
 
-const DEMO_POSTS: ForumPost[] = [
-  {
-    id: '1',
-    title: 'Widerspruch gegen Sanktion erfolgreich! Meine Erfahrung',
-    excerpt: 'Ich wurde sanktioniert weil ich angeblich einen Termin verpasst habe. Den Brief habe ich aber nie bekommen. So habe ich mich gewehrt...',
-    author: 'Petra M.',
-    category: 'sgb2',
-    createdAt: '2026-02-05T14:30:00',
-    replies: 23,
-    likes: 47,
-    views: 312,
-    isPinned: true,
-    isResolved: true,
-  },
-  {
-    id: '2',
-    title: 'KdU Kuerzung - Amt sagt Miete ist zu hoch. Was tun?',
-    excerpt: 'Mein Jobcenter hat meine Miete als unangemessen eingestuft und will kuerzen. Ich finde aber keine billigere Wohnung in meiner Stadt...',
-    author: 'Marco K.',
-    category: 'kdu',
-    createdAt: '2026-02-05T10:15:00',
-    replies: 15,
-    likes: 22,
-    views: 189,
-    isPinned: false,
-    isResolved: false,
-  },
-  {
-    id: '3',
-    title: 'Ueberpruefungsantrag - 1.800 EUR Nachzahlung bekommen!',
-    excerpt: 'Habe alte Bescheide pruefen lassen und tatsaechlich wurde mein Mehrbedarf als Alleinerziehende 2 Jahre lang nicht berechnet...',
-    author: 'Sandra L.',
-    category: 'sgb10',
-    createdAt: '2026-02-04T18:00:00',
-    replies: 31,
-    likes: 89,
-    views: 567,
-    isPinned: true,
-    isResolved: true,
-  },
-  {
-    id: '4',
-    title: 'Eingliederungsvereinbarung unterschreiben oder nicht?',
-    excerpt: 'Mein Sachbearbeiter draengt mich eine EGV zu unterschreiben. Muss ich das? Was passiert wenn ich nicht unterschreibe?',
-    author: 'Thomas H.',
-    category: 'sgb2',
-    createdAt: '2026-02-04T09:20:00',
-    replies: 19,
-    likes: 33,
-    views: 245,
-    isPinned: false,
-    isResolved: true,
-  },
-  {
-    id: '5',
-    title: 'Sperrzeit ALG I - Eigenkuendigung wegen Mobbing',
-    excerpt: 'Habe meinen Job gekuendigt weil ich gemobbt wurde. Jetzt droht mir eine Sperrzeit von 12 Wochen. Hat jemand Erfahrung damit?',
-    author: 'Anna B.',
-    category: 'sgb3',
-    createdAt: '2026-02-03T16:45:00',
-    replies: 8,
-    likes: 14,
-    views: 98,
-    isPinned: false,
-    isResolved: false,
-  },
-  {
-    id: '6',
-    title: 'Eilantrag beim Sozialgericht - Wie schnell geht das?',
-    excerpt: 'Mein Antrag wird seit 3 Monaten nicht bearbeitet, habe kein Geld mehr. Will einen Eilantrag stellen. Wie laeuft das ab?',
-    author: 'Ralf D.',
-    category: 'sgb10',
-    createdAt: '2026-02-03T11:00:00',
-    replies: 12,
-    likes: 28,
-    views: 176,
-    isPinned: false,
-    isResolved: true,
-  },
-  {
-    id: '7',
-    title: 'Waschmaschine kaputt - Jobcenter sagt nein. Einmalige Leistung?',
-    excerpt: 'Meine Waschmaschine ist kaputt, ich habe den Antrag auf einmalige Leistung gestellt aber der wurde abgelehnt...',
-    author: 'Melanie F.',
-    category: 'sgb2',
-    createdAt: '2026-02-02T14:30:00',
-    replies: 7,
-    likes: 11,
-    views: 87,
-    isPinned: false,
-    isResolved: false,
-  },
-  {
-    id: '8',
-    title: 'Tipp: So bekommt ihr Akteneinsicht beim Jobcenter',
-    excerpt: 'Viele wissen nicht dass man ein Recht auf komplette Akteneinsicht hat. Hier erklaere ich Schritt fuer Schritt wie es geht...',
-    author: 'Carsten W.',
-    category: 'sgb10',
-    createdAt: '2026-02-01T20:00:00',
-    replies: 42,
-    likes: 156,
-    views: 1243,
-    isPinned: true,
-    isResolved: false,
-  },
-]
+// TODO: Load forum posts from Supabase
+const forumPosts: ForumPost[] = []
 
 const CATEGORY_TABS = [
   { id: 'all', label: 'Alle Beitraege' },
@@ -169,7 +65,7 @@ export default function ForumPage() {
 
   const forumCheck = checkForum()
 
-  const filteredPosts = DEMO_POSTS.filter(post => {
+  const filteredPosts = forumPosts.filter(post => {
     if (activeCategory !== 'all' && post.category !== activeCategory) return false
     if (search) {
       const searchLower = search.toLowerCase()
@@ -219,14 +115,14 @@ export default function ForumPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{DEMO_POSTS.length}</div>
+            <div className="text-2xl font-bold text-primary">{forumPosts.length}</div>
             <div className="text-xs text-muted-foreground">Beitraege</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-primary">
-              {DEMO_POSTS.reduce((sum, p) => sum + p.replies, 0)}
+              {forumPosts.reduce((sum, p) => sum + p.replies, 0)}
             </div>
             <div className="text-xs text-muted-foreground">Antworten</div>
           </CardContent>
@@ -234,7 +130,7 @@ export default function ForumPage() {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-primary">
-              {DEMO_POSTS.filter(p => p.isResolved).length}
+              {forumPosts.filter(p => p.isResolved).length}
             </div>
             <div className="text-xs text-muted-foreground">Geloest</div>
           </CardContent>

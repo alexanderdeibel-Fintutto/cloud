@@ -44,110 +44,47 @@ import {
 } from '@/lib/gamification'
 
 // ---------------------------------------------------------------------------
-// Demo data
+// Types for real data (loaded from Supabase / localStorage)
 // ---------------------------------------------------------------------------
 
-const DEMO_POINTS = 350
-const DEMO_MONEY_RECOVERED = 1847.52
-
-const DEMO_DEADLINES = [
-  {
-    id: '1',
-    title: 'Widerspruch Bewilligungsbescheid 01/2026',
-    dueDate: '2026-02-10',
-    daysLeft: 4,
-    urgent: true,
-  },
-  {
-    id: '2',
-    title: 'Mitwirkungsaufforderung beantworten',
-    dueDate: '2026-02-28',
-    daysLeft: 22,
-    urgent: false,
-  },
-]
-
-const DEMO_SCANS = [
-  {
-    id: '1',
-    title: 'Bewilligungsbescheid Feb 2026',
-    date: '2026-02-04',
-    errorsFound: 3,
-    potentialRecovery: 127.5,
-    status: 'fehler_gefunden' as const,
-  },
-  {
-    id: '2',
-    title: 'Aenderungsbescheid KdU Jan 2026',
-    date: '2026-01-22',
-    errorsFound: 1,
-    potentialRecovery: 48.0,
-    status: 'fehler_gefunden' as const,
-  },
-  {
-    id: '3',
-    title: 'Erstbescheid Dez 2025',
-    date: '2025-12-15',
-    errorsFound: 0,
-    potentialRecovery: 0,
-    status: 'korrekt' as const,
-  },
-]
-
-const DEMO_LETTERS = [
-  {
-    id: '1',
-    title: 'Widerspruch gegen Bewilligungsbescheid',
-    date: '2026-02-05',
-    type: 'widerspruch' as const,
-    status: 'versendet' as const,
-  },
-  {
-    id: '2',
-    title: 'Antrag auf Uebernahme der Heizkosten-Nachforderung',
-    date: '2026-01-20',
-    type: 'antrag' as const,
-    status: 'entwurf' as const,
-  },
-]
-
-const DEMO_BADGES = [
-  { id: 'erster_scan', name: 'Erster Scan', icon: '🔍' },
-  { id: 'erster_widerspruch', name: 'Erster Widerspruch', icon: '✊' },
-  { id: 'geld_zurueck', name: 'Geld zurueck!', icon: '💰' },
-  { id: 'rechte_kenner', name: 'Rechte-Kenner', icon: '📚' },
-]
-
-const DEMO_COMMUNITY_STATS = {
-  totalMembers: 3842,
-  widerspruchSuccess: 68,
-  moneyRecoveredTotal: 487320,
-  activeThreads: 127,
+interface Deadline {
+  id: string
+  title: string
+  dueDate: string
+  daysLeft: number
+  urgent: boolean
 }
 
-const DEMO_TIPS = [
-  {
-    id: '1',
-    text: 'Dein Bewilligungsbescheid hat 3 Fehler. Lege jetzt Widerspruch ein, bevor die Frist am 10.02. ablaeuft!',
-    priority: 'high' as const,
-    action: '/generator/widerspruch',
-    actionLabel: 'Widerspruch erstellen',
-  },
-  {
-    id: '2',
-    text: 'Tipp: Pruefe, ob deine Heizkosten vollstaendig uebernommen werden. Viele Jobcenter kuerzen hier rechtswidrig.',
-    priority: 'medium' as const,
-    action: '/chat',
-    actionLabel: 'KI-Chat fragen',
-  },
-  {
-    id: '3',
-    text: 'Du hast 4 Badges! Noch 1 Badge bis zum naechsten Punktebonus. Hilf im Forum, um den "Helfer"-Badge zu bekommen.',
-    priority: 'low' as const,
-    action: '/forum',
-    actionLabel: 'Zum Forum',
-  },
-]
+interface Scan {
+  id: string
+  title: string
+  date: string
+  errorsFound: number
+  potentialRecovery: number
+  status: 'fehler_gefunden' | 'korrekt'
+}
+
+interface Letter {
+  id: string
+  title: string
+  date: string
+  type: 'widerspruch' | 'antrag'
+  status: 'versendet' | 'entwurf'
+}
+
+interface BadgeInfo {
+  id: string
+  name: string
+  icon: string
+}
+
+interface Tip {
+  id: string
+  text: string
+  priority: 'high' | 'medium' | 'low'
+  action: string
+  actionLabel: string
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -347,9 +284,26 @@ export default function DashboardPage() {
   const creditsLeft = credits?.creditsAktuell ?? 0
   const chatUsedToday = credits?.chatMessagesUsedToday ?? 0
 
-  const currentLevel = getLevelForPoints(DEMO_POINTS)
-  const nextLevel = getNextLevel(DEMO_POINTS)
-  const progressPercent = getProgressToNextLevel(DEMO_POINTS)
+  // TODO: load real user points from Supabase
+  const userPoints = 0
+  const userMoneyRecovered = 0
+  const userDeadlines: Deadline[] = []
+  const userScans: Scan[] = []
+  const userLetters: Letter[] = []
+  const userBadges: BadgeInfo[] = []
+  const userTips: Tip[] = []
+
+  // TODO: load real community stats from Supabase
+  const communityStats = {
+    totalMembers: 0,
+    widerspruchSuccess: 0,
+    moneyRecoveredTotal: 0,
+    activeThreads: 0,
+  }
+
+  const currentLevel = getLevelForPoints(userPoints)
+  const nextLevel = getNextLevel(userPoints)
+  const progressPercent = getProgressToNextLevel(userPoints)
 
   return (
     <div className="min-h-screen bg-background">
@@ -389,7 +343,7 @@ export default function DashboardPage() {
                         Level: {currentLevel.name}
                       </h2>
                       <Badge variant="outline" className="text-xs font-mono">
-                        {DEMO_POINTS} Punkte
+                        {userPoints} Punkte
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -403,12 +357,12 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>Fortschritt zu {nextLevel.name} {nextLevel.icon}</span>
                       <span>
-                        {DEMO_POINTS} / {nextLevel.minPoints} Punkte
+                        {userPoints} / {nextLevel.minPoints} Punkte
                       </span>
                     </div>
                     <Progress value={progressPercent} className="h-2.5" />
                     <p className="text-xs text-muted-foreground">
-                      Noch {nextLevel.minPoints - DEMO_POINTS} Punkte bis zum
+                      Noch {nextLevel.minPoints - userPoints} Punkte bis zum
                       naechsten Level
                     </p>
                   </div>
@@ -420,11 +374,11 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-1.5 mb-3">
                   <Trophy className="h-4 w-4 text-yellow-500" />
                   <span className="text-sm font-semibold">
-                    Badges ({DEMO_BADGES.length})
+                    Badges ({userBadges.length})
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {DEMO_BADGES.map((badge) => (
+                  {userBadges.map((badge) => (
                     <div
                       key={badge.id}
                       className="flex items-center gap-1 rounded-full bg-background border px-2.5 py-1 text-xs"
@@ -453,7 +407,7 @@ export default function DashboardPage() {
                 Du hast bisher durchgesetzt:
               </p>
               <p className="text-3xl font-extrabold tracking-tight text-primary">
-                {formatEur(DEMO_MONEY_RECOVERED)} EUR
+                {formatEur(userMoneyRecovered)} EUR
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Durch Widersprueche und korrigierte Bescheide — weiter so!
@@ -475,14 +429,14 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="flex flex-col items-center py-5 px-3 text-center">
               <ScanSearch className="h-5 w-5 text-blue-500 mb-2" />
-              <p className="text-2xl font-bold">{DEMO_SCANS.length}</p>
+              <p className="text-2xl font-bold">{userScans.length}</p>
               <p className="text-xs text-muted-foreground">BescheidScans</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="flex flex-col items-center py-5 px-3 text-center">
               <FileText className="h-5 w-5 text-green-500 mb-2" />
-              <p className="text-2xl font-bold">{DEMO_LETTERS.length}</p>
+              <p className="text-2xl font-bold">{userLetters.length}</p>
               <p className="text-xs text-muted-foreground">Schreiben</p>
             </CardContent>
           </Card>
@@ -490,7 +444,7 @@ export default function DashboardPage() {
             <CardContent className="flex flex-col items-center py-5 px-3 text-center">
               <Users className="h-5 w-5 text-purple-500 mb-2" />
               <p className="text-2xl font-bold">
-                {DEMO_COMMUNITY_STATS.totalMembers.toLocaleString('de-DE')}
+                {communityStats.totalMembers.toLocaleString('de-DE')}
               </p>
               <p className="text-xs text-muted-foreground">Forum-Mitglieder</p>
             </CardContent>
@@ -568,7 +522,7 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {DEMO_DEADLINES.map((deadline) => (
+                {userDeadlines.map((deadline) => (
                   <div
                     key={deadline.id}
                     className={`flex items-start gap-3 rounded-lg border p-3 ${
@@ -630,7 +584,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="divide-y">
-                  {DEMO_SCANS.map((scan) => (
+                  {userScans.map((scan) => (
                     <div
                       key={scan.id}
                       className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
@@ -685,7 +639,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="divide-y">
-                  {DEMO_LETTERS.map((letter) => (
+                  {userLetters.map((letter) => (
                     <div
                       key={letter.id}
                       className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
@@ -755,13 +709,13 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
                     <p className="text-xl font-bold">
-                      {DEMO_COMMUNITY_STATS.totalMembers.toLocaleString('de-DE')}
+                      {communityStats.totalMembers.toLocaleString('de-DE')}
                     </p>
                     <p className="text-xs text-muted-foreground">Mitglieder</p>
                   </div>
                   <div>
                     <p className="text-xl font-bold text-green-600">
-                      {DEMO_COMMUNITY_STATS.widerspruchSuccess}%
+                      {communityStats.widerspruchSuccess}%
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Widerspruch-Erfolg
@@ -769,7 +723,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xl font-bold text-primary">
-                      {(DEMO_COMMUNITY_STATS.moneyRecoveredTotal / 1000).toFixed(0)}k EUR
+                      {(communityStats.moneyRecoveredTotal / 1000).toFixed(0)}k EUR
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Insgesamt durchgesetzt
@@ -777,7 +731,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xl font-bold">
-                      {DEMO_COMMUNITY_STATS.activeThreads}
+                      {communityStats.activeThreads}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Aktive Diskussionen
@@ -890,7 +844,7 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {DEMO_TIPS.map((tip) => (
+                {userTips.map((tip) => (
                   <div
                     key={tip.id}
                     className={`rounded-lg p-3 ${tipPriorityStyles(tip.priority)}`}

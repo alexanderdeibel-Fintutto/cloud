@@ -16,9 +16,8 @@ export default function ProfilPage() {
   const { profile } = useAuth()
   const { credits } = useCreditsContext()
 
-  // Demo form state
-  const [name, setName] = useState(profile?.name || 'Max Mustermann')
-  const [email] = useState(profile?.email || 'max@beispiel.de')
+  const [name, setName] = useState(profile?.name || '')
+  const [email] = useState(profile?.email || '')
   const [plz, setPlz] = useState('10115')
   const [bedarfsgemeinschaft, setBedarfsgemeinschaft] = useState('1')
 
