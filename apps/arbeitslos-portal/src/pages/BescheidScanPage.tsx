@@ -21,6 +21,7 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
+  Camera,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,6 +37,7 @@ import {
   analyzeBescheidText,
   validateFile,
 } from '@/lib/bescheid-ocr'
+import BescheidScanner from '@/components/BescheidScanner'
 
 interface ScanError {
   type: 'fehler' | 'warnung' | 'ok'
@@ -144,6 +146,7 @@ export default function BescheidScanPage() {
   const [dragActive, setDragActive] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
+  const [showScanner, setShowScanner] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { checkScan, useScan } = useCreditsContext()
 
@@ -179,6 +182,16 @@ export default function BescheidScanPage() {
         .map((p, i) => ({ ...p, pageNumber: i + 1 }))
     })
   }
+
+  const handleScanCapture = useCallback((file: File) => {
+    setUploadError(null)
+    const validation = validateFile(file)
+    if (!validation.valid) {
+      setUploadError(validation.error || 'Datei ungueltig')
+      return
+    }
+    setPages(prev => [...prev, createPage(file, prev.length + 1)])
+  }, [])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -314,6 +327,7 @@ export default function BescheidScanPage() {
     setOcrText('')
     setShowManualInput(false)
     setShowOcrText(false)
+    setShowScanner(false)
     setScanState('upload')
     setResult(null)
     setScanProgress('')
@@ -391,15 +405,20 @@ export default function BescheidScanPage() {
               {pages.length === 0 ? (
                 <div className="text-center">
                   <Upload className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
-                  <h2 className="text-xl font-semibold mb-2">Bescheid-Seiten hochladen</h2>
+                  <h2 className="text-xl font-semibold mb-2">Bescheid-Seiten scannen oder hochladen</h2>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Fotografiere jede Seite deines Bescheids einzeln und lade alle Fotos hier hoch.
-                    Ziehe die Dateien hierher oder klicke auf den Button.
+                    Scanne jede Seite direkt mit der Kamera oder lade vorhandene Fotos/PDFs hoch.
                   </p>
-                  <Button variant="amt" size="lg" onClick={() => fileInputRef.current?.click()}>
-                    <Upload className="mr-2 h-5 w-5" />
-                    Seiten auswaehlen
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button variant="amt" size="lg" onClick={() => setShowScanner(true)}>
+                      <Camera className="mr-2 h-5 w-5" />
+                      Seiten scannen
+                    </Button>
+                    <Button variant="outline" size="lg" onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="mr-2 h-5 w-5" />
+                      Dateien hochladen
+                    </Button>
+                  </div>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -416,12 +435,18 @@ export default function BescheidScanPage() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold">
-                      {pages.length} {pages.length === 1 ? 'Seite' : 'Seiten'} hochgeladen
+                      {pages.length} {pages.length === 1 ? 'Seite' : 'Seiten'} erfasst
                     </h3>
-                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Weitere Seiten
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setShowScanner(true)}>
+                        <Camera className="h-4 w-4 mr-1" />
+                        Scannen
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Dateien
+                      </Button>
+                    </div>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -946,6 +971,15 @@ export default function BescheidScanPage() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* ==================== CAMERA SCANNER OVERLAY ==================== */}
+      {showScanner && (
+        <BescheidScanner
+          pageCount={pages.length}
+          onCapture={handleScanCapture}
+          onClose={() => setShowScanner(false)}
+        />
       )}
     </div>
   )
