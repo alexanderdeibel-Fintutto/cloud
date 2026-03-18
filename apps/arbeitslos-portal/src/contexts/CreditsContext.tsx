@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
-import { PlanType, UserCredits, canAskQuestion, canGenerateLetter, canScanBescheid, canPostInForum } from '@/lib/credits'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { PlanType, PLANS, UserCredits, canAskQuestion, canGenerateLetter, canScanBescheid, canPostInForum } from '@/lib/credits'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface CreditsContextType {
   credits: UserCredits | null
@@ -15,6 +16,8 @@ interface CreditsContextType {
 const CreditsContext = createContext<CreditsContextType | undefined>(undefined)
 
 export function CreditsProvider({ children }: { children: ReactNode }) {
+  const { profile } = useAuth()
+
   const [credits, setCredits] = useState<UserCredits>({
     userId: 'demo',
     plan: 'schnupperer' as PlanType,
@@ -25,6 +28,25 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     periodStart: new Date(),
     periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   })
+
+  // Sync plan from auth profile
+  useEffect(() => {
+    if (profile) {
+      setCredits(prev => {
+        const plan = profile.plan || 'schnupperer'
+        const planConfig = PLANS[plan]
+        return {
+          ...prev,
+          userId: profile.id,
+          plan,
+          creditsAktuell: planConfig.creditsPerMonth || prev.creditsAktuell,
+          chatMessagesUsedToday: profile.chatMessagesUsedToday || prev.chatMessagesUsedToday,
+          lettersGeneratedThisMonth: profile.lettersGeneratedThisMonth || prev.lettersGeneratedThisMonth,
+          scansThisMonth: profile.scansThisMonth || prev.scansThisMonth,
+        }
+      })
+    }
+  }, [profile])
 
   const checkQuestion = () => canAskQuestion(credits)
   const checkLetter = () => canGenerateLetter(credits)

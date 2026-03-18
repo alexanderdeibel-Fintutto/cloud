@@ -351,6 +351,11 @@ export default function DashboardPage() {
   const nextLevel = getNextLevel(DEMO_POINTS)
   const progressPercent = getProgressToNextLevel(DEMO_POINTS)
 
+  // Check for upgrade success from URL params
+  const urlParams = new URLSearchParams(window.location.search)
+  const upgradeSuccess = urlParams.get('upgrade') === 'success'
+  const upgradedPlan = urlParams.get('plan')
+
   return (
     <div className="min-h-screen bg-background">
       {/* ---------------------------------------------------------------- */}
@@ -358,6 +363,19 @@ export default function DashboardPage() {
       {/* ---------------------------------------------------------------- */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
+          {upgradeSuccess && upgradedPlan && (
+            <div className="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 flex items-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-green-800">
+                  Upgrade erfolgreich! Du bist jetzt im {PLANS[upgradedPlan as keyof typeof PLANS]?.name || upgradedPlan}-Tarif.
+                </p>
+                <p className="text-xs text-green-600">
+                  Alle neuen Features stehen dir ab sofort zur Verfuegung.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-3 mb-1">
             <LayoutDashboard className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight">

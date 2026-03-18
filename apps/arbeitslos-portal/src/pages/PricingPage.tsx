@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   CheckCircle2,
@@ -10,15 +11,33 @@ import {
   CreditCard,
   ArrowRight,
   Home,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { PLANS, CREDIT_PACKAGES, type PlanType } from '@/lib/credits'
+import { useAuth } from '@/contexts/AuthContext'
+
+// Stripe Price IDs - to be configured in env or replaced with real IDs
+const STRIPE_PRICE_IDS: Record<string, { monthly?: string; yearly?: string }> = {
+  starter: {
+    monthly: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || '',
+    yearly: import.meta.env.VITE_STRIPE_PRICE_STARTER_YEARLY || '',
+  },
+  kaempfer: {
+    monthly: import.meta.env.VITE_STRIPE_PRICE_KAEMPFER_MONTHLY || '',
+    yearly: import.meta.env.VITE_STRIPE_PRICE_KAEMPFER_YEARLY || '',
+  },
+  vollschutz: {
+    monthly: import.meta.env.VITE_STRIPE_PRICE_VOLLSCHUTZ_MONTHLY || '',
+    yearly: import.meta.env.VITE_STRIPE_PRICE_VOLLSCHUTZ_YEARLY || '',
+  },
+}
 
 const planMeta: Record<
   PlanType,
-  { icon: typeof Shield; features: string[]; cta: string; ctaLink: string }
+  { icon: typeof Shield; features: string[] }
 > = {
   schnupperer: {
     icon: Shield,
@@ -28,8 +47,6 @@ const planMeta: Record<
       'Forum lesen & posten',
       'Basis-Rechtsinfos zu SGB II, III, XII',
     ],
-    cta: 'Kostenlos starten',
-    ctaLink: '/register',
   },
   starter: {
     icon: Zap,
@@ -40,8 +57,6 @@ const planMeta: Record<
       '10 Credits monatlich inklusive',
       'Forum lesen, posten & limitierter Chat',
     ],
-    cta: 'Starter waehlen',
-    ctaLink: '/register?plan=starter',
   },
   kaempfer: {
     icon: Swords,
@@ -54,8 +69,6 @@ const planMeta: Record<
       'Voller Forum-Zugang inkl. Chat',
       'MieterApp Basic inklusive',
     ],
-    cta: 'Kaempfer waehlen',
-    ctaLink: '/register?plan=kaempfer',
   },
   vollschutz: {
     icon: Crown,
@@ -68,8 +81,6 @@ const planMeta: Record<
       'VIP-Forum mit Priority-Support',
       'MieterApp Premium inklusive',
     ],
-    cta: 'Vollschutz waehlen',
-    ctaLink: '/register?plan=vollschutz',
   },
 }
 
@@ -110,6 +121,95 @@ const faqItems = [
 
 export default function PricingPage() {
   useDocumentTitle('Preise - BescheidBoxer')
+  const { user, profile, upgradePlan } = useAuth()
+  const navigate = useNavigate()
+  const [upgrading, setUpgrading] = useState<PlanType | null>(null)
+  const [upgradeError, setUpgradeError] = useState<string | null>(null)
+
+  const currentPlan = profile?.plan || 'schnupperer'
+  const currentTier = PLANS[currentPlan].tier
+
+  const handlePlanSelect = async (planKey: PlanType) => {
+    setUpgradeError(null)
+
+    // Not logged in → register
+    if (!user) {
+      navigate(planKey === 'schnupperer' ? '/register' : `/register?plan=${planKey}`)
+      return
+    }
+
+    // Free plan → just upgrade
+    if (planKey === 'schnupperer') {
+      return // Already free, nothing to do
+    }
+
+    // Same or lower plan
+    if (PLANS[planKey].tier <= currentTier) {
+      return
+    }
+
+    setUpgrading(planKey)
+
+    // Try Stripe checkout if price IDs are configured
+    const priceId = STRIPE_PRICE_IDS[planKey]?.monthly
+    if (priceId) {
+      try {
+        const checkoutEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
+          ? `${import.meta.env.VITE_AI_API_ENDPOINT}/amt-checkout`
+          : '/api/amt-checkout'
+
+        const response = await fetch(checkoutEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            priceId,
+            userId: user.id,
+            userEmail: user.email,
+            planId: planKey,
+            interval: 'monthly',
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.url) {
+            window.location.href = data.url
+            return
+          }
+        }
+      } catch {
+        // Stripe not available, fall through to demo upgrade
+      }
+    }
+
+    // Demo mode: upgrade directly
+    try {
+      await upgradePlan(planKey)
+      navigate('/dashboard?upgrade=success&plan=' + planKey)
+    } catch {
+      setUpgradeError('Upgrade fehlgeschlagen. Bitte versuche es erneut.')
+    } finally {
+      setUpgrading(null)
+    }
+  }
+
+  const getCtaText = (planKey: PlanType): string => {
+    if (!user) {
+      return planKey === 'schnupperer' ? 'Kostenlos starten' : `${PLANS[planKey].name} waehlen`
+    }
+    if (planKey === currentPlan) return 'Aktueller Tarif'
+    if (PLANS[planKey].tier < currentTier) return 'Downgrade'
+    if (planKey === 'schnupperer') return 'Kostenloser Tarif'
+    return `Auf ${PLANS[planKey].name} upgraden`
+  }
+
+  const isDisabled = (planKey: PlanType): boolean => {
+    if (!user) return false
+    if (planKey === currentPlan) return true
+    if (PLANS[planKey].tier < currentTier) return true // No downgrade for now
+    return false
+  }
+
   return (
     <div className="container py-12">
       {/* Header */}
@@ -124,7 +224,19 @@ export default function PricingPage() {
           Starte kostenlos mit dem Schnupperer-Tarif und upgrade, wenn du mehr brauchst.
           Keine versteckten Kosten, jederzeit kuendbar.
         </p>
+        {user && (
+          <p className="text-sm text-primary mt-2 font-medium">
+            Dein aktueller Tarif: {PLANS[currentPlan].name}
+          </p>
+        )}
       </div>
+
+      {/* Upgrade error */}
+      {upgradeError && (
+        <div className="max-w-md mx-auto mb-6 p-4 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+          {upgradeError}
+        </div>
+      )}
 
       {/* Pricing Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-20">
@@ -132,17 +244,27 @@ export default function PricingPage() {
           ([key, plan]) => {
             const meta = planMeta[key]
             const isHighlighted = key === 'kaempfer'
+            const isCurrent = user && key === currentPlan
 
             return (
               <Card
                 key={key}
                 className={`relative flex flex-col ${
-                  isHighlighted
+                  isCurrent
+                    ? 'ring-2 ring-primary shadow-lg'
+                    : isHighlighted
                     ? 'ring-2 ring-red-500 shadow-lg scale-[1.03]'
                     : ''
                 }`}
               >
-                {plan.badge && (
+                {isCurrent && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-primary text-white border-0 px-4 py-0.5">
+                      Dein Tarif
+                    </Badge>
+                  </div>
+                )}
+                {!isCurrent && plan.badge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                     <Badge
                       variant="secondary"
@@ -207,21 +329,29 @@ export default function PricingPage() {
                   </ul>
                   <Button
                     className={`w-full ${
-                      isHighlighted ? 'gradient-boxer text-white hover:opacity-90' : ''
+                      isHighlighted && !isCurrent ? 'gradient-boxer text-white hover:opacity-90' : ''
                     }`}
                     variant={
-                      isHighlighted
-                        ? 'default'
-                        : key === 'vollschutz'
+                      isCurrent
+                        ? 'outline'
+                        : isHighlighted
                           ? 'default'
-                          : key === 'starter'
+                          : key === 'vollschutz' || key === 'starter'
                             ? 'default'
                             : 'outline'
                     }
                     size="lg"
-                    asChild
+                    disabled={isDisabled(key) || upgrading === key}
+                    onClick={() => handlePlanSelect(key)}
                   >
-                    <Link to={meta.ctaLink}>{meta.cta}</Link>
+                    {upgrading === key ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Wird verarbeitet...
+                      </>
+                    ) : (
+                      getCtaText(key)
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -331,7 +461,7 @@ export default function PricingPage() {
                   {(pkg.price / pkg.credits).toFixed(2).replace('.', ',')} EUR pro Credit
                 </p>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to="/register">
+                  <Link to={user ? '/dashboard' : '/register'}>
                     Paket kaufen
                     <ArrowRight className="ml-1.5 h-4 w-4" />
                   </Link>

@@ -22,6 +22,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name?: string) => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  upgradePlan: (plan: PlanType) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -246,6 +247,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // ---- upgradePlan ----
+  const upgradePlan = async (newPlan: PlanType) => {
+    if (!hasRealSupabase) {
+      // Demo mode: update localStorage and state
+      const session = getDemoSession()
+      if (session) {
+        session.plan = newPlan
+        saveDemoSession(session)
+        // Also update in users list
+        const users = getDemoUsers()
+        const idx = users.findIndex(u => u.id === session.id)
+        if (idx >= 0) {
+          users[idx].plan = newPlan
+          saveDemoUsers(users)
+        }
+      }
+      setProfile(prev => prev ? { ...prev, plan: newPlan } : prev)
+      return
+    }
+
+    // Real Supabase mode
+    if (user) {
+      const { error } = await supabase
+        .from('amt_users')
+        .update({ plan: newPlan })
+        .eq('id', user.id)
+      if (error) throw error
+      await fetchProfile(user.id)
+    }
+  }
+
   // ---- signOut ----
   const signOut = async () => {
     if (!hasRealSupabase) {
@@ -271,6 +303,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         signOut,
         refreshProfile,
+        upgradePlan,
       }}
     >
       {children}
