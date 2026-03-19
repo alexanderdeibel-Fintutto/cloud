@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTenants } from "@/hooks/useTenants";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 import {
   User,
   UserPlus,
@@ -366,12 +367,16 @@ export function StepTenant({ data, updateData, showValidation }: StepTenantProps
               </h4>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="address">Straße und Hausnummer</Label>
-                  <Input
-                    id="address"
+                  <Label>Strasse und Hausnummer</Label>
+                  <AddressAutocomplete
                     value={data.newTenant.address || ""}
-                    onChange={(e) => handleNewTenantChange("address", e.target.value)}
-                    placeholder="Musterstraße 1"
+                    onChange={(value) => handleNewTenantChange("address", value)}
+                    onPlaceSelect={(details) => {
+                      handleNewTenantChange("address", details.address);
+                      handleNewTenantChange("postalCode", details.postalCode);
+                      handleNewTenantChange("city", details.city);
+                    }}
+                    placeholder="Adresse suchen..."
                   />
                 </div>
 
@@ -382,6 +387,7 @@ export function StepTenant({ data, updateData, showValidation }: StepTenantProps
                     value={data.newTenant.postalCode || ""}
                     onChange={(e) => handleNewTenantChange("postalCode", e.target.value)}
                     placeholder="10115"
+                    readOnly
                   />
                 </div>
 
@@ -392,6 +398,7 @@ export function StepTenant({ data, updateData, showValidation }: StepTenantProps
                     value={data.newTenant.city || ""}
                     onChange={(e) => handleNewTenantChange("city", e.target.value)}
                     placeholder="Berlin"
+                    readOnly
                   />
                 </div>
 

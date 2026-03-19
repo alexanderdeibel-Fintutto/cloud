@@ -1,6 +1,8 @@
-import { MapPin, Navigation, Search, ZoomIn, ZoomOut, Layers } from 'lucide-react'
+import { useRef, useEffect, useState, useCallback } from 'react'
+import { MapPin, Loader2, ZoomIn, ZoomOut, Layers, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useGoogleMapsApi } from '@/hooks/useGoogleMapsApi'
 
 interface MapMarker {
   id: string
@@ -20,15 +22,144 @@ interface MapViewProps {
   className?: string
 }
 
-// Placeholder map component - in production, integrate with Leaflet/Mapbox/Google Maps
 export default function MapView({
   markers = [],
-  center = { lat: 52.5200, lng: 13.4050 }, // Berlin
+  center = { lat: 52.5200, lng: 13.4050 },
   zoom = 12,
   searchable = true,
   onMarkerClick,
   className = '',
 }: MapViewProps) {
+  const { ready, error: apiError } = useGoogleMapsApi()
+  const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<google.maps.Map | null>(null)
+  const markersRef = useRef<google.maps.Marker[]>([])
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
+  const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap')
+
+  // Initialize map
+  useEffect(() => {
+    if (!ready || !mapRef.current || mapInstanceRef.current) return
+
+    const map = new google.maps.Map(mapRef.current, {
+      center,
+      zoom,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true,
+      zoomControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      mapTypeControl: false,
+      gestureHandling: 'cooperative',
+      styles: [
+        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+      ],
+    })
+
+    mapInstanceRef.current = map
+    infoWindowRef.current = new google.maps.InfoWindow()
+  }, [ready])
+
+  // Update markers
+  useEffect(() => {
+    if (!mapInstanceRef.current) return
+
+    // Clear old markers
+    markersRef.current.forEach((m) => m.setMap(null))
+    markersRef.current = []
+
+    if (markers.length === 0) return
+
+    const bounds = new google.maps.LatLngBounds()
+
+    markers.forEach((marker) => {
+      const position = { lat: marker.lat, lng: marker.lng }
+      bounds.extend(position)
+
+      const gMarker = new google.maps.Marker({
+        position,
+        map: mapInstanceRef.current!,
+        title: marker.label,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: marker.type === 'property' ? '#7c3aed' : '#3b82f6',
+          fillOpacity: 1,
+          strokeColor: '#fff',
+          strokeWeight: 2,
+          scale: 10,
+        },
+        label: {
+          text: marker.label[0] || '',
+          color: '#fff',
+          fontSize: '10px',
+          fontWeight: 'bold',
+        },
+      })
+
+      gMarker.addListener('click', () => {
+        if (infoWindowRef.current) {
+          infoWindowRef.current.setContent(`
+            <div style="padding: 4px 8px; font-family: sans-serif;">
+              <strong style="font-size: 13px;">${marker.label}</strong>
+              ${marker.details ? `<p style="font-size: 11px; color: #666; margin: 4px 0 0;">${marker.details}</p>` : ''}
+            </div>
+          `)
+          infoWindowRef.current.open(mapInstanceRef.current!, gMarker)
+        }
+        onMarkerClick?.(marker)
+      })
+
+      markersRef.current.push(gMarker)
+    })
+
+    // Fit bounds if multiple markers
+    if (markers.length > 1) {
+      mapInstanceRef.current.fitBounds(bounds, 50)
+    } else if (markers.length === 1) {
+      mapInstanceRef.current.setCenter({ lat: markers[0].lat, lng: markers[0].lng })
+      mapInstanceRef.current.setZoom(14)
+    }
+  }, [markers, ready])
+
+  const handleZoomIn = useCallback(() => {
+    const map = mapInstanceRef.current
+    if (map) map.setZoom((map.getZoom() || zoom) + 1)
+  }, [zoom])
+
+  const handleZoomOut = useCallback(() => {
+    const map = mapInstanceRef.current
+    if (map) map.setZoom((map.getZoom() || zoom) - 1)
+  }, [zoom])
+
+  const toggleMapType = useCallback(() => {
+    const map = mapInstanceRef.current
+    if (!map) return
+    const next = mapType === 'roadmap' ? 'satellite' : 'roadmap'
+    map.setMapTypeId(next)
+    setMapType(next)
+  }, [mapType])
+
+  // Fallback for when Google Maps fails to load
+  if (apiError) {
+    return (
+      <Card className={className}>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <MapPin className="h-4 w-4" />
+            Karte
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative bg-muted rounded-xl overflow-hidden flex flex-col items-center justify-center text-muted-foreground" style={{ height: '300px' }}>
+            <AlertCircle className="h-8 w-8 mb-2" />
+            <p className="text-sm">Karte konnte nicht geladen werden</p>
+            <p className="text-xs mt-1">{apiError}</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className={className}>
       <CardHeader className="pb-3">
@@ -38,81 +169,26 @@ export default function MapView({
             Karte
           </CardTitle>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="h-7 w-7">
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={handleZoomIn}>
               <ZoomIn className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="outline" size="icon" className="h-7 w-7">
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={handleZoomOut}>
               <ZoomOut className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="outline" size="icon" className="h-7 w-7">
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleMapType}>
               <Layers className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {searchable && (
-          <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Adresse suchen..."
-              className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-        )}
-
-        {/* Map Placeholder */}
-        <div className="relative bg-muted rounded-xl overflow-hidden" style={{ height: '300px' }}>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
-            <MapPin className="h-8 w-8 mb-2" />
-            <p className="text-sm font-medium">Kartenansicht</p>
-            <p className="text-xs mt-1">
-              {center.lat.toFixed(4)}, {center.lng.toFixed(4)} (Zoom: {zoom})
-            </p>
-          </div>
-
-          {/* Grid overlay to simulate map tiles */}
-          <div className="absolute inset-0 opacity-10">
-            <svg width="100%" height="100%">
-              <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-          </div>
-
-          {/* Markers */}
-          {markers.length > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center gap-4">
-              {markers.slice(0, 5).map((marker) => (
-                <button
-                  key={marker.id}
-                  onClick={() => onMarkerClick?.(marker)}
-                  className="flex flex-col items-center group"
-                  title={marker.label}
-                >
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full shadow-md ${
-                    marker.type === 'property' ? 'bg-primary text-white' : 'bg-white text-primary'
-                  }`}>
-                    <MapPin className="h-4 w-4" />
-                  </div>
-                  <span className="text-[10px] mt-1 bg-white/90 px-1.5 py-0.5 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    {marker.label}
-                  </span>
-                </button>
-              ))}
+        <div className="relative rounded-xl overflow-hidden" style={{ height: '300px' }}>
+          {!ready ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          )}
-
-          {markers.length === 0 && (
-            <div className="absolute bottom-3 left-3 right-3">
-              <p className="text-xs text-center text-muted-foreground bg-background/80 backdrop-blur rounded-lg py-2 px-3">
-                Kartenintegration bereit. Füge Immobilien hinzu, um sie auf der Karte zu sehen.
-              </p>
-            </div>
+          ) : (
+            <div ref={mapRef} className="h-full w-full" />
           )}
         </div>
 
@@ -120,11 +196,11 @@ export default function MapView({
         {markers.length > 0 && (
           <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-full bg-primary" />
+              <div className="h-3 w-3 rounded-full bg-purple-600" />
               <span>Immobilien ({markers.filter((m) => m.type === 'property').length})</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-full bg-white border border-primary" />
+              <div className="h-3 w-3 rounded-full bg-blue-500" />
               <span>Suchergebnisse</span>
             </div>
           </div>

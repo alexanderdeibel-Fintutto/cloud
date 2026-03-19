@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useBusiness } from "@/hooks/useBusiness";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 import { Plus, Users, Search, X, Mail, Building2 } from "lucide-react";
 
 interface Client {
@@ -210,26 +211,29 @@ export default function Clients() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white">Adresse</label>
-                <input
-                  type="text"
-                  placeholder="Strasse und Hausnummer"
+                <AddressAutocomplete
                   value={street}
-                  onChange={(e) => setStreet(e.target.value)}
-                  className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={setStreet}
+                  onPlaceSelect={(details) => {
+                    setStreet(details.address);
+                    setZip(details.postalCode);
+                    setCity(details.city);
+                  }}
+                  placeholder="Strasse und Hausnummer"
                 />
                 <div className="flex gap-2">
                   <input
                     type="text"
                     placeholder="PLZ"
                     value={zip}
-                    onChange={(e) => setZip(e.target.value)}
+                    readOnly
                     className="h-10 w-24 rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <input
                     type="text"
                     placeholder="Stadt"
                     value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                    readOnly
                     className="h-10 flex-1 rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>

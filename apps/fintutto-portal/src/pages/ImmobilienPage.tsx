@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
 import MapView from '@/components/shared/MapView'
 import CrossSellBanner from '@/components/shared/CrossSellBanner'
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 
 interface Immobilie {
   id: string
@@ -55,6 +56,9 @@ export default function ImmobilienPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [immobilien] = useState(DEMO_IMMOBILIEN)
+  const [newStreet, setNewStreet] = useState('')
+  const [newPlz, setNewPlz] = useState('')
+  const [newOrt, setNewOrt] = useState('')
 
   const filtered = immobilien.filter((i) =>
     i.bezeichnung.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -179,16 +183,25 @@ export default function ImmobilienPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm font-medium block mb-1">Straße</label>
-                    <input type="text" placeholder="Musterstraße 1" className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+                    <label className="text-sm font-medium block mb-1">Strasse</label>
+                    <AddressAutocomplete
+                      value={newStreet}
+                      onChange={setNewStreet}
+                      onPlaceSelect={(details) => {
+                        setNewStreet(details.address);
+                        setNewPlz(details.postalCode);
+                        setNewOrt(details.city);
+                      }}
+                      placeholder="Adresse suchen..."
+                    />
                   </div>
                   <div>
                     <label className="text-sm font-medium block mb-1">PLZ</label>
-                    <input type="text" placeholder="10115" className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+                    <input type="text" placeholder="10115" value={newPlz} readOnly className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm" />
                   </div>
                   <div>
                     <label className="text-sm font-medium block mb-1">Ort</label>
-                    <input type="text" placeholder="Berlin" className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+                    <input type="text" placeholder="Berlin" value={newOrt} readOnly className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm" />
                   </div>
                   <div>
                     <label className="text-sm font-medium block mb-1">Fläche (m²)</label>

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useBuildings } from "@/hooks/useBuildings";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 import type { Database } from "@/integrations/supabase/types";
 
 type BuildingRow = Database["public"]["Tables"]["buildings"]["Row"];
@@ -89,12 +90,20 @@ export function BuildingEditDialog({ open, onOpenChange, building }: BuildingEdi
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-address">Adresse *</Label>
-              <Input
-                id="edit-address"
+              <Label>Adresse *</Label>
+              <AddressAutocomplete
                 value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                required
+                onChange={(value) => setForm({ ...form, address: value })}
+                onPlaceSelect={(details) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    address: details.address,
+                    city: details.city,
+                    postal_code: details.postalCode,
+                  }));
+                }}
+                placeholder="Adresse suchen..."
+                enableValidation
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -105,6 +114,7 @@ export function BuildingEditDialog({ open, onOpenChange, building }: BuildingEdi
                   value={form.postal_code}
                   onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
                   required
+                  readOnly
                 />
               </div>
               <div className="space-y-2">
@@ -114,6 +124,7 @@ export function BuildingEditDialog({ open, onOpenChange, building }: BuildingEdi
                   value={form.city}
                   onChange={(e) => setForm({ ...form, city: e.target.value })}
                   required
+                  readOnly
                 />
               </div>
             </div>

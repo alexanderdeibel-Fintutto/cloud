@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Building2, Loader2 } from "lucide-react";
 import { organizationSchema } from "@/lib/validationSchemas";
 import { sanitizeErrorMessage } from "@/lib/errorHandler";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 
 export default function OrganizationSetup() {
   const [name, setName] = useState("");
@@ -133,13 +134,16 @@ export default function OrganizationSetup() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Adresse</Label>
-                <Textarea
-                  id="address"
-                  placeholder="Musterstraße 123"
+                <Label>Adresse</Label>
+                <AddressAutocomplete
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  rows={2}
+                  onChange={setAddress}
+                  onPlaceSelect={(details) => {
+                    setAddress(details.address);
+                    setCity(details.city);
+                    setPostalCode(details.postalCode);
+                  }}
+                  placeholder="Firmenadresse suchen..."
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -150,6 +154,7 @@ export default function OrganizationSetup() {
                     placeholder="12345"
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
+                    readOnly
                   />
                 </div>
                 <div className="space-y-2">
@@ -159,6 +164,7 @@ export default function OrganizationSetup() {
                     placeholder="Berlin"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
+                    readOnly
                   />
                 </div>
               </div>

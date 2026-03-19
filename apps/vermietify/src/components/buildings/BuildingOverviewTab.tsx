@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, CheckCircle, Circle, Euro, MapPin, Calendar, Zap, Clock } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
+import { StaticMapPreview } from "@/components/shared/StaticMapPreview";
 
 type BuildingRow = Database["public"]["Tables"]["buildings"]["Row"];
 type UnitRow = Database["public"]["Tables"]["units"]["Row"];
@@ -84,6 +85,9 @@ export function BuildingOverviewTab({ building }: BuildingOverviewTabProps) {
             <CardTitle className="text-lg">Gebäude-Informationen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Static Map Preview */}
+            <StaticMapPreview address={fullAddress} height="180px" zoom={16} />
+
             {/* Address with Google Maps link */}
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />

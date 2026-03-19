@@ -17,6 +17,7 @@ import { tenantSchema } from "@/lib/validationSchemas";
 import { sanitizeErrorMessage } from "@/lib/errorHandler";
 import { BulkImportDialog } from "@/components/import/BulkImportDialog";
 import { TenantAppInviteDialog } from "@/components/tenants/TenantAppInviteDialog";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 
 interface Tenant {
   id: string;
@@ -244,12 +245,19 @@ export default function Tenants() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Adresse</Label>
-                    <Input
-                      id="address"
-                      placeholder="Musterstraße 123"
+                    <Label>Adresse</Label>
+                    <AddressAutocomplete
                       value={newTenant.address}
-                      onChange={(e) => setNewTenant({ ...newTenant, address: e.target.value })}
+                      onChange={(value) => setNewTenant({ ...newTenant, address: value })}
+                      onPlaceSelect={(details) => {
+                        setNewTenant((prev) => ({
+                          ...prev,
+                          address: details.address,
+                          city: details.city,
+                          postal_code: details.postalCode,
+                        }));
+                      }}
+                      placeholder="Adresse suchen..."
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -260,6 +268,7 @@ export default function Tenants() {
                         placeholder="12345"
                         value={newTenant.postal_code}
                         onChange={(e) => setNewTenant({ ...newTenant, postal_code: e.target.value })}
+                        readOnly
                       />
                     </div>
                     <div className="space-y-2">
@@ -269,6 +278,7 @@ export default function Tenants() {
                         placeholder="Berlin"
                         value={newTenant.city}
                         onChange={(e) => setNewTenant({ ...newTenant, city: e.target.value })}
+                        readOnly
                       />
                     </div>
                   </div>

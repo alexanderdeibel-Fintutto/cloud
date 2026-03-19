@@ -1,7 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { MapPin, Loader2, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Prediction {
@@ -20,50 +18,34 @@ interface PlaceDetails {
   country: string;
   formattedAddress: string;
   placeId: string;
-  lat?: number;
-  lng?: number;
-}
-
-interface ValidationStatus {
-  isValid: boolean;
-  validationGranularity: string;
-  hasUnconfirmedComponents: boolean;
 }
 
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
   onPlaceSelect?: (details: PlaceDetails) => void;
-  onValidation?: (status: ValidationStatus) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  id?: string;
-  enableValidation?: boolean;
 }
 
 export function AddressAutocomplete({
   value,
   onChange,
   onPlaceSelect,
-  onValidation,
   placeholder = "Adresse eingeben...",
   className,
   disabled,
-  id,
-  enableValidation = false,
 }: AddressAutocompleteProps) {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isValidated, setIsValidated] = useState(false);
-  const [validationStatus, setValidationStatus] = useState<ValidationStatus | null>(null);
   const sessionTokenRef = useRef<string>(crypto.randomUUID());
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -101,10 +83,8 @@ export function AddressAutocomplete({
     const newValue = e.target.value;
     onChange(newValue);
     setIsValidated(false);
-    setValidationStatus(null);
     setSelectedIndex(-1);
 
-    // Debounce API calls
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -124,7 +104,6 @@ export function AddressAutocomplete({
 
       if (error) throw error;
 
-      // Reset session token after place details request (per Google billing guidelines)
       sessionTokenRef.current = crypto.randomUUID();
 
       const details = data as PlaceDetails;
@@ -134,29 +113,8 @@ export function AddressAutocomplete({
       if (onPlaceSelect) {
         onPlaceSelect(details);
       }
-
-      // Optional: Run full address validation
-      if (enableValidation && details.formattedAddress) {
-        try {
-          const { data: valData } = await supabase.functions.invoke("validate-address-full", {
-            body: { address: details.formattedAddress },
-          });
-          if (valData) {
-            const status: ValidationStatus = {
-              isValid: valData.isValid,
-              validationGranularity: valData.validationGranularity,
-              hasUnconfirmedComponents: valData.hasUnconfirmedComponents,
-            };
-            setValidationStatus(status);
-            onValidation?.(status);
-          }
-        } catch {
-          // Validation is optional, don't block on errors
-        }
-      }
     } catch (error) {
       console.error("Error fetching place details:", error);
-      // Fallback to using description
       onChange(prediction.structured_formatting?.main_text || prediction.description);
     } finally {
       setIsLoading(false);
@@ -188,47 +146,60 @@ export function AddressAutocomplete({
     }
   };
 
+  const inputClasses = cn(
+    "h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 pr-8 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary",
+    className
+  );
+
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Input
-          id={id}
+        <input
+          type="text"
           value={value}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => predictions.length > 0 && setIsOpen(true)}
           placeholder={placeholder}
-          className={cn("pr-10", className)}
+          className={inputClasses}
           disabled={disabled}
           autoComplete="off"
         />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+        <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
           {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           ) : isValidated ? (
-            <Check className="h-4 w-4 text-green-500" />
+            <svg className="h-4 w-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
           ) : (
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
           )}
         </div>
       </div>
 
       {isOpen && predictions.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-lg">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-white/10 bg-background shadow-lg">
           <ul className="max-h-60 overflow-auto py-1">
             {predictions.map((prediction, index) => (
               <li
                 key={prediction.place_id}
                 className={cn(
-                  "flex cursor-pointer items-center gap-2 px-3 py-2 text-sm hover:bg-accent",
-                  index === selectedIndex && "bg-accent"
+                  "flex cursor-pointer items-center gap-2 px-3 py-2 text-sm hover:bg-white/10",
+                  index === selectedIndex && "bg-white/10"
                 )}
                 onClick={() => handleSelectPrediction(prediction)}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
-                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <svg className="h-4 w-4 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
                 <div className="flex flex-col overflow-hidden">
-                  <span className="truncate font-medium">
+                  <span className="truncate font-medium text-white">
                     {prediction.structured_formatting?.main_text || prediction.description}
                   </span>
                   {prediction.structured_formatting?.secondary_text && (
@@ -240,36 +211,9 @@ export function AddressAutocomplete({
               </li>
             ))}
           </ul>
-          <div className="border-t px-3 py-1.5 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              Powered by Google Maps
-            </span>
+          <div className="border-t border-white/10 px-3 py-1.5 text-xs text-muted-foreground">
+            Powered by Google Maps
           </div>
-        </div>
-      )}
-
-      {/* Validation badge */}
-      {validationStatus && (
-        <div className="mt-1">
-          {validationStatus.isValid ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
-              <Check className="h-3 w-3" />
-              Adresse verifiziert
-              {validationStatus.validationGranularity === "PREMISE" && " (Gebaeude-genau)"}
-              {validationStatus.validationGranularity === "SUB_PREMISE" && " (Wohnung-genau)"}
-            </span>
-          ) : validationStatus.hasUnconfirmedComponents ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
-              <MapPin className="h-3 w-3" />
-              Teilweise verifiziert - bitte pruefen
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/20 dark:text-red-400">
-              <MapPin className="h-3 w-3" />
-              Adresse nicht verifizierbar
-            </span>
-          )}
         </div>
       )}
     </div>
