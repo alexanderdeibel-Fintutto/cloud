@@ -49,9 +49,18 @@ export default function Header() {
           ))}
         </div>
 
- claude/review-repo-setup-0rnoo
-        {/* Desktop Auth */}
+        {/* Search + Auth Section */}
         <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-lg hover:bg-accent transition-colors"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Suche</span>
+            <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-muted rounded border">
+              {modKey()} K
+            </kbd>
+          </button>
           {user ? (
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
@@ -73,41 +82,6 @@ export default function Header() {
                 <Link to="/login">Anmelden</Link>
               </Button>
               <Button className="gradient-portal text-white border-0" size="sm" asChild>
-
-        {/* Search + Auth Section */}
-        <div className="hidden md:flex items-center space-x-4">
-          <button
-            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Search className="h-3.5 w-3.5" />
-            <span>Suche</span>
-            <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 rounded border">
-              {modKey()} K
-            </kbd>
-          </button>
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center space-x-2 text-gray-600 hover:text-fintutto-primary">
-                <User className="w-5 h-5" />
-                <span>{profile?.name || user.email}</span>
-              </Link>
-              {profile && (
-                <span className="text-xs bg-fintutto-light text-fintutto-primary px-2 py-1 rounded-full">
-                  {profile.checksUsed}/{profile.checksLimit === -1 ? 'unbegrenzt' : profile.checksLimit} Checks
-                </span>
-              )}
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" asChild>
-                <Link to="/login">Anmelden</Link>
-              </Button>
-              <Button variant="fintutto" asChild>
- main
                 <Link to="/register">Kostenlos starten</Link>
               </Button>
             </div>
@@ -163,13 +137,8 @@ export default function Header() {
                   <User className="h-5 w-5" />
                   <span>{profile?.name || user.email}</span>
                 </Link>
- claude/review-repo-setup-0rnoo
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setMobileMenuOpen(false) }}>
                   <LogOut className="h-4 w-4 mr-2" />
-
-                <Button variant="ghost" size="sm" className="w-full" onClick={signOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
- main
                   Abmelden
                 </Button>
               </div>

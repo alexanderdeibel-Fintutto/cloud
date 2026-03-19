@@ -197,7 +197,22 @@ export const FINTUTTO_APPS = {
     description: 'Intelligentes Wissensmanagement mit KI',
     icon: '🧠',
   },
+  vermieterPortal: {
+    name: 'Vermieter-Portal',
+    slug: 'vermieter-portal',
+    description: 'Tools & Rechner fuer Vermieter',
+    icon: '🏘️',
+    url: 'https://vermieter.fintutto.cloud',
+    category: 'immobilien' as AppCategory,
+  },
 } as const
+
+// Helper: get all apps except the current one
+export function getOtherApps(currentAppSlug: string) {
+  return Object.entries(FINTUTTO_APPS)
+    .filter(([_, app]) => app.slug !== currentAppSlug)
+    .map(([key, app]) => ({ key, ...app }))
+}
 
 // Re-export all database types
 export * from './types/database'
@@ -221,3 +236,23 @@ export type { PremiumTeaserProps, UpgradePromptConfig } from './components/Premi
 // Cross-app navigation
 export { AppSwitcher } from './components/AppSwitcher'
 export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+
+// Deep links (cross-app URL builders)
+export * from './deeplinks'
+
+// Shared hooks
+export * from './hooks'
+
+// Shared UI components
+export { AnnouncementBanner } from './components/AnnouncementBanner'
+export { EcosystemStatsBar } from './components/EcosystemStatsBar'
+export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export type { CommandItem } from './components/CommandPalette'
+export { PrintStyles } from './components/PrintStyles'
+export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
+export { ErrorBoundary } from './components/ErrorBoundary'
+export { PageSkeleton } from './components/PageSkeleton'
+export { Breadcrumbs } from './components/Breadcrumbs'
+export { CrossAppRecommendations } from './components/CrossAppRecommendations'
+export { RecentToolsWidget } from './components/RecentToolsWidget'
+export { ShareResultButton } from './components/ShareResultButton'
