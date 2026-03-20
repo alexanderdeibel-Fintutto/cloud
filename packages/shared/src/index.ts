@@ -234,7 +234,8 @@ export * from './deeplinks'
 // Components
 export { ErrorBoundary } from './components/ErrorBoundary'
 export { PageSkeleton } from './components/PageSkeleton'
-export { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export { PrintStyles } from './components/PrintStyles'
 export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
 export { EcosystemStatsBar } from './components/EcosystemStatsBar'
 
