@@ -150,7 +150,7 @@ export function vermieterRechnerLink(rechner: string, data: RentData): string {
   if (data.rent) params.set('rent', String(data.rent))
   if (data.address) params.set('address', data.address)
   const qs = params.toString()
-  return `${FINTUTTO_APPS.vermieterPortal.url}/rechner/${rechner}${qs ? `?${qs}` : ''}`
+  return `https://vermieter-portal.fintutto.cloud/rechner/${rechner}${qs ? `?${qs}` : ''}`
 }
 
 // Convenience: all cross-app links for a property/unit
