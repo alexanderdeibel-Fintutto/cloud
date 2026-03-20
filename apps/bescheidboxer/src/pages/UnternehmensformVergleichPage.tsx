@@ -19,7 +19,7 @@ export default function UnternehmensformVergleichPage() {
   const [kirchensteuer, setKirchensteuer] = useState(false)
 
   const ergebnis = useMemo(() => {
-    const kistFaktor = kirchensteuer ? 1.09 : 1.055 // KiSt oder Soli
+    const _kistFaktor = kirchensteuer ? 1.09 : 1.055 // KiSt oder Soli
 
     // === Einzelunternehmen / Freiberufler ===
     const estEinzel = calcESt(gewinn)

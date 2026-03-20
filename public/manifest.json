@@ -1,5 +1,4 @@
 {
- claude/review-repo-setup-0rnoo
   "name": "Fintutto Portal",
   "short_name": "Fintutto",
   "description": "Digitale Mietrecht-Tools für Mieter & Vermieter. 7 Rechner, 10 Checker, 10 Formulare.",
@@ -9,16 +8,6 @@
   "theme_color": "#5b21b6",
   "lang": "de",
   "categories": ["productivity", "business", "finance"],
-
-  "name": "FitTutto - Dein Fitness-Trainer",
-  "short_name": "FitTutto",
-  "description": "Die beste Fitness-App auf dem deutschen Markt. Training planen, ausfuehren und tracken.",
-  "start_url": "/fittutto",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#f97316",
-  "orientation": "portrait-primary",
- main
   "icons": [
     {
       "src": "/favicon.svg",
@@ -26,11 +15,5 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
- claude/review-repo-setup-0rnoo
   ]
-
-  ],
-  "categories": ["fitness", "health", "lifestyle"],
-  "lang": "de-DE"
- main
 }
