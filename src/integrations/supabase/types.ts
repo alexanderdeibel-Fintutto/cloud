@@ -14,7 +14,7 @@ export interface Database {
           id: string
           email: string
           name: string | null
-          tier: 'free' | 'basic' | 'premium' | 'professional'
+          tier: 'free' | 'mieter_basic' | 'vermieter_basic' | 'kombi_pro' | 'unlimited'
           checks_used: number
           checks_limit: number
           created_at: string
@@ -24,7 +24,7 @@ export interface Database {
           id?: string
           email: string
           name?: string | null
-          tier?: 'free' | 'basic' | 'premium' | 'professional'
+          tier?: 'free' | 'mieter_basic' | 'vermieter_basic' | 'kombi_pro' | 'unlimited'
           checks_used?: number
           checks_limit?: number
           created_at?: string
@@ -34,7 +34,7 @@ export interface Database {
           id?: string
           email?: string
           name?: string | null
-          tier?: 'free' | 'basic' | 'premium' | 'professional'
+          tier?: 'free' | 'mieter_basic' | 'vermieter_basic' | 'kombi_pro' | 'unlimited'
           checks_used?: number
           checks_limit?: number
           created_at?: string
@@ -145,7 +145,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      user_tier: 'free' | 'basic' | 'premium' | 'professional'
+      user_tier: 'free' | 'mieter_basic' | 'vermieter_basic' | 'kombi_pro' | 'unlimited'
       checker_status: 'in_progress' | 'completed' | 'expired'
     }
   }

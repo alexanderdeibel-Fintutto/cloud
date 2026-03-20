@@ -196,8 +196,14 @@ export const FINTUTTO_APPS = {
     slug: 'secondbrain',
     description: 'Intelligentes Wissensmanagement mit KI',
     icon: '🧠',
+    url: 'https://secondbrain.fintutto.cloud',
+    category: 'tools' as AppCategory,
   },
 } as const
+
+export function getOtherApps(currentSlug: string) {
+  return Object.values(FINTUTTO_APPS).filter(app => app.slug !== currentSlug)
+}
 
 // Re-export all database types
 export * from './types/database'
@@ -221,3 +227,18 @@ export type { PremiumTeaserProps, UpgradePromptConfig } from './components/Premi
 // Cross-app navigation
 export { AppSwitcher } from './components/AppSwitcher'
 export { getEcosystemBarItems, getEcosystemBarGrouped, ECOSYSTEM_BAR_STYLE } from './components/EcosystemBar'
+
+// Deep links
+export * from './deeplinks'
+
+// Components
+export { ErrorBoundary } from './components/ErrorBoundary'
+export { PageSkeleton } from './components/PageSkeleton'
+export { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
+export { EcosystemStatsBar } from './components/EcosystemStatsBar'
+
+// Hooks
+export { useDocumentTitle } from './hooks/useDocumentTitle'
+export { useMetaTags } from './hooks/useMetaTags'
+export { useScrollToTop } from './hooks/useScrollToTop'

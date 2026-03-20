@@ -1,4 +1,4 @@
-import { FINTUTTO_APPS, APP_CATEGORIES, type AppCategory } from '../index'
+import { FINTUTTO_APPS } from '../index'
 
 interface Recommendation {
   name: string
