@@ -40,9 +40,9 @@ export default function RenteneintrittOptimierungPage() {
 
     // Vergleich über 20 Jahre
     const jahreBisRegelalter = regelAlter - gewuenschtesAlter
-    const vergleichsJahre = 20
+    const _vergleichsJahre = 20
 
-    const fruehStart = gewuenschtesAlter
+    const _fruehStart = gewuenschtesAlter
     const chartData = Array.from({ length: 5 }, (_, i) => {
       const alter = gewuenschtesAlter + i * 5
       const jahreFrueh = Math.max(alter - gewuenschtesAlter, 0)
