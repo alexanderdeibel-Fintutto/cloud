@@ -35,6 +35,7 @@ import {
   releasePage,
   processAllPages,
   analyzeBescheidText,
+  analyzeOffline,
   validateFile,
 } from '@/lib/bescheid-ocr'
 import BescheidScanner from '@/components/BescheidScanner'
@@ -299,12 +300,13 @@ export default function BescheidScanPage() {
       setResult(scanResult)
       setScanState('result')
     } else {
-      // No backend available - show the OCR text and explain
-      setAnalysisError(
-        'Die KI-Analyse ist derzeit nicht verfuegbar. Der OCR-Text wurde erfolgreich extrahiert. ' +
-        'Du kannst den Text kopieren und im Chat besprechen, oder es spaeter erneut versuchen.'
-      )
-      setScanState('review')
+      // No backend available - run local rule-based analysis on OCR text
+      setScanProgress('Lokale Analyse des erkannten Textes...')
+      const offlineResult = analyzeOffline(ocrText)
+      const scanResult = transformAnalysis(offlineResult)
+      scanResult.ocrText = ocrText
+      setResult(scanResult)
+      setScanState('result')
     }
   }
 
