@@ -169,6 +169,57 @@ const REGELSAETZE: Record<number, number> = {
   6: 357, // 0-5 Jahre
 }
 
+/** Detect if the document is something other than an SGB-II Bescheid */
+function detectOtherDocumentType(text: string): string | null {
+  // Stromrechnung / Gasrechnung / Versorger
+  if ((text.includes('strom') || text.includes('gas') || text.includes('versorger') || text.includes('stadtwerke'))
+    && (text.includes('verbrauch') || text.includes('kwh') || text.includes('abschlag') || text.includes('zaehler') || text.includes('zähler'))) {
+    return 'eine Versorger-Rechnung (Strom/Gas)'
+  }
+  // Mietvertrag
+  if (text.includes('mietvertrag') || (text.includes('vermieter') && text.includes('mieter') && text.includes('mietverhaeltnis'))) {
+    return 'ein Mietvertrag'
+  }
+  // Nebenkostenabrechnung
+  if (text.includes('nebenkostenabrechnung') || text.includes('betriebskostenabrechnung') || text.includes('hausgeld')) {
+    return 'eine Nebenkostenabrechnung'
+  }
+  // Arbeitsvertrag
+  if (text.includes('arbeitsvertrag') || (text.includes('arbeitgeber') && text.includes('arbeitnehmer') && text.includes('kuendigungsfrist'))) {
+    return 'ein Arbeitsvertrag'
+  }
+  // Kuendigung
+  if (text.includes('kuendigung') && text.includes('arbeitgeber') && !text.includes('jobcenter')) {
+    return 'eine Kuendigung'
+  }
+  // Steuerbescheid
+  if (text.includes('finanzamt') && (text.includes('einkommensteuer') || text.includes('steuerbescheid'))) {
+    return 'ein Steuerbescheid'
+  }
+  // Krankenkasse
+  if ((text.includes('krankenkasse') || text.includes('krankenschein')) && !text.includes('jobcenter')) {
+    return 'ein Dokument der Krankenkasse'
+  }
+  // Rentenversicherung
+  if (text.includes('rentenversicherung') || text.includes('rentenbescheid') || text.includes('renteninformation')) {
+    return 'ein Dokument der Rentenversicherung'
+  }
+  // ALG I (Agentur fuer Arbeit, nicht Jobcenter)
+  if (text.includes('agentur fuer arbeit') || text.includes('agentur für arbeit') || text.includes('arbeitslosengeld i')
+    || (text.includes('sgb iii') && !text.includes('sgb ii'))) {
+    return 'ein ALG-I-Bescheid (Agentur fuer Arbeit). Tipp: BescheidBoxer kann auch ALG-I-Fragen im Chat beantworten'
+  }
+  // Sozialhilfe SGB XII
+  if (text.includes('sgb xii') || text.includes('sozialhilfe') || text.includes('sozialamt')) {
+    return 'ein Sozialhilfe-Bescheid (SGB XII). Tipp: BescheidBoxer kann auch Sozialhilfe-Fragen im Chat beantworten'
+  }
+  // Kontoauszug
+  if (text.includes('kontoauszug') || text.includes('kontonummer') && text.includes('saldo') && text.includes('buchung')) {
+    return 'ein Kontoauszug'
+  }
+  return null
+}
+
 /**
  * Analyze Bescheid text locally using pattern matching.
  * This runs entirely in the browser when no backend is available.
@@ -176,6 +227,71 @@ const REGELSAETZE: Record<number, number> = {
  */
 export function analyzeOffline(bescheidText: string): AnalysisResult {
   const text = bescheidText.toLowerCase()
+
+  // --- Dokumenttyp-Erkennung: Ist das ueberhaupt ein SGB-II-Bescheid? ---
+  const bescheidSignale = [
+    'sgb ii', 'sgb 2', 'buergergeld', 'bürgergeld',
+    'jobcenter', 'job-center', 'job center',
+    'regelbedarf', 'regelsatz', 'regelleistung',
+    'kosten der unterkunft', 'kdu',
+    'bewilligungsbescheid', 'aenderungsbescheid', 'änderungsbescheid',
+    'aufhebungsbescheid', 'sanktionsbescheid',
+    'leistungen zur sicherung des lebensunterhalts',
+    'grundsicherung fuer arbeitsuchende', 'grundsicherung für arbeitsuchende',
+    'arbeitslosengeld ii', 'alg ii', 'alg 2',
+    'bewilligungszeitraum',
+    'bedarfsgemeinschaft',
+    'mehrbedarf',
+    'rechtsbehelfsbelehrung',
+    'widerspruch',
+  ]
+
+  const signalCount = bescheidSignale.filter(s => text.includes(s)).length
+
+  // Erkenne andere Dokumenttypen
+  const anderesDokument = detectOtherDocumentType(text)
+
+  if (signalCount < 2 && anderesDokument) {
+    return {
+      zusammenfassung: `Das hochgeladene Dokument scheint kein Buergergeld-Bescheid (SGB II) zu sein, sondern ${anderesDokument}.`,
+      fehler: [{
+        kategorie: 'sonstiges',
+        schwere: 'hinweis',
+        beschreibung: `Dieses Dokument wurde als "${anderesDokument}" erkannt. Der BescheidScan ist speziell fuer Buergergeld-Bescheide (SGB II) konzipiert - also Bewilligungs-, Aenderungs-, Aufhebungs- oder Sanktionsbescheide vom Jobcenter.`,
+        empfehlung: 'Bitte lade einen Bescheid vom Jobcenter hoch (Bewilligungsbescheid, Aenderungsbescheid etc.).',
+      }],
+      korrekt: [],
+      gesamtPotenzial: 0,
+      dringlichkeit: 'niedrig',
+      naechsteSchritte: [
+        'Pruefe ob du den richtigen Bescheid hochgeladen hast',
+        'Der BescheidScan analysiert: Bewilligungsbescheide, Aenderungsbescheide, Aufhebungsbescheide, Sanktionsbescheide',
+      ],
+      fristende: null,
+    }
+  }
+
+  if (signalCount < 1) {
+    return {
+      zusammenfassung: 'Im hochgeladenen Dokument konnten keine Merkmale eines Buergergeld-Bescheids (SGB II) erkannt werden.',
+      fehler: [{
+        kategorie: 'sonstiges',
+        schwere: 'hinweis',
+        beschreibung: 'Das Dokument enthaelt keine typischen Begriffe eines Jobcenter-Bescheids (z.B. Regelbedarf, Jobcenter, SGB II, Bewilligungszeitraum). Entweder handelt es sich um ein anderes Dokument, oder die OCR-Erkennung konnte den Text nicht korrekt lesen.',
+        empfehlung: 'Bitte lade einen Bescheid vom Jobcenter hoch oder versuche es mit besseren Fotos. Du kannst den Text auch manuell eingeben.',
+      }],
+      korrekt: [],
+      gesamtPotenzial: 0,
+      dringlichkeit: 'niedrig',
+      naechsteSchritte: [
+        'Richtigen Bescheid hochladen (Bewilligungs-, Aenderungs-, Aufhebungs- oder Sanktionsbescheid)',
+        'Fotos in besserer Qualitaet erneut aufnehmen',
+        'Text manuell eingeben',
+      ],
+      fristende: null,
+    }
+  }
+
   const fehler: AnalysisResult['fehler'] = []
   const korrekt: string[] = []
   let gesamtPotenzial = 0
