@@ -11,6 +11,7 @@ import Invoices from "./pages/Invoices";
 import Expenses from "./pages/Expenses";
 import Clients from "./pages/Clients";
 import TaxOverview from "./pages/TaxOverview";
+import Zeiterfassung from "./pages/Zeiterfassung";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Onboarding from "./pages/Onboarding";
@@ -47,6 +48,9 @@ const App = () => (
         } />
         <Route path="/steuern" element={
           <ProtectedRoute><TaxOverview /></ProtectedRoute>
+        } />
+        <Route path="/zeiterfassung" element={
+          <ProtectedRoute><Zeiterfassung /></ProtectedRoute>
         } />
         <Route path="/einstellungen" element={
           <ProtectedRoute><Settings /></ProtectedRoute>
