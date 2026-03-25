@@ -242,3 +242,19 @@ export { EcosystemStatsBar } from './components/EcosystemStatsBar'
 export { useDocumentTitle } from './hooks/useDocumentTitle'
 export { useMetaTags } from './hooks/useMetaTags'
 export { useScrollToTop } from './hooks/useScrollToTop'
+
+// ─── Workspace / Multi-Tenancy ────────────────────────────────────────────────
+// Universeller Workspace-Hook (Financial Compass = company, Vermietify = organization)
+export { useWorkspace } from './hooks/useWorkspace'
+export type { Workspace, WorkspaceContextType, UseWorkspaceOptions } from './hooks/useWorkspace'
+// Workspace-Switcher UI (Sidebar-Dropdown für Firmen- und Organisations-Wechsel)
+export { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
+
+// ─── Banking ─────────────────────────────────────────────────────────────────
+// Universeller Banking-Hook (FinAPI, Transaktions-Matching, Regeln)
+export { useBanking } from './hooks/useBanking'
+
+// ─── Dokumente ────────────────────────────────────────────────────────────────
+// Dokument-Upload, KI-OCR, Bulk-Upload
+export { DocumentUploadDialog, DocumentList, BulkDocumentUpload } from './components/documents'
+export type { UploadFile } from './components/documents'

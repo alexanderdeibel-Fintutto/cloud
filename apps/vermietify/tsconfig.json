@@ -5,7 +5,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@fintutto/shared": ["../../packages/shared/src/index.ts"]
+      "@fintutto/shared": ["../../packages/shared/src/index.ts"],
+      "@fintutto/banking": ["../../packages/shared/src/hooks/useBanking.ts"],
+      "@fintutto/documents": ["../../packages/shared/src/components/documents/index.ts"]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,

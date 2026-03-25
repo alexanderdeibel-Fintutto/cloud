@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
+    "strictNullChecks": false,
+    "baseUrl": ".",
+    "paths": {
+      "@fintutto/shared": ["./packages/shared/src/index.ts"],
+      "@fintutto/banking": ["./packages/shared/src/hooks/useBanking.ts"],
+      "@fintutto/documents": ["./packages/shared/src/components/documents/index.ts"]
+    }
+  }
+}
