@@ -1,0 +1,3 @@
+[submodule "apps/financial-compass"]
+	path = apps/financial-compass
+	url = https://github.com/alexanderdeibel-Fintutto/fintutto-your-financial-compass.git
