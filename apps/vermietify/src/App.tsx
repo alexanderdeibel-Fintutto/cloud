@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Auth Pages
 import Login from "./pages/auth/Login";
+import BulkUpload from "./pages/BulkUpload";
 import Register from "./pages/auth/Register";
 import OnboardingWizard from "./pages/auth/OnboardingWizard";
 import OnboardingWizardPage from "./pages/onboarding/OnboardingWizardPage";
@@ -592,6 +593,9 @@ const App = () => (
                 <CapitalGainsPage />
               </ProtectedRoute>
             } />
+
+             {/* Massenimport */}
+             <Route path="/massenimport" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
 
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />

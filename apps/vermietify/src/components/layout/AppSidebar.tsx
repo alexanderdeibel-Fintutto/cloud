@@ -27,6 +27,7 @@ import {
    History,
    Shield,
    Sparkles,
+   UploadCloud,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -110,7 +111,14 @@ const navigationItems = [
   },
   
   { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
-  { title: "Dokumente", url: "/documents", icon: FileText },
+  { 
+    title: "Dokumente", 
+    icon: FileText,
+    subItems: [
+      { title: "Alle Dokumente", url: "/documents" },
+      { title: "Massenimport", url: "/massenimport" },
+    ],
+  },
   { title: "Steuern", url: "/taxes", icon: Receipt },
   { 
     title: "Kommunikation", 
