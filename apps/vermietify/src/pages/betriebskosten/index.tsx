@@ -1,4 +1,5 @@
  import { useState, useMemo } from "react";
+import jsPDF from 'jspdf';
  import { useNavigate } from "react-router-dom";
  import { MainLayout } from "@/components/layout/MainLayout";
  import { StatCard, EmptyState, LoadingState } from "@/components/shared";
@@ -81,6 +82,79 @@
  
    const handleDelete = (buildingId: string, year: number) => {
      setDeleteTarget({ buildingId, year });
+   };
+
+   const handleExportPDF = (billing: any) => {
+     try {
+       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+       const pageW = doc.internal.pageSize.getWidth();
+       const margin = 20;
+       let y = 20;
+
+       // Header
+       doc.setFillColor(30, 64, 175);
+       doc.rect(0, 0, pageW, 30, 'F');
+       doc.setTextColor(255, 255, 255);
+       doc.setFontSize(16);
+       doc.setFont('helvetica', 'bold');
+       doc.text('Betriebskostenabrechnung', margin, 16);
+       doc.setFontSize(10);
+       doc.setFont('helvetica', 'normal');
+       const periodStart = billing.period_start ? format(new Date(billing.period_start), 'dd.MM.yyyy', { locale: de }) : '';
+       const periodEnd = billing.period_end ? format(new Date(billing.period_end), 'dd.MM.yyyy', { locale: de }) : '';
+       doc.text(`Abrechnungszeitraum: ${periodStart} – ${periodEnd}`, margin, 25);
+       y = 42;
+
+       // Objekt
+       doc.setTextColor(0, 0, 0);
+       doc.setFontSize(11);
+       doc.setFont('helvetica', 'bold');
+       doc.text('Objekt', margin, y); y += 6;
+       doc.setFont('helvetica', 'normal');
+       doc.setFontSize(10);
+       doc.text(billing.buildings?.name || 'Unbekanntes Gebäude', margin, y); y += 5;
+       doc.text(billing.buildings?.address || '', margin, y); y += 10;
+
+       // Kostenübersicht
+       doc.setFillColor(240, 245, 255);
+       doc.rect(margin, y - 3, pageW - 2 * margin, 8, 'F');
+       doc.setFont('helvetica', 'bold');
+       doc.text('Kostenübersicht', margin, y + 2); y += 12;
+       doc.setFont('helvetica', 'normal');
+
+       const rows = [
+         ['Gesamtkosten', formatCurrency((billing.total_costs || 0) / 100)],
+         ['Einheiten', `${billing.unit_count || 0} Einheiten`],
+         ['Kosten pro Einheit', formatCurrency(((billing.total_costs || 0) / Math.max(billing.unit_count || 1, 1)) / 100)],
+         ['Nachzahlungen', formatCurrency((billing.total_payments_due || 0) / 100)],
+         ['Guthaben', formatCurrency((billing.total_credits || 0) / 100)],
+       ];
+
+       rows.forEach(([label, value]) => {
+         doc.text(label + ':', margin, y);
+         doc.text(value, pageW - margin, y, { align: 'right' });
+         y += 6;
+       });
+       y += 5;
+
+       // Status
+       doc.setDrawColor(30, 64, 175);
+       doc.line(margin, y, pageW - margin, y); y += 6;
+       const statusLabel = STATUS_CONFIG[billing.status as BillingStatus]?.label || billing.status;
+       doc.setFont('helvetica', 'bold');
+       doc.text('Status:', margin, y);
+       doc.setFont('helvetica', 'normal');
+       doc.text(statusLabel, margin + 30, y); y += 15;
+
+       // Footer
+       doc.setTextColor(150, 150, 150);
+       doc.setFontSize(8);
+       doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')} — Vermietify`, margin, 285);
+
+       doc.save(`Betriebskosten_${billing.buildings?.name || 'Abrechnung'}_${periodStart.replace(/\./g, '-')}.pdf`);
+     } catch (err) {
+       console.error('PDF error:', err);
+     }
    };
  
    const confirmDelete = async () => {
@@ -170,7 +244,9 @@
                <Pencil className="h-4 w-4 mr-2" />
                Bearbeiten
              </DropdownMenuItem>
-             <DropdownMenuItem>
+             <DropdownMenuItem
+               onClick={() => handleExportPDF(row.original)}
+             >
                <FileText className="h-4 w-4 mr-2" />
                PDF exportieren
              </DropdownMenuItem>
