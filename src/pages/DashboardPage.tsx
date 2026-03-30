@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
+import TranslatorUsageWidget from '@/components/translator/TranslatorUsageWidget'
 
 function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('de-DE', {
@@ -22,6 +23,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Languages,
 } from 'lucide-react'
 
 interface CheckerResultRecord {
@@ -115,7 +117,7 @@ export default function DashboardPage() {
             Willkommen zurueck, {profile?.name || 'Nutzer'}
           </h1>
           <p className="text-gray-600 mt-1">
-            Hier finden Sie alle Ihre durchgefuehrten Checks.
+            Hier finden Sie alle Ihre durchgefuehrten Checks und Ihren Translator-Verbrauch.
           </p>
         </div>
 
@@ -167,66 +169,86 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Recent Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Ihre letzten Checks</CardTitle>
-            <CardDescription>
-              Klicken Sie auf einen Check, um die Details zu sehen.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loadingResults ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin w-6 h-6 border-4 border-fintutto-primary border-t-transparent rounded-full" />
-              </div>
-            ) : results.length === 0 ? (
-              <div className="text-center py-8">
-                <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">Noch keine Checks durchgefuehrt</p>
-                <Button variant="fintutto" className="mt-4" asChild>
-                  <Link to="/">Ersten Check starten</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {results.map((result) => (
-                  <div
-                    key={result.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      {getStatusIcon(result.result_data?.status)}
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {checkerLabels[result.checker_type] || result.checker_type}-Checker
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {formatDate(result.created_at)}
-                        </p>
+        {/* Zweispaltig: Checks links, Translator-Verbrauch rechts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Results */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Ihre letzten Checks</CardTitle>
+              <CardDescription>
+                Klicken Sie auf einen Check, um die Details zu sehen.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingResults ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin w-6 h-6 border-4 border-fintutto-primary border-t-transparent rounded-full" />
+                </div>
+              ) : results.length === 0 ? (
+                <div className="text-center py-8">
+                  <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">Noch keine Checks durchgefuehrt</p>
+                  <Button variant="fintutto" className="mt-4" asChild>
+                    <Link to="/">Ersten Check starten</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {results.map((result) => (
+                    <div
+                      key={result.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        {getStatusIcon(result.result_data?.status)}
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {checkerLabels[result.checker_type] || result.checker_type}-Checker
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(result.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {(result.result_data?.potentialSavings ?? 0) > 0 && (
+                          <span className="text-green-600 font-medium">
+                            +{formatCurrency(result.result_data?.potentialSavings ?? 0)}
+                          </span>
+                        )}
+                        {result.form_redirect_url && (
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={result.form_redirect_url}>
+                              Zum Formular
+                              <ArrowRight className="w-4 h-4 ml-1" />
+                            </Link>
+                          </Button>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      {(result.result_data?.potentialSavings ?? 0) > 0 && (
-                        <span className="text-green-600 font-medium">
-                          +{formatCurrency(result.result_data?.potentialSavings ?? 0)}
-                        </span>
-                      )}
-                      {result.form_redirect_url && (
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={result.form_redirect_url}>
-                            Zum Formular
-                            <ArrowRight className="w-4 h-4 ml-1" />
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Translator-Verbrauch */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Languages className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Translator-Verbrauch</h2>
+            </div>
+            {user ? (
+              <TranslatorUsageWidget userId={user.id} />
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground text-sm">
+                  Bitte einloggen um den Translator-Verbrauch zu sehen.
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
