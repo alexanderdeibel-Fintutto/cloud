@@ -27,7 +27,7 @@ Setze diese EINMAL unter: `vercel.com/fintutto/~/settings/environment-variables`
 
 | Variable | Wert | Hinweis |
 |----------|------|---------|
-| `VITE_SUPABASE_URL` | `https://aaefocdqgdgexkcrjhks.supabase.co` | Alle Apps |
+| `VITE_SUPABASE_URL` | `https://aaefocqdgdgexkcrjhks.supabase.co` | Alle Apps |
 | `VITE_SUPABASE_ANON_KEY` | (aus Supabase Dashboard → Settings → API) | Public key, OK im Frontend |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | gleicher Wert wie ANON_KEY | Vermietify nutzt diesen Namen |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | `pk_live_xxx` | Stripe public key |
@@ -36,7 +36,7 @@ Setze diese EINMAL unter: `vercel.com/fintutto/~/settings/environment-variables`
 
 | Variable | Wert | Hinweis |
 |----------|------|---------|
-| `SUPABASE_URL` | `https://aaefocdqgdgexkcrjhks.supabase.co` | API Routes |
+| `SUPABASE_URL` | `https://aaefocqdgdgexkcrjhks.supabase.co` | API Routes |
 | `SUPABASE_SERVICE_ROLE_KEY` | (aus Supabase Dashboard) | Admin-Zugang |
 | `STRIPE_SECRET_KEY` | `sk_live_xxx` | Zahlungen |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_xxx` | Webhook-Verifikation |
@@ -104,13 +104,13 @@ In Supabase Dashboard → Authentication → Providers:
 ### Google OAuth:
 1. Google Cloud Console → APIs & Services → Credentials
 2. OAuth 2.0 Client erstellen
-3. Authorized redirect URI: `https://aaefocdqgdgexkcrjhks.supabase.co/auth/v1/callback`
+3. Authorized redirect URI: `https://aaefocqdgdgexkcrjhks.supabase.co/auth/v1/callback`
 4. Client ID + Secret in Supabase eintragen
 
 ### Apple OAuth:
 1. Apple Developer → Certificates, Identifiers & Profiles
 2. Service ID erstellen mit Sign In with Apple
-3. Redirect URL: `https://aaefocdqgdgexkcrjhks.supabase.co/auth/v1/callback`
+3. Redirect URL: `https://aaefocqdgdgexkcrjhks.supabase.co/auth/v1/callback`
 4. In Supabase eintragen
 
 ---
