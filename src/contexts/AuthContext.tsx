@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase'
+import { identifyUser } from '../tracker'
 
 interface UserProfile {
   id: string
@@ -50,11 +51,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
         if (session?.user) {
           await fetchProfile(session.user.id)
+          
+          // UAR Tracking: Identify user on sign in or sign up
+          if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+            identifyUser(session.user.email || '', session.user.id, {
+              auth_event: event
+            })
+          }
         } else {
           setProfile(null)
         }
