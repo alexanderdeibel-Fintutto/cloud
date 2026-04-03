@@ -2,103 +2,86 @@
 
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-
-  /* Fintutto Brand Colors - from SVG gradients */
-  --color-brand-50: #f0e7ff;
-  --color-brand-100: #ddd0fe;
-  --color-brand-200: #c4b0fd;
-  --color-brand-300: #a78bfa;
-  --color-brand-400: #8b5cf6;
-  --color-brand-500: #6a3080;
-  --color-brand-600: #4a2070;
-  --color-brand-700: #2d1850;
-  --color-brand-800: #1a1030;
-  --color-brand-900: #0f0f1a;
-
-  /* Ring gradient accent colors */
-  --color-ring-blue: #2563EB;
-  --color-ring-teal: #14B8A6;
-  --color-ring-yellow: #EAB308;
-  --color-ring-pink: #E879F9;
-  --color-ring-orange: #F97316;
-  --color-ring-green: #10B981;
-  --color-ring-lime: #84CC16;
-
-  --color-accent-400: #E879F9;
-  --color-accent-500: #d946ef;
-  --color-accent-600: #c026d3;
-
-  --color-surface: #0f0f1a;
-  --color-surface-elevated: #1a1030;
-  --color-surface-card: #1e1535;
-  --color-surface-hover: #2d1850;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-sans);
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a1030 15%, #2d1850 35%, #1a1030 60%, #0f0f1a 100%);
-  color: #e2e8f0;
+  background: #0a0a14;
+  color: #f1f5f9;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a14; }
+::-webkit-scrollbar-thumb { background: #2d1850; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4a2070; }
+
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.glass-hover:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.14);
 }
 
-::-webkit-scrollbar-track {
-  background: #0f0f1a;
+.gradient-text-world {
+  background: linear-gradient(135deg, #E879F9 0%, #8B5CF6 40%, #2563EB 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-
-::-webkit-scrollbar-thumb {
-  background: #4a2070;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #6a3080;
-}
-
-/* Animated gradient border for cards */
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.gradient-text-rainbow {
+  background: linear-gradient(90deg, #2563EB 0%, #06B6D4 15%, #10B981 30%, #84CC16 45%, #EAB308 55%, #F97316 70%, #E879F9 85%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(-15px) rotate(2deg); }
-  66% { transform: translateY(8px) rotate(-1deg); }
+  33% { transform: translateY(-12px) rotate(1.5deg); }
+  66% { transform: translateY(6px) rotate(-1deg); }
 }
-
 @keyframes float-reverse {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(12px) rotate(-2deg); }
-  66% { transform: translateY(-10px) rotate(1deg); }
+  33% { transform: translateY(10px) rotate(-1.5deg); }
+  66% { transform: translateY(-8px) rotate(1deg); }
 }
-
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.15; filter: blur(60px); }
-  50% { opacity: 0.3; filter: blur(80px); }
+  0%, 100% { opacity: 0.12; filter: blur(60px); }
+  50% { opacity: 0.22; filter: blur(80px); }
 }
-
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
 @keyframes spin-reverse {
   from { transform: rotate(360deg); }
   to { transform: rotate(0deg); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-glow { transition: all 0.3s ease; }
+.card-glow:hover {
+  box-shadow: 0 0 30px -8px rgba(232, 121, 249, 0.25), 0 8px 32px -8px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+}
+
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #E879F9;
 }
