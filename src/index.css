@@ -4,84 +4,35 @@
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-sans);
-  background: #0a0a14;
-  color: #f1f5f9;
+  background: #0a0514;
+  color: #fff;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0a14; }
-::-webkit-scrollbar-thumb { background: #2d1850; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #4a2070; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 
-.glass {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.glass-hover:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.14);
-}
+/* Tailwind opacity border utilities that may not be auto-generated */
+.border-white\/8  { border-color: rgba(255,255,255,0.08) !important; }
+.border-white\/15 { border-color: rgba(255,255,255,0.15) !important; }
+.border-white\/22 { border-color: rgba(255,255,255,0.22) !important; }
+.hover\:border-white\/22:hover { border-color: rgba(255,255,255,0.22) !important; }
+.border-white\/30 { border-color: rgba(255,255,255,0.30) !important; }
 
-.gradient-text-world {
-  background: linear-gradient(135deg, #E879F9 0%, #8B5CF6 40%, #2563EB 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.gradient-text-rainbow {
-  background: linear-gradient(90deg, #2563EB 0%, #06B6D4 15%, #10B981 30%, #84CC16 45%, #EAB308 55%, #F97316 70%, #E879F9 85%, #8B5CF6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(-12px) rotate(1.5deg); }
-  66% { transform: translateY(6px) rotate(-1deg); }
-}
-@keyframes float-reverse {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(10px) rotate(-1.5deg); }
-  66% { transform: translateY(-8px) rotate(1deg); }
-}
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.12; filter: blur(60px); }
-  50% { opacity: 0.22; filter: blur(80px); }
-}
-@keyframes spin-slow {
+/* Spin animation (used by nav logo) */
+@keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes spin-reverse {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.card-glow { transition: all 0.3s ease; }
-.card-glow:hover {
-  box-shadow: 0 0 30px -8px rgba(232, 121, 249, 0.25), 0 8px 32px -8px rgba(0,0,0,0.5);
-  transform: translateY(-2px);
-}
-
-.section-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #E879F9;
+  to   { transform: rotate(360deg); }
 }
