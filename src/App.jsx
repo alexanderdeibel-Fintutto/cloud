@@ -1,74 +1,94 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { apps, categories } from "./data/apps";
 
-// ─── Fly-in Animation Hook (wie fintutto.world) ───────────────────────────────
-function useFadeIn(delay) {
+/* ═══════════════════════════════════════════════════════════
+   FINTUTTO DESIGN SYSTEM — Cloud Landing Page
+   Basiert auf: docs/DESIGN_SYSTEM.md + DESIGN_SYSTEM_CATALOG.md
+   ═══════════════════════════════════════════════════════════ */
+
+// Fade-In Hook (Intersection Observer — wie fintutto.world)
+function useFadeIn(delay = 0) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
-  useEffect(function () {
-    var el = ref.current;
+  useEffect(() => {
+    const el = ref.current;
     if (!el) return;
-    var obs = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) {
-        setVisible(true);
-        obs.disconnect();
-      }
-    }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.12 }
+    );
     obs.observe(el);
-    return function () { obs.disconnect(); };
+    return () => obs.disconnect();
   }, []);
-  return [ref, {
-    opacity: visible ? 1 : 0,
-    transform: visible ? "translateY(0px)" : "translateY(24px)",
-    transition: "opacity 0.55s " + (delay || 0) + "ms, transform 0.55s " + (delay || 0) + "ms",
-  }];
+  return {
+    ref,
+    style: {
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(24px)",
+      transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+      willChange: visible ? "auto" : "opacity, transform",
+    },
+  };
 }
 
-// ─── Icon Map ─────────────────────────────────────────────────────────────────
-var ICONS = {
+// Icon Map (Emoji-Fallbacks)
+const ICONS = {
   rocket: "🚀", graduation: "🎓", lightbulb: "💡", briefcase: "💼",
   building: "🏢", wrench: "🔧", key: "🗝️", gauge: "📊", languages: "🌐",
   cloud: "☁️", users: "👥", building2: "🏛️", headphones: "🎧", layout: "📐",
   handshake: "🤝", dumbbell: "💪", leaf: "🌿", luggage: "🧳",
   trendingUp: "📈", terminal: "⌨️", shield: "🛡️", door: "🚪",
   inbox: "📥", sparkles: "✨", bookOpen: "📖", lifebuoy: "🆘", chart: "📊",
+  home: "🏠", globe: "🌍", heart: "❤️", megaphone: "📣", settings: "⚙️", brain: "🧠",
 };
 
-// ─── Category Colors ──────────────────────────────────────────────────────────
-var CAT_COLOR = {
-  finance: "#10B981", property: "#38bdf8", translation: "#a78bfa",
-  lifestyle: "#e879f9", sales: "#fb923c", admin: "#94a3b8", ai: "#34d399",
+// Kategorie-Akzentfarben (aus Design-System)
+const CAT_ACCENT = {
+  finance:     { color: "#34d399", glow: "rgba(52,211,153,0.15)",  border: "rgba(52,211,153,0.3)"  },
+  property:    { color: "#38bdf8", glow: "rgba(56,189,248,0.15)",  border: "rgba(56,189,248,0.3)"  },
+  translation: { color: "#a78bfa", glow: "rgba(167,139,250,0.15)", border: "rgba(167,139,250,0.3)" },
+  lifestyle:   { color: "#e879f9", glow: "rgba(232,121,249,0.15)", border: "rgba(232,121,249,0.3)" },
+  sales:       { color: "#fb923c", glow: "rgba(251,146,60,0.15)",  border: "rgba(251,146,60,0.3)"  },
+  admin:       { color: "#94a3b8", glow: "rgba(148,163,184,0.15)", border: "rgba(148,163,184,0.3)" },
+  ai:          { color: "#38bdf8", glow: "rgba(56,189,248,0.15)",  border: "rgba(56,189,248,0.3)"  },
 };
 
-// ─── Glassmorphism App Card ───────────────────────────────────────────────────
-function AppCard(props) {
-  var app = props.app;
-  var delay = props.delay || 0;
-  var fadeResult = useFadeIn(delay);
-  var ref = fadeResult[0];
-  var style = fadeResult[1];
-  var icon = ICONS[app.icon] || "🔗";
-  var accent = CAT_COLOR[app.category] || "#a78bfa";
+/* ── App Card (glass-card + Hover) ── */
+function AppCard({ app, delay }) {
+  const { ref, style } = useFadeIn(delay);
+  const icon = ICONS[app.icon] || "🔗";
+  const accent = CAT_ACCENT[app.category] || CAT_ACCENT.admin;
+
   return (
     <div ref={ref} style={style}>
       <a
         href={app.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex flex-col h-full p-5 rounded-2xl border border-white/8 hover:border-white/22 transition-all duration-300 hover:-translate-y-1"
-        style={{ backgroundColor: "rgba(0,0,0,0.38)", backdropFilter: "blur(12px)" }}
+        className="glass-card p-6 flex flex-col h-full transition-all duration-300 hover:-translate-y-1 hover:bg-black/50 hover:border-white/30"
+        style={{ display: "flex" }}
       >
+        {/* Icon */}
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4"
-          style={{ backgroundColor: accent + "22", border: "1px solid " + accent + "44" }}
+          style={{ background: accent.glow, border: `1px solid ${accent.border}` }}
         >
           {icon}
         </div>
-        <div className="text-base font-bold text-white mb-1">{app.name}</div>
-        <p className="text-sm leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+
+        {/* Name */}
+        <h3 className="text-base font-bold text-white mb-1">{app.name}</h3>
+
+        {/* Beschreibung */}
+        <p className="text-sm leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.6)" }}>
           {app.description}
         </p>
-        <div className="flex items-center gap-1.5 mt-4 text-sm font-semibold" style={{ color: accent }}>
+
+        {/* CTA */}
+        <div
+          className="flex items-center gap-1.5 mt-4 text-sm font-semibold"
+          style={{ color: accent.color }}
+        >
           <span>Öffnen</span>
           <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
         </div>
@@ -77,504 +97,496 @@ function AppCard(props) {
   );
 }
 
-// ─── Flagship Card (Translator / Guide) ──────────────────────────────────────
-function FlagshipCard(props) {
-  var fadeResult = useFadeIn(props.delay || 0);
-  var ref = fadeResult[0];
-  var style = fadeResult[1];
+/* ── Flagship Card (Translator / Guide) ── */
+function FlagshipCard({ title, subtitle, badge, accent, links, delay }) {
+  const { ref, style } = useFadeIn(delay);
   return (
     <div ref={ref} style={style}>
       <div
-        className="relative overflow-hidden rounded-3xl p-8 h-full"
-        style={{
-          backgroundColor: "rgba(0,0,0,0.45)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          backdropFilter: "blur(20px)",
-        }}
+        className="glass-card p-8 h-full"
+        style={{ borderColor: accent + "40" }}
       >
+        {/* Gradient-Leiste oben */}
         <div
-          className="absolute inset-0 opacity-10 rounded-3xl"
-          style={{ background: "linear-gradient(135deg, " + props.accent + ", transparent)" }}
+          className="w-full h-1 rounded-full mb-6"
+          style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
         />
-        <div className="relative z-10">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6"
-            style={{ backgroundColor: props.accent + "22", border: "1px solid " + props.accent + "55" }}
-          >
-            {props.icon}
-          </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4"
-            style={{ backgroundColor: props.accent + "22", color: props.accent }}>
-            Flagship-Produkt
-          </div>
-          <h3 className="text-2xl font-bold text-white mb-2">{props.title}</h3>
-          <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
-            {props.description}
-          </p>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {props.links && props.links.map(function (link) {
-              return (
-                <a
-                  key={link.label}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
-                  style={{ backgroundColor: props.accent + "22", color: props.accent, border: "1px solid " + props.accent + "44" }}
-                >
-                  {link.label}
-                </a>
-              );
-            })}
-          </div>
-          <a
-            href={props.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-black transition-all hover:opacity-90 hover:scale-105"
-            style={{ background: "linear-gradient(135deg, " + props.accent + ", " + props.accent + "cc)" }}
-          >
-            {props.cta} →
-          </a>
+
+        <span
+          className="inline-block text-xs font-semibold uppercase tracking-widest mb-3"
+          style={{ color: accent }}
+        >
+          {badge}
+        </span>
+
+        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
+        <p className="text-base leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.65)" }}>
+          {subtitle}
+        </p>
+
+        {/* Sub-Links */}
+        <div className="flex flex-wrap gap-2">
+          {links.map((l) => (
+            <a
+              key={l.url}
+              href={l.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105"
+              style={{
+                background: accent + "22",
+                border: `1px solid ${accent}44`,
+                color: accent,
+              }}
+            >
+              {l.label} →
+            </a>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Section Header ───────────────────────────────────────────────────────────
-function SectionHeader(props) {
-  var fadeResult = useFadeIn(0);
-  var ref = fadeResult[0];
-  var style = fadeResult[1];
-  return (
-    <div ref={ref} style={style} className="text-center mb-12">
-      <div
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-widest mb-6"
-        style={{ backgroundColor: "rgba(0,0,0,0.45)", borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)" }}
-      >
-        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#38bdf8" }} />
-        {props.label}
-      </div>
-      <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-        {props.title}{" "}
-        <span style={{ backgroundImage: "linear-gradient(135deg, #a78bfa, #38bdf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-          {props.highlight}
-        </span>
-      </h2>
-      {props.sub && (
-        <p className="text-lg max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.5)" }}>
-          {props.sub}
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ─── Main App ─────────────────────────────────────────────────────────────────
+/* ── Haupt-App-Komponente ── */
 export default function App() {
-  var searchState = useState("");
-  var searchQuery = searchState[0];
-  var setSearchQuery = searchState[1];
+  const [navScrolled, setNavScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  var catState = useState("all");
-  var activeCategory = catState[0];
-  var setActiveCategory = catState[1];
-
-  var navState = useState(false);
-  var navScrolled = navState[0];
-  var setNavScrolled = navState[1];
-
-  useEffect(function () {
-    function handler() { setNavScrolled(window.scrollY > 20); }
-    window.addEventListener("scroll", handler, { passive: true });
-    return function () { window.removeEventListener("scroll", handler); };
+  // Scroll-Listener für Navigation
+  useEffect(() => {
+    const onScroll = () => setNavScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  var filteredApps = useMemo(function () {
-    var q = searchQuery.toLowerCase();
-    return apps.filter(function (app) {
-      var matchSearch = !q || app.name.toLowerCase().indexOf(q) > -1 || app.description.toLowerCase().indexOf(q) > -1;
-      var matchCat = activeCategory === "all" || app.category === activeCategory;
-      return matchSearch && matchCat;
+  // Gefilterte Apps
+  const filteredApps = useMemo(() => {
+    return apps.filter((app) => {
+      const matchCat = activeCategory === "all" || app.category === activeCategory;
+      const q = searchQuery.toLowerCase();
+      const matchSearch = !q || app.name.toLowerCase().includes(q) || app.description.toLowerCase().includes(q);
+      return matchCat && matchSearch;
     });
   }, [searchQuery, activeCategory]);
 
-  var featuredApps = useMemo(function () {
-    return apps.filter(function (a) { return a.featured; });
-  }, []);
+  const featuredApps = useMemo(() => apps.filter((a) => a.featured), []);
 
   return (
-    <div className="min-h-screen text-white" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: "#0a0514" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", minHeight: "100vh", color: "#fff" }}>
 
-      {/* Animated Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* ── Vollbild-Hintergrund (exakt wie fintutto.world) ── */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
         <img
           src="/fintutto-logo.svg"
           alt=""
-          className="absolute opacity-5"
-          style={{ width: "120vw", maxWidth: "none", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{ width: "600px", height: "600px", top: "-200px", left: "-200px", background: "radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%)", animation: "pulse 8s ease-in-out infinite" }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{ width: "500px", height: "500px", bottom: "-150px", right: "-150px", background: "radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 70%)", animation: "pulse 10s ease-in-out infinite 2s" }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{ width: "400px", height: "400px", top: "40%", right: "20%", background: "radial-gradient(circle, rgba(52,211,153,0.1) 0%, transparent 70%)", animation: "pulse 12s ease-in-out infinite 4s" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.7, willChange: "auto", transform: "translateZ(0px)" }}
         />
       </div>
 
-      {/* Navigation */}
+      {/* ── Navigation (Apple-Style, wie LandingLayout.tsx) ── */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{ backgroundColor: navScrolled ? "rgba(10,5,20,0.96)" : "transparent", backdropFilter: navScrolled ? "blur(20px)" : "none", borderBottom: navScrolled ? "1px solid rgba(255,255,255,0.08)" : "none" }}
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+          transition: "all 0.3s",
+          background: navScrolled ? "rgba(10,5,20,0.88)" : "transparent",
+          backdropFilter: navScrolled ? "blur(40px) saturate(180%)" : "none",
+          WebkitBackdropFilter: navScrolled ? "blur(40px) saturate(180%)" : "none",
+          borderBottom: navScrolled ? "1px solid rgba(255,255,255,0.10)" : "none",
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3">
-            <img src="/fintutto-animated.svg" alt="fintutto" className="w-8 h-8" style={{ animation: "spin 20s linear infinite" }} />
-            <span className="font-bold text-lg" style={{ backgroundImage: "linear-gradient(135deg, #a78bfa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 1.5rem", height: "64px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+          {/* Logo */}
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none" }}>
+            <img src="/fintutto-logo.svg" alt="fintutto" style={{ width: "32px", height: "32px", borderRadius: "8px" }} />
+            <span style={{ fontWeight: 700, fontSize: "1.1rem", background: "linear-gradient(135deg, #a78bfa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               fintutto.cloud
             </span>
           </a>
-          <div className="hidden md:flex items-center gap-6">
-            <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer" className="text-sm font-medium transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.6)" }}>fintutto.world</a>
-            <a href="https://translator.fintutto.world" target="_blank" rel="noopener noreferrer" className="text-sm font-medium transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.6)" }}>Translator</a>
-            <a href="https://guide.fintutto.world" target="_blank" rel="noopener noreferrer" className="text-sm font-medium transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.6)" }}>Guide</a>
+
+          {/* Desktop Nav */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }} className="hidden md:flex">
+            <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer"
+              style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", fontWeight: 500, textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e => e.target.style.color = "#fff"}
+              onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}
+            >fintutto.world</a>
+            <a href="https://fintutto.world/apps/translator" target="_blank" rel="noopener noreferrer"
+              style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", fontWeight: 500, textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e => e.target.style.color = "#fff"}
+              onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}
+            >Translator</a>
+            <a href="https://fintutto.world/guide" target="_blank" rel="noopener noreferrer"
+              style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", fontWeight: 500, textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e => e.target.style.color = "#fff"}
+              onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}
+            >Guide</a>
             <a href="https://portal.fintutto.cloud" target="_blank" rel="noopener noreferrer"
-              className="px-4 py-2 rounded-full text-sm font-semibold text-white transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #a78bfa, #38bdf8)" }}>
-              Portal
-            </a>
+              style={{ padding: "0.5rem 1.25rem", borderRadius: "9999px", fontSize: "0.875rem", fontWeight: 600, color: "#000", background: "linear-gradient(135deg, #a78bfa, #38bdf8)", textDecoration: "none", transition: "opacity 0.2s" }}
+              onMouseEnter={e => e.target.style.opacity = "0.85"}
+              onMouseLeave={e => e.target.style.opacity = "1"}
+            >Portal →</a>
           </div>
+
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ display: "none", background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "1.5rem" }}
+            className="md:hidden"
+            aria-label="Menü"
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div style={{ background: "rgba(8,4,20,0.96)", backdropFilter: "blur(40px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "1.5rem" }}>
+            {[
+              { label: "fintutto.world", url: "https://fintutto.world" },
+              { label: "Translator", url: "https://fintutto.world/apps/translator" },
+              { label: "Guide", url: "https://fintutto.world/guide" },
+              { label: "Portal", url: "https://portal.fintutto.cloud" },
+            ].map((l) => (
+              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
+                style={{ display: "block", padding: "0.75rem 0", color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "1rem", fontWeight: 500, borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+              >{l.label}</a>
+            ))}
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-32 pb-20 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-center mb-8">
-            <img
-              src="/fintutto-animated.svg"
-              alt="fintutto"
-              className="w-24 h-24 sm:w-32 sm:h-32"
-              style={{ animation: "spin 20s linear infinite", filter: "drop-shadow(0 0 40px rgba(139,92,246,0.5))" }}
-            />
-          </div>
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-widest mb-8"
-            style={{ backgroundColor: "rgba(0,0,0,0.45)", borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)" }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+      {/* ── Hero Section ── */}
+      <section style={{ position: "relative", minHeight: "90vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "8rem 1.5rem 4rem", overflow: "hidden", zIndex: 1 }}>
+
+        {/* Ambient Glow */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "800px", height: "800px", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 60%, transparent 100%)" }} />
+        </div>
+
+        {/* Badge */}
+        <div style={{ animation: "fadeInUp 0.5s ease 0.05s both" }}>
+          <span className="glass-card" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.375rem 1rem", borderRadius: "9999px", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: "2rem" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#34d399", animation: "pulse-glow 2s ease-in-out infinite" }} />
             Alle Apps · Ein Ökosystem
-          </div>
-          <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-tight">
-            <span style={{ backgroundImage: "linear-gradient(135deg, #a78bfa 0%, #38bdf8 50%, #34d399 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              fintutto.cloud
-            </span>
+          </span>
+        </div>
+
+        {/* H1 */}
+        <div style={{ animation: "fadeInUp 0.6s ease 0.15s both" }}>
+          <h1 style={{ fontSize: "clamp(3rem, 10vw, 6rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: "1.5rem" }}>
+            <span style={{ color: "#fff" }}>fintutto</span>
+            <span className="gradient-text-primary">.</span>
+            <span style={{ background: "linear-gradient(135deg, #38bdf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>cloud</span>
           </h1>
-          <p className="text-xl sm:text-2xl font-light mb-4 text-white">
-            Alles automatisch. Ab jetzt.
-          </p>
-          <p className="text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+        </div>
+
+        {/* Subtitle */}
+        <div style={{ animation: "fadeInUp 0.6s ease 0.3s both" }}>
+          <p style={{ fontSize: "clamp(1.1rem, 3vw, 1.4rem)", color: "rgba(255,255,255,0.75)", maxWidth: "600px", lineHeight: 1.6, marginBottom: "2.5rem" }}>
             Die zentrale Plattform für alle fintutto-Apps – von Finanzen über Immobilien bis zu KI-gestützten Übersetzungen.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <a
-              href="#apps"
-              className="px-8 py-4 rounded-full text-base font-bold text-black transition-all hover:opacity-90 hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #a78bfa, #38bdf8, #34d399)" }}
-            >
-              Alle Apps entdecken →
-            </a>
-            <a
-              href="https://fintutto.world"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 rounded-full text-base font-semibold text-white transition-all hover:border-white/30"
-              style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.2)" }}
-            >
-              fintutto.world →
-            </a>
-          </div>
+        </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {[
-              { value: apps.length + "+", label: "Apps" },
-              { value: categories.length, label: "Kategorien" },
-              { value: "100%", label: "Cloud-native" },
-              { value: "99.9%", label: "Uptime" },
-            ].map(function (stat) {
-              return (
-                <div
-                  key={stat.label}
-                  className="p-4 rounded-2xl text-center"
-                  style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
-                  <div className="text-2xl font-black mb-1" style={{ backgroundImage: "linear-gradient(135deg, #a78bfa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                    {stat.value}
-                  </div>
-                  <div className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{stat.label}</div>
-                </div>
-              );
-            })}
-          </div>
+        {/* CTAs */}
+        <div style={{ animation: "fadeInUp 0.6s ease 0.45s both", display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center", marginBottom: "4rem" }}>
+          <a href="#apps"
+            style={{ padding: "1rem 2rem", borderRadius: "9999px", fontWeight: 600, fontSize: "1rem", color: "#000", background: "linear-gradient(135deg, #a78bfa, #38bdf8)", textDecoration: "none", transition: "transform 0.2s, opacity 0.2s" }}
+            onMouseEnter={e => e.target.style.transform = "scale(1.05)"}
+            onMouseLeave={e => e.target.style.transform = "scale(1)"}
+          >
+            Alle Apps entdecken →
+          </a>
+          <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer"
+            className="glass-card"
+            style={{ padding: "1rem 2rem", borderRadius: "9999px", fontWeight: 600, fontSize: "1rem", color: "#fff", textDecoration: "none", transition: "transform 0.2s, background 0.2s" }}
+            onMouseEnter={e => e.target.style.background = "rgba(255,255,255,0.12)"}
+            onMouseLeave={e => e.target.style.background = "rgba(0,0,0,0.38)"}
+          >
+            fintutto.world →
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div style={{ animation: "fadeInUp 0.6s ease 0.6s both", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", maxWidth: "480px", width: "100%" }}>
+          {[
+            { value: "26+", label: "Apps" },
+            { value: "7",   label: "Kategorien" },
+            { value: "100%", label: "Cloud-native" },
+            { value: "99.9%", label: "Uptime" },
+          ].map((s) => (
+            <div key={s.label} className="glass-card" style={{ padding: "1rem", textAlign: "center" }}>
+              <div style={{ fontSize: "1.75rem", fontWeight: 800, background: "linear-gradient(135deg, #a78bfa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                {s.value}
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginTop: "0.25rem" }}>
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Scroll Hint */}
+        <div style={{ position: "absolute", bottom: "2.5rem", left: "50%", animation: "bounce-y 2s infinite" }}>
+          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "1.5rem" }}>↓</span>
         </div>
       </section>
 
-      {/* Flagship Products */}
-      <section className="relative z-10 py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            label="Flagship-Produkte"
-            title="Translator &"
-            highlight="Guide"
-            sub="Unsere beiden Hauptprodukte – eigenständig, mächtig und direkt auf fintutto.world verlinkt."
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* ── Flagship-Produkte: Translator & Guide ── */}
+      <section style={{ position: "relative", zIndex: 1, padding: "6rem 1.5rem", background: "rgba(0,0,0,0.42)", borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+
+          {/* Section Header */}
+          {(() => { const f = useFadeIn(0); return (
+            <div ref={f.ref} style={{ ...f.style, textAlign: "center", marginBottom: "4rem" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.3em", textTransform: "uppercase", color: "#a78bfa", display: "block", marginBottom: "1rem" }}>
+                Flagship-Produkte
+              </span>
+              <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "#fff", marginBottom: "1rem" }}>
+                Translator &amp; <span style={{ background: "linear-gradient(135deg, #38bdf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Guide</span>
+              </h2>
+              <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.65)", maxWidth: "560px", margin: "0 auto", lineHeight: 1.6 }}>
+                Unsere beiden Hauptprodukte – eigenständig, mächtig und direkt auf fintutto.world verlinkt.
+              </p>
+            </div>
+          ); })()}
+
+          {/* Flagship Cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
             <FlagshipCard
-              icon="🌐"
               title="fintutto Translator"
-              subtitle="Übersetzen mit KI"
-              description="Professionelle KI-gestützte Übersetzungen für Unternehmen und Privatpersonen. Echtzeit-Übersetzung, Enterprise-Lösungen und Consumer-Apps in einem Ökosystem."
-              url="https://translator.fintutto.world"
-              cta="Translator öffnen"
+              subtitle="Professionelle KI-gestützte Übersetzungen für Unternehmen und Privatpersonen. Echtzeit-Übersetzung, Enterprise-Lösungen und Consumer-Apps in einem Ökosystem."
+              badge="Flagship-Produkt"
               accent="#a78bfa"
               delay={0}
               links={[
-                { label: "Listener", url: "https://listener.guidetranslator.com" },
-                { label: "Enterprise", url: "https://translator.enterprise" },
-                { label: "Consumer", url: "https://consumer.guidetranslator.com" },
-                { label: "Sales Portal", url: "https://sales.guidetranslator.com" },
+                { label: "Listener",      url: "https://fintutto.world/apps/live" },
+                { label: "Enterprise",    url: "https://fintutto.world/apps/enterprise" },
+                { label: "Consumer",      url: "https://fintutto.world/apps/translator" },
+                { label: "Sales Portal",  url: "https://fintutto.world/apps/translator" },
               ]}
             />
             <FlagshipCard
-              icon="📖"
               title="fintutto Guide"
-              subtitle="KI-Assistent"
-              description="Dein intelligenter KI-Guide für alle Fragen rund um Finanzen, Immobilien und Alltag. Personalisierte Antworten, Schritt-für-Schritt-Anleitungen und smarte Empfehlungen."
-              url="https://guide.fintutto.world"
-              cta="Guide öffnen"
-              accent="#34d399"
+              subtitle="Der smarte Audio-Guide für Museen, Städte, Kreuzfahrten und mehr. KI-gestützt, mehrsprachig und ohne Hardware."
+              badge="Flagship-Produkt"
+              accent="#38bdf8"
               delay={100}
               links={[
-                { label: "AI Guide", url: "https://ai-guide.fintutto.cloud" },
-                { label: "Finance Coach", url: "https://finance-coach.fintutto.cloud" },
-                { label: "Finance Mentor", url: "https://finance-mentor.fintutto.cloud" },
+                { label: "Art Guide",     url: "https://fintutto.world/products/artguide" },
+                { label: "City Guide",    url: "https://fintutto.world/products/cityguide" },
+                { label: "Region Guide",  url: "https://fintutto.world/products/regionguide" },
+                { label: "Kreuzfahrt",    url: "https://fintutto.world/solutions/cruise" },
               ]}
             />
           </div>
         </div>
       </section>
 
-      {/* Featured Apps */}
-      <section className="relative z-10 py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            label="Highlights"
-            title="Featured"
-            highlight="Apps"
-            sub="Die beliebtesten und meistgenutzten Apps aus dem fintutto-Ökosystem."
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featuredApps.map(function (app, i) {
-              return <AppCard key={app.name} app={app} delay={i * 80} />;
-            })}
+      {/* ── Featured Apps ── */}
+      {featuredApps.length > 0 && (
+        <section style={{ position: "relative", zIndex: 1, padding: "6rem 1.5rem", background: "rgba(0,0,0,0.52)", borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+          <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+
+            {(() => { const f = useFadeIn(0); return (
+              <div ref={f.ref} style={{ ...f.style, textAlign: "center", marginBottom: "3rem" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.3em", textTransform: "uppercase", color: "#34d399", display: "block", marginBottom: "1rem" }}>
+                  Highlights
+                </span>
+                <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)", fontWeight: 700, color: "#fff" }}>
+                  Featured Apps
+                </h2>
+              </div>
+            ); })()}
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.25rem" }}>
+              {featuredApps.map((app, i) => (
+                <AppCard key={app.name} app={app} delay={i * 80} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* All Apps */}
-      <section id="apps" className="relative z-10 py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            label="App-Universum"
-            title="Alle"
-            highlight="Apps"
-            sub={"Durchsuche alle " + apps.length + " Apps aus " + categories.length + " Kategorien."}
-          />
+      {/* ── App-Universum ── */}
+      <section id="apps" style={{ position: "relative", zIndex: 1, padding: "6rem 1.5rem", background: "rgba(0,0,0,0.42)", borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
 
-          {/* Search */}
-          <div className="max-w-lg mx-auto mb-8">
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg" style={{ color: "rgba(255,255,255,0.4)" }}>🔍</span>
+          {(() => { const f = useFadeIn(0); return (
+            <div ref={f.ref} style={{ ...f.style, textAlign: "center", marginBottom: "3rem" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.3em", textTransform: "uppercase", color: "#fb923c", display: "block", marginBottom: "1rem" }}>
+                Das Ökosystem
+              </span>
+              <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)", fontWeight: 700, color: "#fff", marginBottom: "1rem" }}>
+                Alle Apps im Überblick
+              </h2>
+              <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.55)", maxWidth: "480px", margin: "0 auto" }}>
+                {apps.length} Apps in {categories.length} Kategorien – alles aus einem Ökosystem.
+              </p>
+            </div>
+          ); })()}
+
+          {/* Suche + Filter */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2.5rem", alignItems: "center" }}>
+
+            {/* Suchfeld */}
+            <div style={{ position: "relative", width: "100%", maxWidth: "480px" }}>
+              <span style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.35)", fontSize: "1rem" }}>🔍</span>
               <input
                 type="text"
-                placeholder="Apps durchsuchen..."
+                placeholder="App suchen…"
                 value={searchQuery}
-                onChange={function (e) { setSearchQuery(e.target.value); }}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl text-white placeholder-white/30 outline-none transition-all"
-                style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)" }}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="glass-card"
+                style={{ width: "100%", padding: "0.75rem 1rem 0.75rem 2.75rem", borderRadius: "9999px", color: "#fff", fontSize: "0.95rem", outline: "none", background: "rgba(0,0,0,0.38)" }}
               />
             </div>
-          </div>
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
-            <button
-              onClick={function () { setActiveCategory("all"); }}
-              className="px-4 py-2 rounded-full text-sm font-semibold transition-all"
-              style={{
-                backgroundColor: activeCategory === "all" ? "rgba(167,139,250,0.25)" : "rgba(255,255,255,0.05)",
-                border: activeCategory === "all" ? "1px solid rgba(167,139,250,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                color: activeCategory === "all" ? "#a78bfa" : "rgba(255,255,255,0.6)",
-              }}
-            >
-              Alle ({apps.length})
-            </button>
-            {categories.map(function (cat) {
-              var count = apps.filter(function (a) { return a.category === cat.id; }).length;
-              var accent = CAT_COLOR[cat.id] || "#a78bfa";
-              var isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={function () { setActiveCategory(cat.id); }}
-                  className="px-4 py-2 rounded-full text-sm font-semibold transition-all"
-                  style={{
-                    backgroundColor: isActive ? accent + "25" : "rgba(255,255,255,0.05)",
-                    border: isActive ? "1px solid " + accent + "55" : "1px solid rgba(255,255,255,0.1)",
-                    color: isActive ? accent : "rgba(255,255,255,0.6)",
-                  }}
-                >
-                  {cat.name} ({count})
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Apps Grid */}
-          {filteredApps.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredApps.map(function (app, i) {
-                return <AppCard key={app.name} app={app} delay={i * 40} />;
+            {/* Kategorie-Filter */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+              <button
+                onClick={() => setActiveCategory("all")}
+                style={{
+                  padding: "0.4rem 1rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                  background: activeCategory === "all" ? "linear-gradient(135deg, #a78bfa, #38bdf8)" : "rgba(0,0,0,0.38)",
+                  color: activeCategory === "all" ? "#000" : "rgba(255,255,255,0.6)",
+                  border: activeCategory === "all" ? "none" : "1px solid rgba(255,255,255,0.18)",
+                }}
+              >
+                Alle
+              </button>
+              {categories.map((cat) => {
+                const accent = CAT_ACCENT[cat.id] || CAT_ACCENT.admin;
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    style={{
+                      padding: "0.4rem 1rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                      background: isActive ? accent.glow : "rgba(0,0,0,0.38)",
+                      color: isActive ? accent.color : "rgba(255,255,255,0.6)",
+                      border: isActive ? `1px solid ${accent.border}` : "1px solid rgba(255,255,255,0.18)",
+                    }}
+                  >
+                    {ICONS[cat.icon] || "•"} {cat.name}
+                  </button>
+                );
               })}
             </div>
+          </div>
+
+          {/* App Grid */}
+          {filteredApps.length > 0 ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
+              {filteredApps.map((app, i) => (
+                <AppCard key={app.name} app={app} delay={i * 40} />
+              ))}
+            </div>
           ) : (
-            <div className="text-center py-20" style={{ color: "rgba(255,255,255,0.4)" }}>
-              <div className="text-5xl mb-4">🔍</div>
-              <p className="text-lg">Keine Apps gefunden für "{searchQuery}"</p>
+            <div style={{ textAlign: "center", padding: "4rem", color: "rgba(255,255,255,0.4)" }}>
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔍</div>
+              <p>Keine Apps gefunden für „{searchQuery}"</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative z-10 py-24 px-4 text-center">
-        <div className="max-w-3xl mx-auto">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-widest mb-8"
-            style={{ backgroundColor: "rgba(0,0,0,0.45)", borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)" }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-            Bereit loslegen
+      {/* ── CTA-Sektion ── */}
+      <section style={{ position: "relative", zIndex: 1, padding: "6rem 1.5rem", background: "rgba(0,0,0,0.70)", borderTop: "1px solid rgba(255,255,255,0.10)", textAlign: "center" }}>
+        {(() => { const f = useFadeIn(0); return (
+          <div ref={f.ref} style={{ ...f.style, maxWidth: "600px", margin: "0 auto" }}>
+            <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)", fontWeight: 700, color: "#fff", marginBottom: "1rem" }}>
+              Bereit für das <span className="gradient-text-primary">fintutto-Ökosystem</span>?
+            </h2>
+            <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.65)", marginBottom: "2.5rem", lineHeight: 1.6 }}>
+              Alle Apps. Eine Plattform. Vollständig in der Cloud.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center" }}>
+              <a href="https://portal.fintutto.cloud" target="_blank" rel="noopener noreferrer"
+                style={{ padding: "1rem 2rem", borderRadius: "9999px", fontWeight: 600, fontSize: "1rem", color: "#000", background: "linear-gradient(135deg, #a78bfa, #38bdf8)", textDecoration: "none" }}
+              >Portal öffnen →</a>
+              <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer"
+                className="glass-card"
+                style={{ padding: "1rem 2rem", borderRadius: "9999px", fontWeight: 600, fontSize: "1rem", color: "#fff", textDecoration: "none" }}
+              >fintutto.world →</a>
+            </div>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Bereit für dein{" "}
-            <span style={{ backgroundImage: "linear-gradient(135deg, #a78bfa, #38bdf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              App-Universum?
-            </span>
-          </h2>
-          <p className="text-lg mb-10" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Kostenlos starten. Keine Kreditkarte. Sofort einsatzbereit.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="https://fintutto.world"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 rounded-full text-base font-bold text-black transition-all hover:opacity-90 hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #a78bfa, #38bdf8, #34d399)" }}
-            >
-              fintutto.world entdecken →
-            </a>
-            <a
-              href="https://translator.fintutto.world"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 rounded-full text-base font-semibold text-white transition-all"
-              style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.2)" }}
-            >
-              Translator testen →
-            </a>
-          </div>
-        </div>
+        ); })()}
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 py-12 px-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <img src="/fintutto-animated.svg" alt="fintutto" className="w-8 h-8" />
-                <span className="font-bold" style={{ backgroundImage: "linear-gradient(135deg, #a78bfa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                  fintutto.cloud
-                </span>
-              </div>
-              <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-                Die zentrale Plattform für alle fintutto-Apps. Automatisiert, vernetzt, zukunftssicher.
-              </p>
+      {/* ── Footer ── */}
+      <footer style={{ position: "relative", zIndex: 1, padding: "3rem 1.5rem", background: "rgba(0,0,0,0.80)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2rem" }}>
+
+          {/* Brand */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
+              <img src="/fintutto-logo.svg" alt="fintutto" style={{ width: "28px", height: "28px", borderRadius: "6px" }} />
+              <span style={{ fontWeight: 700, background: "linear-gradient(135deg, #a78bfa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                fintutto.cloud
+              </span>
             </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Flagship-Produkte</h4>
-              <div className="flex flex-col gap-2">
-                {[
-                  { label: "fintutto Translator", url: "https://translator.fintutto.world" },
-                  { label: "fintutto Guide", url: "https://guide.fintutto.world" },
-                  { label: "Translator Enterprise", url: "https://translator.enterprise" },
-                  { label: "Consumer App", url: "https://consumer.guidetranslator.com" },
-                ].map(function (link) {
-                  return (
-                    <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer"
-                      className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.45)" }}>
-                      {link.label}
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Plattform</h4>
-              <div className="flex flex-col gap-2">
-                {[
-                  { label: "fintutto.world", url: "https://fintutto.world" },
-                  { label: "Portal", url: "https://portal.fintutto.cloud" },
-                  { label: "Commander", url: "https://commander.fintutto.cloud" },
-                  { label: "Admin Panel", url: "https://admin.fintutto.cloud" },
-                ].map(function (link) {
-                  return (
-                    <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer"
-                      className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.45)" }}>
-                      {link.label}
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "2rem" }}>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
-              © {new Date().getFullYear()} fintutto.cloud · Ein Produkt von fintutto.world
+            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
+              Die zentrale Cloud-Plattform für alle fintutto-Apps und Services.
             </p>
-            <div className="flex items-center gap-6">
-              <a href="https://fintutto.world/impressum" target="_blank" rel="noopener noreferrer"
-                className="text-xs transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.25)" }}>
-                Impressum
-              </a>
-              <a href="https://fintutto.world/datenschutz" target="_blank" rel="noopener noreferrer"
-                className="text-xs transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.25)" }}>
-                Datenschutz
-              </a>
-            </div>
+          </div>
+
+          {/* Flagship */}
+          <div>
+            <h4 style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: "1rem" }}>
+              Flagship-Produkte
+            </h4>
+            {[
+              { label: "fintutto Translator", url: "https://fintutto.world/apps/translator" },
+              { label: "fintutto Guide",      url: "https://fintutto.world/guide" },
+              { label: "Art Guide",           url: "https://fintutto.world/products/artguide" },
+              { label: "City Guide",          url: "https://fintutto.world/products/cityguide" },
+            ].map((l) => (
+              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
+                style={{ display: "block", fontSize: "0.875rem", color: "rgba(255,255,255,0.55)", textDecoration: "none", marginBottom: "0.5rem", transition: "color 0.2s" }}
+                onMouseEnter={e => e.target.style.color = "#fff"}
+                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.55)"}
+              >{l.label}</a>
+            ))}
+          </div>
+
+          {/* Plattform */}
+          <div>
+            <h4 style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: "1rem" }}>
+              Plattform
+            </h4>
+            {[
+              { label: "fintutto.world",  url: "https://fintutto.world" },
+              { label: "Portal",          url: "https://portal.fintutto.cloud" },
+              { label: "Commander",       url: "https://commander.fintutto.cloud" },
+              { label: "Admin",           url: "https://admin.fintutto.cloud" },
+            ].map((l) => (
+              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
+                style={{ display: "block", fontSize: "0.875rem", color: "rgba(255,255,255,0.55)", textDecoration: "none", marginBottom: "0.5rem", transition: "color 0.2s" }}
+                onMouseEnter={e => e.target.style.color = "#fff"}
+                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.55)"}
+              >{l.label}</a>
+            ))}
           </div>
         </div>
+
+        {/* Copyright */}
+        <div style={{ maxWidth: "1280px", margin: "2rem auto 0", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+          <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.3)" }}>
+            © 2026 fintutto.cloud — Teil des fintutto-Ökosystems
+          </span>
+          <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.3)", textDecoration: "none", transition: "color 0.2s" }}
+            onMouseEnter={e => e.target.style.color = "rgba(255,255,255,0.7)"}
+            onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.3)"}
+          >fintutto.world →</a>
+        </div>
       </footer>
+
     </div>
   );
 }
