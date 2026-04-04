@@ -290,7 +290,7 @@ export default function AppLandingPage() {
           <Link to="/" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>← Zurück zur Übersicht</Link>
           <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '0.8rem' }}>fintutto.world</a>
           <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '0.8rem' }}>Translator</a>
-          <a href="https://guide.fintutto.world" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '0.8rem' }}>Guide</a>
+          <a href="https://artguide.fintutto.world" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '0.8rem' }}>Guide</a>
         </div>
       </footer>
     </div>
