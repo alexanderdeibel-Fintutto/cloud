@@ -1,5 +1,9 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- . ../../packages/shared/src/ ../../src/ || exit 1"
 }
