@@ -6,6 +6,33 @@
 
 ---
 
+## 0. VERCEL-SCHUTZ & REGRESSIONSTESTS — PFLICHT
+
+> Diese Regeln haben Priorität über alle anderen Abschnitte.
+
+### Vercel Kostenoptimierung
+Die `vercel.json` enthält einen `ignoreCommand` — dieser darf **niemals** entfernt werden. Er verhindert, dass Vercel bei jedem Push baut, auch wenn sich nichts geändert hat.
+
+### Regressionstests vor jeder Änderung an `src/data/apps.js`
+
+```bash
+npm test
+# oder: ./node_modules/.bin/vitest run src/test/regression/
+```
+
+**Wenn ein Test rot wird: KEIN Commit, KEIN Push.**
+
+### Kritische Invarianten in `src/data/apps.js`
+- Alle 8 Kategorien-IDs müssen vorhanden sein: `all, finance, property, translation, lifestyle, sales, admin, ai`
+- Alle App-URLs müssen mit `https://` beginnen
+- Kern-Apps `fintutto-app`, `translator`, `vermietify` dürfen niemals entfernt werden
+
+### Neuen Bug dokumentieren
+1. Test in `src/test/regression/core-logic.test.ts` schreiben
+2. Commit-Message mit `[REG-XXX]` kennzeichnen
+
+---
+
 ## 1. Plattform-Übersicht
 
 **fintutto.cloud** ist der zentrale Hub für alle fintutto-Apps und -Produkte. Die Seite dient als:
