@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { apps, categories } from "./data/apps";
+import AppLandingPage from "./components/AppLandingPage.jsx";
 
 /* ═══════════════════════════════════════════════════════════
    FINTUTTO DESIGN SYSTEM — Cloud Landing Page
@@ -61,12 +63,8 @@ function AppCard({ app, delay }) {
 
   return (
     <div ref={ref} style={style}>
-      <a
-        href={app.url}
-        target="_blank"
-        rel="noopener noreferrer"
+      <div
         className="glass-card p-6 flex flex-col h-full transition-all duration-300 hover:-translate-y-1 hover:bg-black/50 hover:border-white/30"
-        style={{ display: "flex" }}
       >
         {/* Icon */}
         <div
@@ -84,15 +82,28 @@ function AppCard({ app, delay }) {
           {app.description}
         </p>
 
-        {/* CTA */}
-        <div
-          className="flex items-center gap-1.5 mt-4 text-sm font-semibold"
-          style={{ color: accent.color }}
-        >
-          <span>Öffnen</span>
-          <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+        {/* CTA Buttons */}
+        <div className="flex items-center gap-2 mt-4">
+          <Link
+            to={`/apps/${app.slug}`}
+            className="text-sm font-semibold px-3 py-1.5 rounded-full"
+            style={{ background: accent.glow, border: `1px solid ${accent.border}`, color: accent.color, textDecoration: "none", transition: "opacity 0.2s" }}
+          >
+            Details
+          </Link>
+          <a
+            href={app.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold"
+            style={{ color: "rgba(255,255,255,0.45)", textDecoration: "none", transition: "color 0.2s" }}
+            onMouseEnter={e => e.target.style.color = "rgba(255,255,255,0.8)"}
+            onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.45)"}
+          >
+            Öffnen →
+          </a>
         </div>
-      </a>
+      </div>
     </div>
   );
 }
@@ -149,7 +160,7 @@ function FlagshipCard({ title, subtitle, badge, accent, links, delay }) {
 }
 
 /* ── Haupt-App-Komponente ── */
-export default function App() {
+function App() {
   const [navScrolled, setNavScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -576,7 +587,7 @@ export default function App() {
 
         {/* Copyright */}
         <div style={{ maxWidth: "1280px", margin: "2rem auto 0", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-          <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.3)" }}>
+           <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.3)" }}>
             © 2026 fintutto.cloud — Teil des fintutto-Ökosystems
           </span>
           <a href="https://fintutto.world" target="_blank" rel="noopener noreferrer"
@@ -586,7 +597,15 @@ export default function App() {
           >fintutto.world →</a>
         </div>
       </footer>
-
     </div>
+  );
+}
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/apps/:slug" element={<AppLandingPage />} />
+    </Routes>
   );
 }
