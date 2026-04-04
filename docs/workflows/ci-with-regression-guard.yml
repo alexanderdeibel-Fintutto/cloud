@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'claude/**']
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # PFLICHT: Regressionstests müssen grün sein bevor gebaut wird
+  regression-guard:
+    name: Regression Guard (Credits, Entitlements, Plan-Logik)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run Regression Tests
+        run: ./node_modules/.bin/vitest run src/__tests__/regression/ --reporter=verbose
+
+  # Build-Jobs laufen nur wenn Regressionstests grün sind
+  build:
+    needs: regression-guard
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - name: mieter-checker
+            path: .
+          - name: fintutto-portal
+            path: apps/fintutto-portal
+          - name: vermieter-portal
+            path: apps/vermieter-portal
+          - name: vermietify
+            path: apps/vermietify
+    name: Build ${{ matrix.app.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript check (shared package)
+        run: npx tsc --noEmit -p packages/shared/tsconfig.json
+        continue-on-error: true
+      - name: Build ${{ matrix.app.name }}
+        run: npx vite build
+        working-directory: ${{ matrix.app.path }}

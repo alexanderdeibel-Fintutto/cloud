@@ -19,7 +19,9 @@
     "build:portal": "pnpm --filter @fintutto/app-fintutto-portal build",
     "build:all": "pnpm build:compass && pnpm build:vermietify",
     "lint": "pnpm -r lint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "./node_modules/.bin/vitest run src/__tests__/regression/",
+    "test:watch": "./node_modules/.bin/vitest src/__tests__/regression/"
   },
   "dependencies": {
     "@fintutto/shared": "workspace:*",
