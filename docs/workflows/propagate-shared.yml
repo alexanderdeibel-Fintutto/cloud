@@ -1,0 +1,54 @@
+name: "Propagate Shared Code to All Apps"
+
+# Dieser Workflow laeuft automatisch, wenn sich Dateien im geteilten packages/shared/-
+# oder src/-Verzeichnis aendern. Er verifiziert, dass alle Apps noch korrekt bauen.
+# Durch den ignoreCommand in vercel.json wird Vercel nur die Apps neu bauen, die sich
+# tatsaechlich geaendert haben – keine unnoetige Build-Zeit.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "src/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "tsconfig.json"
+
+jobs:
+  verify-apps-buildable:
+    name: "Verify affected apps still build"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - name: fintutto-portal
+            path: apps/fintutto-portal
+          - name: vermietify
+            path: apps/vermietify
+          - name: vermieter-portal
+            path: apps/vermieter-portal
+          - name: bescheidboxer
+            path: apps/bescheidboxer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: "Build ${{ matrix.app.name }} (shared-code change verification)"
+        run: npx vite build
+        working-directory: ${{ matrix.app.path }}
+
+  shared-code-gate:
+    name: "Shared code is safe for all apps"
+    runs-on: ubuntu-latest
+    needs: verify-apps-buildable
+    steps:
+      - name: "All core apps verified"
+        run: |
+          echo "Shared code change verified: all core apps build successfully."
+          echo "Vercel will now only rebuild apps that have changed (via ignoreCommand)."
