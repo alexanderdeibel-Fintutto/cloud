@@ -31,7 +31,7 @@
     --card: 0 0% 98%;
     --card-foreground: 0 0% 9%;
 
-    --popover: 0 0% 89%;
+    --popover: 0 0% 98%;
     --popover-foreground: 0 0% 9%;
 
     /* Primary: Warm coral-orange from gradient */
@@ -43,7 +43,7 @@
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    --muted-foreground: 0 0% 35%;
 
     /* Accent: Bright purple-violet */
     --accent: 250 100% 97%;
