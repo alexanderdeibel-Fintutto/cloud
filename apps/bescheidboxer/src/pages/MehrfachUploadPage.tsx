@@ -20,6 +20,7 @@ import { Progress } from '../components/ui/progress'
 import { useToast } from '../hooks/use-toast'
 import { useBescheidContext } from '../contexts/BescheidContext'
 import { useConfetti } from '../hooks/use-confetti'
+import { analyzeDocument, mapToBescheidTyp } from '../lib/document-analysis'
 
 interface QueuedFile {
   id: string
@@ -160,51 +161,71 @@ export default function MehrfachUploadPage() {
     setFiles([])
   }
 
-  const simulateProcessing = async (qf: QueuedFile): Promise<QueuedFile> => {
-    // Simulate upload
-    for (let p = 0; p <= 50; p += 10 + Math.random() * 15) {
-      await new Promise(r => setTimeout(r, 150 + Math.random() * 200))
-      setFiles(prev =>
-        prev.map(f => f.id === qf.id ? { ...f, status: 'uploading' as const, progress: Math.min(p, 50) } : f)
-      )
-    }
-
+  const processFile = async (qf: QueuedFile): Promise<QueuedFile> => {
+    // Show upload progress
     setFiles(prev =>
-      prev.map(f => f.id === qf.id ? { ...f, status: 'processing', progress: 50 } : f)
+      prev.map(f => f.id === qf.id ? { ...f, status: 'uploading' as const, progress: 20 } : f)
     )
 
-    // Simulate OCR/analysis
-    for (let p = 50; p <= 100; p += 8 + Math.random() * 12) {
-      await new Promise(r => setTimeout(r, 200 + Math.random() * 300))
-      setFiles(prev =>
-        prev.map(f => f.id === qf.id ? { ...f, progress: Math.min(p, 100) } : f)
-      )
-    }
-
-    // Simulate auto-detection
-    const types = ['einkommensteuer', 'gewerbesteuer', 'umsatzsteuer', 'grundsteuer']
-    const years = ['2024', '2023', '2022']
-    const detectedTyp = types[Math.floor(Math.random() * types.length)]
-    const detectedJahr = years[Math.floor(Math.random() * years.length)]
-
-    // Create Bescheid
-    const typLabel = detectedTyp.charAt(0).toUpperCase() + detectedTyp.slice(1)
-    await createBescheid({
-      titel: `${typLabel} ${detectedJahr}`,
-      typ: detectedTyp as 'einkommensteuer' | 'gewerbesteuer' | 'umsatzsteuer' | 'grundsteuer',
-      steuerjahr: parseInt(detectedJahr),
-      finanzamt: 'Automatisch erkannt',
-    })
-
+    // Transition to processing (AI analysis)
     setFiles(prev =>
-      prev.map(f =>
-        f.id === qf.id
-          ? { ...f, status: 'done', progress: 100, detectedTyp, detectedJahr }
-          : f
-      )
+      prev.map(f => f.id === qf.id ? { ...f, status: 'processing', progress: 40 } : f)
     )
 
-    return { ...qf, status: 'done', progress: 100, detectedTyp, detectedJahr }
+    // Animate progress while waiting
+    const progressInterval = setInterval(() => {
+      setFiles(prev =>
+        prev.map(f => {
+          if (f.id !== qf.id || f.progress >= 85) return f
+          return { ...f, progress: f.progress + Math.random() * 6 }
+        })
+      )
+    }, 400)
+
+    try {
+      const result = await analyzeDocument(qf.file)
+
+      clearInterval(progressInterval)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Analyse fehlgeschlagen')
+      }
+
+      const detectedTyp = mapToBescheidTyp(result.typ)
+      const detectedJahr = result.steuerjahr || 'Unbekannt'
+      const typLabel = detectedTyp.charAt(0).toUpperCase() + detectedTyp.slice(1)
+
+      // Create Bescheid with real AI-detected data
+      await createBescheid({
+        titel: `${typLabel} ${detectedJahr}`,
+        typ: detectedTyp,
+        steuerjahr: parseInt(detectedJahr) || new Date().getFullYear(),
+        finanzamt: result.finanzamt || 'Nicht erkannt',
+        aktenzeichen: result.aktenzeichen || undefined,
+        festgesetzteSteuer: result.festgesetzteSteuer ? Number(result.festgesetzteSteuer) : undefined,
+      })
+
+      setFiles(prev =>
+        prev.map(f =>
+          f.id === qf.id
+            ? { ...f, status: 'done', progress: 100, detectedTyp, detectedJahr }
+            : f
+        )
+      )
+
+      return { ...qf, status: 'done', progress: 100, detectedTyp, detectedJahr }
+    } catch (err) {
+      clearInterval(progressInterval)
+      const errorMsg = err instanceof Error ? err.message : 'Verarbeitung fehlgeschlagen'
+      setFiles(prev =>
+        prev.map(f =>
+          f.id === qf.id
+            ? { ...f, status: 'error', error: errorMsg, progress: 0 }
+            : f
+        )
+      )
+      throw err
+    }
   }
 
   const processAll = async () => {
@@ -218,16 +239,9 @@ export default function MehrfachUploadPage() {
 
     for (const qf of queued) {
       try {
-        await simulateProcessing(qf)
+        await processFile(qf)
         successCount++
       } catch {
-        setFiles(prev =>
-          prev.map(f =>
-            f.id === qf.id
-              ? { ...f, status: 'error', error: 'Verarbeitung fehlgeschlagen', progress: 0 }
-              : f
-          )
-        )
         errorCount++
       }
     }

@@ -14,13 +14,15 @@ import {
   Wand2,
   ArrowRight,
   AlertTriangle,
+  XCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { Progress } from '../components/ui/progress'
+import { analyzeDocument, type DocumentAnalysisResult } from '../lib/document-analysis'
 
-type ScanStep = 'upload' | 'processing' | 'preview' | 'result'
+type ScanStep = 'upload' | 'processing' | 'preview' | 'result' | 'error'
 
 interface OcrResult {
   typ: string
@@ -29,6 +31,8 @@ interface OcrResult {
   aktenzeichen: string
   festgesetzteSteuer: string
   confidence: number
+  details?: DocumentAnalysisResult['details']
+  hinweise?: string[]
 }
 
 export default function DokumentScannerPage() {
@@ -39,12 +43,13 @@ export default function DokumentScannerPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [ocrResult, setOcrResult] = useState<OcrResult | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
-    startProcessing()
+    startProcessing(file)
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -53,37 +58,60 @@ export default function DokumentScannerPage() {
     if (file) handleFileSelect(file)
   }
 
-  const startProcessing = () => {
+  const startProcessing = async (file: File) => {
     setStep('processing')
     setProgress(0)
+    setErrorMessage(null)
 
-    // Simulate OCR processing
-    const steps = [
-      { progress: 15, delay: 400 },
-      { progress: 35, delay: 800 },
-      { progress: 55, delay: 600 },
-      { progress: 75, delay: 500 },
-      { progress: 90, delay: 400 },
-      { progress: 100, delay: 300 },
-    ]
+    // Animate progress while waiting for AI analysis
+    setProgress(10)
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 85) return prev
+        return prev + Math.random() * 8
+      })
+    }, 500)
 
-    let totalDelay = 0
-    steps.forEach(({ progress: p, delay }) => {
-      totalDelay += delay
-      setTimeout(() => setProgress(p), totalDelay)
-    })
+    try {
+      const result = await analyzeDocument(file)
 
-    setTimeout(() => {
+      clearInterval(progressInterval)
+      setProgress(100)
+
+      if (!result.success) {
+        setErrorMessage(result.error || 'Analyse fehlgeschlagen')
+        setStep('error')
+        return
+      }
+
+      const typLabels: Record<string, string> = {
+        einkommensteuer: 'Einkommensteuer',
+        gewerbesteuer: 'Gewerbesteuer',
+        umsatzsteuer: 'Umsatzsteuer',
+        koerperschaftsteuer: 'Koerperschaftsteuer',
+        grundsteuer: 'Grundsteuer',
+        sonstige: 'Sonstige',
+      }
+
       setOcrResult({
-        typ: 'Einkommensteuer',
-        steuerjahr: '2024',
-        finanzamt: 'Berlin Mitte',
-        aktenzeichen: '21/815/61234',
-        festgesetzteSteuer: '8.432,00',
-        confidence: 94,
+        typ: typLabels[result.typ || 'sonstige'] || result.typ || 'Unbekannt',
+        steuerjahr: result.steuerjahr || 'Nicht erkannt',
+        finanzamt: result.finanzamt || 'Nicht erkannt',
+        aktenzeichen: result.aktenzeichen || 'Nicht erkannt',
+        festgesetzteSteuer: result.festgesetzteSteuer
+          ? Number(result.festgesetzteSteuer).toLocaleString('de-DE', { minimumFractionDigits: 2 })
+          : 'Nicht erkannt',
+        confidence: result.confidence || 0,
+        details: result.details,
+        hinweise: result.hinweise,
       })
       setStep('result')
-    }, totalDelay + 200)
+    } catch (err) {
+      clearInterval(progressInterval)
+      console.error('Document analysis failed:', err)
+      setErrorMessage('Verbindung zur KI-Analyse fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      setStep('error')
+    }
   }
 
   const reset = () => {
@@ -91,6 +119,7 @@ export default function DokumentScannerPage() {
     setSelectedFile(null)
     setPreviewUrl(null)
     setOcrResult(null)
+    setErrorMessage(null)
     setProgress(0)
   }
 
@@ -254,6 +283,25 @@ export default function DokumentScannerPage() {
         </Card>
       )}
 
+      {/* Error Step */}
+      {step === 'error' && (
+        <Card className="border-red-200 dark:border-red-800">
+          <CardContent className="py-12">
+            <div className="max-w-md mx-auto text-center">
+              <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold">Analyse fehlgeschlagen</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                {errorMessage}
+              </p>
+              <Button onClick={reset} className="mt-6 gap-2">
+                <RotateCcw className="h-4 w-4" />
+                Erneut versuchen
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Result Step */}
       {step === 'result' && ocrResult && (
         <div className="space-y-4">
@@ -300,10 +348,10 @@ export default function DokumentScannerPage() {
                     Erkannte Daten
                   </CardTitle>
                   <Badge
-                    variant={ocrResult.confidence >= 90 ? 'default' : 'secondary'}
+                    variant={ocrResult.confidence >= 80 ? 'default' : ocrResult.confidence >= 50 ? 'secondary' : 'destructive'}
                     className="text-xs"
                   >
-                    {ocrResult.confidence >= 90 ? (
+                    {ocrResult.confidence >= 80 ? (
                       <CheckCircle2 className="h-3 w-3 mr-1" />
                     ) : (
                       <AlertTriangle className="h-3 w-3 mr-1" />
@@ -318,13 +366,28 @@ export default function DokumentScannerPage() {
                   { label: 'Steuerjahr', value: ocrResult.steuerjahr },
                   { label: 'Finanzamt', value: ocrResult.finanzamt },
                   { label: 'Aktenzeichen', value: ocrResult.aktenzeichen },
-                  { label: 'Festgesetzte Steuer', value: `${ocrResult.festgesetzteSteuer} EUR` },
+                  { label: 'Festgesetzte Steuer', value: ocrResult.festgesetzteSteuer !== 'Nicht erkannt' ? `${ocrResult.festgesetzteSteuer} EUR` : 'Nicht erkannt' },
+                  ...(ocrResult.details?.bescheiddatum ? [{ label: 'Bescheiddatum', value: ocrResult.details.bescheiddatum }] : []),
+                  ...(ocrResult.details?.steuerpflichtiger ? [{ label: 'Steuerpflichtiger', value: ocrResult.details.steuerpflichtiger }] : []),
+                  ...(ocrResult.details?.nachzahlung ? [{ label: 'Nachzahlung', value: `${Number(ocrResult.details.nachzahlung).toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR` }] : []),
+                  ...(ocrResult.details?.erstattung ? [{ label: 'Erstattung', value: `${Number(ocrResult.details.erstattung).toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR` }] : []),
                 ].map(field => (
                   <div key={field.label} className="flex items-center justify-between rounded-lg border border-border p-3">
                     <span className="text-sm text-muted-foreground">{field.label}</span>
                     <span className="text-sm font-semibold">{field.value}</span>
                   </div>
                 ))}
+
+                {ocrResult.hinweise && ocrResult.hinweise.length > 0 && (
+                  <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3">
+                    <p className="text-xs font-medium text-amber-800 dark:text-amber-200 mb-1">Hinweise:</p>
+                    <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                      {ocrResult.hinweise.map((h, i) => (
+                        <li key={i}>- {h}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="pt-4 flex gap-2">
                   <Button onClick={handleUebernehmen} className="flex-1 gap-2">
