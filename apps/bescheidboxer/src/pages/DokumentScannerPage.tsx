@@ -14,13 +14,15 @@ import {
   Wand2,
   ArrowRight,
   AlertTriangle,
+  XCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { Progress } from '../components/ui/progress'
+import { analyzeDocument, type DocumentAnalysisResult, type AnalysisPosition } from '../lib/document-analysis'
 
-type ScanStep = 'upload' | 'processing' | 'preview' | 'result'
+type ScanStep = 'upload' | 'processing' | 'preview' | 'result' | 'error'
 
 interface OcrResult {
   typ: string
@@ -29,6 +31,15 @@ interface OcrResult {
   aktenzeichen: string
   festgesetzteSteuer: string
   confidence: number
+  details?: DocumentAnalysisResult['details']
+  positionen?: AnalysisPosition[]
+  einspruchsfrist?: DocumentAnalysisResult['einspruchsfrist']
+  hinweise?: string[]
+}
+
+function fmtEur(val: string | null | undefined): string | null {
+  if (!val) return null
+  return `${Number(val).toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR`
 }
 
 export default function DokumentScannerPage() {
@@ -39,12 +50,13 @@ export default function DokumentScannerPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [ocrResult, setOcrResult] = useState<OcrResult | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
-    startProcessing()
+    startProcessing(file)
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -53,37 +65,62 @@ export default function DokumentScannerPage() {
     if (file) handleFileSelect(file)
   }
 
-  const startProcessing = () => {
+  const startProcessing = async (file: File) => {
     setStep('processing')
     setProgress(0)
+    setErrorMessage(null)
 
-    // Simulate OCR processing
-    const steps = [
-      { progress: 15, delay: 400 },
-      { progress: 35, delay: 800 },
-      { progress: 55, delay: 600 },
-      { progress: 75, delay: 500 },
-      { progress: 90, delay: 400 },
-      { progress: 100, delay: 300 },
-    ]
+    // Animate progress while waiting for AI analysis
+    setProgress(10)
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 85) return prev
+        return prev + Math.random() * 8
+      })
+    }, 500)
 
-    let totalDelay = 0
-    steps.forEach(({ progress: p, delay }) => {
-      totalDelay += delay
-      setTimeout(() => setProgress(p), totalDelay)
-    })
+    try {
+      const result = await analyzeDocument(file)
 
-    setTimeout(() => {
+      clearInterval(progressInterval)
+      setProgress(100)
+
+      if (!result.success) {
+        setErrorMessage(result.error || 'Analyse fehlgeschlagen')
+        setStep('error')
+        return
+      }
+
+      const typLabels: Record<string, string> = {
+        einkommensteuer: 'Einkommensteuer',
+        gewerbesteuer: 'Gewerbesteuer',
+        umsatzsteuer: 'Umsatzsteuer',
+        koerperschaftsteuer: 'Koerperschaftsteuer',
+        grundsteuer: 'Grundsteuer',
+        sonstige: 'Sonstige',
+      }
+
       setOcrResult({
-        typ: 'Einkommensteuer',
-        steuerjahr: '2024',
-        finanzamt: 'Berlin Mitte',
-        aktenzeichen: '21/815/61234',
-        festgesetzteSteuer: '8.432,00',
-        confidence: 94,
+        typ: typLabels[result.typ || 'sonstige'] || result.typ || 'Unbekannt',
+        steuerjahr: result.steuerjahr || 'Nicht erkannt',
+        finanzamt: result.finanzamt || 'Nicht erkannt',
+        aktenzeichen: result.aktenzeichen || 'Nicht erkannt',
+        festgesetzteSteuer: result.festgesetzteSteuer
+          ? Number(result.festgesetzteSteuer).toLocaleString('de-DE', { minimumFractionDigits: 2 })
+          : 'Nicht erkannt',
+        confidence: result.confidence || 0,
+        details: result.details,
+        positionen: result.positionen,
+        einspruchsfrist: result.einspruchsfrist,
+        hinweise: result.hinweise,
       })
       setStep('result')
-    }, totalDelay + 200)
+    } catch (err) {
+      clearInterval(progressInterval)
+      console.error('Document analysis failed:', err)
+      setErrorMessage('Verbindung zur KI-Analyse fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      setStep('error')
+    }
   }
 
   const reset = () => {
@@ -91,11 +128,46 @@ export default function DokumentScannerPage() {
     setSelectedFile(null)
     setPreviewUrl(null)
     setOcrResult(null)
+    setErrorMessage(null)
     setProgress(0)
   }
 
   const handleUebernehmen = () => {
     navigate('/schnellerfassung')
+  }
+
+  const buildDetailFields = (result: OcrResult): { label: string; value: string }[] => {
+    const fields: { label: string; value: string }[] = [
+      { label: 'Steuerart', value: result.typ },
+      { label: 'Steuerjahr', value: result.steuerjahr },
+      { label: 'Finanzamt', value: result.finanzamt },
+      { label: 'Aktenzeichen', value: result.aktenzeichen },
+      { label: 'Festgesetzte Steuer', value: result.festgesetzteSteuer !== 'Nicht erkannt' ? `${result.festgesetzteSteuer} EUR` : 'Nicht erkannt' },
+    ]
+    const d = result.details
+    if (!d) return fields
+
+    if (d.bescheiddatum) fields.push({ label: 'Bescheiddatum', value: d.bescheiddatum })
+    if (d.steuerpflichtiger) fields.push({ label: 'Steuerpflichtiger', value: d.steuerpflichtiger })
+    if (d.steuerklasse) fields.push({ label: 'Steuerklasse', value: d.steuerklasse })
+    if (d.zuVersteuerndEinkommen) fields.push({ label: 'Zu versteuerndes Einkommen', value: fmtEur(d.zuVersteuerndEinkommen)! })
+    if (d.summeEinkuenfte) fields.push({ label: 'Summe der Einkuenfte', value: fmtEur(d.summeEinkuenfte)! })
+    if (d.werbungskosten) fields.push({ label: 'Werbungskosten', value: fmtEur(d.werbungskosten)! })
+    if (d.sonderausgaben) fields.push({ label: 'Sonderausgaben', value: fmtEur(d.sonderausgaben)! })
+    if (d.vorsorgeaufwendungen) fields.push({ label: 'Vorsorgeaufwendungen', value: fmtEur(d.vorsorgeaufwendungen)! })
+    if (d.aussergewoehnlicheBelastungen) fields.push({ label: 'Ag. Belastungen', value: fmtEur(d.aussergewoehnlicheBelastungen)! })
+    if (d.kinderfreibetraege) fields.push({ label: 'Kinderfreibetraege', value: fmtEur(d.kinderfreibetraege)! })
+    if (d.kirchensteuer) fields.push({ label: 'Kirchensteuer', value: fmtEur(d.kirchensteuer)! })
+    if (d.solidaritaetszuschlag) fields.push({ label: 'Solidaritaetszuschlag', value: fmtEur(d.solidaritaetszuschlag)! })
+    if (d.vorauszahlungen) fields.push({ label: 'Vorauszahlungen', value: fmtEur(d.vorauszahlungen)! })
+    if (d.angerechneteSteuern) fields.push({ label: 'Angerechnete Steuern', value: fmtEur(d.angerechneteSteuern)! })
+    if (d.nachzahlung) fields.push({ label: 'Nachzahlung', value: fmtEur(d.nachzahlung)! })
+    if (d.erstattung) fields.push({ label: 'Erstattung', value: fmtEur(d.erstattung)! })
+    if (d.gewerbesteuerAnrechnung) fields.push({ label: 'GewSt-Anrechnung (§ 35)', value: fmtEur(d.gewerbesteuerAnrechnung)! })
+    if (d.haushaltsnaheDienste35a) fields.push({ label: 'Haushaltsnahe Dienste (§ 35a)', value: fmtEur(d.haushaltsnaheDienste35a)! })
+    if (d.progressionsvorbehaltEinkuenfte) fields.push({ label: 'Progressionsvorbehalt', value: fmtEur(d.progressionsvorbehaltEinkuenfte)! })
+
+    return fields
   }
 
   return (
@@ -242,13 +314,32 @@ export default function DokumentScannerPage() {
                 {progress < 30
                   ? 'Dokument wird geladen...'
                   : progress < 60
-                    ? 'OCR-Texterkennung laeuft...'
+                    ? 'KI-Analyse laeuft...'
                     : progress < 90
-                      ? 'Daten werden extrahiert...'
+                      ? 'Steuerliche Daten werden extrahiert...'
                       : 'Fast fertig...'}
               </p>
               <Progress value={progress} className="mt-6 h-2" />
-              <p className="text-xs text-muted-foreground mt-2">{progress}%</p>
+              <p className="text-xs text-muted-foreground mt-2">{Math.round(progress)}%</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error Step */}
+      {step === 'error' && (
+        <Card className="border-red-200 dark:border-red-800">
+          <CardContent className="py-12">
+            <div className="max-w-md mx-auto text-center">
+              <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold">Analyse fehlgeschlagen</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                {errorMessage}
+              </p>
+              <Button onClick={reset} className="mt-6 gap-2">
+                <RotateCcw className="h-4 w-4" />
+                Erneut versuchen
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -300,10 +391,10 @@ export default function DokumentScannerPage() {
                     Erkannte Daten
                   </CardTitle>
                   <Badge
-                    variant={ocrResult.confidence >= 90 ? 'default' : 'secondary'}
+                    variant={ocrResult.confidence >= 80 ? 'default' : ocrResult.confidence >= 50 ? 'secondary' : 'destructive'}
                     className="text-xs"
                   >
-                    {ocrResult.confidence >= 90 ? (
+                    {ocrResult.confidence >= 80 ? (
                       <CheckCircle2 className="h-3 w-3 mr-1" />
                     ) : (
                       <AlertTriangle className="h-3 w-3 mr-1" />
@@ -312,19 +403,86 @@ export default function DokumentScannerPage() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {[
-                  { label: 'Steuerart', value: ocrResult.typ },
-                  { label: 'Steuerjahr', value: ocrResult.steuerjahr },
-                  { label: 'Finanzamt', value: ocrResult.finanzamt },
-                  { label: 'Aktenzeichen', value: ocrResult.aktenzeichen },
-                  { label: 'Festgesetzte Steuer', value: `${ocrResult.festgesetzteSteuer} EUR` },
-                ].map(field => (
+              <CardContent className="space-y-3 max-h-[500px] overflow-y-auto">
+                {/* Kerndaten + Details */}
+                {buildDetailFields(ocrResult).map(field => (
                   <div key={field.label} className="flex items-center justify-between rounded-lg border border-border p-3">
                     <span className="text-sm text-muted-foreground">{field.label}</span>
                     <span className="text-sm font-semibold">{field.value}</span>
                   </div>
                 ))}
+
+                {/* Vorbehaltsvermerke */}
+                {(ocrResult.details?.vorbehaltDerNachpruefung || ocrResult.details?.vorlaeufig) && (
+                  <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-3">
+                    <p className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">Vermerke:</p>
+                    <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                      {ocrResult.details.vorbehaltDerNachpruefung && (
+                        <p>- Vorbehalt der Nachpruefung (§ 164 AO) - Bescheid kann noch geaendert werden</p>
+                      )}
+                      {ocrResult.details.vorlaeufig && (
+                        <p>- Vorlaeufige Festsetzung (§ 165 AO){ocrResult.details.vorlaeufigkeitsvermerk ? `: ${ocrResult.details.vorlaeufigkeitsvermerk}` : ''}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Einspruchsfrist */}
+                {ocrResult.einspruchsfrist?.fristende && (
+                  <div className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-3">
+                    <p className="text-xs font-medium text-red-800 dark:text-red-200 mb-1">Einspruchsfrist (§ 355 AO):</p>
+                    <div className="text-xs text-red-700 dark:text-red-300 space-y-1">
+                      {ocrResult.einspruchsfrist.bekanntgabe && (
+                        <p>Bekanntgabe: {ocrResult.einspruchsfrist.bekanntgabe}</p>
+                      )}
+                      <p className="font-semibold">Fristende: {ocrResult.einspruchsfrist.fristende}</p>
+                      {ocrResult.einspruchsfrist.hinweis && (
+                        <p>{ocrResult.einspruchsfrist.hinweis}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Einzelpositionen */}
+                {ocrResult.positionen && ocrResult.positionen.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Erkannte Positionen:</p>
+                    <div className="rounded-lg border border-border overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-muted/50">
+                            <th className="text-left p-2 font-medium">Position</th>
+                            <th className="text-right p-2 font-medium">Betrag</th>
+                            <th className="text-right p-2 font-medium">§</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {ocrResult.positionen.map((pos, i) => (
+                            <tr key={i}>
+                              <td className="p-2 text-muted-foreground">{pos.bezeichnung}</td>
+                              <td className="p-2 text-right font-mono">
+                                {pos.festgesetzterBetrag ? fmtEur(pos.festgesetzterBetrag) : '-'}
+                              </td>
+                              <td className="p-2 text-right text-muted-foreground">{pos.paragraph || ''}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hinweise */}
+                {ocrResult.hinweise && ocrResult.hinweise.length > 0 && (
+                  <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3">
+                    <p className="text-xs font-medium text-amber-800 dark:text-amber-200 mb-1">Hinweise:</p>
+                    <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                      {ocrResult.hinweise.map((h, i) => (
+                        <li key={i}>- {h}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="pt-4 flex gap-2">
                   <Button onClick={handleUebernehmen} className="flex-1 gap-2">
