@@ -4,6 +4,14 @@
  */
 import { supabase } from '../integrations/supabase/client'
 
+export interface AnalysisPosition {
+  bezeichnung: string
+  erklaerterBetrag?: string | null
+  festgesetzterBetrag?: string | null
+  abweichung?: string | null
+  paragraph?: string | null
+}
+
 export interface DocumentAnalysisResult {
   success: boolean
   typ?: string
@@ -16,10 +24,32 @@ export interface DocumentAnalysisResult {
   details?: {
     steuerpflichtiger?: string | null
     bescheiddatum?: string | null
+    steuerklasse?: string | null
     zuVersteuerndEinkommen?: string | null
+    summeEinkuenfte?: string | null
+    werbungskosten?: string | null
+    sonderausgaben?: string | null
+    aussergewoehnlicheBelastungen?: string | null
+    vorsorgeaufwendungen?: string | null
+    kinderfreibetraege?: string | null
+    kirchensteuer?: string | null
+    solidaritaetszuschlag?: string | null
     vorauszahlungen?: string | null
+    angerechneteSteuern?: string | null
     nachzahlung?: string | null
     erstattung?: string | null
+    progressionsvorbehaltEinkuenfte?: string | null
+    gewerbesteuerAnrechnung?: string | null
+    haushaltsnaheDienste35a?: string | null
+    vorbehaltDerNachpruefung?: boolean
+    vorlaeufig?: boolean
+    vorlaeufigkeitsvermerk?: string | null
+  }
+  positionen?: AnalysisPosition[]
+  einspruchsfrist?: {
+    bekanntgabe?: string | null
+    fristende?: string | null
+    hinweis?: string | null
   }
   hinweise?: string[]
   error?: string
