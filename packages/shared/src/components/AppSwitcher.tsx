@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { FINTUTTO_APPS, APP_CATEGORIES, type AppCategory } from '../index'
+import { FINTUTTO_APPS, APP_CATEGORIES, type AppCategory } from '../apps'
 
 interface AppSwitcherProps {
   currentAppSlug: string

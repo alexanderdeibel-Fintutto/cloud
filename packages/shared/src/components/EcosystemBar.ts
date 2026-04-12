@@ -1,4 +1,4 @@
-import { FINTUTTO_APPS, APP_CATEGORIES, type FintuttoAppKey, type AppCategory } from '../index'
+import { FINTUTTO_APPS, APP_CATEGORIES, type FintuttoAppKey, type AppCategory } from '../apps'
 
 /**
  * Returns a flat list of ecosystem apps for navigation (excluding current app).

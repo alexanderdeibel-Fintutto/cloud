@@ -1,4 +1,4 @@
-import { FINTUTTO_APPS, APP_CATEGORIES } from '../index'
+import { FINTUTTO_APPS, APP_CATEGORIES } from '../apps'
 
 const appCount = Object.keys(FINTUTTO_APPS).length
 const categoryCount = Object.keys(APP_CATEGORIES).length

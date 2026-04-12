@@ -1,4 +1,4 @@
-import { FINTUTTO_APPS } from './index'
+import { FINTUTTO_APPS } from './apps'
 
 /**
  * Cross-app deep link builder for the Fintutto ecosystem.
