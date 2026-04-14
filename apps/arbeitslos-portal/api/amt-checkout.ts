@@ -32,11 +32,59 @@ const PLAN_LIMITS: Record<string, {
   },
 }
 
-// Maps planId + interval -> Stripe Price ID env var name
-function getPriceIdEnvName(planId: string, interval: string): string {
-  const intervalUpper = interval === 'yearly' ? 'YEARLY' : 'MONTHLY'
-  const planUpper = planId.toUpperCase()
-  return `STRIPE_PRICE_${planUpper}_${intervalUpper}`
+/**
+ * Resolves the Stripe Price ID for a given plan + interval.
+ *
+ * Strategy (in order):
+ * 1. Explicit priceId in request body (legacy)
+ * 2. Stripe Lookup Key: "bescheidboxer_<planId>_<interval>"
+ *    (you set the lookup_key on each Price in Stripe Dashboard)
+ * 3. Env var fallback: STRIPE_PRICE_<PLAN>_<INTERVAL>
+ *
+ * Using Lookup Keys is strongly preferred - you configure prices in
+ * Stripe Dashboard once and don't need to redeploy to change them.
+ */
+async function resolvePriceId(
+  planId: string,
+  interval: string,
+  bodyPriceId?: string,
+): Promise<{ priceId: string | null; error?: string }> {
+  // 1. Explicit priceId from request body
+  if (bodyPriceId) {
+    return { priceId: bodyPriceId }
+  }
+
+  const intervalNormalized = interval === 'yearly' ? 'yearly' : 'monthly'
+
+  // 2. Stripe Lookup Key
+  const lookupKey = `bescheidboxer_${planId}_${intervalNormalized}`
+  try {
+    const prices = await stripe.prices.list({
+      lookup_keys: [lookupKey],
+      active: true,
+      limit: 1,
+    })
+    if (prices.data.length > 0) {
+      return { priceId: prices.data[0].id }
+    }
+  } catch (err) {
+    console.warn(`Lookup key search failed for ${lookupKey}:`, err)
+  }
+
+  // 3. Env var fallback
+  const envName = `STRIPE_PRICE_${planId.toUpperCase()}_${intervalNormalized.toUpperCase()}`
+  const envValue = process.env[envName]
+  if (envValue) {
+    return { priceId: envValue }
+  }
+
+  return {
+    priceId: null,
+    error:
+      `Kein Stripe-Preis fuer ${planId} (${intervalNormalized}) gefunden. ` +
+      `Setze entweder einen Lookup Key "${lookupKey}" auf dem Price im Stripe Dashboard ` +
+      `oder die Umgebungsvariable ${envName} in Vercel.`,
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -56,15 +104,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Ungueltige planId. Erlaubt: starter, kaempfer, vollschutz.' })
     }
 
-    // Resolve price ID: prefer body param (legacy), fall back to env var lookup
     const intervalNormalized = interval === 'yearly' ? 'yearly' : 'monthly'
-    const priceIdEnvName = getPriceIdEnvName(planId, intervalNormalized)
-    const priceId = priceIdFromBody || process.env[priceIdEnvName]
+    const resolved = await resolvePriceId(planId, intervalNormalized, priceIdFromBody)
 
-    if (!priceId) {
-      return res.status(500).json({
-        error: `Stripe Price ID nicht konfiguriert. Setze die Umgebungsvariable ${priceIdEnvName} in Vercel.`,
-      })
+    if (!resolved.priceId) {
+      return res.status(500).json({ error: resolved.error || 'Stripe-Preis nicht gefunden' })
     }
 
     const planLimits = PLAN_LIMITS[planId]
@@ -74,7 +118,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId,
+          price: resolved.priceId,
           quantity: 1,
         },
       ],
