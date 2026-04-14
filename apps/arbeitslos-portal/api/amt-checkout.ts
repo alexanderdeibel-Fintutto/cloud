@@ -2,7 +2,7 @@ import Stripe from 'stripe'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2024-12-18.acacia' as Stripe.LatestApiVersion,
 })
 
 // Plan limits matching credits.ts PLANS config
@@ -32,6 +32,13 @@ const PLAN_LIMITS: Record<string, {
   },
 }
 
+// Maps planId + interval -> Stripe Price ID env var name
+function getPriceIdEnvName(planId: string, interval: string): string {
+  const intervalUpper = interval === 'yearly' ? 'YEARLY' : 'MONTHLY'
+  const planUpper = planId.toUpperCase()
+  return `STRIPE_PRICE_${planUpper}_${intervalUpper}`
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -39,14 +46,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, userEmail, planId, interval } = req.body
+    const { priceId: priceIdFromBody, userId, userEmail, planId, interval } = req.body
 
-    if (!priceId || !planId) {
-      return res.status(400).json({ error: 'Price ID and Plan ID are required' })
+    if (!planId) {
+      return res.status(400).json({ error: 'planId ist erforderlich' })
     }
 
     if (!['starter', 'kaempfer', 'vollschutz'].includes(planId)) {
-      return res.status(400).json({ error: 'Invalid plan ID. Must be starter, kaempfer, or vollschutz.' })
+      return res.status(400).json({ error: 'Ungueltige planId. Erlaubt: starter, kaempfer, vollschutz.' })
+    }
+
+    // Resolve price ID: prefer body param (legacy), fall back to env var lookup
+    const intervalNormalized = interval === 'yearly' ? 'yearly' : 'monthly'
+    const priceIdEnvName = getPriceIdEnvName(planId, intervalNormalized)
+    const priceId = priceIdFromBody || process.env[priceIdEnvName]
+
+    if (!priceId) {
+      return res.status(500).json({
+        error: `Stripe Price ID nicht konfiguriert. Setze die Umgebungsvariable ${priceIdEnvName} in Vercel.`,
+      })
     }
 
     const planLimits = PLAN_LIMITS[planId]
@@ -67,7 +85,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         app: 'bescheidboxer',
         userId: userId || '',
         planId,
-        interval: interval || 'monthly',
+        interval: intervalNormalized,
         chatMessagesPerDay: String(planLimits.chatMessagesPerDay),
         lettersPerMonth: String(planLimits.lettersPerMonth),
         bescheidScansPerMonth: String(planLimits.bescheidScansPerMonth),

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import useDocumentTitle from '@/hooks/useDocumentTitle'
 import {
   CheckCircle2,
@@ -10,15 +11,20 @@ import {
   CreditCard,
   ArrowRight,
   Home,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { PLANS, CREDIT_PACKAGES, type PlanType } from '@/lib/credits'
+import { useAuth } from '@/contexts/AuthContext'
+
+type PaidPlan = 'starter' | 'kaempfer' | 'vollschutz'
 
 const planMeta: Record<
   PlanType,
-  { icon: typeof Shield; features: string[]; cta: string; ctaLink: string }
+  { icon: typeof Shield; features: string[]; cta: string }
 > = {
   schnupperer: {
     icon: Shield,
@@ -29,7 +35,6 @@ const planMeta: Record<
       'Basis-Rechtsinfos zu SGB II, III, XII',
     ],
     cta: 'Kostenlos starten',
-    ctaLink: '/register',
   },
   starter: {
     icon: Zap,
@@ -41,7 +46,6 @@ const planMeta: Record<
       'Forum lesen, posten & limitierter Chat',
     ],
     cta: 'Starter waehlen',
-    ctaLink: '/register?plan=starter',
   },
   kaempfer: {
     icon: Swords,
@@ -55,7 +59,6 @@ const planMeta: Record<
       'MieterApp Basic inklusive',
     ],
     cta: 'Kaempfer waehlen',
-    ctaLink: '/register?plan=kaempfer',
   },
   vollschutz: {
     icon: Crown,
@@ -69,7 +72,6 @@ const planMeta: Record<
       'MieterApp Premium inklusive',
     ],
     cta: 'Vollschutz waehlen',
-    ctaLink: '/register?plan=vollschutz',
   },
 }
 
@@ -110,6 +112,65 @@ const faqItems = [
 
 export default function PricingPage() {
   useDocumentTitle('Preise - BescheidBoxer')
+  const { user, profile } = useAuth()
+  const navigate = useNavigate()
+  const [loadingPlan, setLoadingPlan] = useState<PaidPlan | null>(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+
+  const handleSelectPlan = async (planKey: PlanType) => {
+    setCheckoutError(null)
+
+    // Free plan -> registration only
+    if (planKey === 'schnupperer') {
+      navigate(user ? '/dashboard' : '/register')
+      return
+    }
+
+    const planId = planKey as PaidPlan
+
+    // Not logged in -> register first, preserve plan choice
+    if (!user) {
+      navigate(`/register?plan=${planId}`)
+      return
+    }
+
+    // Logged in -> create Stripe checkout session
+    setLoadingPlan(planId)
+    try {
+      const response = await fetch('/api/amt-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId,
+          interval: 'monthly',
+          userId: profile?.id || user.id,
+          userEmail: profile?.email || user.email,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.url) {
+        setCheckoutError(
+          data.error || 'Checkout konnte nicht gestartet werden. Bitte versuche es erneut.'
+        )
+        setLoadingPlan(null)
+        return
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url
+    } catch (err) {
+      console.error('Checkout failed:', err)
+      setCheckoutError(
+        err instanceof Error
+          ? `Fehler: ${err.message}`
+          : 'Verbindung zum Checkout-Service fehlgeschlagen.'
+      )
+      setLoadingPlan(null)
+    }
+  }
+
   return (
     <div className="container py-12">
       {/* Header */}
@@ -125,6 +186,24 @@ export default function PricingPage() {
           Keine versteckten Kosten, jederzeit kuendbar.
         </p>
       </div>
+
+      {/* Checkout error banner */}
+      {checkoutError && (
+        <div className="max-w-3xl mx-auto mb-8">
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="p-4 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Checkout fehlgeschlagen</p>
+                <p className="text-xs text-muted-foreground">{checkoutError}</p>
+              </div>
+              <button onClick={() => setCheckoutError(null)} className="text-xs text-muted-foreground hover:text-foreground">
+                Schliessen
+              </button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Pricing Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-20">
@@ -219,9 +298,17 @@ export default function PricingPage() {
                             : 'outline'
                     }
                     size="lg"
-                    asChild
+                    onClick={() => handleSelectPlan(key)}
+                    disabled={loadingPlan !== null}
                   >
-                    <Link to={meta.ctaLink}>{meta.cta}</Link>
+                    {loadingPlan === key ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Wird vorbereitet...
+                      </>
+                    ) : (
+                      meta.cta
+                    )}
                   </Button>
                 </CardContent>
               </Card>
