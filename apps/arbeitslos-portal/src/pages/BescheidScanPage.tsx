@@ -30,6 +30,7 @@ import {
   fileToBase64,
   validateFile,
 } from '@/lib/bescheid-ocr'
+import { supabase } from '@/integrations/supabase/client'
 
 interface ScanError {
   type: 'fehler' | 'warnung' | 'ok'
@@ -104,6 +105,7 @@ export default function BescheidScanPage() {
   const [scanProgress, setScanProgress] = useState('')
   const [dragActive, setDragActive] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [scanError, setScanError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { checkScan, useScan } = useCreditsContext()
 
@@ -178,16 +180,16 @@ export default function BescheidScanPage() {
     if (!scanCheck.allowed) return
 
     setScanState('scanning')
+    setScanError(null)
     await useScan()
 
-    const apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT
-
-    // Step 1: Extract text from all pages (OCR via Vision API)
+    // Step 1: Extract text from all pages via Supabase Edge Function (amt-scan with action=ocr)
     let combinedText = ''
 
-    if (hasPages && apiEndpoint) {
+    if (hasPages) {
       setScanProgress('Seiten werden per OCR erfasst...')
       const pageTexts: string[] = []
+      let ocrErrors = 0
 
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i]
@@ -198,31 +200,30 @@ export default function BescheidScanPage() {
           const base64 = await fileToBase64(page.file)
           const mediaType = page.file.type || 'image/jpeg'
 
-          const response = await fetch(`${apiEndpoint}/amt-scan`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          const { data, error } = await supabase.functions.invoke('amt-scan', {
+            body: {
               action: 'ocr',
               imageData: base64,
               mediaType,
               pageNumber: i + 1,
               totalPages: pages.length,
-            }),
+            },
           })
 
-          if (response.ok) {
-            const data = await response.json()
+          if (!error && data?.extractedText) {
             const text = data.extractedText || ''
             pageTexts.push(text)
             setPages(prev => prev.map(p =>
               p.id === page.id ? { ...p, status: 'done', extractedText: text } : p
             ))
           } else {
+            ocrErrors++
             setPages(prev => prev.map(p =>
               p.id === page.id ? { ...p, status: 'error' } : p
             ))
           }
         } catch {
+          ocrErrors++
           setPages(prev => prev.map(p =>
             p.id === page.id ? { ...p, status: 'error' } : p
           ))
@@ -230,6 +231,13 @@ export default function BescheidScanPage() {
       }
 
       combinedText = pageTexts.filter(Boolean).join('\n\n--- Naechste Seite ---\n\n')
+
+      // All pages failed - abort with clear error
+      if (ocrErrors === pages.length) {
+        setScanError('Keine der hochgeladenen Seiten konnte gelesen werden. Bitte pruefe Bildqualitaet und Internetverbindung und versuche es erneut.')
+        setScanState('upload')
+        return
+      }
     }
 
     // Add manual text if provided
@@ -239,66 +247,71 @@ export default function BescheidScanPage() {
         : manualText.trim()
     }
 
-    // Step 2: Analyze the combined text
-    if (combinedText && apiEndpoint) {
-      setScanProgress('Bescheid wird auf Fehler analysiert...')
-
-      try {
-        const response = await fetch(`${apiEndpoint}/amt-scan`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'analyze',
-            bescheidText: combinedText,
-          }),
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          if (data.analysis) {
-            // Transform API response to our ScanResult format
-            const analysis = data.analysis
-            const errors: ScanError[] = [
-              ...(analysis.fehler || []).map((f: { schwere: string; beschreibung: string; paragraph: string; potenziellerBetrag: number; empfehlung: string; kategorie: string }) => ({
-                type: f.schwere === 'kritisch' ? 'fehler' as const : f.schwere === 'warnung' ? 'warnung' as const : 'ok' as const,
-                title: f.beschreibung?.split('.')[0] || 'Fehler gefunden',
-                description: f.beschreibung || '',
-                paragraph: f.paragraph,
-                betrag: f.potenziellerBetrag || undefined,
-                templateId: f.kategorie === 'kdu' ? 'widerspruch_kdu'
-                  : f.kategorie === 'mehrbedarf' ? 'antrag_mehrbedarf'
-                  : f.kategorie === 'einkommen' ? 'widerspruch_einkommen'
-                  : undefined,
-              })),
-              ...(analysis.korrekt || []).map((k: string) => ({
-                type: 'ok' as const,
-                title: k.split('.')[0] || k,
-                description: k,
-              })),
-            ]
-
-            setResult({
-              errors,
-              totalMissing: analysis.gesamtPotenzial || 0,
-              totalOver6Months: (analysis.gesamtPotenzial || 0) * 6,
-              urgency: analysis.dringlichkeit || 'mittel',
-              fristEnde: analysis.fristende || undefined,
-            })
-            setScanState('result')
-            return
-          }
-        }
-      } catch {
-        // Fall through to demo
-      }
+    if (!combinedText) {
+      setScanError('Kein Text zum Analysieren vorhanden.')
+      setScanState('upload')
+      return
     }
 
-    // Demo mode fallback (no API or no pages uploaded)
-    setScanProgress('Analyse laeuft...')
-    await new Promise((r) => setTimeout(r, 3500))
-    const scanResult = generateDemoScanResult()
-    setResult(scanResult)
-    setScanState('result')
+    // Step 2: Analyze the combined text via Supabase Edge Function
+    setScanProgress('Bescheid wird auf Fehler analysiert...')
+
+    try {
+      const { data, error } = await supabase.functions.invoke('amt-scan', {
+        body: {
+          action: 'analyze',
+          bescheidText: combinedText,
+        },
+      })
+
+      if (error || !data?.analysis) {
+        console.error('amt-scan analyze error:', error)
+        setScanError(
+          error?.message ||
+          'Die KI-Analyse hat keine Auswertung zurueckgeliefert. Bitte versuche es erneut.'
+        )
+        setScanState('upload')
+        return
+      }
+
+      // Transform API response to our ScanResult format
+      const analysis = data.analysis
+      const errors: ScanError[] = [
+        ...(analysis.fehler || []).map((f: { schwere: string; beschreibung: string; paragraph: string; potenziellerBetrag: number; empfehlung: string; kategorie: string }) => ({
+          type: f.schwere === 'kritisch' ? 'fehler' as const : f.schwere === 'warnung' ? 'warnung' as const : 'ok' as const,
+          title: f.beschreibung?.split('.')[0] || 'Fehler gefunden',
+          description: f.beschreibung || '',
+          paragraph: f.paragraph,
+          betrag: f.potenziellerBetrag || undefined,
+          templateId: f.kategorie === 'kdu' ? 'widerspruch_kdu'
+            : f.kategorie === 'mehrbedarf' ? 'antrag_mehrbedarf'
+            : f.kategorie === 'einkommen' ? 'widerspruch_einkommen'
+            : undefined,
+        })),
+        ...(analysis.korrekt || []).map((k: string) => ({
+          type: 'ok' as const,
+          title: k.split('.')[0] || k,
+          description: k,
+        })),
+      ]
+
+      setResult({
+        errors,
+        totalMissing: analysis.gesamtPotenzial || 0,
+        totalOver6Months: (analysis.gesamtPotenzial || 0) * 6,
+        urgency: analysis.dringlichkeit || 'mittel',
+        fristEnde: analysis.fristende || undefined,
+      })
+      setScanState('result')
+    } catch (err) {
+      console.error('amt-scan analyze exception:', err)
+      setScanError(
+        err instanceof Error
+          ? `Analyse fehlgeschlagen: ${err.message}`
+          : 'Die Verbindung zur KI-Analyse ist fehlgeschlagen.'
+      )
+      setScanState('upload')
+    }
   }
 
   const handleDemoScan = () => {
@@ -328,6 +341,7 @@ export default function BescheidScanPage() {
     setResult(null)
     setScanProgress('')
     setUploadError(null)
+    setScanError(null)
   }
 
   const errorsCount = result?.errors.filter(e => e.type === 'fehler').length || 0
@@ -493,6 +507,22 @@ export default function BescheidScanPage() {
                   <p className="text-xs text-muted-foreground whitespace-pre-line">{uploadError}</p>
                 </div>
                 <button onClick={() => setUploadError(null)} className="ml-auto">
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Scan error */}
+          {scanError && (
+            <Card className="border-destructive/40 bg-destructive/5">
+              <CardContent className="p-4 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Analyse fehlgeschlagen</p>
+                  <p className="text-xs text-muted-foreground whitespace-pre-line">{scanError}</p>
+                </div>
+                <button onClick={() => setScanError(null)} className="ml-auto">
                   <X className="h-4 w-4 text-muted-foreground" />
                 </button>
               </CardContent>
