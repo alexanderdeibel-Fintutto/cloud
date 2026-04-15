@@ -16,6 +16,7 @@ import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Onboarding from "./pages/Onboarding";
 import Settings from "./pages/Settings";
+import Immobilien from "./pages/Immobilien";
 
 // Components
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -51,6 +52,9 @@ const App = () => (
         } />
         <Route path="/zeiterfassung" element={
           <ProtectedRoute><Zeiterfassung /></ProtectedRoute>
+        } />
+        <Route path="/immobilien" element={
+          <ProtectedRoute><Immobilien /></ProtectedRoute>
         } />
         <Route path="/einstellungen" element={
           <ProtectedRoute><Settings /></ProtectedRoute>

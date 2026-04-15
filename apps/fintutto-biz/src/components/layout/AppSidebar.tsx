@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Clock,
+  Building2,
 } from "lucide-react";
 
 const navItems = [
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Ausgaben", icon: Receipt, path: "/ausgaben" },
   { label: "Zeiterfassung", icon: Clock, path: "/zeiterfassung" },
   { label: "Kunden", icon: Users, path: "/kunden" },
+  { label: "Immobilien", icon: Building2, path: "/immobilien" },
   { label: "Steuern", icon: Calculator, path: "/steuern" },
   { label: "Preise", icon: CreditCard, path: "/preise" },
   { label: "Einstellungen", icon: Settings, path: "/einstellungen" },

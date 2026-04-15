@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useBusiness } from "@/hooks/useBusiness";
+import { useBuildings } from "@/hooks/useBuildings";
 import { formatEuro, formatDateDE } from "@/lib/utils";
-import { Plus, Receipt, Search } from "lucide-react";
+import { Plus, Receipt, Search, Building2 } from "lucide-react";
 
 interface Expense {
   id: string;
@@ -14,6 +15,7 @@ interface Expense {
   tax_deductible: boolean;
   vat_rate: number;
   vat_amount: number;
+  building_id: string | null;
   created_at: string;
 }
 
@@ -41,6 +43,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function Expenses() {
   const { business } = useBusiness();
+  const { buildings } = useBuildings();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -53,6 +56,7 @@ export default function Expenses() {
   const [occurredAt, setOccurredAt] = useState(new Date().toISOString().split("T")[0]);
   const [vatRate, setVatRate] = useState(19);
   const [taxDeductible, setTaxDeductible] = useState(true);
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -97,6 +101,7 @@ export default function Expenses() {
       vat_rate: vatRate,
       vat_amount: vatAmount,
       tax_deductible: taxDeductible,
+      building_id: selectedBuildingId || null,
     });
 
     if (!error) {
@@ -105,10 +110,16 @@ export default function Expenses() {
       setCategory("Sonstiges");
       setVatRate(19);
       setTaxDeductible(true);
+      setSelectedBuildingId("");
       setShowForm(false);
       fetchExpenses();
     }
     setSaving(false);
+  };
+
+  const getBuildingName = (buildingId: string | null) => {
+    if (!buildingId) return null;
+    return buildings.find((b) => b.id === buildingId)?.name || null;
   };
 
   const filtered = expenses.filter((e) => {
@@ -174,7 +185,7 @@ export default function Expenses() {
                   </div>
                   <div>
                     <p className="font-medium text-white">{expense.description}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${CATEGORY_COLORS[expense.category] || CATEGORY_COLORS.Sonstiges}`}>
                         {expense.category}
                       </span>
@@ -183,6 +194,12 @@ export default function Expenses() {
                       </span>
                       {expense.tax_deductible && (
                         <span className="text-xs text-green-400">absetzbar</span>
+                      )}
+                      {expense.building_id && getBuildingName(expense.building_id) && (
+                        <span className="inline-flex items-center gap-1 text-xs text-blue-400">
+                          <Building2 className="h-3 w-3" />
+                          {getBuildingName(expense.building_id)}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -204,7 +221,7 @@ export default function Expenses() {
       {/* Expense Form Dialog */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-xl border border-white/10 bg-background p-6">
+          <div className="w-full max-w-md rounded-xl border border-white/10 bg-background p-6 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">Ausgabe erfassen</h2>
 
             <div className="space-y-4">
@@ -267,6 +284,28 @@ export default function Expenses() {
                   className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+
+              {/* Gebäude-Zuordnung (optional) */}
+              {buildings.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    Gebäude zuordnen (optional)
+                  </label>
+                  <select
+                    value={selectedBuildingId}
+                    onChange={(e) => setSelectedBuildingId(e.target.value)}
+                    className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="">— Kein Gebäude —</option>
+                    {buildings.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}{b.city ? ` (${b.city})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
