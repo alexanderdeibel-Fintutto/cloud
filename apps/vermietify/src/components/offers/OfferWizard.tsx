@@ -166,7 +166,7 @@ export function OfferWizard() {
         kdu_max_total_cents: data.kduMaxTotalCents || undefined,
         special_agreements: data.specialAgreements || undefined,
         status: "draft",
-        created_by: profile.user_id,
+        created_by: profile.id,
       });
 
       // 3. Auto-create tasks
@@ -186,7 +186,7 @@ export function OfferWizard() {
           priority: "medium",
           source: "landlord" as const,
           unit_id: data.unitId,
-          created_by: profile.user_id,
+          created_by: profile.id,
         });
       }
 
@@ -201,7 +201,7 @@ export function OfferWizard() {
         start_at: viewingDate.toISOString(),
         end_at: new Date(viewingDate.getTime() + 60 * 60 * 1000).toISOString(),
         category: "viewing",
-        created_by: profile.user_id,
+        created_by: profile.id,
         related_type: "unit",
         related_id: data.unitId,
       });

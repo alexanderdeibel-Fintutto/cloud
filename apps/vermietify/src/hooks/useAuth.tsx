@@ -4,11 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface Profile {
   id: string;
-  user_id: string;
+  email: string | null;
+  full_name: string | null;
   organization_id: string | null;
-  first_name: string | null;
-  last_name: string | null;
   avatar_url: string | null;
+  role: string | null;
   onboarding_completed: boolean | null;
 }
 
@@ -35,22 +35,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .single();
     
     if (error) {
       // Profile doesn't exist - create one (common for OAuth users)
       if (error.code === 'PGRST116') {
         console.log('No profile found, creating one for OAuth user...');
-        const firstName = (userMetadata?.first_name || userMetadata?.full_name?.toString().split(' ')[0] || '') as string;
-        const lastName = (userMetadata?.last_name || userMetadata?.full_name?.toString().split(' ').slice(1).join(' ') || '') as string;
+        const fullName = (
+          userMetadata?.full_name ||
+          [userMetadata?.first_name, userMetadata?.last_name].filter(Boolean).join(' ') ||
+          ''
+        ) as string;
         
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
-            user_id: userId,
-            first_name: firstName,
-            last_name: lastName,
+            id: userId,
+            email: (userMetadata?.email || null) as string | null,
+            full_name: fullName || null,
             avatar_url: (userMetadata?.avatar_url || userMetadata?.picture || null) as string | null,
             onboarding_completed: false,
           })
@@ -124,8 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         emailRedirectTo: window.location.origin,
         data: {
-          first_name: firstName,
-          last_name: lastName,
+          full_name: [firstName, lastName].filter(Boolean).join(' '),
         }
       }
     });
@@ -139,9 +141,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          user_id: data.user.id,
-          first_name: firstName,
-          last_name: lastName,
+          id: data.user.id,
+          email: email,
+          full_name: [firstName, lastName].filter(Boolean).join(' ') || null,
         });
 
       if (profileError) {
