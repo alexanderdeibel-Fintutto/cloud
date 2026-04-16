@@ -1,7 +1,6 @@
 /**
  * Wrapper um die zentrale AddressAutocomplete-Komponente aus @fintutto/shared.
- * Injiziert automatisch den Vermietify-Supabase-Client, sodass bestehende
- * Aufrufe ohne Änderung weiter funktionieren.
+ * Injiziert automatisch den fintutto-biz Supabase-Client.
  */
 import { supabase } from '@/integrations/supabase/client'
 import {
@@ -10,10 +9,8 @@ import {
   type AddressAutocompleteProps,
 } from '@fintutto/shared/components/address'
 
-// Re-export types für bestehende Imports
 export type { PlaceDetails, AddressAutocompleteProps }
 
-// Wrapper: supabase-Prop wird automatisch gesetzt
 type WrapperProps = Omit<AddressAutocompleteProps, 'supabase'>
 
 export function AddressAutocomplete(props: WrapperProps) {

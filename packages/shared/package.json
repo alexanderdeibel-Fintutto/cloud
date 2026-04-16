@@ -8,7 +8,8 @@
     ".": "./src/index.ts",
     "./credits": "./src/credits/index.ts",
     "./stripe": "./src/stripe.ts",
-    "./supabase": "./src/supabase.ts"
+    "./supabase": "./src/supabase.ts",
+    "./components/address": "./src/components/AddressAutocomplete.tsx"
   },
   "peerDependencies": {
     "@supabase/supabase-js": "^2.43.0"
