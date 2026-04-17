@@ -67,11 +67,7 @@ CREATE OR REPLACE VIEW leases AS
     (status = 'active') AS is_active
   FROM lease_contracts;
 
--- 4. bank_transactions: amount_cents als Alias für amount * 100
-ALTER TABLE bank_transactions
-  ADD COLUMN IF NOT EXISTS amount_cents integer GENERATED ALWAYS AS (ROUND(amount * 100)::integer) STORED;
-
--- 5. calculator_apps Tabelle erstellen
+-- 4. calculator_apps Tabelle erstellen
 CREATE TABLE IF NOT EXISTS calculator_apps (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
