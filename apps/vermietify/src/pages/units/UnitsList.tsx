@@ -63,12 +63,20 @@ const statusLabels: Record<string, string> = {
   rented: "Vermietet",
   vacant: "Leer",
   renovating: "Renovierung",
+  active: "Aktiv",
+  inactive: "Inaktiv",
+  maintenance: "Wartung",
+  reserved: "Reserviert",
 };
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   rented: "default",
   vacant: "secondary",
   renovating: "destructive",
+  active: "default",
+  inactive: "secondary",
+  maintenance: "destructive",
+  reserved: "secondary",
 };
 
 const floorLabel = (floor: number | null) => {
