@@ -89,10 +89,9 @@ export function useUnits() {
         floor: data.floor,
         living_area_sqm: data.area,
         room_count: data.rooms,
-        rent_amount: data.rent_amount,
+        // rent_amount is a GENERATED ALWAYS column — do NOT insert it
         target_rent: data.rent_amount,
         target_utilities: data.utility_advance || 0,
-        status: data.status || 'vacant',
         occupancy_status: 'vacant',
       };
 
@@ -131,7 +130,7 @@ export function useUnits() {
       if (data.floor !== undefined) updateData.floor = data.floor;
       if (data.area !== undefined) updateData.living_area_sqm = data.area;
       if (data.rooms !== undefined) updateData.room_count = data.rooms;
-      if (data.rent_amount !== undefined) { updateData.rent_amount = data.rent_amount; updateData.target_rent = data.rent_amount; }
+      if (data.rent_amount !== undefined) { updateData.target_rent = data.rent_amount; } // rent_amount is GENERATED ALWAYS
       if (data.utility_advance !== undefined) updateData.target_utilities = data.utility_advance;
       if (data.status !== undefined) updateData.status = data.status;
 
