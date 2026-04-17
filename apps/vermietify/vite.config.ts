@@ -1,8 +1,9 @@
 /**
  * Vermietify — Vite Config
  *
- * manualChunks: Vendor- UND App-Chunks explizit aufteilen,
- * damit kein einzelner Chunk > 1MB wird (Vercel CDN-Limit).
+ * manualChunks: Nur stabile Vendor-Chunks.
+ * App-Chunks werden von Vite/Rollup automatisch aufgeteilt um
+ * zirkuläre Abhängigkeiten (TDZ-Fehler) zu vermeiden.
  */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
@@ -31,9 +32,12 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
+        // Nur die kritischen Vendor-Chunks explizit benennen.
+        // React MUSS als erster Chunk ohne Abhängigkeiten stehen.
+        // Alle anderen Chunks (App + restliche Vendor) werden von Rollup automatisch aufgeteilt.
         manualChunks: (id: string) => {
           // React-Kern — keine Abhängigkeiten auf andere Chunks
           if (
@@ -48,7 +52,7 @@ export default defineConfig({
           // Supabase
           if (id.includes("node_modules/@supabase/")) return "vendor-supabase";
 
-          // UI-Bibliotheken (Radix UI, Lucide)
+          // UI-Bibliotheken (Radix UI, Lucide) — separat damit sie nach vendor-react geladen werden
           if (
             id.includes("node_modules/@radix-ui/") ||
             id.includes("node_modules/lucide-react/") ||
@@ -59,7 +63,7 @@ export default defineConfig({
             id.includes("node_modules/next-themes/")
           ) return "vendor-ui";
 
-          // Schwere Vendor-Bibliotheken
+          // Schwere Vendor-Bibliotheken für besseres Caching
           if (
             id.includes("node_modules/jspdf") ||
             id.includes("node_modules/html2canvas") ||
@@ -72,44 +76,8 @@ export default defineConfig({
             id.includes("node_modules/file-saver/")
           ) return "vendor-files";
 
-          // Zod und Form-Bibliotheken
-          if (
-            id.includes("node_modules/zod/") ||
-            id.includes("node_modules/@hookform/") ||
-            id.includes("node_modules/react-hook-form/")
-          ) return "vendor-forms";
-
-          // Date-Bibliotheken
-          if (
-            id.includes("node_modules/date-fns/") ||
-            id.includes("node_modules/@fullcalendar/") ||
-            id.includes("node_modules/react-big-calendar/")
-          ) return "vendor-dates";
-
-          // Tanstack Query
-          if (id.includes("node_modules/@tanstack/")) return "vendor-query";
-
-          // Recharts und Visualisierungen
-          if (
-            id.includes("node_modules/recharts/") ||
-            id.includes("node_modules/d3") ||
-            id.includes("node_modules/victory")
-          ) return "vendor-charts";
-
-          // Alle anderen node_modules in vendor-misc
-          if (id.includes("node_modules/")) return "vendor-misc";
-
-          // App-Seiten aufteilen
-          if (id.includes("/src/pages/")) return "app-pages";
-
-          // App-Hooks aufteilen
-          if (id.includes("/src/hooks/")) return "app-hooks";
-
-          // App-Komponenten aufteilen
-          if (id.includes("/src/components/")) return "app-components";
-
-          // Shared-Packages
-          if (id.includes("/packages/shared/")) return "app-shared";
+          // Alle anderen node_modules und App-Chunks: Rollup entscheidet automatisch
+          // (kein vendor-misc, keine App-Chunks — verhindert TDZ-Fehler durch Zirkel)
         },
       },
     },
