@@ -141,3 +141,23 @@ export { useBanking } from './hooks/useBanking'
 // Dokument-Upload, KI-OCR, Bulk-Upload
 export { DocumentUploadDialog, DocumentList, BulkDocumentUpload } from './components/documents'
 export type { UploadFile } from './components/documents'
+
+// ─── SecondBrain Cross-App Integration ───────────────────────────────────────
+// Panel-Komponente (einbettbar in Vermietify, Financial Compass, Ablesung)
+export { SecondBrainDocumentsPanel } from './components/documents/SecondBrainDocumentsPanel'
+export type { SecondBrainDocumentsPanelProps, SbDocumentPreview } from './components/documents/SecondBrainDocumentsPanel'
+// Hooks für Cross-App Dokumenten-Zugriff
+export {
+  useSecondBrainDocuments,
+  useDocumentEntityLinks,
+  useLinkDocumentToEntity,
+  useUnlinkDocumentFromEntity,
+  useDocumentSuggestions,
+  useResolveSuggestion,
+} from './hooks/useSecondBrainDocuments'
+export type {
+  SbEntityType,
+  SbDocument,
+  SbDocumentEntityLink,
+  SbDocumentSuggestion,
+} from './hooks/useSecondBrainDocuments'
