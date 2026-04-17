@@ -47,7 +47,7 @@ export default defineConfig({
           ) return "vendor-react";
 
           // React-Router separat
-          if (id.includes("node_modules/react-router")) return "vendor-router";
+          if (id.includes("node_modules/react-router")) return "vendor-router-v2";
 
           // Supabase
           if (id.includes("node_modules/@supabase/")) return "vendor-supabase";
@@ -61,14 +61,14 @@ export default defineConfig({
             id.includes("node_modules/clsx/") ||
             id.includes("node_modules/tailwind-merge/") ||
             id.includes("node_modules/next-themes/")
-          ) return "vendor-ui";
+          ) return "vendor-ui-v2";
 
           // Schwere Vendor-Bibliotheken für besseres Caching
           if (
             id.includes("node_modules/jspdf") ||
             id.includes("node_modules/html2canvas") ||
             id.includes("node_modules/pdfmake")
-          ) return "vendor-pdf";
+          ) return "vendor-pdf-v2";
 
           if (
             id.includes("node_modules/xlsx/") ||
