@@ -251,8 +251,8 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={location.pathname === '/settings'}>
-              <NavLink to="/settings" className="flex items-center gap-3">
+            <SidebarMenuButton asChild isActive={location.pathname === '/einstellungen'}>
+              <NavLink to="/einstellungen" className="flex items-center gap-3">
                 <Settings className="h-5 w-5" />
                 <span>Einstellungen</span>
               </NavLink>
