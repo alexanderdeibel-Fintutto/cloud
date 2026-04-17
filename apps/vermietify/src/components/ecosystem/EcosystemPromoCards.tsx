@@ -58,13 +58,13 @@ function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite: (app
 
         {!compact && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {app.features.slice(0, 3).map((f) => (
+            {(app.features ?? []).slice(0, 3).map((f) => (
               <span key={f} className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                 {f}
               </span>
             ))}
-            {app.features.length > 3 && (
-              <span className="text-[10px] text-muted-foreground px-1">+{app.features.length - 3}</span>
+            {(app.features?.length ?? 0) > 3 && (
+              <span className="text-[10px] text-muted-foreground px-1">+{(app.features?.length ?? 0) - 3}</span>
             )}
           </div>
         )}
