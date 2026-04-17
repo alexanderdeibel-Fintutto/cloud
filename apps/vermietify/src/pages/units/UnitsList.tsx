@@ -19,12 +19,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Home, Search, Building2, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Home, Search, Building2, Loader2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { StatCard } from "@/components/shared/StatCard";
+import { UnitFormDialog } from "@/components/buildings/UnitFormDialog";
 
 interface UnitWithBuilding {
   id: string;
@@ -42,6 +50,13 @@ interface UnitWithBuilding {
     address: string;
     city: string;
   };
+}
+
+interface Building {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
 }
 
 const statusLabels: Record<string, string> = {
@@ -68,13 +83,20 @@ export default function UnitsList() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [units, setUnits] = useState<UnitWithBuilding[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  // Dialog state
+  const [buildingSelectOpen, setBuildingSelectOpen] = useState(false);
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
+  const [unitFormOpen, setUnitFormOpen] = useState(false);
+
   useEffect(() => {
     if (profile?.organization_id) {
       fetchUnits();
+      fetchBuildings();
     }
   }, [profile?.organization_id]);
 
@@ -97,6 +119,45 @@ export default function UnitsList() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchBuildings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("buildings")
+        .select("id, name, address, city")
+        .order("name");
+      if (error) throw error;
+      setBuildings((data as Building[]) || []);
+    } catch (error) {
+      console.error("Error fetching buildings:", error);
+    }
+  };
+
+  const handleAddUnitClick = () => {
+    if (buildings.length === 0) {
+      toast({
+        title: "Kein Gebäude vorhanden",
+        description: "Bitte legen Sie zuerst ein Gebäude an.",
+        variant: "destructive",
+      });
+      navigate("/properties");
+      return;
+    }
+    if (buildings.length === 1) {
+      // Wenn nur ein Gebäude vorhanden, direkt öffnen
+      setSelectedBuildingId(buildings[0].id);
+      setUnitFormOpen(true);
+    } else {
+      // Gebäude-Auswahl anzeigen
+      setBuildingSelectOpen(true);
+    }
+  };
+
+  const handleBuildingSelected = (buildingId: string) => {
+    setSelectedBuildingId(buildingId);
+    setBuildingSelectOpen(false);
+    setUnitFormOpen(true);
   };
 
   const filtered = units.filter((unit) => {
@@ -126,11 +187,17 @@ export default function UnitsList() {
     <MainLayout title="Einheiten">
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Einheiten</h1>
-          <p className="text-muted-foreground">
-            Übersicht aller Wohneinheiten Ihrer Gebäude
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Einheiten</h1>
+            <p className="text-muted-foreground">
+              Übersicht aller Wohneinheiten Ihrer Gebäude
+            </p>
+          </div>
+          <Button onClick={handleAddUnitClick}>
+            <Plus className="h-4 w-4 mr-2" />
+            Einheit hinzufügen
+          </Button>
         </div>
 
         {/* Stats */}
@@ -197,11 +264,17 @@ export default function UnitsList() {
                   ? "Keine Einheiten gefunden"
                   : "Noch keine Einheiten"}
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-4">
                 {searchTerm || statusFilter !== "all"
                   ? "Versuchen Sie andere Filterkriterien"
-                  : "Erstellen Sie zunächst ein Gebäude und fügen Sie Einheiten hinzu"}
+                  : "Fügen Sie Ihre erste Einheit zu einem Gebäude hinzu"}
               </p>
+              {!searchTerm && statusFilter === "all" && (
+                <Button onClick={handleAddUnitClick}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Erste Einheit anlegen
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -271,6 +344,53 @@ export default function UnitsList() {
           </Card>
         )}
       </div>
+
+      {/* Gebäude-Auswahl Dialog */}
+      <Dialog open={buildingSelectOpen} onOpenChange={setBuildingSelectOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Gebäude auswählen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <p className="text-sm text-muted-foreground mb-4">
+              Zu welchem Gebäude soll die neue Einheit hinzugefügt werden?
+            </p>
+            {buildings.map((building) => (
+              <button
+                key={building.id}
+                onClick={() => handleBuildingSelected(building.id)}
+                className="w-full flex items-center gap-3 p-3 rounded-lg border hover:bg-accent text-left transition-colors"
+              >
+                <Building2 className="h-5 w-5 text-primary shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">{building.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {building.address}{building.city ? `, ${building.city}` : ""}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBuildingSelectOpen(false)}>
+              Abbrechen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Einheit-Formular Dialog */}
+      {selectedBuildingId && (
+        <UnitFormDialog
+          open={unitFormOpen}
+          onOpenChange={setUnitFormOpen}
+          buildingId={selectedBuildingId}
+          onSuccess={() => {
+            fetchUnits();
+            setSelectedBuildingId(null);
+          }}
+        />
+      )}
     </MainLayout>
   );
 }
