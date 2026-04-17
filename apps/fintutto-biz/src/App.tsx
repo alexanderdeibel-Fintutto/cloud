@@ -17,6 +17,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import Onboarding from "./pages/Onboarding";
 import Settings from "./pages/Settings";
 import Immobilien from "./pages/Immobilien";
+import Banking from "./pages/Banking";
 import ClientDetail from "./pages/ClientDetail";
 
 // Components
@@ -35,6 +36,9 @@ const App = () => (
         {/* Protected Routes */}
         <Route path="/onboarding" element={
           <ProtectedRoute><Onboarding /></ProtectedRoute>
+        } />
+        <Route path="/neue-firma" element={
+          <ProtectedRoute><Onboarding addNew={true} /></ProtectedRoute>
         } />
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
@@ -59,6 +63,9 @@ const App = () => (
         } />
         <Route path="/immobilien" element={
           <ProtectedRoute><Immobilien /></ProtectedRoute>
+        } />
+        <Route path="/banking" element={
+          <ProtectedRoute><Banking /></ProtectedRoute>
         } />
         <Route path="/einstellungen" element={
           <ProtectedRoute><Settings /></ProtectedRoute>

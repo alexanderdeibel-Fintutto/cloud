@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import { Loader2, Save } from "lucide-react";
 
 export default function Settings() {
   const { user } = useAuth();
-  const { business, refetch } = useBusiness();
+  const { activeBusiness: business, refetch } = useBusinesses();
   const [name, setName] = useState("");
   const [taxId, setTaxId] = useState("");
   const [vatId, setVatId] = useState("");

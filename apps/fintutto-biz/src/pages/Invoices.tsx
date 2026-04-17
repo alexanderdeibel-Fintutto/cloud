@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import { formatEuro, formatDateDE } from "@/lib/utils";
 import { InvoiceForm } from "@/components/invoices/InvoiceForm";
 import {
@@ -31,12 +31,12 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
   draft: { label: "Entwurf", color: "bg-gray-500/10 text-gray-400 border-gray-500/20", icon: <FileText className="h-3 w-3" /> },
   sent: { label: "Gesendet", color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: <Clock className="h-3 w-3" /> },
   paid: { label: "Bezahlt", color: "bg-green-500/10 text-green-400 border-green-500/20", icon: <CheckCircle className="h-3 w-3" /> },
-  overdue: { label: "Ueberfaellig", color: "bg-red-500/10 text-red-400 border-red-500/20", icon: <AlertTriangle className="h-3 w-3" /> },
+  overdue: { label: "Überfällig", color: "bg-red-500/10 text-red-400 border-red-500/20", icon: <AlertTriangle className="h-3 w-3" /> },
   cancelled: { label: "Storniert", color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: <XCircle className="h-3 w-3" /> },
 };
 
 export default function Invoices() {
-  const { business } = useBusiness();
+  const { activeBusiness: business } = useBusinesses();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -126,10 +126,10 @@ export default function Invoices() {
         <div className="flex flex-wrap gap-2">
           {[
             { key: "all", label: "Alle" },
-            { key: "draft", label: "Entwuerfe" },
+            { key: "draft", label: "Entwürfe" },
             { key: "sent", label: "Gesendet" },
             { key: "paid", label: "Bezahlt" },
-            { key: "overdue", label: "Ueberfaellig" },
+            { key: "overdue", label: "Überfällig" },
           ].map((f) => (
             <button
               key={f.key}
@@ -198,6 +198,7 @@ export default function Invoices() {
       {showForm && (
         <InvoiceForm
           businessId={business?.id || ""}
+          business={business}
           invoicePrefix={business?.invoice_prefix || "RE"}
           nextNumber={business?.next_invoice_number || 1}
           defaultTaxRate={business?.default_tax_rate || 19}

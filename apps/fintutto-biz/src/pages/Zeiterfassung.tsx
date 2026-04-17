@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import { formatEuro } from "@/lib/utils";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -25,7 +25,7 @@ interface Client {
 }
 
 export default function Zeiterfassung() {
-  const { business } = useBusiness();
+  const { activeBusiness: business } = useBusinesses();
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);

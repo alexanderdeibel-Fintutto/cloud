@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatEuro } from "@/lib/utils";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, FileDown } from "lucide-react";
+import { downloadInvoicePdf } from "@/lib/generateInvoicePdf";
+import type { Business } from "@/hooks/useBusiness";
 
 interface InvoiceItem {
   description: string;
@@ -12,10 +14,14 @@ interface InvoiceItem {
 interface Client {
   id: string;
   name: string;
+  email?: string;
+  address?: Record<string, string>;
+  tax_id?: string;
 }
 
 interface InvoiceFormProps {
   businessId: string;
+  business?: Business | null;
   invoicePrefix: string;
   nextNumber: number;
   defaultTaxRate: number;
@@ -38,6 +44,7 @@ export function InvoiceForm({
   ]);
   const [taxRate, setTaxRate] = useState(defaultTaxRate);
   const [dueInDays, setDueInDays] = useState(14);
+  const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +53,7 @@ export function InvoiceForm({
   useEffect(() => {
     supabase
       .from("biz_clients")
-      .select("id, name")
+      .select("id, name, email, address, tax_id")
       .eq("business_id", businessId)
       .order("name")
       .then(({ data }) => {
@@ -73,13 +80,51 @@ export function InvoiceForm({
     setItems(updated);
   };
 
+  const buildPdfData = (issueDate: string, dueDate: string, status: string) => {
+    const selectedClient = clients.find((c) => c.id === clientId);
+    return {
+      invoiceNumber,
+      issueDate,
+      dueDate,
+      status,
+      items: items.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total: item.quantity * item.unit_price,
+      })),
+      subtotal,
+      taxRate,
+      taxAmount,
+      total,
+      currency: "EUR",
+      notes: notes || undefined,
+      businessName: business?.name ?? "Mein Unternehmen",
+      businessType: business?.business_type,
+      businessAddress: business?.address as Record<string, string> | undefined,
+      businessTaxId: business?.tax_id ?? undefined,
+      businessVatId: business?.vat_id ?? undefined,
+      clientName: selectedClient?.name ?? "",
+      clientEmail: selectedClient?.email ?? undefined,
+      clientAddress: selectedClient?.address as Record<string, string> | undefined,
+      clientTaxId: selectedClient?.tax_id ?? undefined,
+    };
+  };
+
+  const handlePreviewPdf = () => {
+    if (!clientId) { setError("Bitte wählen Sie zuerst einen Kunden aus."); return; }
+    const issueDate = new Date().toISOString().split("T")[0];
+    const dueDate = new Date(Date.now() + dueInDays * 86400000).toISOString().split("T")[0];
+    downloadInvoicePdf(buildPdfData(issueDate, dueDate, "draft"));
+  };
+
   const handleSave = async (status: "draft" | "sent") => {
     if (!clientId) {
-      setError("Bitte waehlen Sie einen Kunden aus.");
+      setError("Bitte wählen Sie einen Kunden aus.");
       return;
     }
     if (items.some((item) => !item.description || item.unit_price <= 0)) {
-      setError("Bitte fuellen Sie alle Positionen aus.");
+      setError("Bitte füllen Sie alle Positionen aus.");
       return;
     }
 
@@ -114,11 +159,14 @@ export function InvoiceForm({
       return;
     }
 
-    // Increment invoice number
+    // Rechnungsnummer hochzählen
     await supabase
       .from("biz_businesses")
       .update({ next_invoice_number: nextNumber + 1 })
       .eq("id", businessId);
+
+    // PDF automatisch generieren und herunterladen
+    downloadInvoicePdf(buildPdfData(issueDate, dueDate, status));
 
     onSaved();
   };
@@ -243,22 +291,44 @@ export function InvoiceForm({
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          {/* Notizen */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-white">Anmerkungen (optional)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="z.B. Vielen Dank für Ihren Auftrag!"
+              rows={2}
+              className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+          </div>
+
+          {/* Aktionen */}
+          <div className="space-y-2 pt-2">
             <button
-              onClick={() => handleSave("draft")}
-              disabled={saving}
-              className="flex-1 rounded-md border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-50"
+              onClick={handlePreviewPdf}
+              disabled={!clientId || items.every((i) => !i.description)}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 disabled:opacity-40 transition-colors"
             >
-              Als Entwurf speichern
+              <FileDown className="h-4 w-4" />
+              PDF-Vorschau herunterladen
             </button>
-            <button
-              onClick={() => handleSave("sent")}
-              disabled={saving}
-              className="flex-1 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              Rechnung senden
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleSave("draft")}
+                disabled={saving}
+                className="flex-1 rounded-md border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-50"
+              >
+                Als Entwurf speichern
+              </button>
+              <button
+                onClick={() => handleSave("sent")}
+                disabled={saving}
+                className="flex-1 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {saving ? "Wird gespeichert..." : "Speichern & PDF"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

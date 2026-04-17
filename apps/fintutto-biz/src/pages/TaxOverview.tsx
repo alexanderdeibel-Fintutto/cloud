@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import { formatEuro } from "@/lib/utils";
 import { Calculator, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 
@@ -16,7 +16,7 @@ interface QuarterData {
 }
 
 export default function TaxOverview() {
-  const { business } = useBusiness();
+  const { activeBusiness: business } = useBusinesses();
   const [quarters, setQuarters] = useState<QuarterData[]>([]);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());

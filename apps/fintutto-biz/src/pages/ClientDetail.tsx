@@ -11,7 +11,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import {
   ArrowLeft,
   User,
@@ -210,7 +210,7 @@ function SecondBrainPanel({ clientId }: { clientId: string }) {
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { business } = useBusiness();
+  const { activeBusiness: business } = useBusinesses();
   const [client, setClient] = useState<Client | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);

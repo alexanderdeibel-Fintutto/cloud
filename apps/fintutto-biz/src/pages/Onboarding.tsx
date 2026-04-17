@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useBusiness } from "@/hooks/useBusiness";
-import { Briefcase, Loader2, ArrowRight } from "lucide-react";
+import { useBusinesses } from "@/hooks/useBusinesses";
+import { Briefcase, Loader2, ArrowRight, Plus } from "lucide-react";
 
 const BUSINESS_TYPES = [
-  { id: "freelancer", label: "Freelancer", description: "Selbststaendig taetig" },
+  { id: "freelancer", label: "Freelancer", description: "Selbstständig tätig" },
   { id: "einzelunternehmen", label: "Einzelunternehmen", description: "Gewerbetreibend" },
-  { id: "gbr", label: "GbR", description: "Gesellschaft buergerlichen Rechts" },
-  { id: "ug", label: "UG (haftungsbeschraenkt)", description: "Mini-GmbH" },
-  { id: "gmbh", label: "GmbH", description: "Gesellschaft mit beschraenkter Haftung" },
+  { id: "gbr", label: "GbR", description: "Gesellschaft bürgerlichen Rechts" },
+  { id: "ug", label: "UG (haftungsbeschränkt)", description: "Mini-GmbH" },
+  { id: "gmbh", label: "GmbH", description: "Gesellschaft mit beschränkter Haftung" },
 ];
 
-export default function Onboarding() {
+interface OnboardingProps {
+  addNew?: boolean;
+}
+
+export default function Onboarding({ addNew = false }: OnboardingProps) {
   const navigate = useNavigate();
-  const { business, createBusiness } = useBusiness();
+  const { businesses, activeBusiness, createBusiness, switchBusiness } = useBusinesses();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [businessType, setBusinessType] = useState("");
@@ -22,8 +26,8 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If business already exists, redirect to dashboard
-  if (business) {
+  // Wenn bereits eine Firma existiert und kein addNew-Modus → Dashboard
+  if (!addNew && activeBusiness) {
     navigate("/dashboard");
     return null;
   }
@@ -43,6 +47,7 @@ export default function Onboarding() {
     }
 
     if (result.data) {
+      await switchBusiness(result.data.id);
       navigate("/dashboard");
     }
   };
@@ -53,14 +58,38 @@ export default function Onboarding() {
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
-              <Briefcase className="h-8 w-8 text-primary-foreground" />
+              {addNew ? <Plus className="h-8 w-8 text-primary-foreground" /> : <Briefcase className="h-8 w-8 text-primary-foreground" />}
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Fintutto Biz</h1>
-              <p className="text-sm text-muted-foreground">Richten Sie Ihr Geschaeft ein</p>
+              <p className="text-sm text-muted-foreground">
+                {addNew ? "Neue Firma anlegen" : "Richten Sie Ihr Geschäft ein"}
+              </p>
             </div>
           </div>
         </div>
+
+        {/* Bestehende Firmen (nur im addNew-Modus) */}
+        {addNew && businesses.length > 0 && (
+          <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs text-muted-foreground mb-3">Bereits angelegte Firmen:</p>
+            <div className="space-y-2">
+              {businesses.map((b) => (
+                <button
+                  key={b.business_id}
+                  onClick={() => { switchBusiness(b.business_id); navigate("/dashboard"); }}
+                  className="w-full flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left hover:bg-white/10 transition-colors"
+                >
+                  <span className="text-sm text-white">{b.business_name}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{b.business_type}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <p className="text-xs text-muted-foreground">Oder neue Firma anlegen:</p>
+            </div>
+          </div>
+        )}
 
         {/* Progress */}
         <div className="flex gap-2 mb-8">
@@ -83,14 +112,14 @@ export default function Onboarding() {
         <div className="rounded-xl border border-white/10 bg-white/5 p-6">
           {step === 1 ? (
             <>
-              <h2 className="text-xl font-bold text-white mb-1">Geschaeftsinformationen</h2>
+              <h2 className="text-xl font-bold text-white mb-1">Geschäftsinformationen</h2>
               <p className="text-sm text-muted-foreground mb-6">
-                Wie heisst Ihr Geschaeft und welche Rechtsform haben Sie?
+                Wie heißt Ihr Geschäft und welche Rechtsform haben Sie?
               </p>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">Geschaeftsname *</label>
+                  <label className="text-sm font-medium text-white">Geschäftsname *</label>
                   <input
                     type="text"
                     placeholder="z.B. Max Mustermann Design"
@@ -139,7 +168,7 @@ export default function Onboarding() {
             <>
               <h2 className="text-xl font-bold text-white mb-1">Steuerdaten (optional)</h2>
               <p className="text-sm text-muted-foreground mb-6">
-                Sie koennen dies auch spaeter in den Einstellungen ergaenzen.
+                Sie können dies auch später in den Einstellungen ergänzen.
               </p>
 
               <div className="space-y-4">
@@ -170,7 +199,7 @@ export default function Onboarding() {
                     onClick={() => setStep(1)}
                     className="flex-1 rounded-md border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10"
                   >
-                    Zurueck
+                    Zurück
                   </button>
                   <button
                     onClick={handleCreate}
@@ -180,7 +209,7 @@ export default function Onboarding() {
                     {saving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      "Geschaeft erstellen"
+                      "Geschäft erstellen"
                     )}
                   </button>
                 </div>
@@ -190,7 +219,7 @@ export default function Onboarding() {
                   disabled={saving}
                   className="w-full text-sm text-muted-foreground hover:text-white text-center"
                 >
-                  Ueberspringen und spaeter ergaenzen
+                  Überspringen und später ergänzen
                 </button>
               </div>
             </>

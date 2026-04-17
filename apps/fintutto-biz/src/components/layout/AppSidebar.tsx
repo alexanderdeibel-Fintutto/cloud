@@ -14,6 +14,7 @@ import {
   LogOut,
   Clock,
   Building2,
+  Landmark,
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Zeiterfassung", icon: Clock, path: "/zeiterfassung" },
   { label: "Kunden", icon: Users, path: "/kunden" },
   { label: "Immobilien", icon: Building2, path: "/immobilien" },
+  { label: "Banking", icon: Landmark, path: "/banking" },
   { label: "Steuern", icon: Calculator, path: "/steuern" },
   { label: "Preise", icon: CreditCard, path: "/preise" },
   { label: "Einstellungen", icon: Settings, path: "/einstellungen" },

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import { formatEuro } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
@@ -38,7 +38,7 @@ interface MonthlyData {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { business, loading: bizLoading } = useBusiness();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats | null>(null);
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);

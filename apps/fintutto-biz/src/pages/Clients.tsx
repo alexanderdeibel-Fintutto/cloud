@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useBusiness } from "@/hooks/useBusiness";
+import { useBusinesses } from "@/hooks/useBusinesses";
 import { Plus, Users, Search, X, Mail, Building2, ChevronRight } from "lucide-react";
 
 interface Client {
@@ -16,7 +16,7 @@ interface Client {
 }
 
 export default function Clients() {
-  const { business } = useBusiness();
+  const { activeBusiness: business } = useBusinesses();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
