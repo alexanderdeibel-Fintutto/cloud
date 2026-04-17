@@ -6,6 +6,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Suspense, lazy } from "react";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
+import { TenantProtectedRoute } from "./components/tenant-portal/TenantProtectedRoute";
+import { AIAssistant } from "./components/ai/AIAssistant";
 
 // Loading Fallback
 const PageLoader = () => (
@@ -13,10 +18,6 @@ const PageLoader = () => (
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
   </div>
 );
-
-// Auth Pages (eager - needed immediately)
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
 
 // Lazy-loaded Pages
 const BulkUpload = lazy(() => import("./pages/BulkUpload"));
@@ -105,8 +106,6 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const OrgManagement = lazy(() => import("./pages/admin/OrgManagement"));
 const Analytics = lazy(() => import("./pages/Analytics"));
-import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
-
 // Tenant Portal Pages
 const MieterDashboard = lazy(() => import("./pages/tenant-portal/MieterDashboard"));
 const DefectReport = lazy(() => import("./pages/tenant-portal/DefectReport"));
@@ -114,8 +113,6 @@ const TenantMeterReading = lazy(() => import("./pages/tenant-portal/TenantMeterR
 const TenantDocuments = lazy(() => import("./pages/tenant-portal/TenantDocuments"));
 const TenantFinances = lazy(() => import("./pages/tenant-portal/TenantFinances"));
 const TenantUnit = lazy(() => import("./pages/tenant-portal/TenantUnit"));
-import { TenantProtectedRoute } from "./components/tenant-portal/TenantProtectedRoute";
-
 // Communication Pages
 const EmailTemplates = lazy(() => import("./pages/communication/EmailTemplates"));
 const ComposeEmail = lazy(() => import("./pages/communication/ComposeEmail"));
@@ -152,8 +149,6 @@ const ReferralDashboard = lazy(() => import("./pages/ecosystem/ReferralDashboard
 
 // Portal Pages
 const PortalHub = lazy(() => import("./pages/portal/PortalHub"));
-
-import { AIAssistant } from "./components/ai/AIAssistant";
 
 const queryClient = new QueryClient();
 
