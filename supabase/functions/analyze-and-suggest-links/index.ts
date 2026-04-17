@@ -1,7 +1,7 @@
 /**
  * Supabase Edge Function: analyze-and-suggest-links
  *
- * Analysiert den OCR-Text eines SecondBrain-Dokuments mit GPT-4.1 und erkennt
+ * Analysiert den OCR-Text eines SecondBrain-Dokuments mit Claude (Anthropic) und erkennt
  * automatisch Entitäten aus dem Fintutto-Ökosystem:
  *   - Gebäude (buildings) — via Adresserkennung
  *   - Firmen (biz_clients) — via Firmennamenerkennung
@@ -9,8 +9,6 @@
  *   - Zähler (meters) — via Zählernummererkennung
  *
  * Speichert Vorschläge in sb_document_suggestions mit Konfidenz-Score (0–1).
- *
- * Trigger: Wird nach OCR-Abschluss aufgerufen (manuell oder via Webhook).
  *
  * Request Body:
  *   { document_id: string }
@@ -20,8 +18,7 @@
  *
  * SETUP:
  *   supabase functions deploy analyze-and-suggest-links
- *   supabase secrets set OPENAI_API_KEY=sk-...
- *   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=eyJ...
+ *   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -42,9 +39,9 @@ interface SbDocument {
   user_id: string;
   title: string;
   file_name: string;
-  document_type: string | null;
+  file_type: string | null;
   ocr_text: string | null;
-  ai_summary: string | null;
+  summary: string | null;
 }
 
 interface EntityCandidate {
@@ -63,7 +60,7 @@ interface Suggestion {
   reason: string;
 }
 
-// ── System-Prompt für GPT-4.1 ────────────────────────────────────────────────
+// ── System-Prompt für Claude ─────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `Du bist ein Experte für die Analyse von deutschen Immobilien-, Finanz- und Versorgerdokumenten.
 Deine Aufgabe: Extrahiere aus dem Dokumenttext alle Entitäten, die auf konkrete Objekte in einer Immobilienverwaltungssoftware hinweisen könnten.
@@ -113,13 +110,13 @@ serve(async (req: Request) => {
     // ── Supabase-Client mit Service-Role (für DB-Zugriff ohne RLS) ────────────
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    const openaiKey = Deno.env.get("OPENAI_API_KEY") || "";
+    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY") || "";
 
     if (!serviceRoleKey) {
       return jsonError("SUPABASE_SERVICE_ROLE_KEY nicht konfiguriert", 500);
     }
-    if (!openaiKey) {
-      return jsonError("OPENAI_API_KEY nicht konfiguriert", 500);
+    if (!anthropicKey) {
+      return jsonError("ANTHROPIC_API_KEY nicht konfiguriert", 500);
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -135,7 +132,7 @@ serve(async (req: Request) => {
     // ── Dokument laden ────────────────────────────────────────────────────────
     const { data: doc, error: docErr } = await supabase
       .from("sb_documents")
-      .select("id, user_id, title, file_name, document_type, ocr_text, ai_summary")
+      .select("id, user_id, title, file_name, file_type, ocr_text, summary")
       .eq("id", document_id)
       .single();
 
@@ -150,45 +147,56 @@ serve(async (req: Request) => {
       document.title ? `Titel: ${document.title}` : "",
       document.file_name ? `Dateiname: ${document.file_name}` : "",
       document.ocr_text ? `OCR-Text:\n${document.ocr_text.substring(0, 6000)}` : "",
-      document.ai_summary ? `KI-Zusammenfassung: ${document.ai_summary}` : "",
+      document.summary ? `KI-Zusammenfassung: ${document.summary}` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
 
-    if (!analysisText.trim()) {
+    // Leerer Text: überspringen (kein API-Aufruf)
+    if (!analysisText.trim() || analysisText.trim().length < 20) {
       return jsonResponse({
         success: true,
         suggestions: [],
         skipped: "Kein analysierbarer Text im Dokument",
+        candidates_found: 0,
+        suggestions_matched: 0,
       });
     }
 
-    // ── GPT-4.1 Analyse ───────────────────────────────────────────────────────
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+    // ── Claude Analyse (Anthropic Messages API) ───────────────────────────────
+    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${openaiKey}`,
+        "x-api-key": anthropicKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "gpt-4.1",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         temperature: 0.1,
+        system: SYSTEM_PROMPT,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `Analysiere dieses Dokument und erkenne alle Entitäten:\n\n${analysisText}` },
+          {
+            role: "user",
+            content: `Analysiere dieses Dokument und erkenne alle Entitäten:\n\n${analysisText}`,
+          },
         ],
       }),
     });
 
-    if (!openaiResponse.ok) {
-      const err = await openaiResponse.json();
-      console.error("OpenAI API error:", err);
-      return jsonError(`KI-Analyse fehlgeschlagen: ${err.error?.message || openaiResponse.status}`, 502);
+    if (!claudeResponse.ok) {
+      let errMsg = claudeResponse.status.toString();
+      try {
+        const errBody = await claudeResponse.json();
+        errMsg = errBody.error?.message || errMsg;
+      } catch { /* ignore */ }
+      console.error("Anthropic API error:", errMsg);
+      return jsonError(`KI-Analyse fehlgeschlagen: ${errMsg}`, 502);
     }
 
-    const openaiResult = await openaiResponse.json();
-    const rawContent = openaiResult.choices?.[0]?.message?.content || "[]";
+    const claudeResult = await claudeResponse.json();
+    const rawContent = claudeResult.content?.[0]?.text || "[]";
 
     // ── Antwort parsen ────────────────────────────────────────────────────────
     let candidates: EntityCandidate[] = [];
@@ -212,6 +220,8 @@ serve(async (req: Request) => {
         success: true,
         suggestions: [],
         skipped: "Keine Entitäten mit ausreichender Konfidenz erkannt",
+        candidates_found: 0,
+        suggestions_matched: 0,
       });
     }
 
@@ -224,22 +234,21 @@ serve(async (req: Request) => {
 
         switch (candidate.entity_type) {
           case "building": {
-            // Adresse in buildings-Tabelle suchen
             if (candidate.address) {
               const addressParts = candidate.address.split(",").map((p: string) => p.trim());
               const streetPart = addressParts[0] || "";
               const cityPart = addressParts[addressParts.length - 1] || "";
+              const streetName = streetPart.replace(/\s+\d+.*$/, "").trim();
 
               const { data: buildings } = await supabase
                 .from("buildings")
                 .select("id, street, house_number, city")
                 .eq("user_id", document.user_id)
-                .ilike("street", `%${streetPart.replace(/\s+\d+$/, "").trim()}%`);
+                .ilike("street", `%${streetName}%`);
 
               if (buildings && buildings.length > 0) {
-                // Beste Übereinstimmung finden
                 const best = buildings.find((b: any) =>
-                  cityPart.toLowerCase().includes(b.city?.toLowerCase() || "")
+                  cityPart.toLowerCase().includes((b.city || "").toLowerCase())
                 ) || buildings[0];
                 matchedIds = [best.id];
               }
@@ -248,12 +257,12 @@ serve(async (req: Request) => {
           }
 
           case "business": {
-            // Firma in biz_clients suchen
+            const searchName = candidate.name.substring(0, 30);
             const { data: businesses } = await supabase
               .from("biz_clients")
               .select("id, name")
               .eq("user_id", document.user_id)
-              .ilike("name", `%${candidate.name.substring(0, 20)}%`);
+              .ilike("name", `%${searchName}%`);
 
             if (businesses && businesses.length > 0) {
               matchedIds = businesses.map((b: any) => b.id);
@@ -262,7 +271,6 @@ serve(async (req: Request) => {
           }
 
           case "tenant": {
-            // Mieter in tenants suchen
             const nameParts = candidate.name.trim().split(/\s+/);
             const lastName = nameParts[nameParts.length - 1];
 
@@ -279,7 +287,6 @@ serve(async (req: Request) => {
           }
 
           case "meter": {
-            // Zähler in meters suchen
             if (candidate.meter_number) {
               const { data: meters } = await supabase
                 .from("meters")
@@ -294,7 +301,6 @@ serve(async (req: Request) => {
           }
         }
 
-        // Vorschläge für alle gefundenen Entitäten erstellen
         for (const entityId of matchedIds) {
           suggestions.push({
             entity_type: candidate.entity_type,
@@ -310,14 +316,12 @@ serve(async (req: Request) => {
 
     // ── Vorschläge in DB speichern ────────────────────────────────────────────
     if (suggestions.length > 0) {
-      // Alte Pending-Vorschläge für dieses Dokument löschen
       await supabase
         .from("sb_document_suggestions")
         .delete()
         .eq("document_id", document_id)
         .eq("status", "pending");
 
-      // Neue Vorschläge einfügen (Duplikate ignorieren)
       const rows = suggestions.map((s) => ({
         document_id,
         entity_type: s.entity_type,
@@ -338,7 +342,6 @@ serve(async (req: Request) => {
         console.error("Fehler beim Speichern der Vorschläge:", insertErr);
       }
 
-      // Dokument als "analysiert" markieren
       await supabase
         .from("sb_documents")
         .update({ updated_at: new Date().toISOString() })
