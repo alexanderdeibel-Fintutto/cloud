@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Zap, ScanLine, FileText, BarChart3, Menu, X, Settings } from 'lucide-react'
+import { Zap, ScanLine, FileText, BarChart3, Menu, X, Settings, Gauge } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: BarChart3 },
+  { name: 'Zähler', href: '/zaehler', icon: Gauge },
   { name: 'OCR Scan', href: '/ocr', icon: ScanLine },
   { name: 'Rechnungen', href: '/rechnungen', icon: FileText },
   { name: 'Einstellungen', href: '/einstellungen', icon: Settings },

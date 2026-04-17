@@ -7,6 +7,7 @@ import RechnungenPage from '@/pages/RechnungenPage'
 import EinstellungenPage from '@/pages/EinstellungenPage'
 import AdminDashboardPage from '@/pages/AdminDashboardPage'
 import MeterDetailPage from '@/pages/MeterDetailPage'
+import MeterListPage from '@/pages/MeterListPage'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="rechnungen" element={<RechnungenPage />} />
           <Route path="einstellungen" element={<EinstellungenPage />} />
           <Route path="admin" element={<AdminDashboardPage />} />
+          <Route path="zaehler" element={<MeterListPage />} />
           <Route path="zaehler/:id" element={<MeterDetailPage />} />
         </Route>
       </Routes>
