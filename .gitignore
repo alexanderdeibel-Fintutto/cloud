@@ -32,7 +32,6 @@ build/
 
 # Dependencies
 node_modules
-package-lock.json
 .pnp
 .pnp.js
 
