@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useBusiness } from "@/hooks/useBusiness";
-import { Plus, Users, Search, X, Mail, Building2 } from "lucide-react";
+import { Plus, Users, Search, X, Mail, Building2, ChevronRight } from "lucide-react";
 
 interface Client {
   id: string;
@@ -128,9 +129,10 @@ export default function Clients() {
         ) : (
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((client) => (
-              <div
+              <Link
                 key={client.id}
-                className="rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/[0.07] transition-colors"
+                to={`/kunden/${client.id}`}
+                className="rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/[0.07] hover:border-primary/30 transition-colors block group"
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -156,8 +158,9 @@ export default function Clients() {
                       </p>
                     )}
                   </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-0.5" />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

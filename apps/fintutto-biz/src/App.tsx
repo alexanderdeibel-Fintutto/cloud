@@ -17,6 +17,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import Onboarding from "./pages/Onboarding";
 import Settings from "./pages/Settings";
 import Immobilien from "./pages/Immobilien";
+import ClientDetail from "./pages/ClientDetail";
 
 // Components
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -46,6 +47,9 @@ const App = () => (
         } />
         <Route path="/kunden" element={
           <ProtectedRoute><Clients /></ProtectedRoute>
+        } />
+        <Route path="/kunden/:id" element={
+          <ProtectedRoute><ClientDetail /></ProtectedRoute>
         } />
         <Route path="/steuern" element={
           <ProtectedRoute><TaxOverview /></ProtectedRoute>

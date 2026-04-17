@@ -6,6 +6,7 @@ import OcrScanPage from '@/pages/OcrScanPage'
 import RechnungenPage from '@/pages/RechnungenPage'
 import EinstellungenPage from '@/pages/EinstellungenPage'
 import AdminDashboardPage from '@/pages/AdminDashboardPage'
+import MeterDetailPage from '@/pages/MeterDetailPage'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="rechnungen" element={<RechnungenPage />} />
           <Route path="einstellungen" element={<EinstellungenPage />} />
           <Route path="admin" element={<AdminDashboardPage />} />
+          <Route path="zaehler/:id" element={<MeterDetailPage />} />
         </Route>
       </Routes>
       <Toaster position="top-right" richColors />
