@@ -86,13 +86,13 @@ export default function Dashboard() {
         // Bank transactions this month (income)
         supabase
           .from('bank_transactions')
-          .select('amount_cents, booking_date, account:bank_accounts!inner(connection:finapi_connections!inner(organization_id))')
+          .select('amount_cents, booking_date')
           .gte('booking_date', currentMonthStart)
           .lte('booking_date', currentMonthEnd),
         // Bank transactions last 12 months for chart
         supabase
           .from('bank_transactions')
-          .select('amount_cents, booking_date, account:bank_accounts!inner(connection:finapi_connections!inner(organization_id))')
+          .select('amount_cents, booking_date')
           .gte('booking_date', twelveMonthsAgo),
       ]);
 
