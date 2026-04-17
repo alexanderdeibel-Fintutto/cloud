@@ -11,21 +11,21 @@ interface EcosystemPromoCardsProps {
   compact?: boolean;
 }
 
-function formatPrice(cents: number): string {
-  if (cents === 0) return "Kostenlos";
+function formatPrice(cents: number | null | undefined): string {
+  if (!cents || cents === 0) return "Kostenlos";
   return `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 }
 
-function calcSavingsPercent(monthly: number, yearly: number): number {
-  if (monthly === 0 || yearly === 0) return 0;
+function calcSavingsPercent(monthly: number | null | undefined, yearly: number | null | undefined): number {
+  if (!monthly || !yearly || monthly === 0 || yearly === 0) return 0;
   const fullYear = monthly * 12;
   return Math.round(((fullYear - yearly) / fullYear) * 100);
 }
 
 function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite: (app: EcosystemApp) => void; compact?: boolean }) {
-  const isFree = app.price_monthly_cents === 0;
+  const isFree = !app.price_monthly_cents || app.price_monthly_cents === 0;
   const savingsPercent = calcSavingsPercent(app.price_monthly_cents, app.price_yearly_cents);
-  const yearlySavedCents = (app.price_monthly_cents * 12) - app.price_yearly_cents;
+  const yearlySavedCents = ((app.price_monthly_cents ?? 0) * 12) - (app.price_yearly_cents ?? 0);
 
   return (
     <Card className="group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
