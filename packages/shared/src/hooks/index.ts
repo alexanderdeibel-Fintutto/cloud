@@ -13,3 +13,17 @@ export { useDebounce, useDebouncedCallback } from './useDebounce'
 export { useShareResult } from './useShareResult'
 export { useKeyboardNav } from './useKeyboardNav'
 export { useEntitlements } from './useEntitlements'
+export {
+  useSecondBrainDocuments,
+  useDocumentEntityLinks,
+  useLinkDocumentToEntity,
+  useUnlinkDocumentFromEntity,
+  useDocumentSuggestions,
+  useResolveSuggestion,
+} from './useSecondBrainDocuments'
+export type {
+  SbEntityType,
+  SbDocument,
+  SbDocumentEntityLink,
+  SbDocumentSuggestion,
+} from './useSecondBrainDocuments'

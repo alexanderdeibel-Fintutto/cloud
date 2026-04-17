@@ -168,3 +168,30 @@ export function getCrossAppLinks(data: RentData & PropertyData & MeterData) {
     } : {}),
   }
 }
+
+// ─── SecondBrain Deep-Links ──────────────────────────────────────────────────
+
+type SbEntityType = 'building' | 'unit' | 'tenant' | 'lease' | 'business' | 'expense' | 'invoice' | 'meter'
+
+/**
+ * Öffnet ein bestimmtes Dokument in SecondBrain.
+ */
+export function secondBrainDocumentLink(documentId: string): string {
+  return `${FINTUTTO_APPS.secondBrain.url}/dokumente?view=${documentId}`
+}
+
+/**
+ * Öffnet den Upload-Dialog in SecondBrain mit vorausgewähltem Kontext.
+ * Beispiel: secondBrainUploadWithContextLink('building', buildingId)
+ *   → öffnet SecondBrain und verknüpft das hochgeladene Dokument direkt mit dem Gebäude
+ */
+export function secondBrainUploadWithContextLink(entityType: SbEntityType, entityId: string): string {
+  return `${FINTUTTO_APPS.secondBrain.url}/upload?context=${entityType}&id=${entityId}`
+}
+
+/**
+ * Öffnet die Dokumentenliste in SecondBrain gefiltert nach einer Entität.
+ */
+export function secondBrainEntityDocumentsLink(entityType: SbEntityType, entityId: string): string {
+  return `${FINTUTTO_APPS.secondBrain.url}/dokumente?filter=${entityType}:${entityId}`
+}

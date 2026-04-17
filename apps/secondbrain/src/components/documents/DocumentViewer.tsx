@@ -1,4 +1,5 @@
-import { X, Download, Star, Tag, Clock, FileText, Brain } from 'lucide-react'
+import { X, Download, Star, Tag, Clock, FileText, Brain, Link2 } from 'lucide-react'
+import DocumentEntityLinker from './DocumentEntityLinker'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -69,6 +70,10 @@ export default function DocumentViewer({ document: doc, onClose, onFavorite }: D
             <TabsList className="w-full">
               <TabsTrigger value="summary" className="flex-1">KI-Zusammenfassung</TabsTrigger>
               <TabsTrigger value="text" className="flex-1">Erkannter Text</TabsTrigger>
+              <TabsTrigger value="links" className="flex-1">
+                <Link2 className="w-3.5 h-3.5 mr-1" />
+                Zuordnungen
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary" className="mt-4">
@@ -102,6 +107,15 @@ export default function DocumentViewer({ document: doc, onClose, onFavorite }: D
                   </p>
                 </div>
               )}
+            </TabsContent>
+            <TabsContent value="links" className="mt-4">
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Ordne dieses Dokument Gebäuden (Vermietify), Firmen (Financial Compass),
+                  Mietern oder Zählern zu. Es erscheint dann in den jeweiligen Apps.
+                </p>
+                <DocumentEntityLinker documentId={doc.id} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
