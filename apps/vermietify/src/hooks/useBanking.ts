@@ -104,14 +104,27 @@
      queryKey: ['bank-accounts', organizationId],
      queryFn: async () => {
        if (!organizationId) return [];
+       // bank_accounts hat user_id (nicht organization_id), daher nach user_id filtern
        const { data, error } = await supabase
          .from('bank_accounts')
-         .select('*, connection:finapi_connections!inner(*)')
-         .eq('is_active', true);
+         .select('*')
+         .neq('sync_status', 'error');
        if (error) throw error;
-       // Filter by organization
-       return (data as unknown as Array<BankAccount & { connection: BankConnection }>)
-         .filter(a => a.connection.organization_id === organizationId);
+       // Daten auf BankAccount-Interface mappen
+       return (data || []).map((a: Record<string, unknown>) => ({
+         id: a.id as string,
+         connection_id: (a.finapi_connection_id as string) || '',
+         finapi_account_id: a.finapi_account_id as string | null,
+         iban: (a.iban as string) || '',
+         account_name: (a.account_name as string) || '',
+         account_type: (a.account_type as BankAccount['account_type']) || 'checking',
+         balance_cents: Math.round(((a.balance as number) || 0) * 100),
+         balance_date: a.balance_updated_at as string | null,
+         currency: (a.balance_currency as string) || 'EUR',
+         is_active: a.sync_status !== 'error',
+         created_at: a.created_at as string,
+         updated_at: a.updated_at as string,
+       })) as BankAccount[];
      },
      enabled: !!organizationId,
    });
@@ -133,10 +146,7 @@
            .from('bank_transactions')
            .select(`
              *,
-             account:bank_accounts!inner(
-               id, account_name, iban,
-               connection:finapi_connections!inner(organization_id)
-             ),
+             account:bank_accounts(id, account_name, iban),
              tenant:tenants(first_name, last_name)
            `)
            .order('booking_date', { ascending: false });
@@ -162,10 +172,7 @@
          const { data, error } = await query;
          if (error) throw error;
          
-         // Filter by organization
-         return (data as unknown as Array<BankTransaction & { 
-           account: { connection: { organization_id: string } } 
-         }>).filter(t => t.account.connection.organization_id === organizationId);
+         return (data || []) as unknown as BankTransaction[];
        },
        enabled: !!organizationId,
      });
