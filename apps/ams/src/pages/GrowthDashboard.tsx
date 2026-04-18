@@ -16,6 +16,10 @@ import {
   Lock,
   UserMinus,
   Activity,
+  LayoutGrid,
+  CheckCircle2,
+  XCircle,
+  ExternalLink,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -171,6 +175,9 @@ export default function GrowthDashboard() {
   const weekly = data?.weeklyData ?? [];
   const last4Weeks = weekly.slice(-4);
   const churnData = data?.monthlyChurn ?? [];
+  const appActivity = data?.appActivity ?? [];
+  const integratedApps = appActivity.filter(a => a.integrated);
+  const notIntegratedApps = appActivity.filter(a => !a.integrated);
 
   // Wachstumsrate berechnen
   const lastWeek = weekly[weekly.length - 1];
@@ -245,11 +252,12 @@ export default function GrowthDashboard() {
 
         {/* Tabs */}
         <Tabs defaultValue="cumulative">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="cumulative">Kumuliert</TabsTrigger>
             <TabsTrigger value="weekly">Wöchentlich</TabsTrigger>
             <TabsTrigger value="daily">Täglich</TabsTrigger>
             <TabsTrigger value="churn">Abwanderung</TabsTrigger>
+            <TabsTrigger value="apps">App-Aktivität</TabsTrigger>
             <TabsTrigger value="breakdown">Aufschlüsselung</TabsTrigger>
           </TabsList>
 
@@ -671,6 +679,220 @@ export default function GrowthDashboard() {
                 </p>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Tab: App-Aktivität */}
+          <TabsContent value="apps" className="space-y-4">
+            {/* Übersicht-Karten */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Apps gesamt</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{appActivity.length}</div>
+                  <p className="text-xs text-muted-foreground mt-1">im Portal-Repository</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Integriert (Supabase)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-emerald-600">{integratedApps.length}</div>
+                  <p className="text-xs text-muted-foreground mt-1">teilen Nutzerdaten im AMS</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Noch nicht integriert</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-amber-500">{notIntegratedApps.length}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Integrationsschritte erforderlich</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Abonnements pro App — BarChart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Abonnements pro App (kumuliert)</CardTitle>
+                <CardDescription>Gesamte Abonnements je App basierend auf subscriptions.app_id</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-72 w-full" />
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart
+                      data={integratedApps.map(a => ({ label: a.label, subs: a.totalSubs, active: a.activeSubs }))}
+                      margin={{ top: 5, right: 10, left: 0, bottom: 60 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} angle={-35} textAnchor="end" interval={0} />
+                      <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar dataKey="subs" name="Gesamt-Abos" fill={COLORS.subs} opacity={0.85} radius={[3, 3, 0, 0]} />
+                      <Bar dataKey="active" name="Aktive Abos" fill={COLORS.users} opacity={0.85} radius={[3, 3, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Monatliche Abonnements — LineChart für die Top-3-Apps */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Monatliche Abonnement-Entwicklung (Top-Apps)</CardTitle>
+                <CardDescription>Kumulierte Abonnements der integrierten Apps über 12 Monate</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-72 w-full" />
+                ) : (() => {
+                  // Monatsdaten für LineChart aufbereiten
+                  const months = integratedApps[0]?.monthlyData.map(m => m.month) ?? [];
+                  const chartData = months.map((month, idx) => {
+                    const point: Record<string, string | number> = { month };
+                    integratedApps.slice(0, 6).forEach(app => {
+                      point[app.label] = app.monthlyData[idx]?.subs ?? 0;
+                    });
+                    return point;
+                  });
+                  return (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                        <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        {integratedApps.slice(0, 6).map(app => (
+                          <Line
+                            key={app.app}
+                            type="monotone"
+                            dataKey={app.label}
+                            stroke={app.color}
+                            strokeWidth={2}
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+
+            {/* App-Status-Tabelle */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <LayoutGrid className="h-4 w-4" />
+                  Alle Portal-Apps — Integrationsstatus
+                </CardTitle>
+                <CardDescription>
+                  Übersicht aller Apps im Repository mit Supabase- und Vercel-Status
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? <Skeleton className="h-64 w-full" /> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2 font-medium text-muted-foreground">App</th>
+                          <th className="text-left p-2 font-medium text-muted-foreground">Kategorie</th>
+                          <th className="text-center p-2 font-medium text-muted-foreground">Supabase</th>
+                          <th className="text-center p-2 font-medium text-muted-foreground">Vercel</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Abos gesamt</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Aktive Abos</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {appActivity.map(app => (
+                          <tr key={app.app} className="border-b hover:bg-muted/50">
+                            <td className="p-2">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: app.color }}
+                                />
+                                <span className="font-medium">{app.label}</span>
+                              </div>
+                            </td>
+                            <td className="p-2 text-muted-foreground">{app.category}</td>
+                            <td className="p-2 text-center">
+                              {app.integrated
+                                ? <CheckCircle2 className="h-4 w-4 text-emerald-500 mx-auto" />
+                                : <XCircle className="h-4 w-4 text-amber-400 mx-auto" />}
+                            </td>
+                            <td className="p-2 text-center">
+                              {app.vercelDeployed
+                                ? <CheckCircle2 className="h-4 w-4 text-emerald-500 mx-auto" />
+                                : <XCircle className="h-4 w-4 text-red-400 mx-auto" />}
+                            </td>
+                            <td className="p-2 text-right">
+                              {app.totalSubs > 0
+                                ? <Badge variant="secondary" className="text-xs">{app.totalSubs}</Badge>
+                                : <span className="text-muted-foreground text-xs">–</span>}
+                            </td>
+                            <td className="p-2 text-right">
+                              {app.activeSubs > 0
+                                ? <Badge className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">{app.activeSubs}</Badge>
+                                : <span className="text-muted-foreground text-xs">–</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Nicht-integrierte Apps — Integrationsschritte */}
+            {notIntegratedApps.length > 0 && (
+              <Card className="border-amber-200 dark:border-amber-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                    <XCircle className="h-4 w-4" />
+                    Noch nicht integrierte Apps — Nächste Schritte
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {notIntegratedApps.map(app => (
+                      <div key={app.app} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <span
+                          className="h-3 w-3 rounded-full flex-shrink-0 mt-0.5"
+                          style={{ backgroundColor: app.color }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">{app.label}</span>
+                            <Badge variant="outline" className="text-xs">{app.category}</Badge>
+                            {!app.vercelDeployed && (
+                              <Badge variant="outline" className="text-xs border-red-300 text-red-600">Kein Vercel</Badge>
+                            )}
+                          </div>
+                          <ol className="text-xs text-muted-foreground space-y-0.5 list-decimal list-inside">
+                            <li>Supabase-Client in <code className="bg-muted px-1 rounded">src/integrations/supabase/client.ts</code> anlegen</li>
+                            <li><code className="bg-muted px-1 rounded">VITE_SUPABASE_URL</code> + <code className="bg-muted px-1 rounded">VITE_SUPABASE_ANON_KEY</code> in Vercel setzen</li>
+                            {!app.vercelDeployed && <li><code className="bg-muted px-1 rounded">vercel.json</code> anlegen und Projekt in Vercel registrieren</li>}
+                            <li>Auth-Provider auf <code className="bg-muted px-1 rounded">supabase.auth</code> umstellen</li>
+                            <li>Bei Registrierung Eintrag in <code className="bg-muted px-1 rounded">profiles</code>-Tabelle anlegen</li>
+                          </ol>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Tab: Aufschlüsselung */}

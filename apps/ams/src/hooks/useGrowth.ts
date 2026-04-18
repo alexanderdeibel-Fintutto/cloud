@@ -26,6 +26,18 @@ export interface MonthlyChurnPoint {
   activeUsers: number;  // Aktive Nutzer am Monatsende
 }
 
+export interface AppActivityPoint {
+  app: string;          // App-Name (z.B. "vermietify")
+  label: string;        // Anzeigename (z.B. "Vermietify")
+  category: string;     // Kategorie (z.B. "Immobilien")
+  integrated: boolean;  // Ist die App an Supabase angebunden?
+  vercelDeployed: boolean; // Hat die App ein Vercel-Deployment?
+  totalSubs: number;    // Gesamte Abonnements für diese App
+  activeSubs: number;   // Aktive Abonnements
+  monthlyData: { month: string; subs: number; newSubs: number }[]; // Monatliche Daten
+  color: string;        // Chart-Farbe
+}
+
 export interface GrowthSummary {
   totalUsers: number;
   totalOrgs: number;
@@ -42,11 +54,33 @@ export interface GrowthSummary {
   subsByTier: { tier: string; count: number }[];
   subsByInterval: { interval: string; count: number }[];
   userRegistrationsByDay: { date: string; count: number }[];
+  appActivity: AppActivityPoint[];
   // Churn-Kennzahlen
   avgMonthlyChurnRate: number;
   currentMonthChurnRate: number;
   churnTrend: 'up' | 'down' | 'stable'; // Vergleich letzter 2 Monate
 }
+
+// ─── App-Katalog ──────────────────────────────────────────────────────────────
+// Alle bekannten Apps mit Metadaten
+const APP_CATALOG: Omit<AppActivityPoint, 'totalSubs' | 'activeSubs' | 'monthlyData'>[] = [
+  { app: 'vermietify',          label: 'Vermietify',           category: 'Immobilien',      integrated: true,  vercelDeployed: true,  color: '#f97316' },
+  { app: 'ams',                 label: 'AMS',                  category: 'Verwaltung',      integrated: true,  vercelDeployed: true,  color: '#3b82f6' },
+  { app: 'bescheidboxer',       label: 'BescheidBoxer',        category: 'Behörden',        integrated: true,  vercelDeployed: true,  color: '#8b5cf6' },
+  { app: 'arbeitslos-portal',   label: 'Arbeitslos-Portal',    category: 'Behörden',        integrated: true,  vercelDeployed: true,  color: '#ec4899' },
+  { app: 'pflanzen-manager',    label: 'Pflanzen-Manager',     category: 'Lifestyle',       integrated: true,  vercelDeployed: true,  color: '#10b981' },
+  { app: 'secondbrain',         label: 'SecondBrain',          category: 'Produktivität',   integrated: true,  vercelDeployed: true,  color: '#14b8a6' },
+  { app: 'finance-coach',       label: 'Finance Coach',        category: 'Finanzen',        integrated: true,  vercelDeployed: true,  color: '#f59e0b' },
+  { app: 'finance-mentor',      label: 'Finance Mentor',       category: 'Finanzen',        integrated: true,  vercelDeployed: true,  color: '#06b6d4' },
+  { app: 'fintutto-biz',        label: 'Fintutto Biz',         category: 'Business',        integrated: true,  vercelDeployed: true,  color: '#6366f1' },
+  { app: 'leserally',           label: 'LeseRally',            category: 'Bildung',         integrated: false, vercelDeployed: true,  color: '#84cc16' },
+  { app: 'miet-check-pro',      label: 'MietCheck Pro',        category: 'Immobilien',      integrated: false, vercelDeployed: true,  color: '#f43f5e' },
+  { app: 'miet-recht',          label: 'Miet-Recht',           category: 'Recht',           integrated: false, vercelDeployed: true,  color: '#a78bfa' },
+  { app: 'betriebskosten-helfer', label: 'Betriebskosten-Helfer', category: 'Immobilien',  integrated: false, vercelDeployed: false, color: '#fb923c' },
+  { app: 'financial-compass',   label: 'Financial Compass',    category: 'Finanzen',        integrated: false, vercelDeployed: false, color: '#34d399' },
+  { app: 'hausmeister',         label: 'Hausmeister',          category: 'Immobilien',      integrated: false, vercelDeployed: false, color: '#60a5fa' },
+  { app: 'vermieter-freude',    label: 'Vermieter-Freude',     category: 'Immobilien',      integrated: false, vercelDeployed: false, color: '#f472b6' },
+];
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 function getISOWeek(date: Date): string {
@@ -201,15 +235,49 @@ export function useGrowthSummary(): { data: GrowthSummary | null; isLoading: boo
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([date, count]) => ({ date, count }));
 
+    // ─── App-Aktivität ────────────────────────────────────────────────────────
+    // Basierend auf subscriptions.app_id + App-Katalog
+    const appActivity: AppActivityPoint[] = APP_CATALOG.map(appMeta => {
+      // Abonnements für diese App (app_id matching)
+      const appSubs = subs.filter(s => {
+        const aid = (s.app_id || '').toLowerCase();
+        return aid === appMeta.app || aid.includes(appMeta.app) || appMeta.app.includes(aid);
+      });
+
+      const activeSubs = appSubs.filter(s =>
+        s.status === 'active' || s.status === 'trialing'
+      ).length;
+
+      // Monatliche Daten (letzte 12 Monate)
+      const monthlyData: { month: string; subs: number; newSubs: number }[] = [];
+      for (let i = 11; i >= 0; i--) {
+        const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+        const monthStart = new Date(monthDate);
+
+        const newInMonth = appSubs.filter(s => {
+          const d = new Date(s.created_at);
+          return d >= monthStart && d <= monthEnd;
+        }).length;
+
+        const cumUntilEnd = appSubs.filter(s => new Date(s.created_at) <= monthEnd).length;
+
+        monthlyData.push({
+          month: getMonthLabel(monthDate),
+          subs: cumUntilEnd,
+          newSubs: newInMonth,
+        });
+      }
+
+      return {
+        ...appMeta,
+        totalSubs: appSubs.length,
+        activeSubs,
+        monthlyData,
+      };
+    });
+
     // ─── Monatliche Churn-Berechnung (letzte 12 Monate) ───────────────────────
-    // Churn-Definition:
-    //   - Nutzer gilt als "abgewandert" in Monat M, wenn:
-    //     (a) status === 'inactive' und updated_at in Monat M, ODER
-    //     (b) last_login_at ist > 30 Tage vor Monatsende (Inaktivitäts-Churn)
-    //   - Da wir keine updated_at haben, nutzen wir:
-    //     Nutzer die im Monat M registriert wurden UND deren last_login_at
-    //     mehr als 30 Tage zurückliegt (relative Churn-Schätzung)
-    
     const monthlyChurn: MonthlyChurnPoint[] = [];
     
     for (let i = 11; i >= 0; i--) {
@@ -217,32 +285,25 @@ export function useGrowthSummary(): { data: GrowthSummary | null; isLoading: boo
       const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
       const monthStart = new Date(monthDate);
       
-      // Nutzer die in diesem Monat registriert wurden
       const newInMonth = profiles.filter(p => {
         const d = new Date(p.created_at);
         return d >= monthStart && d <= monthEnd;
       });
       
-      // Aktive Nutzer am Monatsende: alle bis Monatsende registrierten Nutzer
       const allUntilMonthEnd = profiles.filter(p => new Date(p.created_at) <= monthEnd);
       const activeUsers = allUntilMonthEnd.length;
       
-      // Churn-Schätzung: Nutzer mit status='inactive' ODER last_login_at > 30d vor Monatsende
       const thirtyDaysBeforeEnd = new Date(monthEnd.getTime() - 30 * 86400000);
       const churnedInMonth = allUntilMonthEnd.filter(p => {
-        // Explizit inaktiv gesetzt
         if (p.status === 'inactive') return true;
-        // Kein Login in den letzten 30 Tagen vor Monatsende (nur für vergangene Monate sinnvoll)
         if (p.last_login_at) {
           const lastLogin = new Date(p.last_login_at);
           return lastLogin < thirtyDaysBeforeEnd;
         }
-        // Kein Login-Datum → als potenziell abgewandert zählen wenn Registrierung > 60 Tage
         const regDate = new Date(p.created_at);
         return regDate < new Date(monthEnd.getTime() - 60 * 86400000);
       }).length;
       
-      // Churn-Rate = Abgewanderte / Aktive * 100
       const churnRate = activeUsers > 0
         ? Math.round((churnedInMonth / activeUsers) * 100 * 10) / 10
         : 0;
@@ -346,6 +407,7 @@ export function useGrowthSummary(): { data: GrowthSummary | null; isLoading: boo
       subsByTier,
       subsByInterval,
       userRegistrationsByDay,
+      appActivity,
       avgMonthlyChurnRate,
       currentMonthChurnRate,
       churnTrend,
