@@ -100,14 +100,16 @@ export default function Tenants() {
       const { error } = await supabase
         .from('tenants')
         .insert({
-          organization_id: profile?.organization_id,
+          // org_id is the actual DB column; organization_id is a generated alias (cannot be set directly)
+          org_id: profile?.organization_id,
           first_name: validatedData.first_name,
           last_name: validatedData.last_name,
           email: validatedData.email || null,
           phone: validatedData.phone || null,
-          address: validatedData.address || null,
-          city: validatedData.city || null,
-          postal_code: validatedData.postal_code || null,
+          // Map UI field names to actual DB column names
+          correspondence_street: validatedData.address || null,
+          correspondence_city: validatedData.city || null,
+          correspondence_zip: validatedData.postal_code || null,
         });
 
       if (error) throw error;
@@ -123,7 +125,7 @@ export default function Tenants() {
         const { data: newTenants } = await supabase
           .from("tenants")
           .select("id")
-          .eq("organization_id", profile?.organization_id)
+          .eq("org_id", profile?.organization_id)
           .eq("email", validatedData.email)
           .order("created_at", { ascending: false })
           .limit(1);
