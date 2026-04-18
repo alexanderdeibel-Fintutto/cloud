@@ -6,7 +6,7 @@ import uuid
 from supabase import create_client, Client
 
 # Supabase Config aus Umgebungsvariablen oder Hardcoded für den Test
-SUPABASE_URL = "https://aaefocqdgdgexkcrjhks.supabase.co"
+SUPABASE_URL = "https://aaefocdqgdgexkcrjhks.supabase.co"
 SUPABASE_KEY = os.environ.get("SB_KEY")
 
 if not SUPABASE_KEY:

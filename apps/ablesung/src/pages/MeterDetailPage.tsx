@@ -36,7 +36,7 @@ import { formatDate } from '@/lib/utils'
 
 // ── Supabase-Client ──────────────────────────────────────────────────────────
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://aaefocqdgdgexkcrjhks.supabase.co'
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://aaefocdqgdgexkcrjhks.supabase.co'
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

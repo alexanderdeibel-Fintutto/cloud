@@ -79,7 +79,7 @@ export interface SbDocumentSuggestion {
 function getSupabaseClient() {
   const url = (typeof window !== 'undefined' && (window as any).__SUPABASE_URL__)
     || import.meta?.env?.VITE_SUPABASE_URL
-    || 'https://aaefocqdgdgexkcrjhks.supabase.co';
+    || 'https://aaefocdqgdgexkcrjhks.supabase.co';
   const key = (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY__)
     || import.meta?.env?.VITE_SUPABASE_ANON_KEY
     || '';

@@ -38,7 +38,7 @@ pnpm dev:vermietify
 Erstelle `apps/vermietify/.env`:
 
 ```env
-VITE_SUPABASE_URL=https://aaefocqdgdgexkcrjhks.supabase.co
+VITE_SUPABASE_URL=https://aaefocdqgdgexkcrjhks.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 

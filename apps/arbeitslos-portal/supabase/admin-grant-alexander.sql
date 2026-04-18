@@ -3,7 +3,7 @@
 -- =============================================================================
 -- Dieses SQL gibt deinem Account Vollschutz (höchstes Tier) mit unbegrenzten
 -- Credits und reset aller Verbrauchszähler. Im Supabase Dashboard ausführen:
--- https://supabase.com/dashboard/project/aaefocqdgdgexkcrjhks/sql/new
+-- https://supabase.com/dashboard/project/aaefocdqgdgexkcrjhks/sql/new
 -- =============================================================================
 
 -- Schritt 1: Account auf Vollschutz upgraden, alle Limits resetten, 999.999 Credits geben

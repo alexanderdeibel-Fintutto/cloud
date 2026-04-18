@@ -31,7 +31,7 @@ export const urlRegistry: RegisteredUrl[] = [
 
   // Backend / API Endpoints
   {
-    url: 'https://aaefocqdgdgexkcrjhks.supabase.co',
+    url: 'https://aaefocdqgdgexkcrjhks.supabase.co',
     label: 'Supabase API Endpoint',
     category: 'api',
     source: '.env / index.html',

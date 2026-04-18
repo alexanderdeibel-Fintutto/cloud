@@ -3,7 +3,7 @@
 -- =============================================================================
 -- Erstellt das gesamte Schema + legt alexander@fintutto.de als Admin an.
 -- Im Supabase SQL Editor ausführen:
--- https://supabase.com/dashboard/project/aaefocqdgdgexkcrjhks/sql/new
+-- https://supabase.com/dashboard/project/aaefocdqgdgexkcrjhks/sql/new
 --
 -- Das Script ist idempotent - kann mehrfach laufen ohne Fehler.
 -- =============================================================================

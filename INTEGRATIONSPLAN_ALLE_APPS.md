@@ -90,7 +90,7 @@ Der Admin-Hub (`fintutto-admin-hub`) ist ein Lovable-Projekt mit UI-Mockups. Er:
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                     EINE Supabase-Instanz für ALLE Apps                │
-│                  (aaefocqdgdgexkcrjhks.supabase.co)                    │
+│                  (aaefocdqgdgexkcrjhks.supabase.co)                    │
 │                                                                         │
 │  ┌─────────────┐                                                        │
 │  │  Auth Layer  │  Ein Account → Zugang zu allen Apps                   │
@@ -738,7 +738,7 @@ Jede App muss die GLEICHEN Supabase-Credentials verwenden:
 
 ```env
 # .env für ALLE Apps (Vercel Environment Variables)
-VITE_SUPABASE_URL=https://aaefocqdgdgexkcrjhks.supabase.co
+VITE_SUPABASE_URL=https://aaefocdqgdgexkcrjhks.supabase.co
 VITE_SUPABASE_ANON_KEY=<der-gleiche-anon-key>
 ```
 

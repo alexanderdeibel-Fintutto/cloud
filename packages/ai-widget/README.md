@@ -10,7 +10,7 @@ Füge diesen Script-Tag in **jede App** ein (vor `</body>`):
 <script
   src="https://cdn.jsdelivr.net/gh/alexanderdeibel-Fintutto/fintutto-ecosystem@main/packages/ai-widget/dist/fintutto-ai-widget.js"
   data-app-id="vermieterportal"
-  data-supabase-url="https://aaefocqdgdgexkcrjhks.supabase.co"
+  data-supabase-url="https://aaefocdqgdgexkcrjhks.supabase.co"
   data-supabase-key="DEIN_ANON_KEY">
 </script>
 ```
@@ -54,7 +54,7 @@ Kopiere `dist/fintutto-ai-widget.js` auf deinen Server oder CDN.
   <script
     src="./fintutto-ai-widget.js"
     data-app-id="vermieterportal"
-    data-supabase-url="https://aaefocqdgdgexkcrjhks.supabase.co"
+    data-supabase-url="https://aaefocdqgdgexkcrjhks.supabase.co"
     data-supabase-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
   </script>
 </body>

@@ -103,7 +103,7 @@ export function SecondBrainDocumentsPanel({
 }: SecondBrainDocumentsPanelProps) {
   const url = supabaseUrl
     || (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_SUPABASE_URL : undefined)
-    || 'https://aaefocqdgdgexkcrjhks.supabase.co';
+    || 'https://aaefocdqgdgexkcrjhks.supabase.co';
   const key = supabaseAnonKey
     || (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_SUPABASE_ANON_KEY : undefined)
     || '';
