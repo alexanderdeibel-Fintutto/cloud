@@ -514,7 +514,7 @@ function StepTenant({ onNext, onBack, onSkip }: StepProps) {
     setSaving(true);
     try {
       const { error } = await supabase.from("tenants").insert({
-        organization_id: profile?.organization_id,
+        org_id: profile?.organization_id, // organization_id is a generated column in DB
         first_name: firstName,
         last_name: lastName,
         email: email || null,

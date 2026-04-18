@@ -141,7 +141,9 @@
    const createTenant = useMutation({
      mutationFn: async (data: TenantFormData & { organization_id: string }) => {
         const insertData: TenantInsert = {
-          organization_id: data.organization_id,
+          // Note: organization_id is a generated column in DB (= org_id)
+          // We must use org_id for INSERT
+          org_id: data.organization_id,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email || null,

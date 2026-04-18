@@ -288,7 +288,7 @@ export function BulkImportDialog({
             if (error) { console.error(error); failed++; } else { success++; }
           } else {
             const { error } = await supabase.from("tenants").insert({
-              organization_id: organizationId!,
+              org_id: organizationId!, // organization_id is a generated column in DB
               first_name: t.first_name,
               last_name: t.last_name,
               email: t.email || null,
