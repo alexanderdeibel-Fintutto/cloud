@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../integrations/supabase/client'
 import { useMockData } from './use-mock-data'
 import { analyseBescheid } from '../lib/analyse-engine'
+// SSOT: Bescheide können über core_contact_id mit dem zentralen Kontakt-Datensatz
+// verknüpft werden. Dokumente werden über SecondBrain (entity_type='bescheid') verwaltet.
 
 function mapBescheid(row: Record<string, unknown>): Bescheid {
   return {
@@ -220,6 +222,10 @@ export function useBescheide() {
         abweichung_prozent: abweichungProzent,
         einspruchsfrist: data.einspruchsfrist || null,
         notizen: data.notizen || null,
+        // SSOT: core_contact_id wird automatisch befüllt, sobald der Nutzer
+        // seinen Profil-Kontakt in der Einstellungsseite verknüpft hat.
+        // Bis dahin bleibt das Feld null und wird über die Migration 20260418160000
+        // nachträglich befüllt.
       })
       .select()
       .single()

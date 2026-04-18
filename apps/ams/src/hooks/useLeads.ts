@@ -34,6 +34,12 @@ export interface Lead {
   utm_medium: string | null;
   utm_campaign: string | null;
   created_at: string | null;
+  // SSOT: Verknüpfung zum zentralen Kontakt
+  core_contact_id?: string | null;
+  // Aus v_leads_with_contact View
+  contact_type?: string | null;
+  company_name?: string | null;
+  primary_address?: string | null;
 }
 
 export function useLeads() {
@@ -73,6 +79,49 @@ export function useUpdateLead() {
   });
 }
 
+/**
+ * SSOT: Synchronisiert einen Lead in die core_contacts Tabelle.
+ * Ruft die Datenbank-Funktion sync_lead_to_core_contact auf.
+ */
+export function useSyncLeadToCoreContact() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (leadId: string) => {
+      const { data, error } = await supabase
+        .rpc('sync_lead_to_core_contact', { p_lead_id: leadId });
+      if (error) throw error;
+      return data as string; // core_contact_id
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['core_contacts'] });
+    },
+  });
+}
+
+/**
+ * SSOT: Zeigt Cross-App-Daten für einen Lead (Mieter in Vermietify, Kunde in Financial Compass, Dokumente in SecondBrain)
+ */
+export function useLeadCrossAppData(coreContactId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['lead_cross_app', coreContactId],
+    enabled: !!coreContactId,
+    queryFn: async () => {
+      if (!coreContactId) return null;
+      const [tenantsRes, clientsRes, docsRes] = await Promise.allSettled([
+        supabase.from('tenants').select('id, first_name, last_name, unit_id, created_at').eq('core_contact_id', coreContactId).limit(5),
+        supabase.from('biz_clients').select('id, name, email, created_at').eq('core_contact_id', coreContactId).limit(5),
+        supabase.from('sb_document_entity_links').select('id, entity_type, document_id, created_at').eq('entity_type', 'core_contact').eq('entity_id', coreContactId).limit(10),
+      ]);
+      return {
+        tenants: tenantsRes.status === 'fulfilled' ? tenantsRes.value.data || [] : [],
+        clients: clientsRes.status === 'fulfilled' ? clientsRes.value.data || [] : [],
+        documents: docsRes.status === 'fulfilled' ? docsRes.value.data || [] : [],
+      };
+    },
+  });
+}
+
 export function useLeadStats() {
   const { data: leads } = useLeads();
 
@@ -83,6 +132,8 @@ export function useLeadStats() {
     qualified: leads?.filter(l => l.status === 'qualified').length || 0,
     converted: leads?.filter(l => l.status === 'converted').length || 0,
     lost: leads?.filter(l => l.status === 'lost').length || 0,
+    // SSOT: Wie viele Leads sind bereits mit core_contacts verknüpft?
+    synced_to_ssot: leads?.filter(l => l.core_contact_id != null).length || 0,
     avgScore: 0,
     bySource: {} as Record<string, number>,
     byApp: {} as Record<string, number>,

@@ -26,6 +26,12 @@ export interface Organization {
   settings: Record<string, unknown> | null;
   created_at: string | null;
   updated_at: string | null;
+  // SSOT: Verknüpfung zur zentralen Adresse in core_addresses
+  core_address_id?: string | null;
+  // Aus v_organizations_with_address View
+  formatted_address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface OrgMembership {
@@ -83,6 +89,51 @@ export function useUpdateOrganization() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
+    },
+  });
+}
+
+/**
+ * SSOT: Adresse einer Organisation mit core_addresses verknüpfen oder aktualisieren.
+ * Erstellt einen neuen core_address Eintrag und verknüpft ihn mit der Organisation.
+ */
+export function useUpdateOrgAddress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ orgId, address }: {
+      orgId: string;
+      address: { street: string; postalCode: string; city: string; country?: string; placeId?: string; formattedAddress?: string; lat?: number; lng?: number };
+    }) => {
+      // 1. core_address anlegen
+      const { data: addr, error: addrErr } = await supabase
+        .from('core_addresses')
+        .insert({
+          street: address.street,
+          postal_code: address.postalCode,
+          city: address.city,
+          country: address.country || 'Deutschland',
+          google_place_id: address.placeId,
+          formatted: address.formattedAddress,
+          latitude: address.lat,
+          longitude: address.lng,
+        })
+        .select('id')
+        .single();
+      if (addrErr) throw addrErr;
+
+      // 2. Organisation mit core_address verknüpfen
+      const { data, error } = await supabase
+        .from('organizations')
+        .update({ core_address_id: addr.id, street: address.street, zip: address.postalCode, city: address.city, country: address.country || 'Deutschland' })
+        .eq('id', orgId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['core_addresses'] });
     },
   });
 }

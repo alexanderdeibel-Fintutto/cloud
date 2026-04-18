@@ -30,6 +30,8 @@ export interface Apartment {
   name: string;
   address: string;
   created_at: string;
+  // SSOT: Optionale Verknuepfung mit zentraler Adresse aus core_addresses (Vermietify/Portal)
+  core_address_id?: string | null;
 }
 
 export interface Room {

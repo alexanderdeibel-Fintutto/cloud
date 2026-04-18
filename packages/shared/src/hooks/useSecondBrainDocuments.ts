@@ -28,7 +28,14 @@ export type SbEntityType =
   | 'business'
   | 'expense'
   | 'invoice'
-  | 'meter';
+  | 'meter'
+  // SSOT: Neue Entitätstypen
+  | 'core_contact'
+  | 'bescheid'
+  | 'lead'
+  | 'organization'
+  | 'finance_account'
+  | 'plant';
 
 export interface SbDocument {
   id: string;
