@@ -4,6 +4,8 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { Plus, Users, Search, X, Mail, Building2, ChevronRight } from "lucide-react";
+import { AddressAutocomplete } from '@fintutto/shared/components/AddressAutocomplete';
+import type { PlaceDetails } from '@fintutto/shared/components/AddressAutocomplete';
 
 interface Client {
   id: string;
@@ -31,6 +33,7 @@ export default function Clients() {
   const [zip, setZip] = useState("");
   const [vatId, setVatId] = useState("");
   const [saving, setSaving] = useState(false);
+  const [addressPlaceDetails, setAddressPlaceDetails] = useState<PlaceDetails | null>(null);
 
   useEffect(() => {
     if (!business) return;
@@ -54,6 +57,65 @@ export default function Clients() {
     if (!business || !name) return;
     setSaving(true);
 
+    // SSOT: core_contact parallel erstellen/verknüpfen
+    let coreContactId: string | null = null;
+    try {
+      if (email) {
+        const { data: existing } = await supabase
+          .from('core_contacts')
+          .select('id')
+          .eq('email', email)
+          .maybeSingle();
+        if (existing) coreContactId = existing.id;
+      }
+      if (!coreContactId) {
+        const contactType = company ? 'company' : 'person';
+        const nameParts = name.trim().split(' ');
+        const { data: newContact } = await supabase
+          .from('core_contacts')
+          .insert({
+            contact_type: contactType,
+            first_name: contactType === 'person' ? nameParts[0] : null,
+            last_name: contactType === 'person' && nameParts.length > 1 ? nameParts.slice(1).join(' ') : null,
+            company_name: company || null,
+            email: email || null,
+            vat_id: vatId || null,
+          })
+          .select('id')
+          .single();
+        if (newContact) {
+          coreContactId = newContact.id;
+          // Adresse in core_addresses speichern
+          if (addressPlaceDetails) {
+            const { data: addr } = await supabase
+              .from('core_addresses')
+              .insert({
+                street: addressPlaceDetails.address,
+                postal_code: addressPlaceDetails.postalCode,
+                city: addressPlaceDetails.city,
+                country: addressPlaceDetails.country || 'Deutschland',
+                google_place_id: addressPlaceDetails.placeId,
+                formatted: addressPlaceDetails.formattedAddress,
+                latitude: addressPlaceDetails.lat,
+                longitude: addressPlaceDetails.lng,
+              })
+              .select('id')
+              .single();
+            if (addr) {
+              await supabase.from('core_contact_addresses').insert({
+                contact_id: coreContactId,
+                address_id: addr.id,
+                address_type: 'billing',
+                is_primary: true,
+              });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('core_contact creation failed (non-critical):', e);
+    }
+
     const { error } = await supabase.from("biz_clients").insert({
       business_id: business.id,
       name,
@@ -61,6 +123,7 @@ export default function Clients() {
       company: company || null,
       address: street || city || zip ? { street, city, zip } : null,
       vat_id: vatId || null,
+      core_contact_id: coreContactId,
     });
 
     if (!error) {
@@ -212,14 +275,21 @@ export default function Clients() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white">Adresse</label>
-                <input
-                  type="text"
-                  placeholder="Strasse und Hausnummer"
+                <label className="text-sm font-medium text-white">Adresse (mit Google-Vorschlag)</label>
+                <AddressAutocomplete
                   value={street}
-                  onChange={(e) => setStreet(e.target.value)}
-                  className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(v: string) => setStreet(v)}
+                  onPlaceSelect={(details: PlaceDetails) => {
+                    setAddressPlaceDetails(details);
+                    setStreet(details.address);
+                    setCity(details.city);
+                    setZip(details.postalCode);
+                  }}
+                  placeholder="Straße, PLZ, Ort..."
                 />
+                {addressPlaceDetails && (
+                  <p className="text-xs text-muted-foreground">✓ {addressPlaceDetails.formattedAddress}</p>
+                )}
                 <div className="flex gap-2">
                   <input
                     type="text"

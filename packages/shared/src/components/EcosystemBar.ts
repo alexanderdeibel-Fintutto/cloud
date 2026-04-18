@@ -23,8 +23,9 @@ export function getEcosystemBarGrouped(currentAppSlug: string) {
   const items = getEcosystemBarItems(currentAppSlug)
   const groups: { category: AppCategory; label: string; apps: typeof items }[] = []
 
-  for (const [key, label] of Object.entries(APP_CATEGORIES)) {
+  for (const [key, cat] of Object.entries(APP_CATEGORIES)) {
     const categoryApps = items.filter((app) => app.category === key)
+    const label = typeof cat === 'object' && cat !== null ? (cat as { label: string }).label : String(cat)
     if (categoryApps.length > 0) {
       groups.push({ category: key as AppCategory, label, apps: categoryApps })
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Upload, Brain, Zap, Shield, FileText, Link2, Building2, Briefcase, Users, Gauge } from 'lucide-react'
+import { Upload, Brain, Zap, Shield, FileText, Link2, Building2, Briefcase, Users, Gauge, Contact } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import DocumentUpload from '@/components/documents/DocumentUpload'
@@ -25,6 +25,8 @@ const ENTITY_ICONS: Record<string, React.ElementType> = {
   expense: FileText,
   invoice: FileText,
   meter: Gauge,
+  core_contact: Contact,
+  contact: Contact,
 }
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -36,6 +38,8 @@ const ENTITY_LABELS: Record<string, string> = {
   expense: 'Ausgabe',
   invoice: 'Rechnung',
   meter: 'Zähler',
+  core_contact: 'Kontakt (SSOT)',
+  contact: 'Kontakt',
 }
 
 type EntityContext = {
@@ -52,6 +56,8 @@ async function resolveEntityLabel(type: string, id: string): Promise<string | un
       tenant: { table: 'tenants', labelCol: 'name' },
       business: { table: 'biz_businesses', labelCol: 'name' },
       meter: { table: 'meters', labelCol: 'meter_number' },
+      core_contact: { table: 'core_contacts', labelCol: 'display_name' },
+      contact: { table: 'core_contacts', labelCol: 'display_name' },
     }
     const mapping = tableMap[type]
     if (!mapping) return undefined

@@ -45,8 +45,8 @@ interface Prediction {
 }
 
 export interface AddressAutocompleteProps {
-  /** Supabase client instance from the app */
-  supabase: SupabaseClient
+  /** Supabase client instance from the app (optional) */
+  supabase?: SupabaseClient
   /** Current input value */
   value: string
   /** Called on every keystroke */
@@ -102,6 +102,10 @@ export function AddressAutocomplete({
         setIsOpen(false)
         return
       }
+      if (!supabase) {
+        setError('Adresssuche nicht konfiguriert')
+        return
+      }
       setIsLoading(true)
       setError(null)
       try {
@@ -135,6 +139,12 @@ export function AddressAutocomplete({
   const handleSelectPrediction = async (prediction: Prediction) => {
     setIsLoading(true)
     setIsOpen(false)
+    if (!supabase) {
+      onChange(prediction.structured_formatting?.main_text || prediction.description)
+      setIsValidated(true)
+      setIsLoading(false)
+      return
+    }
     try {
       const { data, error: fnError } = await supabase.functions.invoke('get-place-details', {
         body: { placeId: prediction.place_id, sessionToken: sessionTokenRef.current },

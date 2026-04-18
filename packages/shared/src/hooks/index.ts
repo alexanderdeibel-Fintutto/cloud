@@ -27,3 +27,18 @@ export type {
   SbDocumentEntityLink,
   SbDocumentSuggestion,
 } from './useSecondBrainDocuments'
+export {
+  useCoreContacts,
+  useCoreContact,
+  useContactSearch,
+  useSyncTenantToContact,
+  useSyncClientToContact,
+} from './useCoreContacts'
+export type {
+  CoreContact,
+  CoreAddress,
+  CoreContactAddress,
+  CoreContactInsert,
+  CoreContactUpdate,
+  ContactType,
+} from './useCoreContacts'

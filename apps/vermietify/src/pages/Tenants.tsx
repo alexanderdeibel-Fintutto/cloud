@@ -17,6 +17,8 @@ import { tenantSchema } from "@/lib/validationSchemas";
 import { sanitizeErrorMessage } from "@/lib/errorHandler";
 import { BulkImportDialog } from "@/components/import/BulkImportDialog";
 import { TenantAppInviteDialog } from "@/components/tenants/TenantAppInviteDialog";
+import { AddressAutocomplete } from '@fintutto/shared/components/AddressAutocomplete';
+import type { PlaceDetails } from '@fintutto/shared/components/AddressAutocomplete';
 
 interface Tenant {
   id: string;
@@ -50,6 +52,7 @@ export default function Tenants() {
     city: "",
     postal_code: "",
   });
+  const [addressPlaceDetails, setAddressPlaceDetails] = useState<PlaceDetails | null>(null);
 
   useEffect(() => {
     if (profile?.organization_id) {
@@ -97,6 +100,63 @@ export default function Tenants() {
 
     try {
       const validatedData = validationResult.data;
+
+      // SSOT: core_contact parallel erstellen/verknüpfen
+      let coreContactId: string | null = null;
+      try {
+        if (validatedData.email) {
+          const { data: existing } = await supabase
+            .from('core_contacts')
+            .select('id')
+            .eq('email', validatedData.email)
+            .maybeSingle();
+          if (existing) coreContactId = existing.id;
+        }
+        if (!coreContactId) {
+          const { data: newContact } = await supabase
+            .from('core_contacts')
+            .insert({
+              contact_type: 'person',
+              first_name: validatedData.first_name,
+              last_name: validatedData.last_name,
+              email: validatedData.email || null,
+              phone: validatedData.phone || null,
+              organization_id: profile?.organization_id,
+            })
+            .select('id')
+            .single();
+          if (newContact) {
+            coreContactId = newContact.id;
+            if (addressPlaceDetails) {
+              const { data: addr } = await supabase
+                .from('core_addresses')
+                .insert({
+                  street: addressPlaceDetails.address,
+                  postal_code: addressPlaceDetails.postalCode,
+                  city: addressPlaceDetails.city,
+                  country: addressPlaceDetails.country || 'Deutschland',
+                  google_place_id: addressPlaceDetails.placeId,
+                  formatted: addressPlaceDetails.formattedAddress,
+                  latitude: addressPlaceDetails.lat,
+                  longitude: addressPlaceDetails.lng,
+                })
+                .select('id')
+                .single();
+              if (addr) {
+                await supabase.from('core_contact_addresses').insert({
+                  contact_id: coreContactId,
+                  address_id: addr.id,
+                  address_type: 'primary',
+                  is_primary: true,
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('core_contact creation failed (non-critical):', e);
+      }
+
       const { error } = await supabase
         .from('tenants')
         .insert({
@@ -108,6 +168,7 @@ export default function Tenants() {
           address: validatedData.address || null,
           city: validatedData.city || null,
           postal_code: validatedData.postal_code || null,
+          core_contact_id: coreContactId,
         });
 
       if (error) throw error;
@@ -244,13 +305,24 @@ export default function Tenants() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Adresse</Label>
-                    <Input
-                      id="address"
-                      placeholder="Musterstraße 123"
+                    <Label htmlFor="address">Adresse (mit Google-Vorschlag)</Label>
+                    <AddressAutocomplete
                       value={newTenant.address}
-                      onChange={(e) => setNewTenant({ ...newTenant, address: e.target.value })}
+                      onChange={(v) => setNewTenant({ ...newTenant, address: v })}
+                      onPlaceSelect={(details) => {
+                        setAddressPlaceDetails(details);
+                        setNewTenant(prev => ({
+                          ...prev,
+                          address: details.address,
+                          city: details.city,
+                          postal_code: details.postalCode,
+                        }));
+                      }}
+                      placeholder="Straße, PLZ, Ort..."
                     />
+                    {addressPlaceDetails && (
+                      <p className="text-xs text-muted-foreground">✓ {addressPlaceDetails.formattedAddress}</p>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

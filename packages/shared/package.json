@@ -9,7 +9,12 @@
     "./credits": "./src/credits/index.ts",
     "./stripe": "./src/stripe.ts",
     "./supabase": "./src/supabase.ts",
-    "./components/address": "./src/components/AddressAutocomplete.tsx"
+    "./components/address": "./src/components/AddressAutocomplete.tsx",
+    "./components/AddressAutocomplete": "./src/components/AddressAutocomplete.tsx",
+    "./components/ContactSelector": "./src/components/ContactSelector.tsx",
+    "./components/CoreContactCard": "./src/components/CoreContactCard.tsx",
+    "./components/CoreContactForm": "./src/components/CoreContactForm.tsx",
+    "./hooks/useCoreContacts": "./src/hooks/useCoreContacts.ts"
   },
   "peerDependencies": {
     "@supabase/supabase-js": "^2.43.0"

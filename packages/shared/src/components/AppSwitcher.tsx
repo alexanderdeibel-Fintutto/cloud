@@ -32,9 +32,9 @@ export function AppSwitcher({ currentAppSlug }: AppSwitcherProps) {
   }, [open])
 
   const apps = Object.entries(FINTUTTO_APPS).filter(([_, app]) => app.slug !== currentAppSlug)
-  const grouped = Object.entries(APP_CATEGORIES).map(([key, label]) => ({
+  const grouped = Object.entries(APP_CATEGORIES).map(([key, cat]) => ({
     key: key as AppCategory,
-    label,
+    label: typeof cat === 'object' && cat !== null ? (cat as { label: string }).label : String(cat),
     apps: apps.filter(([_, app]) => app.category === key),
   })).filter(g => g.apps.length > 0)
 

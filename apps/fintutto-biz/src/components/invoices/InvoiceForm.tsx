@@ -31,6 +31,7 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({
   businessId,
+  business,
   invoicePrefix,
   nextNumber,
   defaultTaxRate,
