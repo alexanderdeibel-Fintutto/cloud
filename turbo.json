@@ -1,19 +1,31 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "inputs": ["src/**", "public/**", "index.html", "vite.config.*", "tsconfig*.json", "package.json"],
+      "outputs": ["dist/**", ".vite/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "*.ts", "*.tsx", ".eslintrc*", "eslint.config.*"]
     },
     "test": {
-      "dependsOn": ["build"]
+      "inputs": ["src/**", "*.test.ts", "*.test.tsx", "vitest.config.*"],
+      "outputs": ["coverage/**"]
+    },
+    "test:ci": {
+      "inputs": ["src/**", "*.test.ts", "*.test.tsx", "vitest.config.*"],
+      "outputs": ["coverage/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsconfig*.json"]
     }
   }
 }

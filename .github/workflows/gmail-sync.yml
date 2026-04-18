@@ -1,0 +1,60 @@
+name: SecondBrain Gmail Sync
+
+on:
+  # Täglich um 06:00 Uhr MEZ
+  schedule:
+    - cron: "0 5 * * *"  # 05:00 UTC = 06:00 MEZ / 07:00 MESZ
+  # Manuell auslösen (für Tests)
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "Gmail-Suchanfrage (Standard: has:attachment filename:pdf newer_than:30d)"
+        required: false
+        default: "has:attachment filename:pdf -in:spam -in:trash newer_than:30d"
+      max_results:
+        description: "Maximale Anzahl E-Mails (Standard: 50)"
+        required: false
+        default: "50"
+
+jobs:
+  sync:
+    name: Gmail → Supabase Storage Sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gmail-Sync Edge Function aufrufen
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/gmail-sync" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "X-Gmail-Token: ${{ secrets.GMAIL_OAUTH_TOKEN }}" \
+            -d '{
+              "user_id": "${{ secrets.SECONDBRAIN_USER_ID }}",
+              "query": "${{ github.event.inputs.query || '"'"'has:attachment filename:pdf -in:spam -in:trash newer_than:30d'"'"' }}",
+              "max_results": ${{ github.event.inputs.max_results || 50 }}
+            }')
+
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::Gmail-Sync fehlgeschlagen mit Status $HTTP_STATUS"
+            exit 1
+          fi
+
+          # Ergebnis als Summary ausgeben
+          PROCESSED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('processed', 0))")
+          SKIPPED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('skipped', 0))")
+          ERRORS=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('errors', 0))")
+          DOCS=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('documents', [])))")
+
+          echo "## Gmail-Sync Ergebnis" >> $GITHUB_STEP_SUMMARY
+          echo "| Metrik | Wert |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Verarbeitet | $PROCESSED |" >> $GITHUB_STEP_SUMMARY
+          echo "| Übersprungen (Duplikate) | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+          echo "| Fehler | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dokumente hochgeladen | $DOCS |" >> $GITHUB_STEP_SUMMARY

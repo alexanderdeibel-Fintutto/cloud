@@ -9,5 +9,5 @@
       "destination": "/index.html"
     }
   ],
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- . ../../packages/shared/src/ ../../src/ || exit 1"
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- apps/widerspruch-jobcenter/ packages/shared/src/ || exit 1"
 }

@@ -1,0 +1,96 @@
+version: 2
+updates:
+  # pnpm-Abhängigkeiten im Root (mieter-checker + shared)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    groups:
+      vite-ecosystem:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "vitest"
+      react-ecosystem:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+      typescript-tooling:
+        patterns:
+          - "typescript"
+          - "@typescript-eslint/*"
+          - "eslint*"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # pnpm-Abhängigkeiten in apps/vermietify
+  - package-ecosystem: "npm"
+    directory: "/apps/vermietify"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "vermietify"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps/vermietify)"
+
+  # pnpm-Abhängigkeiten in apps/fintutto-portal
+  - package-ecosystem: "npm"
+    directory: "/apps/fintutto-portal"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "fintutto-portal"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps/fintutto-portal)"
+
+  # pnpm-Abhängigkeiten in apps/secondbrain
+  - package-ecosystem: "npm"
+    directory: "/apps/secondbrain"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "secondbrain"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps/secondbrain)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "chore(actions)"
