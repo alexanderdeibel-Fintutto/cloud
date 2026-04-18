@@ -5,6 +5,5 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- apps/ams/"
+  ]
 }
