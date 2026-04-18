@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
 
 interface Profile {
   id: string;
@@ -87,6 +88,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Aktivität loggen
+          if (event === 'SIGNED_IN') {
+            logActivity('login', 'user', session.user.id);
+          }
           // Use setTimeout to avoid potential deadlock with Supabase client
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id, session.user.user_metadata);
@@ -94,6 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
           }, 0);
         } else {
+          if (event === 'SIGNED_OUT') {
+            logActivity('logout');
+          }
           setProfile(null);
           setIsLoading(false);
         }
@@ -149,6 +157,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (profileError) {
         console.error('Error creating profile:', profileError);
       }
+      // Registrierung loggen
+      logActivity('signup', 'user', data.user.id, { email });
     }
 
     return { error: null };
@@ -159,11 +169,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
     });
-
+    // Login-Fehler loggen
+    if (error) {
+      logActivity('error', 'auth', undefined, { action: 'signIn', message: error.message });
+    }
     return { error };
   };
 
   const signOut = async () => {
+    logActivity('logout');
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
@@ -193,5 +207,3 @@ export function useAuth() {
   }
   return context;
 }
-
-// build trigger 1776376907

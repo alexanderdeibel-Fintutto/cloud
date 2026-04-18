@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
 
 interface AuthContextType {
   user: User | null;
@@ -25,21 +26,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      if (event === 'SIGNED_IN' && session?.user) {
+        logActivity('login', 'user', session.user.id);
+      } else if (event === 'SIGNED_OUT') {
+        logActivity('logout');
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } },
     });
+    if (!error && data.user) {
+      logActivity('signup', 'user', data.user.id, { email });
+    }
     return { error: error ? new Error(error.message) : null };
   };
 
@@ -49,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    logActivity('logout');
     await supabase.auth.signOut();
   };
 
