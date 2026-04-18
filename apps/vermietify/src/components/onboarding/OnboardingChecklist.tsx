@@ -51,7 +51,7 @@ export function OnboardingChecklist({ onDismiss }: OnboardingChecklistProps) {
       label: "Erstes Gebäude anlegen",
       description: "Fügen Sie Ihre erste Immobilie hinzu",
       icon: <Building2 className="h-5 w-5" />,
-      href: "/properties",
+      href: "/immobilien",
       completed: progress?.first_building_created || false,
     },
     {
@@ -67,7 +67,7 @@ export function OnboardingChecklist({ onDismiss }: OnboardingChecklistProps) {
       label: "Ersten Mieter anlegen",
       description: "Optional: Fügen Sie einen Mieter hinzu",
       icon: <Users className="h-5 w-5" />,
-      href: "/tenants",
+      href: "/mieter",
       completed: progress?.first_tenant_created || false,
     },
     {

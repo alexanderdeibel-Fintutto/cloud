@@ -38,11 +38,13 @@ interface UnitWithBuilding {
   id: string;
   unit_number: string;
   floor: number | null;
-  area: number;
-  rooms: number;
-  rent_amount: number;
-  utility_advance: number;
-  status: string;
+  living_area_sqm: number | null;
+  room_count: number | null;
+  rent_amount: number | null;       // GENERATED ALWAYS (target_rent * 100)
+  target_rent: number | null;
+  target_utilities: number | null;
+  occupancy_status: string | null;
+  status: string | null;
   building_id: string;
   building: {
     id: string;
@@ -63,12 +65,20 @@ const statusLabels: Record<string, string> = {
   rented: "Vermietet",
   vacant: "Leer",
   renovating: "Renovierung",
+  active: "Aktiv",
+  inactive: "Inaktiv",
+  maintenance: "Wartung",
+  reserved: "Reserviert",
 };
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   rented: "default",
   vacant: "secondary",
   renovating: "destructive",
+  active: "default",
+  inactive: "secondary",
+  maintenance: "destructive",
+  reserved: "secondary",
 };
 
 const floorLabel = (floor: number | null) => {
@@ -141,7 +151,7 @@ export default function UnitsList() {
         description: "Bitte legen Sie zuerst ein Gebäude an.",
         variant: "destructive",
       });
-      navigate("/properties");
+      navigate("/immobilien");
       return;
     }
     if (buildings.length === 1) {
@@ -166,15 +176,15 @@ export default function UnitsList() {
       unit.building?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       unit.building?.address?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || unit.status === statusFilter;
+      statusFilter === "all" || (unit.occupancy_status || unit.status) === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const totalUnits = units.length;
-  const rentedUnits = units.filter((u) => u.status === "rented").length;
-  const vacantUnits = units.filter((u) => u.status === "vacant").length;
+  const rentedUnits = units.filter((u) => (u.occupancy_status || u.status) === "rented").length;
+  const vacantUnits = units.filter((u) => (u.occupancy_status || u.status) === "vacant").length;
   const totalRent = units
-    .filter((u) => u.status === "rented")
+    .filter((u) => (u.occupancy_status || u.status) === "rented")
     .reduce((sum, u) => sum + (u.rent_amount || 0), 0);
 
   const formatCurrency = (cents: number) =>
@@ -321,15 +331,20 @@ export default function UnitsList() {
                       </TableCell>
                       <TableCell>{floorLabel(unit.floor)}</TableCell>
                       <TableCell>
-                        {unit.area ? `${unit.area} m²` : "-"}
+                        {unit.living_area_sqm ? `${unit.living_area_sqm} m²` : "-"}
                       </TableCell>
-                      <TableCell>{unit.rooms ?? "-"}</TableCell>
-                      <TableCell>{formatCurrency(unit.rent_amount || 0)}</TableCell>
-                      <TableCell>{formatCurrency(unit.utility_advance || 0)}</TableCell>
+                      <TableCell>{unit.room_count ?? "-"}</TableCell>
+                      <TableCell>{formatCurrency(unit.rent_amount || (unit.target_rent ? unit.target_rent * 100 : 0))}</TableCell>
+                      <TableCell>{formatCurrency(unit.target_utilities ? unit.target_utilities * 100 : 0)}</TableCell>
                       <TableCell>
-                        <Badge variant={statusColors[unit.status] || "secondary"}>
-                          {statusLabels[unit.status] || unit.status}
-                        </Badge>
+                        {(() => {
+                          const s = unit.occupancy_status || unit.status || "";
+                          return (
+                            <Badge variant={statusColors[s] || "secondary"}>
+                              {statusLabels[s] || s}
+                            </Badge>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm">

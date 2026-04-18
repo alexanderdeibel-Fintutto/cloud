@@ -8,26 +8,17 @@ import {
   LogOut,
   ChevronDown,
   CreditCard,
-  FileSignature,
   Receipt,
-  Gauge,
   CheckSquare,
-  DoorOpen,
-   ChevronRight,
-   Mail,
-   Calculator,
-   PenTool,
-   MessageCircle,
-   CalendarDays,
-   TrendingUp,
-   Leaf,
-   Home,
-   Zap,
-   HelpCircle,
-   History,
-   Shield,
-   Sparkles,
-   UploadCloud,
+  ChevronRight,
+  Mail,
+  Calculator,
+  MessageCircle,
+  CalendarDays,
+  Zap,
+  HelpCircle,
+  Sparkles,
+  Wrench,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,6 +29,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -61,13 +53,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import vermietifyLogo from "@/assets/vermietify-logo.svg";
 
-const navigationItems = [
+// Primäre Kernnavigation — täglich genutzte Funktionen
+const coreNavigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { 
     title: "Immobilien", 
     icon: Building2,
     subItems: [
-      { title: "Gebäude", url: "/properties" },
+      { title: "Gebäude", url: "/immobilien" },
       { title: "Einheiten", url: "/einheiten" },
       { title: "Betriebskosten", url: "/betriebskosten" },
       { title: "Zähler", url: "/zaehler" },
@@ -77,11 +70,11 @@ const navigationItems = [
     title: "Mieter", 
     icon: Users,
     subItems: [
-      { title: "Übersicht", url: "/tenants" },
+      { title: "Übersicht", url: "/mieter" },
       { title: "Mietangebote", url: "/angebote" },
       { title: "Verträge", url: "/vertraege" },
       { title: "Unterschriften", url: "/unterschriften" },
-      { title: "Mietanpassungen", url: "/miete/anpassungen" },
+      { title: "Mietanpassungen", url: "/mietanpassung" },
       { title: "Inserate", url: "/inserate" },
       { title: "KdU-Richtwerte", url: "/kdu-richtwerte" },
     ]
@@ -90,6 +83,7 @@ const navigationItems = [
     title: "Finanzen", 
     icon: CreditCard,
     subItems: [
+      { title: "Übersicht", url: "/finanzen" },
       { title: "Zahlungen", url: "/zahlungen" },
       { title: "Banking", url: "/banking" },
       { title: "Transaktionen", url: "/banking/transaktionen" },
@@ -99,6 +93,10 @@ const navigationItems = [
   },
   { title: "Kalender", url: "/kalender", icon: CalendarDays },
   { title: "Aufgaben", url: "/aufgaben", icon: CheckSquare },
+];
+
+// Sekundäre Erweiterungen — gelegentlich genutzte Tools
+const toolsNavigationItems = [
   { title: "Automatisierung", url: "/automatisierung", icon: Zap },
   { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
   { 
@@ -109,29 +107,99 @@ const navigationItems = [
       { title: "CO₂-Kosten", url: "/co2" },
     ]
   },
-  
   { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
   { 
     title: "Dokumente", 
     icon: FileText,
     subItems: [
-      { title: "Alle Dokumente", url: "/documents" },
+      { title: "Alle Dokumente", url: "/dokumente" },
       { title: "Massenimport", url: "/massenimport" },
     ],
   },
-  { title: "Steuern", url: "/taxes", icon: Receipt },
+  { title: "Steuern", url: "/steuern", icon: Receipt },
   { 
     title: "Kommunikation", 
     icon: MessageSquare,
     subItems: [
-      { title: "E-Mail verfassen", url: "/kommunikation/senden" },
+      { title: "E-Mail verfassen", url: "/kommunikation/verfassen" },
       { title: "E-Mail-Vorlagen", url: "/kommunikation/vorlagen" },
       { title: "E-Mail-Verlauf", url: "/kommunikation/verlauf" },
-      { title: "E-Mail-Eingang", url: "/kommunikation/eingang" },
-      { title: "Empfangsadresse", url: "/kommunikation/empfang" },
+      { title: "E-Mail-Eingang", url: "/eingehende-emails" },
+      { title: "Empfangsadresse", url: "/eingehende-emails/warteschlange" },
     ]
   },
 ];
+
+type NavItem = {
+  title: string;
+  icon: React.ElementType;
+  url?: string;
+  subItems?: { title: string; url: string }[];
+};
+
+function NavGroup({ items, openSubmenu, setOpenSubmenu, isActive, isSubmenuActive }: {
+  items: NavItem[];
+  openSubmenu: string | null;
+  setOpenSubmenu: (v: string | null) => void;
+  isActive: (url: string) => boolean;
+  isSubmenuActive: (subItems: { url: string }[]) => boolean;
+}) {
+  return (
+    <SidebarMenu>
+      {items.map((item) => {
+        if (item.subItems) {
+          const submenuActive = isSubmenuActive(item.subItems);
+          return (
+            <Collapsible
+              key={item.title}
+              open={openSubmenu === item.title || submenuActive}
+              onOpenChange={(open) => setOpenSubmenu(open ? item.title : null)}
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton className="w-full justify-between">
+                    <div className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </div>
+                    <ChevronRight className={`h-4 w-4 transition-transform ${openSubmenu === item.title || submenuActive ? 'rotate-90' : ''}`} />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.subItems.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild isActive={isActive(subItem.url.split('#')[0])}>
+                          <NavLink to={subItem.url}>
+                            {subItem.title}
+                          </NavLink>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          );
+        }
+
+        return (
+          <SidebarMenuItem key={item.title}>
+            <SidebarMenuButton asChild isActive={isActive(item.url!)}>
+              <NavLink
+                to={item.url!}
+                className="flex items-center gap-3"
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.title}</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
+    </SidebarMenu>
+  );
+}
 
 export function AppSidebar() {
   const location = useLocation();
@@ -153,7 +221,7 @@ export function AppSidebar() {
   };
 
   const isActive = (url: string) => location.pathname === url;
-  const isSubmenuActive = (subItems: { url: string }[]) => 
+  const isSubmenuActive = (subItems: { url: string }[]) =>
     subItems.some(item => location.pathname === item.url || location.pathname.startsWith(item.url.split('#')[0]));
 
   return (
@@ -171,61 +239,35 @@ export function AppSidebar() {
       <SidebarSeparator className="bg-white/20" />
 
       <SidebarContent>
+        {/* Kernfunktionen — täglich genutzte Bereiche */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.map((item) => {
-                if (item.subItems) {
-                  const submenuActive = isSubmenuActive(item.subItems);
-                  return (
-                    <Collapsible
-                      key={item.title}
-                      open={openSubmenu === item.title || submenuActive}
-                      onOpenChange={(open) => setOpenSubmenu(open ? item.title : null)}
-                    >
-                      <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton className="w-full justify-between">
-                            <div className="flex items-center gap-3">
-                              <item.icon className="h-5 w-5" />
-                              <span>{item.title}</span>
-                            </div>
-                            <ChevronRight className={`h-4 w-4 transition-transform ${openSubmenu === item.title || submenuActive ? 'rotate-90' : ''}`} />
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item.subItems.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton asChild isActive={isActive(subItem.url.split('#')[0])}>
-                                  <NavLink to={subItem.url}>
-                                    {subItem.title}
-                                  </NavLink>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    </Collapsible>
-                  );
-                }
-                
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink 
-                        to={item.url}
-                        className="flex items-center gap-3"
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+            <NavGroup
+              items={coreNavigationItems}
+              openSubmenu={openSubmenu}
+              setOpenSubmenu={setOpenSubmenu}
+              isActive={isActive}
+              isSubmenuActive={isSubmenuActive}
+            />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator className="bg-white/10 mx-4" />
+
+        {/* Erweiterungen — Tools und Zusatzfunktionen */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-white/40 text-xs uppercase tracking-wider px-4 py-2 flex items-center gap-2">
+            <Wrench className="h-3 w-3" />
+            Erweiterungen
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavGroup
+              items={toolsNavigationItems}
+              openSubmenu={openSubmenu}
+              setOpenSubmenu={setOpenSubmenu}
+              isActive={isActive}
+              isSubmenuActive={isSubmenuActive}
+            />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

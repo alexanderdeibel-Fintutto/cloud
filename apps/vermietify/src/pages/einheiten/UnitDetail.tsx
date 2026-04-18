@@ -95,7 +95,7 @@ export default function UnitDetail() {
           description="Die angeforderte Einheit konnte nicht gefunden werden."
           action={
             <Button asChild>
-              <Link to="/properties">Zurück zu Immobilien</Link>
+              <Link to="/immobilien">Zurück zu Immobilien</Link>
             </Button>
           }
         />
@@ -113,7 +113,7 @@ export default function UnitDetail() {
       title={unit.unit_number}
       breadcrumbs={[
         { label: "Dashboard", href: "/" },
-        { label: "Immobilien", href: "/properties" },
+        { label: "Immobilien", href: "/immobilien" },
         { label: unit.building?.name || "Gebäude", href: `/gebaeude/${unit.building_id}` },
         { label: unit.unit_number },
       ]}

@@ -4219,66 +4219,118 @@ export type Database = {
       }
       tenants: {
         Row: {
-          address: string | null
-          birth_date: string | null
-          city: string | null
-          created_at: string
-          email: string | null
-          first_name: string
-          household_size: number | null
+          // Core identity
           id: string
+          organization_id: string | null
+          org_id: string | null
+          tenant_type: string
+          status: string | null
+          // Personal data
+          first_name: string | null
+          last_name: string | null
+          salutation: string | null
+          title: string | null
+          date_of_birth: string | null
+          // Contact
+          email: string | null
+          phone: string | null
+          mobile: string | null
+          // Correspondence address
+          correspondence_street: string | null
+          correspondence_zip: string | null
+          correspondence_city: string | null
+          correspondence_country: string | null
+          // Banking
+          iban: string | null
+          bic: string | null
+          account_holder: string | null
+          bank_name: string | null
+          sepa_mandate_reference: string | null
+          sepa_mandate_date: string | null
+          sepa_mandate_status: string | null
+          // Additional fields
+          household_size: number | null
           income_cents: number | null
           is_social_benefits: boolean | null
-          last_name: string
-          notes: string | null
-          organization_id: string
-          phone: string | null
-          postal_code: string | null
           previous_landlord: string | null
           schufa_status: string | null
-          status: string
-          updated_at: string
+          notes: string | null
+          preferred_contact_method: string | null
+          language: string | null
+          // Timestamps
+          created_at: string | null
+          updated_at: string | null
         }
         Insert: {
-          address?: string | null
-          birth_date?: string | null
-          city?: string | null
-          created_at?: string
-          email?: string | null
-          first_name: string
-          household_size?: number | null
           id?: string
+          organization_id?: string | null
+          org_id?: string | null
+          tenant_type?: string
+          status?: string | null
+          first_name?: string | null
+          last_name?: string | null
+          salutation?: string | null
+          title?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          phone?: string | null
+          mobile?: string | null
+          correspondence_street?: string | null
+          correspondence_zip?: string | null
+          correspondence_city?: string | null
+          correspondence_country?: string | null
+          iban?: string | null
+          bic?: string | null
+          account_holder?: string | null
+          bank_name?: string | null
+          sepa_mandate_reference?: string | null
+          sepa_mandate_date?: string | null
+          sepa_mandate_status?: string | null
+          household_size?: number | null
           income_cents?: number | null
           is_social_benefits?: boolean | null
-          last_name: string
-          notes?: string | null
-          organization_id: string
-          phone?: string | null
-          postal_code?: string | null
           previous_landlord?: string | null
           schufa_status?: string | null
-          status?: string
+          notes?: string | null
+          preferred_contact_method?: string | null
+          language?: string | null
+          created_at?: string
           updated_at?: string
         }
         Update: {
-          address?: string | null
-          birth_date?: string | null
-          city?: string | null
-          created_at?: string
-          email?: string | null
-          first_name?: string
-          household_size?: number | null
           id?: string
+          organization_id?: string | null
+          org_id?: string | null
+          tenant_type?: string
+          status?: string | null
+          first_name?: string | null
+          last_name?: string | null
+          salutation?: string | null
+          title?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          phone?: string | null
+          mobile?: string | null
+          correspondence_street?: string | null
+          correspondence_zip?: string | null
+          correspondence_city?: string | null
+          correspondence_country?: string | null
+          iban?: string | null
+          bic?: string | null
+          account_holder?: string | null
+          bank_name?: string | null
+          sepa_mandate_reference?: string | null
+          sepa_mandate_date?: string | null
+          sepa_mandate_status?: string | null
+          household_size?: number | null
           income_cents?: number | null
           is_social_benefits?: boolean | null
-          last_name?: string
-          notes?: string | null
-          organization_id?: string
-          phone?: string | null
-          postal_code?: string | null
           previous_landlord?: string | null
           schufa_status?: string | null
-          status?: string
+          notes?: string | null
+          preferred_contact_method?: string | null
+          language?: string | null
+          created_at?: string
           updated_at?: string
         }
         Relationships: [

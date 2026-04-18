@@ -154,7 +154,18 @@ export default function BankingDashboard() {
           formatCurrency={formatCurrency}
         />
 
-        {/* Charts Row */}
+        {/* Charts Row — nur anzeigen wenn Transaktionen vorhanden */}
+        {transactions.length === 0 ? (
+          <Card className="backdrop-blur-md bg-card/40 border-border/30">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <BarChart3 className="h-12 w-12 text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Noch keine Transaktionsdaten</h3>
+              <p className="text-muted-foreground text-sm max-w-sm">
+                Verbinden Sie ein Bankkonto oder importieren Sie Transaktionen, um Ihren Cashflow und Saldo-Verlauf zu sehen.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {/* Monthly Cash Flow Bar Chart */}
           <Card className="backdrop-blur-md bg-card/40 border-border/30">
@@ -230,6 +241,8 @@ export default function BankingDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        )}
 
         {/* Connected Accounts */}
         <div>
