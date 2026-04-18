@@ -30,7 +30,8 @@ import {
   Activity,
   Zap,
   Fingerprint,
-  Signal
+  Signal,
+  Mail
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -92,6 +93,7 @@ const navSections = [
       { icon: MessageCircle, label: 'Community', path: '/community' },
       { icon: Activity, label: 'DevOps & Monitoring', path: '/devops' },
       { icon: Signal, label: 'API Verfügbarkeit', path: '/api-status' },
+      { icon: Mail, label: 'Gmail-Sync', path: '/gmail-sync' },
     ],
   },
   {
