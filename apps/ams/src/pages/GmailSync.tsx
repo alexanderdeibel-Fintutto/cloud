@@ -304,7 +304,7 @@ function SyncTab() {
 function TokenTab() {
   const { data: status, isLoading, refetch, isFetching } = useGmailTokenStatus();
 
-  const redirectUri = `${window.location.origin}/gmail-sync/callback`;
+  const redirectUri = 'https://ams.fintutto.world/gmail-sync/callback';
   const authUrl = buildGmailAuthUrl(redirectUri);
 
   return (
@@ -433,7 +433,7 @@ function TokenTab() {
 
 // ─── Tab 4: OAuth-Setup ─────────────────────────────────────────────────────
 function OAuthSetupTab() {
-  const redirectUri = `${window.location.origin}/gmail-sync/callback`;
+  const redirectUri = 'https://ams.fintutto.world/gmail-sync/callback';
   const authUrl = buildGmailAuthUrl(redirectUri);
 
   const steps = [
@@ -562,7 +562,7 @@ function OAuthCallbackHandler() {
         const { exchangeCodeForToken, saveTokenAsGitHubSecret } = await import('@/hooks/useGmailSync');
         addLog('Authorization Code erhalten ✓');
         addLog('Tausche Code gegen Refresh Token...');
-        const redirectUri = `${window.location.origin}/gmail-sync/callback`;
+        const redirectUri = 'https://ams.fintutto.world/gmail-sync/callback';
         const tokens = await exchangeCodeForToken(code, redirectUri);
         addLog('Refresh Token erhalten ✓');
         addLog('Speichere als GitHub Secret...');
