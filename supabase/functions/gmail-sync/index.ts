@@ -85,12 +85,12 @@ serve(async (req: Request) => {
       });
     }
 
-    // OAuth-Token aus Secrets oder Request
-    const oauthToken = gmail_token ||
+    // Refresh Token aus Secrets oder Request-Header
+    const refreshToken = gmail_token ||
       Deno.env.get("GMAIL_OAUTH_TOKEN") ||
       req.headers.get("X-Gmail-Token");
 
-    if (!oauthToken) {
+    if (!refreshToken) {
       return new Response(
         JSON.stringify({
           error: "Kein Gmail OAuth-Token. Bitte als Secret GMAIL_OAUTH_TOKEN setzen oder im Request übergeben.",
@@ -100,6 +100,33 @@ serve(async (req: Request) => {
           headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
         }
       );
+    }
+
+    // Refresh Token → Access Token eintauschen
+    const clientId = Deno.env.get("GOOGLE_CLIENT_ID") ?? "";
+    const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") ?? "";
+    let oauthToken = refreshToken;
+
+    if (clientId && clientSecret) {
+      const tokenResp = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          refresh_token: refreshToken,
+          grant_type: "refresh_token",
+        }),
+      });
+      if (!tokenResp.ok) {
+        const errText = await tokenResp.text();
+        throw new Error(`Token-Refresh fehlgeschlagen: ${tokenResp.status} ${errText}`);
+      }
+      const tokenData = await tokenResp.json();
+      oauthToken = tokenData.access_token;
+      console.log("[gmail-sync] Access Token erfolgreich erneuert");
+    } else {
+      console.warn("[gmail-sync] GOOGLE_CLIENT_ID/SECRET fehlen — Token wird direkt als Access Token verwendet");
     }
 
     // Supabase Admin Client
