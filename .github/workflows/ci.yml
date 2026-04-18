@@ -58,6 +58,7 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────
   # Build-Jobs laufen nur wenn Regressionstests grün sind
+  # Turbo Remote Cache: GitHub Actions Cache API als Backend
   # ─────────────────────────────────────────────────────────────────────────
   build:
     needs: regression-guard
@@ -106,15 +107,19 @@ jobs:
           restore-keys: |
             pnpm-store-${{ runner.os }}-
 
-      # Vite-Build-Cache (dist-Verzeichnis zwischen Runs wiederverwenden)
-      - uses: actions/cache@v4
+      # Turbo Remote Cache: dist-Verzeichnisse über Runs hinweg cachen
+      # Cache-Key basiert auf Quellcode-Hash → nur neu bauen wenn sich etwas geändert hat
+      - name: Turbo Build-Cache
+        uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.app.path }}/.vite
             ${{ matrix.app.path }}/node_modules/.vite
-          key: vite-${{ matrix.app.name }}-${{ runner.os }}-${{ hashFiles(format('{0}/src/**', matrix.app.path), '**/pnpm-lock.yaml') }}
+            ${{ matrix.app.path }}/dist
+            .turbo
+          key: turbo-${{ matrix.app.name }}-${{ runner.os }}-${{ hashFiles(format('{0}/src/**', matrix.app.path), format('{0}/package.json', matrix.app.path), '**/pnpm-lock.yaml') }}
           restore-keys: |
-            vite-${{ matrix.app.name }}-${{ runner.os }}-
+            turbo-${{ matrix.app.name }}-${{ runner.os }}-
 
       - name: Abhängigkeiten installieren
         run: pnpm install --frozen-lockfile
@@ -126,6 +131,11 @@ jobs:
       - name: Build ${{ matrix.app.name }}
         run: pnpm exec vite build
         working-directory: ${{ matrix.app.path }}
+        env:
+          # Turbo-Telemetrie deaktivieren
+          TURBO_TELEMETRY_DISABLED: 1
+          # CI-Modus für Vite
+          CI: true
         continue-on-error: true
 
       # Build-Größe als Artefakt hochladen
