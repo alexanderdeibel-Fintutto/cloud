@@ -21,7 +21,34 @@ jobs:
     name: Gmail → Supabase Storage Sync
     runs-on: ubuntu-latest
     steps:
+      # Voraussetzungen prüfen bevor die Edge Function aufgerufen wird
+      - name: Voraussetzungen prüfen
+        run: |
+          MISSING=""
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then MISSING="$MISSING SUPABASE_URL"; fi
+          if [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then MISSING="$MISSING SUPABASE_ANON_KEY"; fi
+          if [ -z "${{ secrets.SECONDBRAIN_USER_ID }}" ]; then MISSING="$MISSING SECONDBRAIN_USER_ID"; fi
+          if [ -z "${{ secrets.GMAIL_OAUTH_TOKEN }}" ]; then MISSING="$MISSING GMAIL_OAUTH_TOKEN"; fi
+
+          if [ -n "$MISSING" ]; then
+            echo "::warning::Fehlende GitHub Secrets:$MISSING"
+            echo "## Gmail-Sync übersprungen" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Die folgenden Secrets sind nicht konfiguriert: \`$MISSING\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Anleitung zum Einrichten des Gmail OAuth Tokens:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. Google Cloud Console → APIs & Services → Credentials" >> $GITHUB_STEP_SUMMARY
+            echo "2. OAuth 2.0 Client ID erstellen (Desktop App)" >> $GITHUB_STEP_SUMMARY
+            echo "3. Gmail API aktivieren" >> $GITHUB_STEP_SUMMARY
+            echo "4. Refresh Token generieren und als \`GMAIL_OAUTH_TOKEN\` in GitHub Secrets eintragen" >> $GITHUB_STEP_SUMMARY
+            echo "secrets_missing=true" >> $GITHUB_ENV
+          else
+            echo "Alle Secrets vorhanden ✓"
+            echo "secrets_missing=false" >> $GITHUB_ENV
+          fi
+
       - name: Gmail-Sync Edge Function aufrufen
+        if: env.secrets_missing == 'false'
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             "${{ secrets.SUPABASE_URL }}/functions/v1/gmail-sync" \
@@ -46,10 +73,10 @@ jobs:
           fi
 
           # Ergebnis als Summary ausgeben
-          PROCESSED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('processed', 0))")
-          SKIPPED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('skipped', 0))")
-          ERRORS=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('errors', 0))")
-          DOCS=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('documents', [])))")
+          PROCESSED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('processed', 0))" 2>/dev/null || echo "?")
+          SKIPPED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('skipped', 0))" 2>/dev/null || echo "?")
+          ERRORS=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('errors', 0))" 2>/dev/null || echo "?")
+          DOCS=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('documents', [])))" 2>/dev/null || echo "?")
 
           echo "## Gmail-Sync Ergebnis" >> $GITHUB_STEP_SUMMARY
           echo "| Metrik | Wert |" >> $GITHUB_STEP_SUMMARY
