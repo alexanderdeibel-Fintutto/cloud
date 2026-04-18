@@ -68,19 +68,19 @@ SUPABASE_KEY = (
 )
 
 # Tables to check for core_contact_id coverage
+# Hinweis: 'leads' -> 'gt_leads'; 'user_cases' existiert noch nicht in Live-DB
 CONTACT_TABLES = [
     {"table": "tenants",    "label": "Vermietify – Mieter"},
     {"table": "biz_clients","label": "Financial Compass – Kunden"},
-    {"table": "leads",      "label": "AMS – Leads"},
-    {"table": "user_cases", "label": "Bescheidboxer – Fälle"},
+    {"table": "gt_leads",   "label": "AMS – Leads"},
 ]
 
 # Tables to check for core_address_id coverage
+# Hinweis: 'properties' -> 'buildings'; 'apartments' existiert noch nicht in Live-DB
 ADDRESS_TABLES = [
-    {"table": "properties",   "label": "Vermietify – Objekte"},
-    {"table": "buildings",    "label": "Vermietify – Gebäude"},
-    {"table": "organizations","label": "AMS – Organisationen"},
-    {"table": "apartments",   "label": "Pflanzen-Manager – Wohnungen"},
+    {"table": "buildings",     "label": "Vermietify – Gebäude"},
+    {"table": "organizations", "label": "AMS – Organisationen"},
+    {"table": "biz_businesses","label": "Financial Compass – Unternehmen"},
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
