@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   TrendingUp,
+  TrendingDown,
   Users,
   Building2,
   CreditCard,
@@ -13,6 +14,8 @@ import {
   ArrowDownRight,
   Minus,
   Lock,
+  UserMinus,
+  Activity,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -21,6 +24,7 @@ import {
   Bar,
   LineChart,
   Line,
+  ComposedChart,
   PieChart,
   Pie,
   Cell,
@@ -30,6 +34,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts';
 import { useGrowthSummary } from '@/hooks/useGrowth';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,6 +45,8 @@ const COLORS = {
   orgs:    '#3b82f6',   // blue
   subs:    '#10b981',   // green
   tenants: '#8b5cf6',   // purple
+  churn:   '#ef4444',   // red
+  net:     '#06b6d4',   // cyan
 };
 
 const PIE_COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6'];
@@ -52,9 +59,11 @@ interface KPIProps {
   icon: React.ElementType;
   color: string;
   loading?: boolean;
+  suffix?: string;
+  deltaLabel?: string;
 }
 
-function KPICard({ title, value, delta, icon: Icon, color, loading }: KPIProps) {
+function KPICard({ title, value, delta, icon: Icon, color, loading, suffix = '', deltaLabel = 'diese Woche' }: KPIProps) {
   const isPositive = (delta ?? 0) > 0;
   const isNeutral = (delta ?? 0) === 0;
   return (
@@ -70,7 +79,9 @@ function KPICard({ title, value, delta, icon: Icon, color, loading }: KPIProps) 
           <Skeleton className="h-8 w-24" />
         ) : (
           <>
-            <div className="text-3xl font-bold">{value?.toLocaleString('de-DE') ?? '–'}</div>
+            <div className="text-3xl font-bold">
+              {value !== null && value !== undefined ? `${value.toLocaleString('de-DE')}${suffix}` : '–'}
+            </div>
             {delta !== undefined && delta !== null && (
               <div className={`mt-1 flex items-center gap-1 text-xs ${
                 isNeutral ? 'text-muted-foreground' :
@@ -80,7 +91,7 @@ function KPICard({ title, value, delta, icon: Icon, color, loading }: KPIProps) 
                 {isNeutral ? <Minus className="h-3 w-3" /> :
                  isPositive ? <ArrowUpRight className="h-3 w-3" /> :
                  <ArrowDownRight className="h-3 w-3" />}
-                <span>{isPositive ? '+' : ''}{delta} diese Woche</span>
+                <span>{isPositive ? '+' : ''}{delta}{suffix} {deltaLabel}</span>
               </div>
             )}
           </>
@@ -100,19 +111,44 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <div key={entry.dataKey} className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-muted-foreground">{entry.name}:</span>
-          <span className="font-medium text-foreground">{entry.value?.toLocaleString('de-DE')}</span>
+          <span className="font-medium text-foreground">
+            {typeof entry.value === 'number'
+              ? entry.name?.includes('%') || entry.dataKey === 'churnRate'
+                ? `${entry.value.toLocaleString('de-DE')}%`
+                : entry.value.toLocaleString('de-DE')
+              : entry.value}
+          </span>
         </div>
       ))}
     </div>
   );
 };
 
+// ─── Churn-Trend-Badge ────────────────────────────────────────────────────────
+function ChurnTrendBadge({ trend }: { trend: 'up' | 'down' | 'stable' }) {
+  if (trend === 'down') return (
+    <Badge variant="outline" className="border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950 text-xs">
+      <TrendingDown className="h-3 w-3 mr-1" /> Abwanderung sinkt
+    </Badge>
+  );
+  if (trend === 'up') return (
+    <Badge variant="outline" className="border-red-500 text-red-600 bg-red-50 dark:bg-red-950 text-xs">
+      <TrendingUp className="h-3 w-3 mr-1" /> Abwanderung steigt
+    </Badge>
+  );
+  return (
+    <Badge variant="outline" className="text-xs text-muted-foreground">
+      <Minus className="h-3 w-3 mr-1" /> Stabil
+    </Badge>
+  );
+}
+
 // ─── Hauptseite ───────────────────────────────────────────────────────────────
 export default function GrowthDashboard() {
   const { user } = useAuth();
   const { data, isLoading } = useGrowthSummary();
 
-  // Superadmin-Guard: Nur für admin@fintutto.de / alexander@fintutto.world
+  // Superadmin-Guard
   const SUPERADMIN_EMAILS = ['admin@fintutto.de', 'alexander@fintutto.world', 'alexander@fintutto.de'];
   const isSuperAdmin = user?.email && SUPERADMIN_EMAILS.includes(user.email.toLowerCase());
 
@@ -134,8 +170,9 @@ export default function GrowthDashboard() {
 
   const weekly = data?.weeklyData ?? [];
   const last4Weeks = weekly.slice(-4);
+  const churnData = data?.monthlyChurn ?? [];
 
-  // Wachstumsrate berechnen (letzte Woche vs. vorletzte Woche)
+  // Wachstumsrate berechnen
   const lastWeek = weekly[weekly.length - 1];
   const prevWeek = weekly[weekly.length - 2];
   const growthRate = lastWeek && prevWeek && prevWeek.users > 0
@@ -150,7 +187,7 @@ export default function GrowthDashboard() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Wachstums-Dashboard</h1>
             <p className="text-muted-foreground">
-              Nutzerwachstum und Plattform-Metriken im Zeitverlauf
+              Nutzerwachstum, Abwanderungsrate und Plattform-Metriken im Zeitverlauf
             </p>
           </div>
           {growthRate !== null && (
@@ -195,21 +232,24 @@ export default function GrowthDashboard() {
             loading={isLoading}
           />
           <KPICard
-            title="Mieter (Vermietify)"
-            value={data?.totalTenants ?? null}
-            delta={data?.newTenants7d ?? null}
-            icon={Home}
-            color={COLORS.tenants}
+            title="Ø Monatl. Churn"
+            value={data?.avgMonthlyChurnRate ?? null}
+            delta={data ? data.currentMonthChurnRate - (data.avgMonthlyChurnRate ?? 0) : null}
+            icon={UserMinus}
+            color={COLORS.churn}
             loading={isLoading}
+            suffix="%"
+            deltaLabel="vs. Durchschnitt"
           />
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="cumulative">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="cumulative">Kumuliert</TabsTrigger>
             <TabsTrigger value="weekly">Wöchentlich</TabsTrigger>
             <TabsTrigger value="daily">Täglich</TabsTrigger>
+            <TabsTrigger value="churn">Abwanderung</TabsTrigger>
             <TabsTrigger value="breakdown">Aufschlüsselung</TabsTrigger>
           </TabsList>
 
@@ -231,7 +271,7 @@ export default function GrowthDashboard() {
                   <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={weekly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                       <defs>
-                        {Object.entries(COLORS).map(([key, color]) => (
+                        {Object.entries(COLORS).filter(([k]) => ['users','orgs','subs','tenants'].includes(k)).map(([key, color]) => (
                           <linearGradient key={key} id={`grad-${key}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor={color} stopOpacity={0.25} />
                             <stop offset="95%" stopColor={color} stopOpacity={0} />
@@ -243,10 +283,10 @@ export default function GrowthDashboard() {
                       <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend />
-                      <Area type="monotone" dataKey="users"   name="Nutzer"       stroke={COLORS.users}   fill={`url(#grad-users)`}   strokeWidth={2} />
-                      <Area type="monotone" dataKey="orgs"    name="Organisationen" stroke={COLORS.orgs}  fill={`url(#grad-orgs)`}    strokeWidth={2} />
-                      <Area type="monotone" dataKey="subs"    name="Abonnements"  stroke={COLORS.subs}    fill={`url(#grad-subs)`}    strokeWidth={2} />
-                      <Area type="monotone" dataKey="tenants" name="Mieter"       stroke={COLORS.tenants} fill={`url(#grad-tenants)`} strokeWidth={2} />
+                      <Area type="monotone" dataKey="users"   name="Nutzer"         stroke={COLORS.users}   fill={`url(#grad-users)`}   strokeWidth={2} />
+                      <Area type="monotone" dataKey="orgs"    name="Organisationen" stroke={COLORS.orgs}    fill={`url(#grad-orgs)`}    strokeWidth={2} />
+                      <Area type="monotone" dataKey="subs"    name="Abonnements"    stroke={COLORS.subs}    fill={`url(#grad-subs)`}    strokeWidth={2} />
+                      <Area type="monotone" dataKey="tenants" name="Mieter"         stroke={COLORS.tenants} fill={`url(#grad-tenants)`} strokeWidth={2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
@@ -264,10 +304,6 @@ export default function GrowthDashboard() {
               <CardContent>
                 {isLoading ? (
                   <Skeleton className="h-72 w-full" />
-                ) : weekly.length === 0 ? (
-                  <div className="flex items-center justify-center h-72 text-muted-foreground text-sm">
-                    Noch keine Daten vorhanden
-                  </div>
                 ) : (
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={weekly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
@@ -276,10 +312,10 @@ export default function GrowthDashboard() {
                       <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" allowDecimals={false} />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend />
-                      <Bar dataKey="newUsers"   name="Neue Nutzer"       fill={COLORS.users}   radius={[3, 3, 0, 0]} />
-                      <Bar dataKey="newOrgs"    name="Neue Orgs"         fill={COLORS.orgs}    radius={[3, 3, 0, 0]} />
-                      <Bar dataKey="newSubs"    name="Neue Abos"         fill={COLORS.subs}    radius={[3, 3, 0, 0]} />
-                      <Bar dataKey="newTenants" name="Neue Mieter"       fill={COLORS.tenants} radius={[3, 3, 0, 0]} />
+                      <Bar dataKey="newUsers"   name="Neue Nutzer"    fill={COLORS.users}   radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="newOrgs"    name="Neue Orgs"      fill={COLORS.orgs}    radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="newSubs"    name="Neue Abos"      fill={COLORS.subs}    radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="newTenants" name="Neue Mieter"    fill={COLORS.tenants} radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -289,12 +325,10 @@ export default function GrowthDashboard() {
             {/* Letzte 4 Wochen Tabelle */}
             <Card>
               <CardHeader>
-                <CardTitle>Letzte 4 Wochen im Detail</CardTitle>
+                <CardTitle className="text-base">Letzte 4 Wochen</CardTitle>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
-                  <Skeleton className="h-32 w-full" />
-                ) : (
+                {isLoading ? <Skeleton className="h-32 w-full" /> : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -332,12 +366,12 @@ export default function GrowthDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Tab: Tägliche Registrierungen */}
+          {/* Tab: Tägliche Registrierungen — LINIENDIAGRAMM */}
           <TabsContent value="daily" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Tägliche Nutzer-Registrierungen (60 Tage)</CardTitle>
-                <CardDescription>Neue Nutzer-Accounts pro Tag</CardDescription>
+                <CardDescription>Neue Nutzer-Accounts pro Tag als Liniendiagramm mit 7-Tage-Glättung</CardDescription>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -348,18 +382,46 @@ export default function GrowthDashboard() {
                   </div>
                 ) : (
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data.userRegistrationsByDay} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <LineChart
+                      data={data.userRegistrationsByDay.map((d, i, arr) => {
+                        // 7-Tage gleitender Durchschnitt
+                        const window = arr.slice(Math.max(0, i - 6), i + 1);
+                        const avg = window.reduce((s, x) => s + x.count, 0) / window.length;
+                        return { ...d, avg: Math.round(avg * 10) / 10 };
+                      })}
+                      margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis
                         dataKey="date"
                         tick={{ fontSize: 9 }}
                         className="fill-muted-foreground"
                         tickFormatter={(v) => v.slice(5)}
+                        interval={6}
                       />
                       <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" allowDecimals={false} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="count" name="Neue Nutzer" fill={COLORS.users} radius={[3, 3, 0, 0]} />
-                    </BarChart>
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="count"
+                        name="Neue Nutzer"
+                        stroke={COLORS.users}
+                        strokeWidth={1.5}
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="avg"
+                        name="Ø 7 Tage"
+                        stroke={COLORS.orgs}
+                        strokeWidth={2.5}
+                        strokeDasharray="5 3"
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                      />
+                    </LineChart>
                   </ResponsiveContainer>
                 )}
               </CardContent>
@@ -402,6 +464,213 @@ export default function GrowthDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Tab: Monatliche Abwanderungsrate */}
+          <TabsContent value="churn" className="space-y-4">
+            {/* Churn-KPIs */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Aktuelle Churn-Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? <Skeleton className="h-8 w-20" /> : (
+                    <div className="flex items-end gap-2">
+                      <div className={`text-3xl font-bold ${
+                        (data?.currentMonthChurnRate ?? 0) > 10 ? 'text-red-500' :
+                        (data?.currentMonthChurnRate ?? 0) > 5 ? 'text-amber-500' : 'text-emerald-600'
+                      }`}>
+                        {data?.currentMonthChurnRate ?? 0}%
+                      </div>
+                      {data && <ChurnTrendBadge trend={data.churnTrend} />}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Ø Monatliche Churn-Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? <Skeleton className="h-8 w-20" /> : (
+                    <div className="text-3xl font-bold">{data?.avgMonthlyChurnRate ?? 0}%</div>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Nettowachstum (akt. Monat)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? <Skeleton className="h-8 w-20" /> : (
+                    <div className={`text-3xl font-bold ${
+                      (churnData[churnData.length - 1]?.netGrowth ?? 0) >= 0
+                        ? 'text-emerald-600' : 'text-red-500'
+                    }`}>
+                      {(churnData[churnData.length - 1]?.netGrowth ?? 0) >= 0 ? '+' : ''}
+                      {churnData[churnData.length - 1]?.netGrowth ?? 0}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Churn-Rate Liniendiagramm */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Monatliche Abwanderungsrate (12 Monate)</CardTitle>
+                <CardDescription>
+                  Churn-Rate in % — Anteil inaktiver oder abgewanderter Nutzer an der Gesamtnutzerbasis.
+                  Zielwert: unter 5% monatlich.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-72 w-full" />
+                ) : churnData.length === 0 ? (
+                  <div className="flex items-center justify-center h-72 text-muted-foreground text-sm">
+                    Noch keine Churn-Daten vorhanden
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={churnData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <YAxis
+                        tick={{ fontSize: 10 }}
+                        className="fill-muted-foreground"
+                        tickFormatter={(v) => `${v}%`}
+                        domain={[0, 'auto']}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      {/* Zielwert-Linie bei 5% */}
+                      <ReferenceLine
+                        y={5}
+                        stroke="#10b981"
+                        strokeDasharray="6 3"
+                        label={{ value: 'Ziel: 5%', position: 'insideTopRight', fontSize: 10, fill: '#10b981' }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="churnRate"
+                        name="Churn-Rate (%)"
+                        stroke={COLORS.churn}
+                        strokeWidth={2.5}
+                        dot={{ r: 4, fill: COLORS.churn }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Neuregistrierungen vs. Abwanderung — ComposedChart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Neuregistrierungen vs. Abwanderung</CardTitle>
+                <CardDescription>Neue Nutzer (Balken) und abgewanderte Nutzer (Linie) pro Monat</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-72 w-full" />
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <ComposedChart data={churnData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" allowDecimals={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar dataKey="newUsers" name="Neue Nutzer" fill={COLORS.users} opacity={0.85} radius={[3, 3, 0, 0]} />
+                      <Bar dataKey="churnedUsers" name="Abgewandert" fill={COLORS.churn} opacity={0.7} radius={[3, 3, 0, 0]} />
+                      <Line
+                        type="monotone"
+                        dataKey="netGrowth"
+                        name="Nettowachstum"
+                        stroke={COLORS.net}
+                        strokeWidth={2.5}
+                        dot={{ r: 3 }}
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Churn-Tabelle */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Monatliche Übersicht</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? <Skeleton className="h-48 w-full" /> : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2 font-medium text-muted-foreground">Monat</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Aktive Nutzer</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Neu</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Abgewandert</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Netto</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Churn-Rate</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {churnData.slice(-6).map((m, i, arr) => (
+                          <tr key={m.month} className={`border-b hover:bg-muted/50 ${i === arr.length - 1 ? 'font-semibold' : ''}`}>
+                            <td className="p-2">{m.month}</td>
+                            <td className="p-2 text-right">{m.activeUsers.toLocaleString('de-DE')}</td>
+                            <td className="p-2 text-right text-emerald-600 dark:text-emerald-400">
+                              {m.newUsers > 0 ? `+${m.newUsers}` : '–'}
+                            </td>
+                            <td className="p-2 text-right text-red-500">
+                              {m.churnedUsers > 0 ? `-${m.churnedUsers}` : '–'}
+                            </td>
+                            <td className={`p-2 text-right font-medium ${m.netGrowth >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                              {m.netGrowth >= 0 ? `+${m.netGrowth}` : m.netGrowth}
+                            </td>
+                            <td className="p-2 text-right">
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${
+                                  m.churnRate > 10 ? 'border-red-400 text-red-600' :
+                                  m.churnRate > 5 ? 'border-amber-400 text-amber-600' :
+                                  'border-emerald-400 text-emerald-600'
+                                }`}
+                              >
+                                {m.churnRate}%
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Churn-Erklärung */}
+            <Card className="border-dashed">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  Methodik
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Die Churn-Rate wird berechnet als: <strong>Abgewanderte Nutzer / Aktive Nutzer × 100</strong>.
+                  Als abgewandert gilt ein Nutzer, wenn sein Status auf <code className="bg-muted px-1 rounded">inactive</code> gesetzt wurde,
+                  kein Login in den letzten 30 Tagen vor Monatsende stattfand, oder die Registrierung mehr als 60 Tage zurückliegt ohne erneuten Login.
+                  Zielwert für SaaS-Plattformen: unter 5% monatlich (entspricht ~46% Jahresbindung).
+                </p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Tab: Aufschlüsselung */}
