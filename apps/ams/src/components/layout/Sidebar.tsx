@@ -32,7 +32,8 @@ import {
   Fingerprint,
   Signal,
   Mail,
-  TrendingUp
+  TrendingUp,
+  Lock
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -49,6 +50,7 @@ const navSections = [
       { icon: BarChart3, label: 'Analytics & Usage', path: '/analytics' },
       { icon: AlertTriangle, label: 'Fehler & Logs', path: '/errors' },
       { icon: TrendingUp, label: 'Wachstum (Superadmin)', path: '/growth', superadmin: true },
+      { icon: Lock, label: 'Berechtigungen (Superadmin)', path: '/permissions', superadmin: true },
     ],
   },
   {

@@ -40,7 +40,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { useGrowthSummary } from '@/hooks/useGrowth';
+import { useGrowthSummary, useAppActivityMonthly } from '@/hooks/useGrowth';
 import { useAuth } from '@/contexts/AuthContext';
 
 // ─── Farben ───────────────────────────────────────────────────────────────────
@@ -178,6 +178,73 @@ export default function GrowthDashboard() {
   const appActivity = data?.appActivity ?? [];
   const integratedApps = appActivity.filter(a => a.integrated);
   const notIntegratedApps = appActivity.filter(a => !a.integrated);
+
+  // Echte Aktivitätsdaten aus user_activity_log / app_activity_monthly View
+  const { data: activityMonthly = [], isLoading: activityLoading } = useAppActivityMonthly();
+
+  // Aktivitätsdaten für Charts aufbereiten
+  // Alle Monate der letzten 12 Monate
+  const activityMonths: string[] = (() => {
+    const now = new Date();
+    return Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1);
+      return d.toISOString().slice(0, 7); // "2026-04"
+    });
+  })();
+
+  // Alle App-IDs aus den echten Daten
+  const activityAppIds = Array.from(new Set(activityMonthly.map(r => r.app_id)));
+
+  // Farben für App-IDs aus APP_CATALOG
+  const appColorMap: Record<string, string> = Object.fromEntries(
+    appActivity.map(a => [a.app, a.color])
+  );
+  const appLabelMap: Record<string, string> = Object.fromEntries(
+    appActivity.map(a => [a.app, a.label])
+  );
+
+  // Chart-Daten: Monatliche Aktionen pro App
+  const activityChartData = activityMonths.map(monthKey => {
+    const point: Record<string, string | number> = {
+      month: new Date(monthKey + '-01').toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }),
+    };
+    activityAppIds.forEach(appId => {
+      const row = activityMonthly.find(r =>
+        r.app_id === appId && r.month.startsWith(monthKey)
+      );
+      point[appId] = row?.total_actions ?? 0;
+    });
+    return point;
+  });
+
+  // Aktive Nutzer pro App (letzter Monat)
+  const currentMonthKey = new Date().toISOString().slice(0, 7);
+  const prevMonthKey = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    return d.toISOString().slice(0, 7);
+  })();
+  const activeUsersPerApp = activityAppIds.map(appId => {
+    const current = activityMonthly.find(r => r.app_id === appId && r.month.startsWith(currentMonthKey));
+    const prev = activityMonthly.find(r => r.app_id === appId && r.month.startsWith(prevMonthKey));
+    return {
+      app: appId,
+      label: appLabelMap[appId] || appId,
+      color: appColorMap[appId] || '#94a3b8',
+      activeUsers: current?.active_users ?? 0,
+      prevActiveUsers: prev?.active_users ?? 0,
+      totalActions: current?.total_actions ?? 0,
+      logins: current?.logins ?? 0,
+    };
+  }).sort((a, b) => b.totalActions - a.totalActions);
+
+  // Gesamtmetriken aus echten Daten
+  const totalActionsThisMonth = activityMonthly
+    .filter(r => r.month.startsWith(currentMonthKey))
+    .reduce((sum, r) => sum + r.total_actions, 0);
+  const totalActiveUsersThisMonth = activityMonthly
+    .filter(r => r.month.startsWith(currentMonthKey))
+    .reduce((sum, r) => sum + r.active_users, 0);
 
   // Wachstumsrate berechnen
   const lastWeek = weekly[weekly.length - 1];
@@ -683,8 +750,8 @@ export default function GrowthDashboard() {
 
           {/* Tab: App-Aktivität */}
           <TabsContent value="apps" className="space-y-4">
-            {/* Übersicht-Karten */}
-            <div className="grid gap-4 md:grid-cols-3">
+            {/* Übersicht-Karten: Kombination aus Katalog + echten Aktivitätsdaten */}
+            <div className="grid gap-4 md:grid-cols-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm text-muted-foreground">Apps gesamt</CardTitle>
@@ -705,13 +772,171 @@ export default function GrowthDashboard() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Noch nicht integriert</CardTitle>
+                  <CardTitle className="text-sm text-muted-foreground">Aktionen diesen Monat</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-amber-500">{notIntegratedApps.length}</div>
-                  <p className="text-xs text-muted-foreground mt-1">Integrationsschritte erforderlich</p>
+                  <div className="text-3xl font-bold text-blue-600">
+                    {activityLoading ? <Skeleton className="h-8 w-16" /> : totalActionsThisMonth.toLocaleString('de-DE')}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">aus user_activity_log</p>
                 </CardContent>
               </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Aktive Nutzer (Monat)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-violet-600">
+                    {activityLoading ? <Skeleton className="h-8 w-16" /> : totalActiveUsersThisMonth.toLocaleString('de-DE')}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">unique Users mit Aktivität</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Echte Aktivitätsdaten: Monatliche Aktionen pro App */}
+            {activityAppIds.length > 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-blue-500" />
+                    Monatliche Aktionen pro App (letzte 12 Monate)
+                  </CardTitle>
+                  <CardDescription>
+                    Echte Nutzungsmetriken aus <code className="bg-muted px-1 rounded text-xs">user_activity_log</code> — jede App loggt Login, Erstellen, Ansehen etc.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {activityLoading ? (
+                    <Skeleton className="h-72 w-full" />
+                  ) : (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={activityChartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                        <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        {activityAppIds.map(appId => (
+                          <Line
+                            key={appId}
+                            type="monotone"
+                            dataKey={appId}
+                            name={appLabelMap[appId] || appId}
+                            stroke={appColorMap[appId] || '#94a3b8'}
+                            strokeWidth={2}
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-10 text-center">
+                  <Activity className="h-8 w-8 text-muted-foreground mb-3" />
+                  <p className="font-medium text-sm">Noch keine Aktivitätsdaten vorhanden</p>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                    Sobald Nutzer sich in den integrierten Apps einloggen, erscheinen hier echte Nutzungsmetriken aus <code className="bg-muted px-1 rounded">user_activity_log</code>.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Aktive Nutzer pro App (aktueller Monat) */}
+            {activeUsersPerApp.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-violet-500" />
+                    Aktive Nutzer & Aktionen pro App (aktueller Monat)
+                  </CardTitle>
+                  <CardDescription>Unique Nutzer und Gesamtaktionen im laufenden Monat</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {activityLoading ? (
+                    <Skeleton className="h-64 w-full" />
+                  ) : (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart
+                        data={activeUsersPerApp}
+                        margin={{ top: 5, right: 10, left: 0, bottom: 60 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="label" tick={{ fontSize: 10 }} angle={-35} textAnchor="end" interval={0} />
+                        <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar dataKey="activeUsers" name="Aktive Nutzer" fill="#8b5cf6" opacity={0.85} radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="totalActions" name="Aktionen gesamt" fill="#3b82f6" opacity={0.85} radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="logins" name="Logins" fill="#10b981" opacity={0.85} radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Detailtabelle: Aktivität pro App (aktueller Monat) */}
+            {activeUsersPerApp.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Aktivitätsdetails pro App — aktueller Monat
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2 font-medium text-muted-foreground">App</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Aktive Nutzer</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Aktionen</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Logins</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Trend</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeUsersPerApp.map(app => {
+                          const trend = app.totalActions > app.prevActiveUsers ? 'up' : app.totalActions < app.prevActiveUsers ? 'down' : 'stable';
+                          return (
+                            <tr key={app.app} className="border-b hover:bg-muted/50">
+                              <td className="p-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: app.color }} />
+                                  <span className="font-medium">{app.label}</span>
+                                </div>
+                              </td>
+                              <td className="p-2 text-right">
+                                <Badge variant="secondary" className="text-xs">{app.activeUsers}</Badge>
+                              </td>
+                              <td className="p-2 text-right font-mono text-xs">{app.totalActions.toLocaleString('de-DE')}</td>
+                              <td className="p-2 text-right font-mono text-xs">{app.logins.toLocaleString('de-DE')}</td>
+                              <td className="p-2 text-right">
+                                {trend === 'up' && <TrendingUp className="h-4 w-4 text-emerald-500 ml-auto" />}
+                                {trend === 'down' && <TrendingDown className="h-4 w-4 text-red-500 ml-auto" />}
+                                {trend === 'stable' && <Minus className="h-4 w-4 text-muted-foreground ml-auto" />}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Trennlinie zu Abo-Daten */}
+            <div className="flex items-center gap-3 py-2">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground font-medium">Abonnement-Daten (aus subscriptions-Tabelle)</span>
+              <div className="h-px flex-1 bg-border" />
             </div>
 
             {/* Abonnements pro App — BarChart */}

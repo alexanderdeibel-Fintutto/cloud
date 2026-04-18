@@ -26,6 +26,17 @@ export interface MonthlyChurnPoint {
   activeUsers: number;  // Aktive Nutzer am Monatsende
 }
 
+// Monatliche Aktivitätsdaten aus app_activity_monthly View
+export interface AppMonthlyActivity {
+  app_id: string;
+  month: string;          // ISO-Datum: "2026-04-01T00:00:00+00:00"
+  active_users: number;
+  total_actions: number;
+  logins: number;
+  creates: number;
+  views: number;
+}
+
 export interface AppActivityPoint {
   app: string;          // App-Name (z.B. "vermietify")
   label: string;        // Anzeigename (z.B. "Vermietify")
@@ -109,6 +120,38 @@ function getMonthStart(year: number, month: number): string {
 }
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
+
+/**
+ * Lädt monatliche Aktivitätsdaten aus der app_activity_monthly View.
+ * Gibt echte Nutzungsmetriken pro App und Monat zurück.
+ */
+export function useAppActivityMonthly() {
+  return useQuery({
+    queryKey: ['app-activity-monthly'],
+    queryFn: async (): Promise<AppMonthlyActivity[]> => {
+      const { data, error } = await supabase
+        .from('app_activity_monthly')
+        .select('app_id, month, active_users, total_actions, logins, creates, views')
+        .order('month', { ascending: true });
+      if (error) {
+        console.warn('[useAppActivityMonthly] Fehler beim Laden:', error.message);
+        return [];
+      }
+      return (data || []).map(row => ({
+        app_id: row.app_id as string,
+        month: row.month as string,
+        active_users: Number(row.active_users) || 0,
+        total_actions: Number(row.total_actions) || 0,
+        logins: Number(row.logins) || 0,
+        creates: Number(row.creates) || 0,
+        views: Number(row.views) || 0,
+      }));
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+}
+
 export function useGrowthProfiles() {
   return useQuery({
     queryKey: ['growth-profiles'],

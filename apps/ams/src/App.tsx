@@ -39,6 +39,7 @@ import AmsBillingPage from "./pages/AmsBillingPage";
 import UarDashboard from "./pages/UarDashboard";
 import GmailSync from "./pages/GmailSync";
 import GrowthDashboard from "./pages/GrowthDashboard";
+import PermissionsOverview from "./pages/PermissionsOverview";
 import OnboardingGate from "./components/OnboardingGate";
 
 const queryClient = new QueryClient();
@@ -90,6 +91,7 @@ const App = () => (
               <Route path="/gmail-sync" element={<P><GmailSync /></P>} />
               <Route path="/gmail-sync/callback" element={<GmailSync />} />
               <Route path="/growth" element={<P><GrowthDashboard /></P>} />
+              <Route path="/permissions" element={<P><PermissionsOverview /></P>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
