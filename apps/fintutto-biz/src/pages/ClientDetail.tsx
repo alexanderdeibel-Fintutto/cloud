@@ -210,7 +210,7 @@ function SecondBrainPanel({ clientId }: { clientId: string }) {
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { activeBusiness: business } = useBusinesses();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const [client, setClient] = useState<Client | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,9 +219,10 @@ export default function ClientDetail() {
   );
 
   useEffect(() => {
-    if (!id || !business) return;
+    if (bizLoading) return;
+    if (!id || !business) { setLoading(false); return; }
     loadData();
-  }, [id, business]);
+  }, [id, business, bizLoading]);
 
   async function loadData() {
     setLoading(true);

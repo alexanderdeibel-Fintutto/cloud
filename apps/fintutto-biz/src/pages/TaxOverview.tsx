@@ -16,15 +16,16 @@ interface QuarterData {
 }
 
 export default function TaxOverview() {
-  const { activeBusiness: business } = useBusinesses();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const [quarters, setQuarters] = useState<QuarterData[]>([]);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    if (!business) return;
+    if (bizLoading) return;
+    if (!business) { setLoading(false); return; }
     fetchTaxData();
-  }, [business, year]);
+  }, [business, bizLoading, year]);
 
   const fetchTaxData = async () => {
     if (!business) return;

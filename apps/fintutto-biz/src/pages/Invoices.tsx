@@ -36,7 +36,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
 };
 
 export default function Invoices() {
-  const { activeBusiness: business } = useBusinesses();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -44,9 +44,10 @@ export default function Invoices() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (!business) return;
+    if (bizLoading) return;
+    if (!business) { setLoading(false); return; }
     fetchInvoices();
-  }, [business]);
+  }, [business, bizLoading]);
 
   // Check URL params for ?neu=1
   useEffect(() => {

@@ -154,6 +154,7 @@ export function useBusinesses() {
       user_id: user.id,
       business_id: data.id,
       role: "owner",
+      is_default: true,
     });
 
     await fetchBusinesses();

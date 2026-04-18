@@ -18,7 +18,7 @@ interface Client {
 }
 
 export default function Clients() {
-  const { activeBusiness: business } = useBusinesses();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -36,9 +36,10 @@ export default function Clients() {
   const [addressPlaceDetails, setAddressPlaceDetails] = useState<PlaceDetails | null>(null);
 
   useEffect(() => {
-    if (!business) return;
+    if (bizLoading) return;
+    if (!business) { setLoading(false); return; }
     fetchClients();
-  }, [business]);
+  }, [business, bizLoading]);
 
   const fetchClients = async () => {
     if (!business) return;

@@ -159,7 +159,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 // ── Hauptseite ────────────────────────────────────────────────────────────────
 export default function Expenses() {
-  const { activeBusiness: business } = useBusinesses();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const { buildings } = useBuildings();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,9 +178,10 @@ export default function Expenses() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!business) return;
+    if (bizLoading) return;
+    if (!business) { setLoading(false); return; }
     fetchExpenses();
-  }, [business]);
+  }, [business, bizLoading]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

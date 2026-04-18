@@ -25,7 +25,7 @@ interface Client {
 }
 
 export default function Zeiterfassung() {
-  const { activeBusiness: business } = useBusinesses();
+  const { activeBusiness: business, loading: bizLoading } = useBusinesses();
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,9 +43,10 @@ export default function Zeiterfassung() {
   });
 
   useEffect(() => {
-    if (!business) return;
+    if (bizLoading) return;
+    if (!business) { setLoading(false); return; }
     fetchData();
-  }, [business]);
+  }, [business, bizLoading]);
 
   const fetchData = async () => {
     if (!business) return;
