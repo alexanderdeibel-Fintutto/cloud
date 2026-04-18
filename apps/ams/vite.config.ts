@@ -18,4 +18,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    __BUILD_TIME__: JSON.stringify("20260418T180000"),
+  },
 }));
