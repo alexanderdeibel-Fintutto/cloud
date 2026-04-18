@@ -75,7 +75,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Command Center</h1>
-            <p className="text-muted-foreground">Willkommen zuruck! Hier ist die Ubersicht Ihrer Plattform.</p>
+            <p className="text-muted-foreground">Willkommen zurück! Hier ist die Übersicht Ihrer Plattform.</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => refetch()}>
