@@ -47,7 +47,7 @@ jobs:
       # Testergebnisse als Artefakt hochladen (für PR-Kommentare)
       - name: Testergebnisse hochladen
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: regression-test-results
           path: |
@@ -131,7 +131,7 @@ jobs:
       # Build-Größe als Artefakt hochladen
       - name: Build-Artefakt hochladen
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist-${{ matrix.app.name }}
           path: ${{ matrix.app.path }}/dist/
