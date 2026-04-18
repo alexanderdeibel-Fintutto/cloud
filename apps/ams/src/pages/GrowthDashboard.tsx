@@ -49,7 +49,7 @@ const COLORS = {
   net:     '#06b6d4',   // cyan
 };
 
-const PIE_COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6'];
+const PIE_COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#0ea5e9'];
 
 // ─── KPI-Karte ────────────────────────────────────────────────────────────────
 interface KPIProps {
