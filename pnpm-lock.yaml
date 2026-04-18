@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@fintutto/shared':
-        specifier: file:./packages/shared
+        specifier: workspace:*
         version: link:packages/shared
       '@radix-ui/react-label':
         specifier: ^2.0.2

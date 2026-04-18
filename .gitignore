@@ -79,3 +79,4 @@ coverage
 
 # Cloned sub-repos (separate GitHub repos)
 # ablesung/ - now tracked for feature implementation
+supabase/.temp/
