@@ -591,6 +591,18 @@ const App = () => (
               {/* Massenimport */}
               <Route path="/massenimport" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
 
+              {/* Legacy Redirects: Englische URLs → Deutsche URLs (rückwärtskompatibel) */}
+              <Route path="/properties" element={<Navigate to="/immobilien" replace />} />
+              <Route path="/properties/:id" element={<Navigate to="/immobilien" replace />} />
+              <Route path="/tenants" element={<Navigate to="/mieter" replace />} />
+              <Route path="/tenants/:id" element={<Navigate to="/mieter" replace />} />
+              <Route path="/finances" element={<Navigate to="/finanzen" replace />} />
+              <Route path="/documents" element={<Navigate to="/dokumente" replace />} />
+              <Route path="/taxes" element={<Navigate to="/steuern" replace />} />
+              <Route path="/calendar" element={<Navigate to="/kalender" replace />} />
+              <Route path="/tasks" element={<Navigate to="/aufgaben" replace />} />
+              <Route path="/settings" element={<Navigate to="/einstellungen" replace />} />
+
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
