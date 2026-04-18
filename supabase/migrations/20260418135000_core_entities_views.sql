@@ -1,18 +1,15 @@
 -- ============================================================
 -- Migration: Core Entities Views & Convenience Queries
--- Erstellt: 2026-04-18
+-- Erstellt: 2026-04-18 (korrigiert: tatsächliche DB-Spalten)
 -- Zweck: Abwärtskompatible Views, die bestehende App-Abfragen
 --        mit den neuen Core-Entity-Daten anreichern.
--- ============================================================
--- Diese Views erlauben es, dass bestehende Frontend-Abfragen
--- weiterhin funktionieren, während sie gleichzeitig die
--- Core-Entity-Daten (wenn vorhanden) bevorzugen.
 -- ============================================================
 
 -- ── 1. v_tenants_full ────────────────────────────────────────
 -- Vermietify: Mieter mit Core-Contact-Daten angereichert
 -- Wenn core_contact_id gesetzt ist, werden dessen Daten bevorzugt.
 -- Sonst fallen wir auf die lokalen Felder zurück (Rückwärtskompatibilität).
+-- Hinweis: tenants hat correspondence_street/zip/city statt address/postal_code/city
 CREATE OR REPLACE VIEW public.v_tenants_full
   WITH (security_invoker = true) AS
 SELECT
@@ -20,26 +17,28 @@ SELECT
   t.organization_id,
   t.core_contact_id,
   -- Name: Core-Contact bevorzugen
-  COALESCE(cc.first_name, t.first_name)                    AS first_name,
-  COALESCE(cc.last_name,  t.last_name)                     AS last_name,
+  COALESCE(cc.first_name, t.first_name)                         AS first_name,
+  COALESCE(cc.last_name,  t.last_name)                          AS last_name,
   -- Kontakt: Core-Contact bevorzugen
-  COALESCE(cc.email,  t.email)                             AS email,
-  COALESCE(cc.phone,  t.phone)                             AS phone,
+  COALESCE(cc.email,  t.email)                                  AS email,
+  COALESCE(cc.phone,  t.phone)                                  AS phone,
   -- Adresse: Core-Contact-Primäradresse bevorzugen
-  COALESCE(ca.street,      t.address)                      AS address,
-  COALESCE(ca.city,        t.city)                         AS city,
-  COALESCE(ca.postal_code, t.postal_code)                  AS postal_code,
+  COALESCE(ca.street,      t.correspondence_street)             AS address,
+  COALESCE(ca.city,        t.correspondence_city)               AS city,
+  COALESCE(ca.postal_code, t.correspondence_zip)                AS postal_code,
   -- Nur in Core-Contact verfügbar
-  cc.mobile,
-  cc.iban,
-  cc.bank_name,
+  COALESCE(cc.mobile, t.mobile)                                 AS mobile,
+  COALESCE(cc.iban,   t.iban)                                   AS iban,
+  COALESCE(cc.bank_name, t.bank_name)                           AS bank_name,
   cc.tax_id,
   cc.tags,
   -- Originale Tenant-Felder
-  t.birth_date,
+  t.date_of_birth                                               AS birth_date,
   t.household_size,
   t.previous_landlord,
   t.notes,
+  t.status,
+  t.tenant_type,
   t.created_at,
   t.updated_at
 FROM public.tenants t
@@ -58,29 +57,30 @@ SELECT
   bc.business_id,
   bc.core_contact_id,
   -- Name/Firma: Core-Contact bevorzugen
-  COALESCE(cc.company_name, bc.company, bc.name)           AS company,
+  COALESCE(cc.company_name, bc.company, bc.name)                AS company,
   COALESCE(
     CASE WHEN cc.contact_type = 'person'
       THEN trim(coalesce(cc.first_name,'') || ' ' || coalesce(cc.last_name,''))
     END,
     bc.name
-  )                                                         AS name,
+  )                                                             AS name,
   -- Kontakt: Core-Contact bevorzugen
-  COALESCE(cc.email,  bc.email)                            AS email,
-  COALESCE(cc.phone,  bc.phone)                            AS phone,
-  -- Adresse: Core-Contact-Primäradresse bevorzugen
-  COALESCE(
-    jsonb_build_object(
-      'street',      ca.street,
-      'house_number',ca.house_number,
-      'postal_code', ca.postal_code,
-      'city',        ca.city,
-      'country',     ca.country
-    ),
-    bc.address
-  )                                                         AS address,
+  COALESCE(cc.email,  bc.email)                                 AS email,
+  COALESCE(cc.phone,  bc.phone)                                 AS phone,
+  -- Adresse: Core-Contact-Primäradresse bevorzugen (als JSONB)
+  CASE
+    WHEN ca.id IS NOT NULL THEN
+      jsonb_build_object(
+        'street',      ca.street,
+        'house_number',ca.house_number,
+        'postal_code', ca.postal_code,
+        'city',        ca.city,
+        'country',     ca.country
+      )
+    ELSE bc.address
+  END                                                           AS address,
   -- Steuer: Core-Contact bevorzugen
-  COALESCE(cc.tax_id, bc.tax_id)                           AS tax_id,
+  COALESCE(cc.tax_id, bc.tax_id)                                AS tax_id,
   -- Nur in Core-Contact verfügbar
   cc.vat_id,
   cc.iban,
@@ -110,7 +110,7 @@ SELECT
   CASE
     WHEN cc.contact_type = 'company' THEN cc.company_name
     ELSE trim(coalesce(cc.first_name,'') || ' ' || coalesce(cc.last_name,''))
-  END                                                       AS display_name,
+  END                                                           AS display_name,
   cc.first_name,
   cc.last_name,
   cc.company_name,
@@ -124,19 +124,19 @@ SELECT
   cc.tags,
   cc.notes,
   -- Rollen in anderen Apps
-  EXISTS(SELECT 1 FROM public.tenants t WHERE t.core_contact_id = cc.id)       AS is_tenant,
-  EXISTS(SELECT 1 FROM public.biz_clients bc WHERE bc.core_contact_id = cc.id) AS is_biz_client,
+  EXISTS(SELECT 1 FROM public.tenants t WHERE t.core_contact_id = cc.id)          AS is_tenant,
+  EXISTS(SELECT 1 FROM public.biz_clients bc WHERE bc.core_contact_id = cc.id)    AS is_biz_client,
   EXISTS(SELECT 1 FROM public.biz_businesses bb WHERE bb.core_contact_id = cc.id) AS is_business,
   -- Anzahl verknüpfter Dokumente
   (SELECT COUNT(*) FROM public.sb_document_entity_links l
-   WHERE l.entity_type = 'core_contact' AND l.entity_id = cc.id)               AS document_count,
+   WHERE l.entity_type = 'core_contact' AND l.entity_id = cc.id)                  AS document_count,
   -- Primäradresse
   ca.street,
   ca.house_number,
   ca.postal_code,
   ca.city,
   ca.country,
-  ca.formatted                                              AS address_formatted,
+  ca.formatted                                                  AS address_formatted,
   cc.created_at,
   cc.updated_at
 FROM public.core_contacts cc
@@ -147,6 +147,7 @@ LEFT JOIN public.core_addresses ca ON ca.id = cca.address_id;
 
 -- ── 4. v_buildings_full ──────────────────────────────────────
 -- Vermietify: Gebäude mit Core-Address-Daten angereichert
+-- Hinweis: buildings hat street, house_number, postal_code, city als separate Spalten
 CREATE OR REPLACE VIEW public.v_buildings_full
   WITH (security_invoker = true) AS
 SELECT
@@ -155,16 +156,19 @@ SELECT
   b.core_address_id,
   b.name,
   -- Adresse: Core-Address bevorzugen
-  COALESCE(ca.street || ' ' || COALESCE(ca.house_number,''), b.address)  AS address,
-  COALESCE(ca.street,      b.address)                                    AS street,
-  ca.house_number,
-  COALESCE(ca.postal_code, b.postal_code)                                AS postal_code,
-  COALESCE(ca.city,        b.city)                                       AS city,
-  COALESCE(ca.country,     'Deutschland')                                AS country,
-  ca.latitude,
-  ca.longitude,
+  COALESCE(
+    ca.street || ' ' || COALESCE(ca.house_number,''),
+    b.street || ' ' || COALESCE(b.house_number,'')
+  )                                                             AS address,
+  COALESCE(ca.street,      b.street)                           AS street,
+  COALESCE(ca.house_number, b.house_number)                    AS house_number,
+  COALESCE(ca.postal_code, b.postal_code)                      AS postal_code,
+  COALESCE(ca.city,        b.city)                             AS city,
+  COALESCE(ca.country,     b.country, 'Deutschland')           AS country,
+  COALESCE(ca.latitude,    b.latitude)                         AS latitude,
+  COALESCE(ca.longitude,   b.longitude)                        AS longitude,
   ca.google_place_id,
-  ca.formatted                                                           AS address_formatted,
+  ca.formatted                                                  AS address_formatted,
   -- Originale Gebäude-Felder
   b.building_type,
   b.total_area,
@@ -212,7 +216,7 @@ BEGIN
   IF v_contact_id IS NULL THEN
     INSERT INTO public.core_contacts (
       owner_id, organization_id, contact_type,
-      first_name, last_name, email, phone, notes
+      first_name, last_name, email, phone, mobile, iban, bank_name, notes
     ) VALUES (
       auth.uid(),
       v_tenant.organization_id,
@@ -221,19 +225,22 @@ BEGIN
       v_tenant.last_name,
       v_tenant.email,
       v_tenant.phone,
+      v_tenant.mobile,
+      v_tenant.iban,
+      v_tenant.bank_name,
       v_tenant.notes
     )
     RETURNING id INTO v_contact_id;
 
-    -- Adresse migrieren falls vorhanden
-    IF v_tenant.address IS NOT NULL AND v_tenant.city IS NOT NULL THEN
+    -- Adresse migrieren falls vorhanden (correspondence_street/zip/city)
+    IF v_tenant.correspondence_street IS NOT NULL AND v_tenant.correspondence_city IS NOT NULL THEN
       INSERT INTO public.core_addresses (
         owner_id, street, postal_code, city
       ) VALUES (
         auth.uid(),
-        v_tenant.address,
-        COALESCE(v_tenant.postal_code, ''),
-        v_tenant.city
+        v_tenant.correspondence_street,
+        COALESCE(v_tenant.correspondence_zip, ''),
+        v_tenant.correspondence_city
       )
       RETURNING id INTO v_address_id;
 
