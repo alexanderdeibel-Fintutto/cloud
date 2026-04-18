@@ -9,6 +9,22 @@
  type TenantUpdate = Database["public"]["Tables"]["tenants"]["Update"];
  
  const TENANTS_KEY = "tenants";
+
+ /**
+  * Maps a raw DB tenant row to a UI-friendly shape.
+  * The DB uses correspondence_* and date_of_birth, while the UI uses
+  * address/city/postal_code/birth_date for backwards compatibility.
+  */
+ function mapTenantFromDb(tenant: TenantRow) {
+   return {
+     ...tenant,
+     // Alias fields for UI compatibility
+     address: tenant.correspondence_street ?? null,
+     city: tenant.correspondence_city ?? null,
+     postal_code: tenant.correspondence_zip ?? null,
+     birth_date: tenant.date_of_birth ?? null,
+   };
+ }
  
  export function useTenants() {
    const { toast } = useToast();
@@ -38,7 +54,7 @@
            .order("last_name", { ascending: true });
  
          if (error) throw error;
-         return data;
+         return (data ?? []).map(mapTenantFromDb);
        },
      });
    };
@@ -107,8 +123,10 @@
            status = activeLease.end_date ? "terminated" : "active";
          }
  
+         const mappedTenant = mapTenantFromDb(tenant);
+ 
          return {
-           ...tenant,
+           ...mappedTenant,
            status,
            activeLease,
            allLeases: allLeases || [],
@@ -128,10 +146,11 @@
           last_name: data.last_name,
           email: data.email || null,
           phone: data.phone || null,
-          address: data.address || null,
-          city: data.city || null,
-          postal_code: data.postal_code || null,
-          birth_date: data.birth_date || null,
+          // Map UI field names to actual DB column names
+          correspondence_street: data.address || null,
+          correspondence_city: data.city || null,
+          correspondence_zip: data.postal_code || null,
+          date_of_birth: data.birth_date || null,
           household_size: data.household_size || null,
           previous_landlord: data.previous_landlord || null,
           notes: data.notes || null,
@@ -144,7 +163,7 @@
          .single();
  
        if (error) throw error;
-       return tenant;
+       return mapTenantFromDb(tenant);
      },
      onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: [TENANTS_KEY] });
@@ -170,9 +189,13 @@
        if (data.last_name !== undefined) updateData.last_name = data.last_name;
        if (data.email !== undefined) updateData.email = data.email || null;
        if (data.phone !== undefined) updateData.phone = data.phone || null;
-       if (data.address !== undefined) updateData.address = data.address || null;
-       if (data.city !== undefined) updateData.city = data.city || null;
-       if (data.postal_code !== undefined) updateData.postal_code = data.postal_code || null;
+       // Map UI field names to actual DB column names
+       if (data.address !== undefined) updateData.correspondence_street = data.address || null;
+       if (data.city !== undefined) updateData.correspondence_city = data.city || null;
+       if (data.postal_code !== undefined) updateData.correspondence_zip = data.postal_code || null;
+       if (data.birth_date !== undefined) updateData.date_of_birth = data.birth_date || null;
+       if (data.household_size !== undefined) updateData.household_size = data.household_size || null;
+       if (data.previous_landlord !== undefined) updateData.previous_landlord = data.previous_landlord || null;
        if (data.notes !== undefined) updateData.notes = data.notes || null;
  
        const { data: tenant, error } = await supabase
@@ -183,7 +206,7 @@
          .single();
  
        if (error) throw error;
-       return tenant;
+       return mapTenantFromDb(tenant);
      },
      onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: [TENANTS_KEY] });

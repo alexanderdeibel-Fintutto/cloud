@@ -60,7 +60,7 @@ const coreNavigationItems = [
     title: "Immobilien", 
     icon: Building2,
     subItems: [
-      { title: "Gebäude", url: "/properties" },
+      { title: "Gebäude", url: "/immobilien" },
       { title: "Einheiten", url: "/einheiten" },
       { title: "Betriebskosten", url: "/betriebskosten" },
       { title: "Zähler", url: "/zaehler" },
@@ -70,11 +70,11 @@ const coreNavigationItems = [
     title: "Mieter", 
     icon: Users,
     subItems: [
-      { title: "Übersicht", url: "/tenants" },
+      { title: "Übersicht", url: "/mieter" },
       { title: "Mietangebote", url: "/angebote" },
       { title: "Verträge", url: "/vertraege" },
       { title: "Unterschriften", url: "/unterschriften" },
-      { title: "Mietanpassungen", url: "/miete/anpassungen" },
+      { title: "Mietanpassungen", url: "/mietanpassung" },
       { title: "Inserate", url: "/inserate" },
       { title: "KdU-Richtwerte", url: "/kdu-richtwerte" },
     ]
@@ -83,6 +83,7 @@ const coreNavigationItems = [
     title: "Finanzen", 
     icon: CreditCard,
     subItems: [
+      { title: "Übersicht", url: "/finanzen" },
       { title: "Zahlungen", url: "/zahlungen" },
       { title: "Banking", url: "/banking" },
       { title: "Transaktionen", url: "/banking/transaktionen" },
@@ -111,20 +112,20 @@ const toolsNavigationItems = [
     title: "Dokumente", 
     icon: FileText,
     subItems: [
-      { title: "Alle Dokumente", url: "/documents" },
+      { title: "Alle Dokumente", url: "/dokumente" },
       { title: "Massenimport", url: "/massenimport" },
     ],
   },
-  { title: "Steuern", url: "/taxes", icon: Receipt },
+  { title: "Steuern", url: "/steuern", icon: Receipt },
   { 
     title: "Kommunikation", 
     icon: MessageSquare,
     subItems: [
-      { title: "E-Mail verfassen", url: "/kommunikation/senden" },
+      { title: "E-Mail verfassen", url: "/kommunikation/verfassen" },
       { title: "E-Mail-Vorlagen", url: "/kommunikation/vorlagen" },
       { title: "E-Mail-Verlauf", url: "/kommunikation/verlauf" },
-      { title: "E-Mail-Eingang", url: "/kommunikation/eingang" },
-      { title: "Empfangsadresse", url: "/kommunikation/empfang" },
+      { title: "E-Mail-Eingang", url: "/eingehende-emails" },
+      { title: "Empfangsadresse", url: "/eingehende-emails/warteschlange" },
     ]
   },
 ];

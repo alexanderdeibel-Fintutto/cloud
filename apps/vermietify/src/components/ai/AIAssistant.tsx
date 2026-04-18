@@ -26,11 +26,11 @@
  
  const pageContextMap: Record<string, string> = {
    "/dashboard": "Dashboard",
-   "/properties": "Immobilien",
-   "/tenants": "Mieter",
+   "/immobilien": "Immobilien",
+   "/mieter": "Mieter",
    "/vertraege": "Verträge",
    "/zahlungen": "Zahlungen",
-   "/finances": "Finanzen",
+   "/finanzen": "Finanzen",
    "/taxes": "Steuern",
    "/betriebskosten": "Betriebskosten",
    "/zaehler": "Zähler",

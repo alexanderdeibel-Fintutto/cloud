@@ -62,7 +62,7 @@ import {
            description="Der angeforderte Mieter konnte nicht gefunden werden."
            action={
              <Button asChild>
-               <Link to="/tenants">Zurück zur Mieterliste</Link>
+               <Link to="/mieter">Zurück zur Mieterliste</Link>
              </Button>
            }
          />
@@ -79,7 +79,7 @@ import {
        title={fullName}
        breadcrumbs={[
          { label: "Dashboard", href: "/" },
-         { label: "Mieter", href: "/tenants" },
+         { label: "Mieter", href: "/mieter" },
          { label: fullName },
        ]}
      >

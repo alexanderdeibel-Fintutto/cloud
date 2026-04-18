@@ -10,7 +10,7 @@ export default function UnitDetail() {
     <MainLayout 
       title="Einheitendetails" 
       breadcrumbs={[
-        { label: "Immobilien", href: "/properties" },
+        { label: "Immobilien", href: "/immobilien" },
         { label: "Einheiten" }
       ]}
     >

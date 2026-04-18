@@ -280,9 +280,9 @@ export function BulkImportDialog({
             const { error } = await supabase.from("tenants").update({
               email: t.email || undefined,
               phone: t.phone || undefined,
-              address: t.address || undefined,
-              city: t.city || undefined,
-              postal_code: t.postal_code || undefined,
+              correspondence_street: t.address || undefined, // DB column name
+              correspondence_city: t.city || undefined,       // DB column name
+              correspondence_zip: t.postal_code || undefined, // DB column name
               notes: t.notes || undefined,
             }).eq("id", t._existingMatch.id);
             if (error) { console.error(error); failed++; } else { success++; }
@@ -293,9 +293,9 @@ export function BulkImportDialog({
               last_name: t.last_name,
               email: t.email || null,
               phone: t.phone || null,
-              address: t.address || null,
-              city: t.city || null,
-              postal_code: t.postal_code || null,
+              correspondence_street: t.address || null, // DB column name
+              correspondence_city: t.city || null,       // DB column name
+              correspondence_zip: t.postal_code || null, // DB column name
               notes: t.notes || null,
             });
             if (error) { console.error(error); failed++; } else { success++; }

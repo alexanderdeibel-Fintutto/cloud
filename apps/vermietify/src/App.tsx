@@ -179,7 +179,7 @@ const App = () => (
                   <Dashboard />
                 </ProtectedRoute>
               } />
-              <Route path="/properties" element={
+              <Route path="/immobilien" element={
                 <ProtectedRoute>
                   <Properties />
                 </ProtectedRoute>
@@ -199,7 +199,7 @@ const App = () => (
                   <UnitDetail />
                 </ProtectedRoute>
               } />
-              <Route path="/tenants" element={
+              <Route path="/mieter" element={
                 <ProtectedRoute>
                   <Tenants />
                 </ProtectedRoute>
@@ -249,7 +249,7 @@ const App = () => (
                   <PaymentList />
                 </ProtectedRoute>
               } />
-              <Route path="/finances" element={
+              <Route path="/finanzen" element={
                 <ProtectedRoute>
                   <Finances />
                 </ProtectedRoute>

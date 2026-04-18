@@ -31,7 +31,7 @@ export default function BuildingDetail() {
         title="Gebäude lädt..."
         breadcrumbs={[
           { label: "Dashboard", href: "/" },
-          { label: "Immobilien", href: "/properties" },
+          { label: "Immobilien", href: "/immobilien" },
           { label: "Lädt..." },
         ]}
       >
@@ -46,7 +46,7 @@ export default function BuildingDetail() {
         title="Fehler"
         breadcrumbs={[
           { label: "Dashboard", href: "/" },
-          { label: "Immobilien", href: "/properties" },
+          { label: "Immobilien", href: "/immobilien" },
           { label: "Fehler" },
         ]}
       >
@@ -58,7 +58,7 @@ export default function BuildingDetail() {
           </AlertDescription>
         </Alert>
         <div className="mt-4">
-          <Button variant="outline" onClick={() => navigate("/properties")}>
+          <Button variant="outline" onClick={() => navigate("/immobilien")}>
             Zurück zur Übersicht
           </Button>
         </div>
@@ -73,7 +73,7 @@ export default function BuildingDetail() {
       title={building.name}
       breadcrumbs={[
         { label: "Dashboard", href: "/" },
-        { label: "Immobilien", href: "/properties" },
+        { label: "Immobilien", href: "/immobilien" },
         { label: building.name },
       ]}
     >

@@ -151,7 +151,7 @@ export default function UnitsList() {
         description: "Bitte legen Sie zuerst ein Gebäude an.",
         variant: "destructive",
       });
-      navigate("/properties");
+      navigate("/immobilien");
       return;
     }
     if (buildings.length === 1) {

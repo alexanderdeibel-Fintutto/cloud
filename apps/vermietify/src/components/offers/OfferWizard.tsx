@@ -145,7 +145,7 @@ export function OfferWizard() {
         income_cents: data.incomeCents || null,
         previous_landlord: data.previousLandlord || null,
         schufa_status: data.schufaStatus || null,
-        birth_date: data.birthDate || null,
+        date_of_birth: data.birthDate || null, // Maps to DB column date_of_birth
       }).eq("id", newTenant.id);
 
       // 2. Create rental offer
