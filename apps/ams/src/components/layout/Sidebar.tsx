@@ -31,12 +31,15 @@ import {
   Zap,
   Fingerprint,
   Signal,
-  Mail
+  Mail,
+  TrendingUp
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
+
+const SUPERADMIN_EMAILS = ['admin@fintutto.de', 'alexander@fintutto.world', 'alexander@fintutto.de'];
 
 const navSections = [
   {
@@ -45,6 +48,7 @@ const navSections = [
       { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
       { icon: BarChart3, label: 'Analytics & Usage', path: '/analytics' },
       { icon: AlertTriangle, label: 'Fehler & Logs', path: '/errors' },
+      { icon: TrendingUp, label: 'Wachstum (Superadmin)', path: '/growth', superadmin: true },
     ],
   },
   {
@@ -109,6 +113,7 @@ export function Sidebar() {
   const location = useLocation();
   const { signOut, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const isSuperAdmin = user?.email && SUPERADMIN_EMAILS.includes(user.email.toLowerCase());
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar">
@@ -133,7 +138,8 @@ export function Sidebar() {
               </div>
             )}
             <div className="space-y-0.5">
-              {section.items.map((item) => {
+              {section.items.map((item: any) => {
+                if (item.superadmin && !isSuperAdmin) return null;
                 const isActive = location.pathname === item.path;
                 return (
                   <Link
@@ -148,6 +154,9 @@ export function Sidebar() {
                   >
                     <item.icon className="h-3.5 w-3.5" />
                     {item.label}
+                    {item.superadmin && (
+                      <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-orange-500">SA</span>
+                    )}
                   </Link>
                 );
               })}
