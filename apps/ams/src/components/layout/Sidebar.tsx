@@ -29,7 +29,8 @@ import {
   MessageCircle,
   Activity,
   Zap,
-  Fingerprint
+  Fingerprint,
+  Signal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -90,6 +91,7 @@ const navSections = [
       { icon: Wallet, label: 'Finanzen', path: '/finance' },
       { icon: MessageCircle, label: 'Community', path: '/community' },
       { icon: Activity, label: 'DevOps & Monitoring', path: '/devops' },
+      { icon: Signal, label: 'API Verfügbarkeit', path: '/api-status' },
     ],
   },
   {

@@ -33,6 +33,7 @@ import RolesSecurity from "./pages/RolesSecurity";
 import Finance from "./pages/Finance";
 import Community from "./pages/Community";
 import DevOps from "./pages/DevOps";
+import ApiStatus from "./pages/ApiStatus";
 import NotFound from "./pages/NotFound";
 import AmsBillingPage from "./pages/AmsBillingPage";
 import UarDashboard from "./pages/UarDashboard";
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/finance" element={<P><Finance /></P>} />
               <Route path="/community" element={<P><Community /></P>} />
               <Route path="/devops" element={<P><DevOps /></P>} />
+              <Route path="/api-status" element={<P><ApiStatus /></P>} />
               <Route path="/ams-billing" element={<P><AmsBillingPage /></P>} />
               <Route path="/uar" element={<P><UarDashboard /></P>} />
               <Route path="*" element={<NotFound />} />
