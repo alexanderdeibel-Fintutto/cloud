@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../integrations/supabase'
+import { logActivity } from '../lib/activityLogger'
 
 interface AuthState {
   user: User | null
@@ -27,8 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setState({ user: session?.user ?? null, session, isLoading: false })
+        if (event === 'SIGNED_IN') logActivity('login')
+        if (event === 'SIGNED_OUT') logActivity('logout')
+        if (event === 'USER_UPDATED') logActivity('signup')
       }
     )
 

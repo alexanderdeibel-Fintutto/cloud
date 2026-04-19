@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Toaster } from 'sonner'
+import { supabase } from '@/lib/supabase'
+import { logActivity } from '@/lib/activityLogger'
 import Layout from '@/components/layout/Layout'
 import DashboardPage from '@/pages/DashboardPage'
 import OcrScanPage from '@/pages/OcrScanPage'
@@ -10,6 +13,15 @@ import MeterDetailPage from '@/pages/MeterDetailPage'
 import MeterListPage from '@/pages/MeterListPage'
 
 function App() {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') logActivity('login')
+      if (event === 'SIGNED_OUT') logActivity('logout')
+      if (event === 'USER_UPDATED') logActivity('signup')
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
   return (
     <BrowserRouter>
       <Routes>

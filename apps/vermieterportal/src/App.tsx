@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FintuttoAIChat } from "@fintutto/ai-chat";
+import { useEffect } from "react";
 import { supabase } from "./lib/supabase";
+import { logActivity } from "./lib/activityLogger";
 
 // Pages
 import Dashboard from "./pages/Dashboard";
@@ -19,6 +21,15 @@ import Layout from "./components/Layout";
 const queryClient = new QueryClient();
 
 function App() {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') logActivity('login')
+      if (event === 'SIGNED_OUT') logActivity('logout')
+      if (event === 'USER_UPDATED') logActivity('signup')
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
