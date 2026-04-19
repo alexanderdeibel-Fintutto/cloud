@@ -8,7 +8,7 @@
 
 ## Ausgangslage & Kontext
 
-Das Repository `alexanderdeibel-Fintutto/portal` enthält aktuell ~28 Apps in unterschiedlichen Ausbauzuständen. Die Strategie lautet: **Weniger ist mehr.** 
+Das Repository `alexanderdeibel-Fintutto/cloud` enthält aktuell ~28 Apps in unterschiedlichen Ausbauzuständen. Die Strategie lautet: **Weniger ist mehr.** 
 Der Fokus liegt auf der Lösung der eigenen, akuten Probleme:
 1. **Verwaltung der eigenen Firmen & Freelance-Tätigkeiten** (Ablösung von Lexoffice & Co.) -> *Financial Compass (fintutto-biz)*
 2. **Verwaltung der eigenen Immobilien** -> *Vermietify*

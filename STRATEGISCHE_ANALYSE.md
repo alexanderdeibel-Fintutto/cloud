@@ -11,7 +11,7 @@ Die strategische Entscheidung, sich auf **Financial Kompass (fintutto-biz)** und
 
 ## 2. Bestandsaufnahme des Repositories
 
-Das Repository `alexanderdeibel-Fintutto/portal` enthält eine Vielzahl von Applikationen, die sich in drei Hauptkategorien einteilen lassen:
+Das Repository `alexanderdeibel-Fintutto/cloud` enthält eine Vielzahl von Applikationen, die sich in drei Hauptkategorien einteilen lassen:
 
 ### 2.1 Die Kern-Apps (Fokus-Bereich)
 

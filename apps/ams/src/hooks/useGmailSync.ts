@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Secrets werden NICHT hardcodiert — via VITE_* Env-Vars konfigurieren:
 // VITE_GITHUB_PAT, VITE_GOOGLE_CLIENT_ID, VITE_GOOGLE_CLIENT_SECRET
 const GITHUB_PAT    = import.meta.env.VITE_GITHUB_PAT ?? '';
-const REPO          = import.meta.env.VITE_GITHUB_REPO ?? 'alexanderdeibel-Fintutto/portal';
+const REPO          = import.meta.env.VITE_GITHUB_REPO ?? 'alexanderdeibel-Fintutto/cloud';
 const WORKFLOW      = 'gmail-sync.yml';
 const CLIENT_ID     = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 const CLIENT_SECRET = import.meta.env.VITE_GOOGLE_CLIENT_SECRET ?? '';
