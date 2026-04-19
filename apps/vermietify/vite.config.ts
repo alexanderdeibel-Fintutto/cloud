@@ -17,6 +17,7 @@ export default defineConfig({
     port: 5174,
     hmr: { overlay: false },
     fs: { allow: [rootDir] },
+    allowedHosts: true,
   },
   preview: {
     host: "0.0.0.0",
