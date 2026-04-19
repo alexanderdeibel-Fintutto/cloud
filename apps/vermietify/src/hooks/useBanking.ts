@@ -106,12 +106,12 @@
        if (!organizationId) return [];
        const { data, error } = await supabase
          .from('bank_accounts')
-         .select('*, connection:finapi_connections!inner(*)')
+         .select('*')
+         .eq('user_id', profile?.id || '')
          .neq('sync_status', 'inactive');
        if (error) throw error;
        // Filter by organization
-       return (data as unknown as Array<BankAccount & { connection: BankConnection }>)
-         .filter(a => a.connection.organization_id === organizationId);
+       return data as unknown as BankAccount[];
      },
      enabled: !!organizationId,
    });
@@ -133,16 +133,16 @@
            .from('bank_transactions')
            .select(`
              *,
-             account:bank_accounts!inner(
-               id, account_name, iban,
-               connection:finapi_connections!inner(organization_id)
+             account:bank_accounts!bank_transactions_bank_account_id_fkey(
+               id, account_name, iban
              ),
              tenant:tenants(first_name, last_name)
            `)
+           .eq('user_id', profile?.id || '')
            .order('booking_date', { ascending: false });
  
          if (filters?.accountId) {
-           query = query.eq('account_id', filters.accountId);
+           query = query.eq('bank_account_id', filters.accountId);
          }
          if (filters?.startDate) {
            query = query.gte('booking_date', filters.startDate);
@@ -163,9 +163,7 @@
          if (error) throw error;
          
          // Filter by organization
-         return (data as unknown as Array<BankTransaction & { 
-           account: { connection: { organization_id: string } } 
-         }>).filter(t => t.account.connection.organization_id === organizationId);
+         return data as unknown as BankTransaction[];
        },
        enabled: !!organizationId,
      });
@@ -340,7 +338,7 @@
    });
  
    // Calculate stats
-   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance_cents, 0);
+   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance_cents || 0), 0);
  
    return {
      connections,
