@@ -25,6 +25,9 @@ interface AddressAutocompleteProps {
   disabled?: boolean;
 }
 
+/** Debounce-Delay für Google Maps Autocomplete (ms) — minimiert API-Kosten */
+const DEBOUNCE_MS = 350;
+
 export function AddressAutocomplete({
   onAddressSelect,
   initialValue = '',
@@ -37,6 +40,10 @@ export function AddressAutocomplete({
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  /** Debounce-Timer für Autocomplete-Initialisierung nach Tipp-Pause */
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Flag: Autocomplete wurde bereits initialisiert */
+  const autocompleteInitializedRef = useRef(false);
 
   const parseAddressComponents = useCallback((place: google.maps.places.PlaceResult): AddressData | null => {
     if (!place.address_components || !place.geometry?.location || !place.place_id) {
@@ -59,7 +66,7 @@ export function AddressAutocomplete({
     const postalCode = getComponent('postal_code');
     const country = getShortComponent('country');
 
-    // Require at least street and city for a valid address
+    // Mindestanforderung: Straße und Stadt
     if (!street || !city) {
       return null;
     }
@@ -77,18 +84,19 @@ export function AddressAutocomplete({
     };
   }, []);
 
-  useEffect(() => {
-    if (!ready || !inputRef.current || autocompleteRef.current) return;
+  /** Autocomplete-Instanz einmalig initialisieren */
+  const initAutocomplete = useCallback(() => {
+    if (!ready || !inputRef.current || autocompleteInitializedRef.current) return;
 
     const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
       types: ['address'],
-      componentRestrictions: { country: ['de', 'at', 'ch'] }, // DACH region
+      componentRestrictions: { country: ['de', 'at', 'ch'] }, // DACH-Region
       fields: ['address_components', 'formatted_address', 'geometry', 'place_id'],
     });
 
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
-      
+
       if (!place.address_components) {
         setError('Bitte wählen Sie eine Adresse aus der Liste');
         setIsValidated(false);
@@ -97,36 +105,55 @@ export function AddressAutocomplete({
       }
 
       const addressData = parseAddressComponents(place);
-      
+
       if (addressData) {
         setInputValue(addressData.formattedAddress);
         setIsValidated(true);
         setError(null);
         onAddressSelect(addressData);
       } else {
-        setError('Ungültige Adresse - bitte vollständige Straße und Stadt angeben');
+        setError('Ungültige Adresse – bitte vollständige Straße und Stadt angeben');
         setIsValidated(false);
         onAddressSelect(null);
       }
     });
 
     autocompleteRef.current = autocomplete;
+    autocompleteInitializedRef.current = true;
+  }, [ready, parseAddressComponents, onAddressSelect]);
+
+  /** Autocomplete beim ersten Fokus oder nach DEBOUNCE_MS Tippzeit initialisieren */
+  useEffect(() => {
+    if (!ready) return;
+    // Sofort initialisieren wenn API bereit ist
+    initAutocomplete();
 
     return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
       if (autocompleteRef.current) {
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, [ready, parseAddressComponents, onAddressSelect]);
+  }, [ready, initAutocomplete]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    // Reset validation when user types manually
+    const newValue = e.target.value;
+    setInputValue(newValue);
+
+    // Validierung zurücksetzen wenn Nutzer tippt
     if (isValidated) {
       setIsValidated(false);
       onAddressSelect(null);
     }
     setError(null);
+
+    // Debounced Re-Initialisierung falls Autocomplete noch nicht aktiv
+    if (!autocompleteInitializedRef.current && ready) {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        initAutocomplete();
+      }, DEBOUNCE_MS);
+    }
   };
 
   const handleBlur = () => {
@@ -160,16 +187,16 @@ export function AddressAutocomplete({
           ref={inputRef}
           id="address-autocomplete"
           type="text"
-          placeholder={ready ? "Straße und Hausnummer eingeben..." : "Lade Google Maps..."}
+          placeholder={ready ? 'Straße und Hausnummer eingeben...' : 'Lade Google Maps...'}
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleBlur}
           disabled={disabled || !ready}
           required={required}
           className={cn(
-            "pl-11 pr-11 h-12 rounded-xl border-border/50 bg-card/80 text-foreground focus:bg-card focus:ring-2 focus:ring-primary/30 transition-all",
-            isValidated && "border-success/50 bg-success/5",
-            error && "border-destructive/50 bg-destructive/5"
+            'pl-11 pr-11 h-12 rounded-xl border-border/50 bg-card/80 text-foreground focus:bg-card focus:ring-2 focus:ring-primary/30 transition-all',
+            isValidated && 'border-success/50 bg-success/5',
+            error && 'border-destructive/50 bg-destructive/5',
           )}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
