@@ -41,7 +41,8 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4",
     "@tanstack/react-query": "^5.17.19",
-    "@fintutto/shared": "workspace:*"
+    "@fintutto/shared": "workspace:*",
+    "@fintutto/ai-chat": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",

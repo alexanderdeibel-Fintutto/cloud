@@ -231,7 +231,7 @@ export default function FormularePage() {
           <RecentToolsWidget
             tools={recentTools}
             pathPrefix="/formulare"
-            renderLink={({ href, children }) => <Link key={href} to={href}>{children}</Link>}
+            renderLink={({ href, children }: { href: string; children: React.ReactNode }) => <Link key={href} to={href}>{children}</Link>}
           />
 
           {/* Filter Chips */}

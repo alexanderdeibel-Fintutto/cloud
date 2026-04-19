@@ -2,7 +2,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { FileSignature, ArrowLeft, Construction } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/card'
 import { useDocumentTitle, useMetaTags, useJsonLd, useKeyboardNav, useUnsavedChanges } from '@fintutto/shared'
-import { toast } from 'sonner'
 
 export default function MietvertragFormular() {
   useDocumentTitle('Mietvertrag erstellen', 'Fintutto Vermieter')
@@ -21,7 +20,7 @@ export default function MietvertragFormular() {
   })
   const navigate = useNavigate()
   useKeyboardNav({ onEscape: () => navigate('/formulare') })
-  const { setDirty } = useUnsavedChanges()
+  const { setDirty: _setDirty } = useUnsavedChanges()
   return (
     <div>
       <section className="gradient-vermieter py-12">

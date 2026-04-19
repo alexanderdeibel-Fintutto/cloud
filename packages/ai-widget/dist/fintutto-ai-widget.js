@@ -3,7 +3,7 @@
  *
  * Einbinden mit einem Script-Tag in JEDER App:
  * <script src="https://your-cdn.com/fintutto-ai-widget.js"
- *         data-app-id="vermieterportal"
+ *         data-app-id="vermieter-portal"
  *         data-supabase-url="https://xxx.supabase.co"
  *         data-supabase-key="eyJ..."></script>
  */
@@ -24,7 +24,8 @@
   // App-spezifische Defaults
   const APP_CONFIGS = {
     mieterportal: { title: 'Mieter-Assistent', color: '#10b981', placeholder: 'Frag mich zu Mietrecht...', duForm: true },
-    vermieterportal: { title: 'Vermieter-Assistent', color: '#6366f1', placeholder: 'Frag mich zu Verwaltung...', duForm: false },
+    'vermieter-portal': { title: 'Vermieter-Assistent', color: '#7c3aed', placeholder: 'Frag mich zu Rechnern, Formularen...', duForm: true },
+    vermieterportal: { title: 'Vermieter-Assistent', color: '#6366f1', placeholder: 'Frag mich zu Verwaltung...', duForm: false }, // Legacy-Alias -> vermieter-portal
     vermietify: { title: 'Vermietify Assistent', color: '#6366f1', placeholder: 'Wie kann ich helfen?', duForm: false },
     mieterapp: { title: 'Wohn-Assistent', color: '#10b981', placeholder: 'Was kann ich fuer dich tun?', duForm: true },
     formulare: { title: 'Formulare Assistent', color: '#8b5cf6', placeholder: 'Welches Dokument?', duForm: false },

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { supabase } from '@/integrations/supabase/client'
 import {
   ArrowLeft,
   ThumbsUp,
@@ -129,13 +130,42 @@ export default function ForumTopicPage() {
   const replies = DEMO_REPLIES
 
   const handleReply = async () => {
-    if (!replyText.trim() || !forumCheck.allowed) return
+    if (!replyText.trim() || !forumCheck.allowed || !_topicId) return
     setIsSubmitting(true)
-    // TODO: Save to Supabase
-    setTimeout(() => {
-      setReplyText('')
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single()
+
+      const authorName = profile?.first_name
+        ? `${profile.first_name} ${profile.last_name || ''}`.trim()
+        : (user.email?.split('@')[0] ?? 'Anonym')
+
+      const { error } = await supabase
+        .from('amt_forum_replies')
+        .insert({
+          post_id: _topicId,
+          user_id: user.id,
+          author_name: authorName,
+          content: replyText.trim(),
+        })
+
+      if (!error) {
+        setReplyText('')
+      } else {
+        console.error('Reply error:', error)
+      }
+    } catch (err) {
+      console.error('Unexpected reply error:', err)
+    } finally {
       setIsSubmitting(false)
-    }, 500)
+    }
   }
 
   return (
