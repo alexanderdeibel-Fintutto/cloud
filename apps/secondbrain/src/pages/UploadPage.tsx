@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import DocumentUpload from '@/components/documents/DocumentUpload'
 import { useUploadDocument } from '@/hooks/useDocuments'
+import { useOcrUsage } from '@/hooks/useOcrUsage'
 import { supabase } from '@/integrations/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
@@ -81,6 +82,7 @@ export default function UploadPage() {
   const [entityContext, setEntityContext] = useState<EntityContext | null>(null)
   const [isResolvingLabel, setIsResolvingLabel] = useState(false)
   const [enableOcr, setEnableOcr] = useState(false)
+  const { tierSupportsOcr, ocrLimit, ocrUsed, ocrRemaining } = useOcrUsage()
 
   // URL-Kontext-Parameter auslesen: ?context=building&id=<uuid>
   useEffect(() => {
@@ -177,6 +179,10 @@ export default function UploadPage() {
         onUpload={handleUpload}
         enableOcr={enableOcr}
         onOcrToggle={setEnableOcr}
+        tierSupportsOcr={tierSupportsOcr}
+        ocrLimit={ocrLimit}
+        ocrUsed={ocrUsed}
+        ocrRemaining={ocrRemaining}
       />
 
       {/* Features */}
