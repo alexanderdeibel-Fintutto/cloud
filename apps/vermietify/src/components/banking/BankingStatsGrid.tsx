@@ -8,7 +8,7 @@ interface BankingStatsGridProps {
   unmatchedCount: number;
   monthlyTransactionsCount: number;
   connectionsCount: number;
-  formatCurrency: (cents: number) => string;
+  formatCurrency: (amount: number) => string;
 }
 
 export function BankingStatsGrid({

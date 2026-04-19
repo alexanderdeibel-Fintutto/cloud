@@ -75,16 +75,17 @@ export default function BankingDashboard() {
   
   const incomeThisMonth = monthlyTransactions
     .filter(t => t.amount_cents > 0)
-    .reduce((sum, t) => sum + t.amount_cents, 0);
+    .reduce((sum, t) => sum + t.amount_cents / 100, 0);
   
   const expensesThisMonth = monthlyTransactions
     .filter(t => t.amount_cents < 0)
-    .reduce((sum, t) => sum + Math.abs(t.amount_cents), 0);
+    .reduce((sum, t) => sum + Math.abs(t.amount_cents) / 100, 0);
   
   const unmatchedCount = transactions.filter(t => t.match_status === 'unmatched').length;
 
-  const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+  const formatCurrency = (amount: number) => {
+    // balance ist in Euro (DECIMAL), nicht in Cents
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   if (isLoading) return <MainLayout title="Banking"><LoadingState /></MainLayout>;
@@ -202,7 +203,7 @@ export default function BankingDashboard() {
             </CardHeader>
             <CardContent>
               {(() => {
-                let runningBalance = totalBalance / 100;
+                let runningBalance = totalBalance;
                 const balanceData = Array.from({ length: 6 }, (_, i) => {
                   const date = subMonths(new Date(), i);
                   const monthStr = format(date, "MMM", { locale: de });
@@ -266,7 +267,7 @@ export default function BankingDashboard() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {accounts.map((account) => {
-                const connection = connections.find(c => c.id === account.connection_id);
+                const connection = connections.find(c => c.id === account.finapi_connection_id);
                 const status = statusConfig[connection?.status || 'pending'];
                 
                 return (
@@ -277,7 +278,7 @@ export default function BankingDashboard() {
                     status={status}
                     formatCurrency={formatCurrency}
                     onSync={() => syncTransactions.mutate({ accountId: account.id })}
-                    onDelete={() => setDeleteConnectionId(account.connection_id)}
+                    onDelete={() => setDeleteConnectionId(account.finapi_connection_id || '')}
                     isSyncing={syncTransactions.isPending}
                   />
                 );

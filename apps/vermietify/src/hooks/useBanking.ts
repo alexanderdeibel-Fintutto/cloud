@@ -20,15 +20,22 @@
  
  export interface BankAccount {
    id: string;
-   connection_id: string;
+   user_id: string;
+   finapi_connection_id: string | null;
    finapi_account_id: string | null;
    iban: string;
+   iban_masked: string | null;
+   bank_name: string | null;
+   bank_bic: string | null;
    account_name: string;
    account_type: 'checking' | 'savings' | 'credit_card' | 'loan' | 'securities' | 'other';
-   balance_cents: number;
-   balance_date: string | null;
-   currency: string;
-   is_active: boolean;
+   balance: number;
+   balance_currency: string;
+   balance_updated_at: string | null;
+   sync_status: string | null;
+   sync_error_message: string | null;
+   is_primary: boolean;
+   auto_sync_enabled: boolean;
    created_at: string;
    updated_at: string;
    connection?: BankConnection;
@@ -343,7 +350,7 @@
    });
  
    // Calculate stats
-   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance_cents || 0), 0);
+   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
  
    return {
      connections,
