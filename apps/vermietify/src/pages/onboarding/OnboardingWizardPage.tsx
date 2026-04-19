@@ -74,7 +74,7 @@ function StepProfile({ onNext, isLoading }: StepProps) {
       const { error } = await supabase
         .from("profiles")
         .update({ first_name: firstName, last_name: lastName })
-        .eq("user_id", user?.id);
+        .eq("id", user?.id);
 
       if (error) throw error;
 
@@ -635,7 +635,7 @@ function StepComplete() {
     await supabase
       .from("profiles")
       .update({ onboarding_completed: true })
-      .eq("user_id", user?.id);
+      .eq("id", user?.id);
 
     navigate("/dashboard");
   };
