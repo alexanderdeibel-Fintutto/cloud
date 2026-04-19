@@ -8,5 +8,6 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- . ../../packages/shared/src/ || exit 1"
 }
