@@ -135,8 +135,7 @@
              *,
              account:bank_accounts!bank_transactions_bank_account_id_fkey(
                id, account_name, iban
-             ),
-             tenant:tenants(first_name, last_name)
+             )
            `)
            .eq('user_id', profile?.id || '')
            .order('booking_date', { ascending: false });
