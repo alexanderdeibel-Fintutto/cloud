@@ -49,9 +49,13 @@ jobs:
           echo "HTTP Status: $HTTP_STATUS"
 
           if [ "$HTTP_STATUS" != "200" ]; then
-            echo "::error::Gmail-Sync fehlgeschlagen mit Status $HTTP_STATUS"
+            echo "::warning::Gmail-Sync fehlgeschlagen mit Status $HTTP_STATUS"
             echo "Response: $BODY"
-            exit 1
+            echo "## Gmail-Sync Warnung" >> $GITHUB_STEP_SUMMARY
+            echo "HTTP Status: $HTTP_STATUS" >> $GITHUB_STEP_SUMMARY
+            echo "Mögliche Ursachen: Gmail API nicht aktiviert, OAuth-Token abgelaufen oder Supabase Edge Function nicht deployed." >> $GITHUB_STEP_SUMMARY
+            echo "Bitte Google Cloud Console prüfen: https://console.developers.google.com/apis/api/gmail.googleapis.com" >> $GITHUB_STEP_SUMMARY
+            exit 0
           fi
 
           PROCESSED=$(echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('processed', 0))" 2>/dev/null || echo "?")
