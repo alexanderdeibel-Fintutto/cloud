@@ -34,11 +34,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
 
-// ── Supabase-Client ──────────────────────────────────────────────────────────
-
-
-})
-
 // ── Typen ────────────────────────────────────────────────────────────────────
 
 interface Meter {

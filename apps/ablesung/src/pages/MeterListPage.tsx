@@ -30,11 +30,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-// ── Supabase-Client ──────────────────────────────────────────────────────────
-
-
-})
-
 // ── Typen ────────────────────────────────────────────────────────────────────
 
 type MeterType = 'electricity' | 'gas' | 'water_cold' | 'water_hot' | 'heating' | 'other'
