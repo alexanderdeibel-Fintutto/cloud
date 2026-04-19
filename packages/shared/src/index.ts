@@ -117,14 +117,28 @@ export * from './deeplinks'
 // Components
 export { ErrorBoundary } from './components/ErrorBoundary'
 export { PageSkeleton } from './components/PageSkeleton'
-export { CommandPalette, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export { CommandPalette, PORTAL_TOOLS, CHECKER_TOOLS, ECOSYSTEM_TOOLS } from './components/CommandPalette'
+export { PrintStyles } from './components/PrintStyles'
 export { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
 export { EcosystemStatsBar } from './components/EcosystemStatsBar'
+export { ShareResultButton } from './components/ShareResultButton'
+export { CrossAppRecommendations } from './components/CrossAppRecommendations'
+export { Breadcrumbs } from './components/Breadcrumbs'
+export { RecentToolsWidget } from './components/RecentToolsWidget'
+export { AnnouncementBanner } from './components/AnnouncementBanner'
 
 // Hooks
 export { useDocumentTitle } from './hooks/useDocumentTitle'
 export { useMetaTags } from './hooks/useMetaTags'
 export { useScrollToTop } from './hooks/useScrollToTop'
+export { useJsonLd } from './hooks/useJsonLd'
+export { useKeyboardNav } from './hooks/useKeyboardNav'
+export { useUnsavedChanges } from './hooks/useUnsavedChanges'
+export { useRecentTools } from './hooks/useRecentTools'
+export { useLocalStorage } from './hooks/useLocalStorage'
+export { useDebounce, useDebouncedCallback } from './hooks/useDebounce'
+export { useShareResult } from './hooks/useShareResult'
+export { useEntitlements } from './hooks/useEntitlements'
 
 // ─── Workspace / Multi-Tenancy ────────────────────────────────────────────────
 // Universeller Workspace-Hook (Financial Compass = company, Vermietify = organization)

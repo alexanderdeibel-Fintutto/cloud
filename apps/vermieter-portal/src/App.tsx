@@ -87,7 +87,7 @@ function App() {
         <Toaster />
         {/* KI-Assistent - auf allen Seiten verfuegbar (uebernommen aus vermieterportal) */}
         <FintuttoAIChat
-          appId="vermieter-portal"
+          appId="vermieterportal"
           supabaseClient={supabase}
           userTier="free"
         />

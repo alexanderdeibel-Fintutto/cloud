@@ -2,12 +2,12 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import {
   UserCredits,
   PlanType,
-  PLANS,
   ActionType,
   canPerformAction,
   canUseAI,
   CREDIT_COSTS,
 } from '../lib/credits'
+import { ALL_PLANS } from '../../../../packages/shared/src/credits'
 import { supabase } from '../integrations/supabase'
 
 interface CreditsContextType {
@@ -108,7 +108,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     const check = canPerformAction(credits, actionType, includePdf)
     if (!check.allowed) return false
 
-    const plan = PLANS[credits.plan]
+    const plan = ALL_PLANS[credits.plan]
     if (plan.monthlyCredits === -1) return true // Unlimited — kein Abzug
 
     const newRemaining = credits.creditsRemaining - check.cost
@@ -151,7 +151,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     const check = canUseAI(credits)
     if (!check.allowed) return false
 
-    const plan = PLANS[credits.plan]
+    const plan = ALL_PLANS[credits.plan]
     if (plan.aiMessages === -1) return true // Unlimited
 
     const newRemaining = credits.aiMessagesRemaining - 1
