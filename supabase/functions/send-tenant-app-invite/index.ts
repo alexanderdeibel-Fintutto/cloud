@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     const { data: profile } = await admin
       .from("profiles")
       .select("organization_id")
-      .eq("user_id", user.id)
+      .eq("id", user.id)
       .single();
 
     if (!profile?.organization_id) {

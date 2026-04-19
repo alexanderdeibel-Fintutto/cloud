@@ -1,10 +1,13 @@
 import { MainLayout } from "@/components/layout/MainLayout";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet, TrendingUp, TrendingDown, Plus, Download, Filter } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ManualAccountDialog } from "@/components/banking/ManualAccountDialog";
 
 export default function Finances() {
+  const [accountDialogOpen, setAccountDialogOpen] = useState(false);
   return (
     <MainLayout title="Finanzen">
       <div className="space-y-6">
@@ -123,7 +126,7 @@ export default function Finances() {
                   <p className="text-muted-foreground mb-4">
                     Verknüpfen Sie ein Bankkonto für automatische Zuordnung
                   </p>
-                  <Button>
+                  <Button onClick={() => setAccountDialogOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" />
                     Bankkonto hinzufügen
                   </Button>
@@ -155,6 +158,10 @@ export default function Finances() {
           </TabsContent>
         </Tabs>
       </div>
+      <ManualAccountDialog
+        open={accountDialogOpen}
+        onOpenChange={setAccountDialogOpen}
+      />
     </MainLayout>
   );
 }

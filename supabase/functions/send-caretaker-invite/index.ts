@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     const { data: profile } = await admin
       .from("profiles")
       .select("organization_id")
-      .eq("user_id", user.id)
+      .eq("id", user.id)
       .single();
     if (!profile?.organization_id) {
       return new Response(JSON.stringify({ error: "Keine Organisation gefunden" }), {
@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
             const { data: caretakerProfile } = await admin
               .from("profiles")
               .select("id, user_id")
-              .eq("user_id", existingUser.id)
+              .eq("id", existingUser.id)
               .maybeSingle();
 
             if (caretakerProfile) {

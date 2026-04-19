@@ -294,7 +294,6 @@ export default function Properties() {
                         placeholder="12345"
                         value={newBuilding.postal_code}
                         onChange={(e) => setNewBuilding({ ...newBuilding, postal_code: e.target.value })}
-                        disabled={isAddressValidated}
                         required
                       />
                     </div>
@@ -305,7 +304,6 @@ export default function Properties() {
                         placeholder="Berlin"
                         value={newBuilding.city}
                         onChange={(e) => setNewBuilding({ ...newBuilding, city: e.target.value })}
-                        disabled={isAddressValidated}
                         required
                       />
                     </div>
@@ -355,7 +353,7 @@ export default function Properties() {
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Abbrechen
                   </Button>
-                  <Button type="submit" disabled={isSubmitting || !isAddressValidated}>
+                  <Button type="submit" disabled={isSubmitting || (!isAddressValidated && (!newBuilding.address || !newBuilding.postal_code || !newBuilding.city))}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Anlegen
                   </Button>
