@@ -62,7 +62,7 @@ export default defineConfig({
             id.includes("node_modules/clsx/") ||
             id.includes("node_modules/tailwind-merge/") ||
             id.includes("node_modules/next-themes/")
-          ) return "vendor-ui-v2";
+          ) return "vendor-ui-v3";
 
           // Schwere Vendor-Bibliotheken für besseres Caching
           if (
