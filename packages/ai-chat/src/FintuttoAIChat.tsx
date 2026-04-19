@@ -13,7 +13,7 @@ export interface AIMessage {
 
 export interface FintuttoAIChatConfig {
   /** App identifier for backend routing */
-  appId: "mieterportal" | "vermieterportal" | "vermietify" | "mieterapp" | "formulare" | "rechner" | "betriebskosten" | "hausmeister" | "mietrecht" | "checker" | "admin";
+  appId: "mieterportal" | "vermieter-portal" | "vermieterportal" | "vermietify" | "mieterapp" | "formulare" | "rechner" | "betriebskosten" | "hausmeister" | "mietrecht" | "checker" | "admin";
   /** Display title in chat header */
   title?: string;
   /** Primary brand color (hex) */
@@ -43,6 +43,13 @@ const APP_DEFAULTS: Record<string, { title: string; primaryColor: string; placeh
     placeholder: "Frag mich zu Mietrecht, Nebenkosten...",
     welcomeMessage: "Hallo! Ich bin dein Wohn-Assistent. Wie kann ich dir helfen?",
   },
+  'vermieter-portal': {
+    title: "Vermieter-Assistent",
+    primaryColor: "#7c3aed",
+    placeholder: "Frag mich zu Rechnern, Formularen, Mietrecht...",
+    welcomeMessage: "Hallo! Ich helfe dir mit Rechnern, Formularen und Mietrecht-Fragen.",
+  },
+  // Legacy-Alias
   vermieterportal: {
     title: "Vermieter-Assistent",
     primaryColor: "#6366f1",
