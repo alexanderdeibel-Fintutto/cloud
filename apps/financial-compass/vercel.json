@@ -1,8 +1,7 @@
 {
   "framework": "vite",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- . ../../packages/shared/src/ || exit 1",
-  "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm --filter @fintutto/financial-compass build",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run build",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
