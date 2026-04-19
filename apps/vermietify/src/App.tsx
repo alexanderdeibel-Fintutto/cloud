@@ -198,6 +198,9 @@ import ListingsManagement from "./pages/listings/ListingsManagement";
 // Offer Pages
 import OfferList from "./pages/offers/OfferList";
 import NewOffer from "./pages/offers/NewOffer";
+
+// Onboarding Pages
+import OnboardingWizardPage from "./pages/onboarding/OnboardingWizardPage";
 import OfferDetail from "./pages/offers/OfferDetail";
 import KduRatesManagement from "./pages/offers/KduRatesManagement";
 
