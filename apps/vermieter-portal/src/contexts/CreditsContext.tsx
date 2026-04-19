@@ -8,6 +8,7 @@ import {
   canUseAI,
   CREDIT_COSTS,
 } from '../lib/credits'
+import { supabase } from '../integrations/supabase'
 
 interface CreditsContextType {
   credits: UserCredits | null
@@ -21,14 +22,13 @@ interface CreditsContextType {
 
 const CreditsContext = createContext<CreditsContextType | undefined>(undefined)
 
-// Mock user credits for development - will be replaced with Supabase
-function getMockUserCredits(): UserCredits {
+// Fallback-Credits wenn Supabase nicht verfügbar oder Nutzer nicht eingeloggt
+function getFallbackCredits(userId: string): UserCredits {
   const now = new Date()
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-
   return {
-    userId: 'mock-user-id',
+    userId,
     plan: 'free',
     creditsRemaining: 3,
     aiMessagesRemaining: 0,
@@ -42,23 +42,48 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Load credits on mount
     loadCredits()
+    // Credits neu laden wenn Auth-Status sich ändert
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadCredits()
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   async function loadCredits() {
     setIsLoading(true)
     try {
-      // TODO: Replace with Supabase query
-      // const { data, error } = await supabase
-      //   .from('user_credits')
-      //   .select('*')
-      //   .eq('user_id', userId)
-      //   .single()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setCredits(null)
+        return
+      }
 
-      // For now, use mock data
-      const mockCredits = getMockUserCredits()
-      setCredits(mockCredits)
+      // Aus Supabase laden
+      const { data, error } = await supabase
+        .from('vermieter_user_credits')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (error || !data) {
+        // Noch kein Eintrag: automatisch initialisieren
+        await supabase.rpc('init_vermieter_credits', {
+          p_user_id: user.id,
+          p_plan: 'free',
+        })
+        setCredits(getFallbackCredits(user.id))
+        return
+      }
+
+      setCredits({
+        userId: data.user_id,
+        plan: data.plan as PlanType,
+        creditsRemaining: data.credits_remaining,
+        aiMessagesRemaining: data.ai_messages_remaining,
+        periodStart: new Date(data.period_start),
+        periodEnd: new Date(data.period_end),
+      })
     } catch (error) {
       console.error('Failed to load credits:', error)
     } finally {
@@ -83,23 +108,32 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     const check = canPerformAction(credits, actionType, includePdf)
     if (!check.allowed) return false
 
-    // Update local state
+    const plan = PLANS[credits.plan]
+    if (plan.monthlyCredits === -1) return true // Unlimited — kein Abzug
+
+    const newRemaining = credits.creditsRemaining - check.cost
+
+    // Lokalen State sofort aktualisieren (optimistic update)
     setCredits((prev) => {
       if (!prev) return prev
-      const plan = PLANS[prev.plan]
-      if (plan.monthlyCredits === -1) return prev // Unlimited
-
-      return {
-        ...prev,
-        creditsRemaining: prev.creditsRemaining - check.cost,
-      }
+      return { ...prev, creditsRemaining: newRemaining }
     })
 
-    // TODO: Update in Supabase
-    // await supabase
-    //   .from('user_credits')
-    //   .update({ credits_remaining: credits.creditsRemaining - check.cost })
-    //   .eq('user_id', credits.userId)
+    // In Supabase persistieren
+    try {
+      await supabase
+        .from('vermieter_user_credits')
+        .update({ credits_remaining: newRemaining })
+        .eq('user_id', credits.userId)
+    } catch (e) {
+      console.error('Failed to update credits in Supabase:', e)
+      // Rollback bei Fehler
+      setCredits((prev) => {
+        if (!prev) return prev
+        return { ...prev, creditsRemaining: credits.creditsRemaining }
+      })
+      return false
+    }
 
     return true
   }
@@ -120,20 +154,29 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     const plan = PLANS[credits.plan]
     if (plan.aiMessages === -1) return true // Unlimited
 
-    // Update local state
+    const newRemaining = credits.aiMessagesRemaining - 1
+
+    // Lokalen State sofort aktualisieren (optimistic update)
     setCredits((prev) => {
       if (!prev) return prev
-      return {
-        ...prev,
-        aiMessagesRemaining: prev.aiMessagesRemaining - 1,
-      }
+      return { ...prev, aiMessagesRemaining: newRemaining }
     })
 
-    // TODO: Update in Supabase
-    // await supabase
-    //   .from('user_credits')
-    //   .update({ ai_messages_remaining: credits.aiMessagesRemaining - 1 })
-    //   .eq('user_id', credits.userId)
+    // In Supabase persistieren
+    try {
+      await supabase
+        .from('vermieter_user_credits')
+        .update({ ai_messages_remaining: newRemaining })
+        .eq('user_id', credits.userId)
+    } catch (e) {
+      console.error('Failed to update AI messages in Supabase:', e)
+      // Rollback bei Fehler
+      setCredits((prev) => {
+        if (!prev) return prev
+        return { ...prev, aiMessagesRemaining: credits.aiMessagesRemaining }
+      })
+      return false
+    }
 
     return true
   }

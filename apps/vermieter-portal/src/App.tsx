@@ -2,9 +2,11 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ErrorBoundary, PageSkeleton } from '@fintutto/shared'
+import { FintuttoAIChat } from '@fintutto/ai-chat'
 import { Toaster } from './components/ui/toaster'
 import { CreditsProvider } from './contexts/CreditsContext'
 import { AuthProvider } from './contexts/AuthContext'
+import { supabase } from './integrations/supabase'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,6 +85,12 @@ function App() {
         </Routes>
         </Suspense>
         <Toaster />
+        {/* KI-Assistent - auf allen Seiten verfuegbar (uebernommen aus vermieterportal) */}
+        <FintuttoAIChat
+          appId="vermieter-portal"
+          supabaseClient={supabase}
+          userTier="free"
+        />
       </BrowserRouter>
     </CreditsProvider>
     </AuthProvider>

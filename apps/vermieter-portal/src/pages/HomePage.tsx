@@ -349,6 +349,37 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* Schnellzugriff (uebernommen aus vermieterportal) */}
+      {user && (
+        <section className="py-10 border-b border-border">
+          <div className="container">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-fintutto-purple-600" />
+              Schnellzugriff
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[
+                { name: 'Kautions-Rechner', href: '/rechner/kaution', icon: PiggyBank },
+                { name: 'Mieterhöhung', href: '/rechner/mieterhoehung', icon: TrendingUp },
+                { name: 'NK-Abrechnung', href: '/formulare/betriebskosten', icon: Receipt },
+                { name: 'Mietvertrag', href: '/formulare/mietvertrag', icon: FileSignature },
+                { name: 'Übergabeprotokoll', href: '/formulare/uebergabeprotokoll', icon: ClipboardList },
+                { name: 'Rendite-Rechner', href: '/rechner/rendite', icon: Calculator },
+              ].map((action) => (
+                <Link
+                  key={action.name}
+                  to={action.href}
+                  className="flex flex-col items-center p-4 rounded-xl border bg-card hover:shadow-md hover:border-primary/30 transition-all group"
+                >
+                  <action.icon className="h-8 w-8 text-fintutto-purple-600 mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm text-center font-medium">{action.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Ecosystem Teaser */}
       <section className="py-16 bg-muted/30">
         <div className="container">
