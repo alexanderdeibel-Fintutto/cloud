@@ -1,7 +1,7 @@
 {
   "framework": "vite",
   "installCommand": "pnpm install",
-  "buildCommand": "cd ../.. && pnpm install && pnpm --filter landing build",
+  "buildCommand": "cd ../.. && pnpm install && pnpm --filter @fintutto/cloud-landing build",
   "outputDirectory": "dist",
   "rewrites": [
     {
