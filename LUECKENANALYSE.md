@@ -24,7 +24,7 @@ In `apps/ams/src/pages/GrowthDashboard.tsx` fehlen in den Mapping-Objekten (`app
 - `fintutto-portal`
 - `translator`
 - `vermieter-portal`
-- `vermieterportal`
+- ~~`vermieterportal`~~ ✅ entfernt (konsolidiert in `vermieter-portal`)
 
 **Auswirkung:** Die Daten dieser Apps werden zwar aggregiert, erscheinen im Dashboard aber unter ihrem rohen ID-Namen und mit einer grauen Standardfarbe (`#94a3b8`), was die Lesbarkeit der Diagramme einschränkt.
 
@@ -44,7 +44,7 @@ Das Repository enthält 24 App-Ordner, von denen 10 sogenannte "Stub"-Apps sind.
 - `vermieter-freude`
 
 **Doppelte Apps:**
-Es gibt sowohl `vermieter-portal` als auch `vermieterportal`. Beide haben eine React-Struktur und Supabase-Integration. Hier sollte eine Konsolidierung stattfinden, um doppelten Code zu vermeiden.
+✅ **Erledigt (19.04.2026):** `vermieterportal` wurde vollständig in `vermieter-portal` konsolidiert und aus dem Repo entfernt.
 
 ## 4. Wichtige offene TODOs im Code
 
@@ -75,4 +75,4 @@ Wenn wir weiterarbeiten, empfehle ich folgende Priorisierung:
 1. **Sicherheit:** RLS-Policies für alle Tabellen aus Migration 004-006 verifizieren und ggf. ergänzen.
 2. **Sichtbarkeit:** Die 5 neuen Apps in die `appColorMap` und `appLabelMap` des AMS Growth Dashboards eintragen.
 3. **Funktionalität:** Die Supabase-Speicherung für das Arbeitslos-Portal-Forum und das Credits-System im Vermieter-Portal implementieren.
-4. **Architektur:** Die doppelte Struktur von `vermieter-portal` und `vermieterportal` auflösen.
+4. ✅ ~~**Architektur:** Die doppelte Struktur von `vermieter-portal` und `vermieterportal` auflösen.~~ **Erledigt (19.04.2026)**
