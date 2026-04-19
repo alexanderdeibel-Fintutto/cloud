@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Upload, FileText, Image, File, X, Loader2 } from 'lucide-react'
+import { Upload, FileText, Image, File, X, Loader2, Brain, Info } from 'lucide-react'
 import { cn, formatFileSize, getFileType } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -14,7 +14,9 @@ interface UploadFile {
 }
 
 interface DocumentUploadProps {
-  onUpload: (files: File[]) => Promise<void>
+  onUpload: (files: File[], enableOcr: boolean) => Promise<void>
+  enableOcr?: boolean
+  onOcrToggle?: (enabled: boolean) => void
   maxFiles?: number
   maxSize?: number
 }
@@ -26,7 +28,13 @@ const fileTypeIcons: Record<string, typeof FileText> = {
   other: File,
 }
 
-export default function DocumentUpload({ onUpload, maxFiles = 10, maxSize = 50 * 1024 * 1024 }: DocumentUploadProps) {
+export default function DocumentUpload({
+  onUpload,
+  enableOcr = false,
+  onOcrToggle,
+  maxFiles = 10,
+  maxSize = 50 * 1024 * 1024,
+}: DocumentUploadProps) {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
@@ -72,7 +80,7 @@ export default function DocumentUpload({ onUpload, maxFiles = 10, maxSize = 50 *
     }
 
     try {
-      await onUpload(filesToUpload)
+      await onUpload(filesToUpload, enableOcr)
       setUploadFiles((prev) =>
         prev.map((f) => ({ ...f, status: 'complete' as const, progress: 100 }))
       )
@@ -113,6 +121,61 @@ export default function DocumentUpload({ onUpload, maxFiles = 10, maxSize = 50 *
           </Button>
         </div>
       </div>
+
+      {/* OCR-Option Toggle */}
+      {onOcrToggle && (
+        <div
+          className={cn(
+            'flex items-start gap-3 p-4 rounded-xl border transition-colors cursor-pointer select-none',
+            enableOcr
+              ? 'border-primary/40 bg-primary/5'
+              : 'border-border bg-muted/30 hover:bg-muted/50'
+          )}
+          onClick={() => onOcrToggle(!enableOcr)}
+          role="checkbox"
+          aria-checked={enableOcr}
+          tabIndex={0}
+          onKeyDown={(e) => e.key === ' ' && onOcrToggle(!enableOcr)}
+        >
+          {/* Custom Checkbox */}
+          <div
+            className={cn(
+              'mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+              enableOcr
+                ? 'bg-primary border-primary'
+                : 'border-muted-foreground/40 bg-background'
+            )}
+          >
+            {enableOcr && (
+              <svg className="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <Brain className={cn('w-4 h-4', enableOcr ? 'text-primary' : 'text-muted-foreground')} />
+              <span className={cn('text-sm font-medium', enableOcr ? 'text-foreground' : 'text-muted-foreground')}>
+                KI-Texterkennung (OCR) aktivieren
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              {enableOcr
+                ? 'Text wird aus PDFs und Bildern extrahiert und für die Volltextsuche indexiert.'
+                : 'Dokument wird ohne Textanalyse gespeichert — schneller und kostengünstiger.'}
+            </p>
+          </div>
+
+          {/* Info-Badge */}
+          <div className="flex items-center gap-1 shrink-0">
+            <Info className="w-3.5 h-3.5 text-muted-foreground/60" />
+            <span className="text-[10px] text-muted-foreground/60 font-mono">
+              ~€0.02/Seite
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* File List */}
       {uploadFiles.length > 0 && (
@@ -159,6 +222,9 @@ export default function DocumentUpload({ onUpload, maxFiles = 10, maxSize = 50 *
               <>
                 <Upload className="w-4 h-4 mr-2" />
                 {uploadFiles.length} {uploadFiles.length === 1 ? 'Datei' : 'Dateien'} hochladen
+                {enableOcr && (
+                  <span className="ml-2 text-xs opacity-70">+ OCR</span>
+                )}
               </>
             )}
           </Button>
