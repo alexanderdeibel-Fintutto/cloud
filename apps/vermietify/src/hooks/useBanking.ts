@@ -240,12 +240,18 @@
        createRule?: boolean;
        ruleConditions?: Array<{ field: string; operator: string; value: string }>;
      }) => {
-       const { data, error } = await supabase.functions.invoke('auto-match-transactions', {
-         body: params,
-       });
+       // Direct DB update instead of Edge Function (avoids JWT algorithm mismatch)
+       const updateData: Record<string, unknown> = {
+         match_status: 'manual',
+       };
+       if (params.tenantId) updateData.matched_tenant_id = params.tenantId;
+       if (params.leaseId) updateData.matched_lease_id = params.leaseId;
+       const { error } = await supabase
+         .from('bank_transactions')
+         .update(updateData)
+         .eq('id', params.transactionId);
        if (error) throw error;
-       if (!data.success) throw new Error(data.error);
-       return data;
+       return { success: true };
      },
      onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['bank-transactions'] });
