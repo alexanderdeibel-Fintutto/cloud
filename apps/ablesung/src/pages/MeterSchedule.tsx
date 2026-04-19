@@ -51,7 +51,7 @@ export default function MeterSchedule() {
       if (filterBuilding !== 'all' && b.id !== filterBuilding) return;
 
       const processMeter = (m: MeterWithReadings) => {
-        const lastDate = m.lastReading?.reading_date || null;
+        const lastDate = m.lastReading?.reading_date ?? undefined;
         const status = getReadingStatus(lastDate, config.interval_days);
         const nextDate = lastDate
           ? format(addDays(new Date(lastDate), config.interval_days), 'yyyy-MM-dd')

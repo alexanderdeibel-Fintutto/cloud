@@ -206,7 +206,7 @@ export default function MeterQRCodeGenerator() {
                   <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${selectedMeters.has(label.meterId) ? 'bg-primary border-primary' : 'border-muted-foreground/30'}`}>
                     {selectedMeters.has(label.meterId) && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
-                  <MeterIcon meterType={label.meterType} className="w-4 h-4 shrink-0" />
+                  <MeterIcon type={label.meterType} className="w-4 h-4 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{label.meterNumber}</p>
                     <p className="text-xs text-muted-foreground truncate">{METER_TYPE_LABELS[label.meterType]} | {label.location}</p>

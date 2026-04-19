@@ -27,7 +27,7 @@ export function useBuildings() {
       if (!user || !profile?.organization_id) return [];
 
       // Fetch buildings
-      const { data: buildingsData, error: buildingsError } = await supabase
+      const { data: buildingsData, error: buildingsError } = await (supabase as any)
         .from('buildings')
         .select('*')
         .eq('organization_id', profile.organization_id)
@@ -39,7 +39,7 @@ export function useBuildings() {
       const buildingIds = buildingsData.map(b => b.id);
 
       // Fetch units
-      const { data: unitsData, error: unitsError } = await supabase
+      const { data: unitsData, error: unitsError } = await (supabase as any)
         .from('units')
         .select('*')
         .in('building_id', buildingIds);
@@ -50,7 +50,7 @@ export function useBuildings() {
 
       // Fetch meters via units
       const { data: metersData, error: metersError } = unitIds.length > 0
-        ? await supabase
+        ? await (supabase as any)
             .from('meters')
             .select('*')
             .in('unit_id', unitIds)
@@ -61,7 +61,7 @@ export function useBuildings() {
       const meterIds = (metersData || []).map(m => m.id);
 
       // Fetch readings
-      const { data: readingsData, error: readingsError } = await supabase
+      const { data: readingsData, error: readingsError } = await (supabase as any)
         .from('meter_readings')
         .select('*')
         .in('meter_id', meterIds)
@@ -88,7 +88,7 @@ export function useBuildings() {
 
       // Combine data
       const result: BuildingWithUnits[] = (buildingsData as Building[]).map(building => {
-        const buildingUnits = (unitsData as Unit[] || []).filter(u => u.building_id === building.id);
+        const buildingUnits = (unitsData as unknown as Unit[] || []).filter(u => u.building_id === building.id);
 
         const unitsWithMeters: UnitWithMeters[] = buildingUnits.map(unit => {
           const unitMeters = (metersData as Meter[] || []).filter(m => m.unit_id === unit.id);
@@ -121,7 +121,7 @@ export function useBuildings() {
     mutationFn: async (data: Omit<Building, 'id' | 'created_at' | 'updated_at' | 'organization_id'>) => {
       if (!profile?.organization_id) throw new Error('No organization');
 
-      const { data: newBuilding, error } = await supabase
+      const { data: newBuilding, error } = await (supabase as any)
         .from('buildings')
         .insert({ ...data, organization_id: profile.organization_id })
         .select()
@@ -138,7 +138,7 @@ export function useBuildings() {
   // Update building
   const updateBuilding = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Building> & { id: string }) => {
-      const { data: updated, error } = await supabase
+      const { data: updated, error } = await (supabase as any)
         .from('buildings')
         .update(data)
         .eq('id', id)
@@ -156,7 +156,7 @@ export function useBuildings() {
   // Delete building
   const deleteBuilding = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('buildings')
         .delete()
         .eq('id', id);
@@ -179,7 +179,7 @@ export function useBuildings() {
       type?: UnitType;
       status?: UnitStatus;
     }) => {
-      const { data: newUnit, error } = await supabase
+      const { data: newUnit, error } = await (supabase as any)
         .from('units')
         .insert(data)
         .select()
@@ -196,7 +196,7 @@ export function useBuildings() {
   // Delete unit
   const deleteUnit = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('units')
         .delete()
         .eq('id', id);
@@ -211,13 +211,14 @@ export function useBuildings() {
   // Create meter (attached to a unit)
   const createMeter = useMutation({
     mutationFn: async (data: {
-      unit_id: string;
+      unit_id?: string;
+      building_id?: string;
       meter_number: string;
       meter_type: MeterType;
       installation_date?: string;
       replaced_by?: string;
     }) => {
-      const { data: newMeter, error } = await supabase
+      const { data: newMeter, error } = await (supabase as any)
         .from('meters')
         .insert(data)
         .select()
@@ -234,7 +235,7 @@ export function useBuildings() {
   // Delete meter
   const deleteMeter = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('meters')
         .delete()
         .eq('id', id);
@@ -263,7 +264,7 @@ export function useBuildings() {
         submitted_by: user?.id,
       };
 
-      const { data: newReading, error } = await supabase
+      const { data: newReading, error } = await (supabase as any)
         .from('meter_readings')
         .insert(insertData)
         .select()
@@ -281,7 +282,7 @@ export function useBuildings() {
   // Delete reading
   const deleteReading = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('meter_readings')
         .delete()
         .eq('id', id);

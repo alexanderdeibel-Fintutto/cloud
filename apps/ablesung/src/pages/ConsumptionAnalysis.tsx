@@ -104,7 +104,7 @@ export default function ConsumptionAnalysis() {
       const monthDate = subMonths(new Date(), i);
       const monthStart = startOfMonth(monthDate);
       const monthEnd = endOfMonth(monthDate);
-      const entry: Record<string, number | string> = {
+      const entry: { [key: string]: string | number; month: string } = {
         month: format(monthDate, 'MMM yy', { locale: de }),
       };
 

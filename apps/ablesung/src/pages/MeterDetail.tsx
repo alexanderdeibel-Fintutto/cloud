@@ -288,7 +288,8 @@ export default function MeterDetail() {
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
                     }}
-                    formatter={(value: number, _name: string, props: { payload: { meterLabel: string; isSwap?: boolean } }) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter={(value: number, _name: string, props: any) => {
                       if (props.payload.isSwap) return ['Zählerwechsel', ''];
                       return [
                         `${value.toLocaleString('de-DE')} ${METER_TYPE_UNITS[meter.meter_type]}`,

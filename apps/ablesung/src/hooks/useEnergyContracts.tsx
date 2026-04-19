@@ -28,7 +28,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
     queryKey: ['energy_contracts', organizationId],
     queryFn: async (): Promise<EnergyContract[]> => {
       if (!organizationId) return [];
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('energy_contracts')
         .select('*')
         .eq('organization_id', organizationId)
@@ -45,7 +45,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
     queryKey: ['contract_reminders', contractIds],
     queryFn: async (): Promise<ContractReminder[]> => {
       if (contractIds.length === 0) return [];
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('contract_reminders')
         .select('*')
         .in('contract_id', contractIds);
@@ -81,7 +81,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
     mutationFn: async (data: Omit<EnergyContract, 'id' | 'created_at' | 'updated_at' | 'cancellation_deadline'>) => {
       const cancellationDeadline = calculateDeadline(data as EnergyContract);
 
-      const { data: newContract, error } = await supabase
+      const { data: newContract, error } = await (supabase as any)
         .from('energy_contracts')
         .insert({
           ...data,
@@ -100,7 +100,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
           { contract_id: newContract.id, reminder_date: new Date(deadlineDate.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], reminder_type: 'cancellation_deadline' },
           { contract_id: newContract.id, reminder_date: new Date(deadlineDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], reminder_type: 'cancellation_deadline' },
         ];
-        await supabase.from('contract_reminders').insert(reminderInserts);
+        await (supabase as any).from('contract_reminders').insert(reminderInserts);
       }
 
       return newContract as EnergyContract;
@@ -114,7 +114,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
   // Update contract mutation
   const updateContractMutation = useMutation({
     mutationFn: async ({ id, ...data }: Partial<EnergyContract> & { id: string }) => {
-      const { data: updated, error } = await supabase
+      const { data: updated, error } = await (supabase as any)
         .from('energy_contracts')
         .update(data)
         .eq('id', id)
@@ -131,7 +131,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
   // Delete contract mutation
   const deleteContractMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('energy_contracts')
         .delete()
         .eq('id', id);
@@ -146,7 +146,7 @@ export function useEnergyContracts(organizationIdOverride?: string | null) {
   // Dismiss reminder mutation
   const dismissReminderMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('contract_reminders')
         .update({ is_dismissed: true })
         .eq('id', id);

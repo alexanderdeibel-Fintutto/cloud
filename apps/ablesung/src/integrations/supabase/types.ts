@@ -1,4 +1,3 @@
-Using workdir /home/ubuntu/portal
 export type Json =
   | string
   | number

@@ -71,7 +71,7 @@ export default function Success() {
           </div>
 
           {/* Session info for debugging (hidden in production) */}
-          {sessionId && process.env.NODE_ENV === 'development' && (
+          {sessionId && import.meta.env.NODE_ENV === 'development' && (
             <p className="text-xs text-muted-foreground mt-4">
               Session: {sessionId.substring(0, 20)}...
             </p>

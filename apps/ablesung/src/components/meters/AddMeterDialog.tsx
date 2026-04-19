@@ -161,7 +161,7 @@ export function AddMeterDialog({ open, onOpenChange, buildingId }: AddMeterDialo
 
     // Link meters: old.replaced_by = next meter
     for (let i = 0; i < meterIds.length - 1; i++) {
-      await supabase
+      await (supabase as any)
         .from('meters')
         .update({ replaced_by: meterIds[i + 1] })
         .eq('id', meterIds[i]);

@@ -211,7 +211,6 @@ Extrahiere ALLE Zähler die auf der Rechnung zu finden sind.`,
           reading_value: meter.readingValue,
           source: 'ocr' as const,
           confidence: meter.confidence,
-          is_verified: false,
         });
         success++;
       } catch {

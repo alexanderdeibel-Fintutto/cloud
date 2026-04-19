@@ -244,7 +244,7 @@ export default function Dashboard() {
                   {upcomingDeadlines.length} Wechseltermin{upcomingDeadlines.length > 1 ? 'e' : ''} bald fällig
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {upcomingDeadlines[0].providerName} – {upcomingDeadlines[0].daysUntilDeadline} Tage
+                  {upcomingDeadlines[0].provider_name} – {upcomingDeadlines[0].daysUntilDeadline} Tage
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />

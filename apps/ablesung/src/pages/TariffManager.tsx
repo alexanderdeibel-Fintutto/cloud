@@ -55,7 +55,7 @@ export default function TariffManager() {
     queryKey: ['tariffs', organizationId],
     queryFn: async (): Promise<Tariff[]> => {
       if (!organizationId) return [];
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tariffs')
         .select('*')
         .eq('organization_id', organizationId)
@@ -69,7 +69,7 @@ export default function TariffManager() {
   // Create tariff mutation
   const createTariff = useMutation({
     mutationFn: async (tariff: Omit<Tariff, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase.from('tariffs').insert(tariff).select().single();
+      const { data, error } = await (supabase as any).from('tariffs').insert(tariff).select().single();
       if (error) throw error;
       return data;
     },
@@ -79,7 +79,7 @@ export default function TariffManager() {
   // Update tariff mutation
   const updateTariff = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Tariff> & { id: string }) => {
-      const { error } = await supabase.from('tariffs').update(data).eq('id', id);
+      const { error } = await (supabase as any).from('tariffs').update(data).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tariffs'] }),
@@ -88,7 +88,7 @@ export default function TariffManager() {
   // Delete tariff mutation
   const deleteTariff = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('tariffs').delete().eq('id', id);
+      const { error } = await (supabase as any).from('tariffs').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tariffs'] }),
