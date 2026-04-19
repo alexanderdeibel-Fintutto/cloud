@@ -31,7 +31,7 @@ jobs:
         id: pnpm-cache
         run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-cache.outputs.store }}
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -100,7 +100,7 @@ jobs:
         id: pnpm-cache
         run: echo "store=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-cache.outputs.store }}
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -110,7 +110,7 @@ jobs:
       # Turbo Remote Cache: dist-Verzeichnisse über Runs hinweg cachen
       # Cache-Key basiert auf Quellcode-Hash → nur neu bauen wenn sich etwas geändert hat
       - name: Turbo Build-Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ matrix.app.path }}/.vite
