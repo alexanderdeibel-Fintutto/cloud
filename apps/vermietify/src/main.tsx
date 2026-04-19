@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
+import React from "react";
 import App from "./App.tsx";
 import "./i18n";
 import "./index.css";
@@ -13,17 +14,49 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-const rootEl = document.getElementById("root")!;
+// Temporärer Error Boundary zur Fehlerdiagnose
+class DiagnosticErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
 
-try {
-  createRoot(rootEl).render(
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error("DIAGNOSTIC_ERROR:", error.message, error.stack, info.componentStack);
+  }
+
+  render() {
+    if (this.state.error) {
+      return React.createElement(
+        "pre",
+        {
+          style: {
+            color: "red",
+            padding: "20px",
+            background: "#111",
+            fontSize: "12px",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
+          },
+        },
+        `RENDER ERROR:\n${this.state.error.name}: ${this.state.error.message}\n\n${this.state.error.stack}`
+      );
+    }
+    return this.props.children;
+  }
+}
+
+createRoot(document.getElementById("root")!).render(
+  <DiagnosticErrorBoundary>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <App />
     </ThemeProvider>
-  );
-} catch (err: unknown) {
-  // Zeige den echten Fehler im DOM an (temporär für Diagnose)
-  const msg = err instanceof Error ? `${err.name}: ${err.message}\n\n${err.stack}` : String(err);
-  console.error("RENDER_ERROR:", msg);
-  rootEl.innerHTML = `<pre style="color:red;padding:20px;background:#111;font-size:12px;white-space:pre-wrap;word-break:break-all;">${msg}</pre>`;
-}
+  </DiagnosticErrorBoundary>
+);
