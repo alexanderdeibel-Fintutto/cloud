@@ -1,87 +1,107 @@
-import { useState } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import {
-  LayoutDashboard, BookOpen, FileText, Receipt, Users,
-  Building2, BarChart3, Settings, LogOut, ChevronLeft,
-  ChevronRight, TrendingUp, Landmark, Calculator, Menu, X,
-} from 'lucide-react'
-import { supabase } from '@/integrations/supabase/client'
+import { ReactNode, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from './AppSidebar';
+import { MobileBottomNav } from './MobileBottomNav';
+import { NotificationCenter } from '@/components/NotificationCenter';
+import { CommandPalette } from '@/components/CommandPalette';
+import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { TrialBanner } from '@/components/TrialBanner';
+import { useAppShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { Menu, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/buchungen', icon: BookOpen, label: 'Buchungen' },
-  { to: '/rechnungen', icon: FileText, label: 'Rechnungen' },
-  { to: '/belege', icon: Receipt, label: 'Belege & OCR' },
-  { to: '/kontakte', icon: Users, label: 'Kontakte' },
-  { to: '/bankkonten', icon: Landmark, label: 'Bankkonten' },
-  { to: '/kontenrahmen', icon: Calculator, label: 'Kontenrahmen' },
-  { to: '/berichte', icon: BarChart3, label: 'Berichte' },
-  { to: '/firmen', icon: Building2, label: 'Firmen' },
-  { to: '/einstellungen', icon: Settings, label: 'Einstellungen' },
-]
+interface AppLayoutProps {
+  children: ReactNode;
+}
 
-export function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const navigate = useNavigate()
+export function AppLayout({ children }: AppLayoutProps) {
+  const navigate = useNavigate();
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
+  const handleNewBooking = useCallback(() => {
+    navigate('/buchungen?action=new');
+  }, [navigate]);
+
+  const handleNewInvoice = useCallback(() => {
+    navigate('/rechnungen?action=new');
+  }, [navigate]);
+
+  const handleUploadReceipt = useCallback(() => {
+    navigate('/belege?action=upload');
+  }, [navigate]);
+
+  const handleScanReceipt = useCallback(() => {
+    navigate('/belege?action=scan');
+  }, [navigate]);
+
+  // Register keyboard shortcuts
+  useAppShortcuts({
+    onOpenCommandPalette: () => setCommandPaletteOpen(true),
+    onNewBooking: handleNewBooking,
+    onNewInvoice: handleNewInvoice,
+    onUploadReceipt: handleUploadReceipt,
+    onSearch: () => setCommandPaletteOpen(true),
+  });
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {mobileOpen && (
-        <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setMobileOpen(false)} />
-      )}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col bg-slate-900 text-white transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-700">
-          {!collapsed && (
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-emerald-400" />
-              <span className="font-bold text-sm">Financial Compass</span>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <main className="flex-1 flex flex-col">
+          <header className="h-14 border-b border-border flex items-center justify-between px-4">
+            <div className="flex items-center lg:hidden">
+              <SidebarTrigger>
+                <Menu className="h-6 w-6" />
+              </SidebarTrigger>
+              <span className="ml-4 font-semibold gradient-text">Fintutto</span>
             </div>
-          )}
-          {collapsed && <TrendingUp className="h-6 w-6 text-emerald-400 mx-auto" />}
-          <button onClick={() => setCollapsed(!collapsed)} className="hidden lg:flex items-center justify-center h-8 w-8 rounded-md hover:bg-slate-700">
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </button>
-          <button onClick={() => setMobileOpen(false)} className="lg:hidden flex items-center justify-center h-8 w-8 rounded-md hover:bg-slate-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-          {navItems.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`
-            }>
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              {!collapsed && <span>{label}</span>}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="p-2 border-t border-slate-700">
-          <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
-            <LogOut className="h-5 w-5 flex-shrink-0" />
-            {!collapsed && <span>Abmelden</span>}
-          </button>
-        </div>
-      </aside>
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="lg:hidden flex items-center h-16 px-4 bg-white border-b border-gray-200">
-          <button onClick={() => setMobileOpen(true)} className="flex items-center justify-center h-9 w-9 rounded-md hover:bg-gray-100">
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex items-center gap-2 ml-3">
-            <TrendingUp className="h-5 w-5 text-emerald-600" />
-            <span className="font-bold text-sm">Financial Compass</span>
+            <div className="hidden lg:flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-muted-foreground gap-2 w-64 justify-start"
+                onClick={() => setCommandPaletteOpen(true)}
+              >
+                <Search className="h-4 w-4" />
+                <span>Suche...</span>
+                <kbd className="pointer-events-none ml-auto hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                  <span className="text-xs">⌘</span>K
+                </kbd>
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <NotificationCenter />
+            </div>
+          </header>
+          <TrialBanner />
+          <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto pb-24 lg:pb-8">
+            {children}
           </div>
-        </header>
-        <main className="flex-1 overflow-y-auto">
-          <Outlet />
         </main>
       </div>
-    </div>
-  )
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
+
+      {/* Command Palette */}
+      <CommandPalette
+        open={commandPaletteOpen}
+        onOpenChange={setCommandPaletteOpen}
+        onNewBooking={handleNewBooking}
+        onNewInvoice={handleNewInvoice}
+        onUploadReceipt={handleUploadReceipt}
+      />
+
+      {/* Floating Action Button (mobile only) */}
+      <FloatingActionButton
+        onNewBooking={handleNewBooking}
+        onNewInvoice={handleNewInvoice}
+        onUploadReceipt={handleUploadReceipt}
+        onScanReceipt={handleScanReceipt}
+      />
+    </SidebarProvider>
+  );
 }
