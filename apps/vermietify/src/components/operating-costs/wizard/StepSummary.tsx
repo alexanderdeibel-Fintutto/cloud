@@ -187,9 +187,42 @@
      try {
        const statement = await saveStatement("calculated");
        if (statement) {
-         // TODO: If optionsGeneratePdf is true, trigger PDF generation edge function
-         // TODO: If optionsSendEmail is true, trigger email sending
-         
+         // PDF-Generierung via Edge Function
+         if (wizardData.optionsGeneratePdf) {
+           try {
+             const { error: pdfError } = await supabase.functions.invoke(
+               "generate-operating-cost-pdf",
+               { body: { statementId: statement.id } }
+             );
+             if (pdfError) {
+               console.warn("PDF-Generierung fehlgeschlagen (non-fatal):", pdfError.message);
+               toast.warning("Abrechnung gespeichert, PDF-Generierung fehlgeschlagen. Bitte manuell erstellen.");
+             } else {
+               toast.success("PDF erfolgreich generiert");
+             }
+           } catch (pdfErr) {
+             console.warn("PDF Edge Function nicht verf\u00fcgbar:", pdfErr);
+           }
+         }
+
+         // E-Mail-Versand via Edge Function
+         if (wizardData.optionsSendEmail && summaryStats.tenantCount > 0) {
+           try {
+             const { error: emailError } = await supabase.functions.invoke(
+               "send-operating-cost-emails",
+               { body: { statementId: statement.id } }
+             );
+             if (emailError) {
+               console.warn("E-Mail-Versand fehlgeschlagen (non-fatal):", emailError.message);
+               toast.warning("Abrechnung gespeichert, E-Mail-Versand fehlgeschlagen. Bitte manuell versenden.");
+             } else {
+               toast.success(`E-Mails an ${summaryStats.tenantCount} Mieter versendet`);
+             }
+           } catch (emailErr) {
+             console.warn("E-Mail Edge Function nicht verf\u00fcgbar:", emailErr);
+           }
+         }
+
          toast.success("Betriebskostenabrechnung erfolgreich erstellt");
          resetWizard();
          navigate(`/betriebskosten/${statement.id}`);

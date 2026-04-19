@@ -115,8 +115,39 @@
    }));
  
    const handleExport = (type: "pdf" | "excel") => {
-     // TODO: Implement export
-     console.log(`Exporting ${type}`);
+     const rows = [
+       ["Monat", "Einnahmen (\u20ac)", "Vorjahr (\u20ac)"],
+       ...incomeData.map((d) => [d.month, (d.einnahmen / 100).toFixed(2), (d.vorjahr / 100).toFixed(2)]),
+     ];
+
+     if (type === "excel") {
+       // CSV-Export (\u00f6ffnet in Excel)
+       const csv = rows.map((r) => r.join(";")).join("\n");
+       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+       const url = URL.createObjectURL(blob);
+       const a = document.createElement("a");
+       a.href = url;
+       a.download = `vermietify-analytics-${format(new Date(), "yyyy-MM-dd")}.csv`;
+       a.click();
+       URL.revokeObjectURL(url);
+     } else {
+       // PDF-Export via Print-Dialog
+       const printContent = `
+         <html><head><title>Vermietify Analytics</title>
+         <style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#f0f0f0}</style>
+         </head><body>
+         <h1>Analytics-Report</h1>
+         <p>Zeitraum: ${period} | Exportiert: ${format(new Date(), "dd.MM.yyyy HH:mm", { locale: de })}</p>
+         <table><tr>${rows[0].map((h) => `<th>${h}</th>`).join("")}</tr>
+         ${rows.slice(1).map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}
+         </table></body></html>`;
+       const win = window.open("", "_blank");
+       if (win) {
+         win.document.write(printContent);
+         win.document.close();
+         win.print();
+       }
+     }
    };
  
    return (

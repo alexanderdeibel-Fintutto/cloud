@@ -9,8 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // Auth Pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import OnboardingWizard from "./pages/auth/OnboardingWizard";
-import OnboardingWizardPage from "./pages/onboarding/OnboardingWizardPage";
+import OrganizationSetup from "./pages/auth/OrganizationSetup";
 
 // App Pages
 import Dashboard from "./pages/Dashboard";
@@ -233,12 +232,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-           <AIAssistant />
+          <AIAssistant />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/org-setup" element={<OrganizationSetup />} />
             <Route path="/pricing" element={<Pricing />} />
 
             {/* Protected Routes */}

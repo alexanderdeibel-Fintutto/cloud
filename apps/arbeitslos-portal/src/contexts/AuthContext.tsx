@@ -22,6 +22,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, name?: string) => Promise<void>
   signOut: () => Promise<void>
+  deleteAccount: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
 
@@ -254,6 +255,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // ---- deleteAccount ----
+  const deleteAccount = async () => {
+    if (!hasRealSupabase || !user) {
+      // Demo mode: just sign out
+      await signOut()
+      return
+    }
+    // 1. Alle Nutzerdaten aus amt_users löschen (cascade löscht verknüpfte Daten via RLS)
+    const { error: dbError } = await supabase
+      .from('amt_users')
+      .delete()
+      .eq('id', user.id)
+    if (dbError) throw dbError
+
+    // 2. Auth-Account löschen via Supabase RPC (SECURITY DEFINER Funktion)
+    const { error: rpcError } = await supabase.rpc('delete_own_account')
+    if (rpcError) {
+      // Fallback: nur signOut wenn RPC nicht verfügbar
+      console.warn('delete_own_account RPC nicht verfügbar, nur Abmeldung:', rpcError.message)
+    }
+
+    // 3. Lokalen State leeren und abmelden
+    logActivity('logout')
+    setUser(null)
+    setProfile(null)
+  }
+
   // ---- signOut ----
   const signOut = async () => {
     logActivity('logout')
@@ -279,6 +307,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        deleteAccount,
         refreshProfile,
       }}
     >

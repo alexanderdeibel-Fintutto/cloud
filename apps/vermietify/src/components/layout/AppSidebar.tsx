@@ -37,6 +37,8 @@ import {
   Wallet,
   Scale,
   Send,
+  Bell,
+  Wrench,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -144,7 +146,38 @@ const navigationItems = [
   { title: "Kalender", url: "/kalender", icon: CalendarDays },
   { title: "Aufgaben", url: "/aufgaben", icon: CheckSquare },
   { title: "Automatisierung", url: "/automatisierung", icon: Zap },
-  { title: "Dokumente", url: "/documents", icon: FileText },
+  { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
+  { 
+    title: "Rechner & Tools", 
+    icon: Calculator,
+    subItems: [
+      { title: "Alle Tools", url: "/portal" },
+      { title: "CO\u2082-Kosten", url: "/co2" },
+    ]
+  },
+  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
+  { 
+    title: "Dokumente", 
+    icon: FileText,
+    subItems: [
+      { title: "Alle Dokumente", url: "/dokumente" },
+      { title: "Massenimport", url: "/massenimport" },
+    ],
+  },
+  { 
+    title: "Steuern & ELSTER", 
+    icon: Receipt,
+    subItems: [
+      { title: "Steuer\u00fcbersicht", url: "/steuern" },
+      { title: "KI-Steuerberater", url: "/steuern/ki-berater" },
+      { title: "Anlage V Wizard", url: "/steuern/anlage-v" },
+      { title: "Steuerdokumente", url: "/steuern/dokumente" },
+      { title: "ELSTER Dashboard", url: "/elster" },
+      { title: "ELSTER Einreichen", url: "/elster/einreichen" },
+    ]
+  },
+  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Benachrichtigungen", url: "/benachrichtigungen", icon: Bell },
   {
     title: "Kommunikation",
     icon: MessageSquare,
