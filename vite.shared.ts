@@ -50,6 +50,12 @@ const APP_CONFIGS: Record<string, AppViteConfig> = {
     devPort: 5176,
     description: 'Freelancer Finance OS',
   },
+  'landing': {
+    name: 'landing',
+    displayName: 'Fintutto Cloud',
+    devPort: 5181,
+    description: '14 smarte Apps für jeden Lebensbereich — Finanzen, Wohnen, Lernen und mehr',
+  },
 }
 
 export function createAppViteConfig(appName: string, appDir: string): UserConfig {
