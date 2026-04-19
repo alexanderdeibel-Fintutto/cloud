@@ -1,0 +1,18 @@
+<svg width="3840" height="2160" viewBox="0 0 3840 2160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="rainbow-radial" cx="50%" cy="100%" r="100%" fx="50%" fy="100%">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="10%" stop-color="#EAB308"/>
+      <stop offset="20%" stop-color="#EC4899"/>
+      <stop offset="30%" stop-color="#E879F9"/>
+      <stop offset="40%" stop-color="#8B5CF6"/>
+      <stop offset="50%" stop-color="#6366F1"/>
+      <stop offset="60%" stop-color="#2563EB"/>
+      <stop offset="70%" stop-color="#06B6D4"/>
+      <stop offset="80%" stop-color="#10B981"/>
+      <stop offset="88%" stop-color="#1a1030"/>
+      <stop offset="100%" stop-color="#0f0f1a"/>
+    </radialGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#rainbow-radial)"/>
+</svg>
