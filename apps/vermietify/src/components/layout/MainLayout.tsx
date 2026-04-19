@@ -13,7 +13,6 @@ import {
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
-import { FintuttoAppsMenu } from "./FintuttoAppsMenu";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -59,7 +58,6 @@ interface MainLayoutProps {
             </Breadcrumb>
             </div>
             <div className="flex items-center gap-1">
-              <FintuttoAppsMenu />
               <LanguageSwitcher />
               <ThemeToggle />
               <NotificationCenter />

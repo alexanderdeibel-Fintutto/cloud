@@ -1,75 +1,86 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-Deno.serve(async (req) => {
+serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
+
   try {
-    const { input, sessionToken } = await req.json();
-    if (!input || input.length < 3) {
-      return new Response(JSON.stringify({ predictions: [] }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const apiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
-    if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY not configured");
-
-    const body: Record<string, unknown> = {
-      input,
-      languageCode: "de",
-      regionCode: "DE",
-      includedRegionCodes: ["de", "at", "ch"],
-      includedPrimaryTypes: ["street_address", "route"],
-    };
-    if (sessionToken) body.sessionToken = sessionToken;
-
-    const response = await fetch(
-      "https://places.googleapis.com/v1/places:autocomplete",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
-        },
-        body: JSON.stringify(body),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
-        JSON.stringify({ predictions: [], error: data.error?.message || "API error" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const predictions = (data.suggestions || []).map((s: Record<string, unknown>) => {
-      const pp = s.placePrediction as Record<string, unknown> || {};
-      const sf = pp.structuredFormat as Record<string, unknown> || {};
-      const mainText = sf.mainText as Record<string, unknown> || {};
-      const secondaryText = sf.secondaryText as Record<string, unknown> || {};
-      const textObj = pp.text as Record<string, unknown> || {};
-      return {
-        description: textObj.text || "",
-        place_id: pp.placeId || "",
-        structured_formatting: {
-          main_text: mainText.text || "",
-          secondary_text: secondaryText.text || "",
-        },
-      };
-    });
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!GOOGLE_MAPS_API_KEY) {
+      throw new Error("GOOGLE_MAPS_API_KEY is not configured");
+    }
+
+    const { input, sessionToken } = await req.json();
+
+    if (!input || typeof input !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Input is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Use Google Places Autocomplete API
+    const url = new URL("https://maps.googleapis.com/maps/api/place/autocomplete/json");
+    url.searchParams.set("input", input);
+    url.searchParams.set("key", GOOGLE_MAPS_API_KEY);
+    url.searchParams.set("types", "address");
+    url.searchParams.set("components", "country:de|country:at|country:ch"); // DACH region
+    url.searchParams.set("language", "de");
+    if (sessionToken) {
+      url.searchParams.set("sessiontoken", sessionToken);
+    }
+
+    const response = await fetch(url.toString());
+    const data = await response.json();
+
+    if (!response.ok || data.status === "REQUEST_DENIED") {
+      console.error("Google Places API error:", data);
+      throw new Error(`Google Places API error: ${data.error_message || data.status}`);
+    }
 
     return new Response(
-      JSON.stringify({ predictions }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ predictions: data.predictions || [] }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Error in validate-address:", error);
+    
+    // Return safe error message to client
+    const safeMessage = "An error occurred while validating the address. Please try again.";
+    
     return new Response(
-      JSON.stringify({ error: (error as Error).message, predictions: [] }),
+      JSON.stringify({ error: safeMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

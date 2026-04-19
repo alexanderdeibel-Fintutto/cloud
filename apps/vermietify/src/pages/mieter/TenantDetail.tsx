@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { MieterAppPromoWidget } from "@/components/tenants/MieterAppPromoWidget";
-import { kautionsRechnerLink, mieterhoehungRechnerLink, mietvertragLink } from "@fintutto/shared";
  import { MainLayout } from "@/components/layout/MainLayout";
  import { PageHeader, StatCard, EmptyState, LoadingState } from "@/components/shared";
  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -62,7 +61,7 @@ import {
            description="Der angeforderte Mieter konnte nicht gefunden werden."
            action={
              <Button asChild>
-               <Link to="/mieter">Zurück zur Mieterliste</Link>
+               <Link to="/tenants">Zurück zur Mieterliste</Link>
              </Button>
            }
          />
@@ -79,7 +78,7 @@ import {
        title={fullName}
        breadcrumbs={[
          { label: "Dashboard", href: "/" },
-         { label: "Mieter", href: "/mieter" },
+         { label: "Mieter", href: "/tenants" },
          { label: fullName },
        ]}
      >
@@ -106,44 +105,6 @@ import {
             tenantName={fullName}
             tenantEmail={tenant.email || null}
           />
-
-          {tenant.activeLease?.units && (() => {
-            const unit = tenant.activeLease.units
-            const rentEuro = unit.rent_amount ? unit.rent_amount / 100 : 0
-            return (
-              <Card>
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-muted-foreground mr-1">Portal-Tools:</span>
-                    <Button asChild variant="outline" size="sm">
-                      <a href={kautionsRechnerLink({ rent: rentEuro })} target="_blank" rel="noopener noreferrer">
-                        Kaution berechnen
-                      </a>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                      <a href={mieterhoehungRechnerLink({ rent: rentEuro })} target="_blank" rel="noopener noreferrer">
-                        Mieterhöhung prüfen
-                      </a>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                      <a
-                        href={mietvertragLink({
-                          rent: rentEuro || undefined,
-                          tenantFirst: tenant.first_name,
-                          tenantLast: tenant.last_name,
-                          tenantEmail: tenant.email || undefined,
-                        })}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Mietvertrag erstellen
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })()}
 
           <Card>
             <CardContent className="pt-6">

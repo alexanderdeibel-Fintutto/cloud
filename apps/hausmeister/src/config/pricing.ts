@@ -18,6 +18,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     monthlyPrice: 0,
     yearlyPrice: 0,
     priceId: '',
+    priceIdYearly: '',
     features: [
       'Bis zu 3 Gebäude',
       'Basis-Aufgabenverwaltung',

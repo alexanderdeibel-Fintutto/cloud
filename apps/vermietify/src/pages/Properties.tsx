@@ -140,22 +140,12 @@ export default function Properties() {
 
     try {
       const validatedData = validationResult.data;
-      // address ist eine generierte Spalte (street + house_number) - nicht direkt befüllbar
-      // Adresse aufteilen: letztes Wort als Hausnummer, Rest als Straße
-      const addressParts = validatedData.address.trim().split(' ');
-      const houseNumber = addressParts.length > 1 && /^\d/.test(addressParts[addressParts.length - 1])
-        ? addressParts[addressParts.length - 1]
-        : null;
-      const streetName = houseNumber
-        ? addressParts.slice(0, -1).join(' ')
-        : validatedData.address.trim();
       const { error } = await supabase
         .from('buildings')
         .insert({
           organization_id: profile.organization_id,
           name: validatedData.name,
-          street: streetName,
-          house_number: houseNumber,
+          address: validatedData.address,
           city: validatedData.city,
           postal_code: validatedData.postal_code,
           building_type: validatedData.building_type as any,

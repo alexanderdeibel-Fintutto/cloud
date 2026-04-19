@@ -19,32 +19,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Home, Search, Building2, Loader2, Plus } from "lucide-react";
+import { Home, Search, Building2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { StatCard } from "@/components/shared/StatCard";
-import { UnitFormDialog } from "@/components/buildings/UnitFormDialog";
 
 interface UnitWithBuilding {
   id: string;
   unit_number: string;
   floor: number | null;
-  living_area_sqm: number | null;
-  room_count: number | null;
-  rent_amount: number | null;       // GENERATED ALWAYS (target_rent * 100)
-  target_rent: number | null;
-  target_utilities: number | null;
-  occupancy_status: string | null;
-  status: string | null;
+  area: number;
+  rooms: number;
+  rent_amount: number;
+  utility_advance: number;
+  status: string;
   building_id: string;
   building: {
     id: string;
@@ -54,31 +44,16 @@ interface UnitWithBuilding {
   };
 }
 
-interface Building {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-}
-
 const statusLabels: Record<string, string> = {
   rented: "Vermietet",
   vacant: "Leer",
   renovating: "Renovierung",
-  active: "Aktiv",
-  inactive: "Inaktiv",
-  maintenance: "Wartung",
-  reserved: "Reserviert",
 };
 
 const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
   rented: "default",
   vacant: "secondary",
   renovating: "destructive",
-  active: "default",
-  inactive: "secondary",
-  maintenance: "destructive",
-  reserved: "secondary",
 };
 
 const floorLabel = (floor: number | null) => {
@@ -93,20 +68,13 @@ export default function UnitsList() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [units, setUnits] = useState<UnitWithBuilding[]>([]);
-  const [buildings, setBuildings] = useState<Building[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // Dialog state
-  const [buildingSelectOpen, setBuildingSelectOpen] = useState(false);
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
-  const [unitFormOpen, setUnitFormOpen] = useState(false);
-
   useEffect(() => {
     if (profile?.organization_id) {
       fetchUnits();
-      fetchBuildings();
     }
   }, [profile?.organization_id]);
 
@@ -131,60 +99,21 @@ export default function UnitsList() {
     }
   };
 
-  const fetchBuildings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("buildings")
-        .select("id, name, address, city")
-        .order("name");
-      if (error) throw error;
-      setBuildings((data as Building[]) || []);
-    } catch (error) {
-      console.error("Error fetching buildings:", error);
-    }
-  };
-
-  const handleAddUnitClick = () => {
-    if (buildings.length === 0) {
-      toast({
-        title: "Kein Gebäude vorhanden",
-        description: "Bitte legen Sie zuerst ein Gebäude an.",
-        variant: "destructive",
-      });
-      navigate("/immobilien");
-      return;
-    }
-    if (buildings.length === 1) {
-      // Wenn nur ein Gebäude vorhanden, direkt öffnen
-      setSelectedBuildingId(buildings[0].id);
-      setUnitFormOpen(true);
-    } else {
-      // Gebäude-Auswahl anzeigen
-      setBuildingSelectOpen(true);
-    }
-  };
-
-  const handleBuildingSelected = (buildingId: string) => {
-    setSelectedBuildingId(buildingId);
-    setBuildingSelectOpen(false);
-    setUnitFormOpen(true);
-  };
-
   const filtered = units.filter((unit) => {
     const matchesSearch =
       unit.unit_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       unit.building?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       unit.building?.address?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || (unit.occupancy_status || unit.status) === statusFilter;
+      statusFilter === "all" || unit.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const totalUnits = units.length;
-  const rentedUnits = units.filter((u) => (u.occupancy_status || u.status) === "rented").length;
-  const vacantUnits = units.filter((u) => (u.occupancy_status || u.status) === "vacant").length;
+  const rentedUnits = units.filter((u) => u.status === "rented").length;
+  const vacantUnits = units.filter((u) => u.status === "vacant").length;
   const totalRent = units
-    .filter((u) => (u.occupancy_status || u.status) === "rented")
+    .filter((u) => u.status === "rented")
     .reduce((sum, u) => sum + (u.rent_amount || 0), 0);
 
   const formatCurrency = (cents: number) =>
@@ -197,17 +126,11 @@ export default function UnitsList() {
     <MainLayout title="Einheiten">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Einheiten</h1>
-            <p className="text-muted-foreground">
-              Übersicht aller Wohneinheiten Ihrer Gebäude
-            </p>
-          </div>
-          <Button onClick={handleAddUnitClick}>
-            <Plus className="h-4 w-4 mr-2" />
-            Einheit hinzufügen
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Einheiten</h1>
+          <p className="text-muted-foreground">
+            Übersicht aller Wohneinheiten Ihrer Gebäude
+          </p>
         </div>
 
         {/* Stats */}
@@ -274,17 +197,11 @@ export default function UnitsList() {
                   ? "Keine Einheiten gefunden"
                   : "Noch keine Einheiten"}
               </h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground">
                 {searchTerm || statusFilter !== "all"
                   ? "Versuchen Sie andere Filterkriterien"
-                  : "Fügen Sie Ihre erste Einheit zu einem Gebäude hinzu"}
+                  : "Erstellen Sie zunächst ein Gebäude und fügen Sie Einheiten hinzu"}
               </p>
-              {!searchTerm && statusFilter === "all" && (
-                <Button onClick={handleAddUnitClick}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Erste Einheit anlegen
-                </Button>
-              )}
             </CardContent>
           </Card>
         ) : (
@@ -331,20 +248,15 @@ export default function UnitsList() {
                       </TableCell>
                       <TableCell>{floorLabel(unit.floor)}</TableCell>
                       <TableCell>
-                        {unit.living_area_sqm ? `${unit.living_area_sqm} m²` : "-"}
+                        {unit.area ? `${unit.area} m²` : "-"}
                       </TableCell>
-                      <TableCell>{unit.room_count ?? "-"}</TableCell>
-                      <TableCell>{formatCurrency(unit.rent_amount || (unit.target_rent ? unit.target_rent * 100 : 0))}</TableCell>
-                      <TableCell>{formatCurrency(unit.target_utilities ? unit.target_utilities * 100 : 0)}</TableCell>
+                      <TableCell>{unit.rooms ?? "-"}</TableCell>
+                      <TableCell>{formatCurrency(unit.rent_amount || 0)}</TableCell>
+                      <TableCell>{formatCurrency(unit.utility_advance || 0)}</TableCell>
                       <TableCell>
-                        {(() => {
-                          const s = unit.occupancy_status || unit.status || "";
-                          return (
-                            <Badge variant={statusColors[s] || "secondary"}>
-                              {statusLabels[s] || s}
-                            </Badge>
-                          );
-                        })()}
+                        <Badge variant={statusColors[unit.status] || "secondary"}>
+                          {statusLabels[unit.status] || unit.status}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm">
@@ -359,53 +271,6 @@ export default function UnitsList() {
           </Card>
         )}
       </div>
-
-      {/* Gebäude-Auswahl Dialog */}
-      <Dialog open={buildingSelectOpen} onOpenChange={setBuildingSelectOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Gebäude auswählen</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <p className="text-sm text-muted-foreground mb-4">
-              Zu welchem Gebäude soll die neue Einheit hinzugefügt werden?
-            </p>
-            {buildings.map((building) => (
-              <button
-                key={building.id}
-                onClick={() => handleBuildingSelected(building.id)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg border hover:bg-accent text-left transition-colors"
-              >
-                <Building2 className="h-5 w-5 text-primary shrink-0" />
-                <div>
-                  <p className="font-medium text-sm">{building.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {building.address}{building.city ? `, ${building.city}` : ""}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBuildingSelectOpen(false)}>
-              Abbrechen
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Einheit-Formular Dialog */}
-      {selectedBuildingId && (
-        <UnitFormDialog
-          open={unitFormOpen}
-          onOpenChange={setUnitFormOpen}
-          buildingId={selectedBuildingId}
-          onSuccess={() => {
-            fetchUnits();
-            setSelectedBuildingId(null);
-          }}
-        />
-      )}
     </MainLayout>
   );
 }
