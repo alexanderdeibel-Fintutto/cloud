@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase';
+import { supabase } from './supabase';
 
 /**
  * Loggt eine Nutzeraktivität via Supabase RPC log_activity().
@@ -12,7 +12,7 @@ export async function logActivity(
 ): Promise<void> {
   try {
     await supabase.rpc('log_activity', {
-      p_app_id: 'secondbrain',
+      p_app_id: 'ablesung',
       p_action: action,
       p_entity_type: entityType ?? null,
       p_entity_id: entityId ?? null,

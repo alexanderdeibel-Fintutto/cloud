@@ -15,12 +15,7 @@ import {
   Eye,
   Download,
   Euro,
-  Calendar,
   User,
-  Sparkles,
-  Filter,
-  Building,
-  MoreHorizontal,
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
@@ -90,10 +85,10 @@ export function DocumentList({
   const [uploadOpen, setUploadOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<DocumentType | "">("");
-  const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
+  const [_previewDoc, _setPreviewDoc] = useState<Document | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { documents, documentsLoading, stats, deleteDocument, searchDocuments } = useDocuments({
+  const { documents: _documents, documentsLoading, stats, deleteDocument, searchDocuments } = useDocuments({
     supabase,
     organizationId,
     businessId,

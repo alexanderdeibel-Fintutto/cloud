@@ -12,7 +12,7 @@ export async function logActivity(
 ): Promise<void> {
   try {
     await supabase.rpc('log_activity', {
-      p_app_id: 'secondbrain',
+      p_app_id: 'fintutto-portal',
       p_action: action,
       p_entity_type: entityType ?? null,
       p_entity_id: entityId ?? null,

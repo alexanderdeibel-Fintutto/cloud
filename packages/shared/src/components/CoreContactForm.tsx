@@ -48,7 +48,7 @@ export function CoreContactForm({
   const [companyName, setCompanyName] = useState(initialData?.company_name ?? '')
   const [email, setEmail] = useState(initialData?.email ?? '')
   const [phone, setPhone] = useState(initialData?.phone ?? '')
-  const [mobile, setMobile] = useState(initialData?.mobile ?? '')
+  const [mobile, _setMobile] = useState(initialData?.mobile ?? '')
   const [taxId, setTaxId] = useState(initialData?.tax_id ?? '')
   const [vatId, setVatId] = useState(initialData?.vat_id ?? '')
   const [iban, setIban] = useState(initialData?.iban ?? '')

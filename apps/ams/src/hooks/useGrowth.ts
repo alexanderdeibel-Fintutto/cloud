@@ -91,6 +91,12 @@ const APP_CATALOG: Omit<AppActivityPoint, 'totalSubs' | 'activeSubs' | 'monthlyD
   { app: 'financial-compass',   label: 'Financial Compass',    category: 'Finanzen',        integrated: false, vercelDeployed: false, color: '#34d399' },
   { app: 'hausmeister',         label: 'Hausmeister',          category: 'Immobilien',      integrated: false, vercelDeployed: false, color: '#60a5fa' },
   { app: 'vermieter-freude',    label: 'Vermieter-Freude',     category: 'Immobilien',      integrated: false, vercelDeployed: false, color: '#f472b6' },
+  // Neu integrierte Apps (April 2026)
+  { app: 'ablesung',            label: 'Ablesung',             category: 'Immobilien',      integrated: true,  vercelDeployed: true,  color: '#0ea5e9' },
+  { app: 'fintutto-portal',     label: 'Fintutto Portal',      category: 'Verwaltung',      integrated: true,  vercelDeployed: true,  color: '#7c3aed' },
+  { app: 'translator',          label: 'Translator',           category: 'Kommunikation',   integrated: true,  vercelDeployed: true,  color: '#d97706' },
+  { app: 'vermieter-portal',    label: 'Vermieter-Portal',     category: 'Immobilien',      integrated: true,  vercelDeployed: true,  color: '#16a34a' },
+  { app: 'vermieterportal',     label: 'VermieterPortal',      category: 'Immobilien',      integrated: true,  vercelDeployed: true,  color: '#059669' },
 ];
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────

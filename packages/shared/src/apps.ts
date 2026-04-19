@@ -124,5 +124,5 @@ export const FINTUTTO_APPS = {
 export type FintuttoAppKey = keyof typeof FINTUTTO_APPS
 
 export function getOtherApps(currentSlug: string) {
-  return Object.values(FINTUTTO_APPS).filter(app => app.slug !== currentSlug)
+  return Object.entries(FINTUTTO_APPS).filter(([, app]) => app.slug !== currentSlug).map(([key, app]) => ({ ...app, key }))
 }

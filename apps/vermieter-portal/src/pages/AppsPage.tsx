@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import {
-  ExternalLink, ArrowRight, CheckCircle2, Sparkles
+  ExternalLink, Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { FINTUTTO_APPS, APP_CATEGORIES, type AppCategory } from '@fintutto/shared'
 import { useMetaTags } from '@fintutto/shared'
 
-const apps = Object.values(FINTUTTO_APPS).filter(app => app.slug !== 'vermieter-portal')
+const apps = Object.values(FINTUTTO_APPS).filter(app => (app.slug as string) !== 'vermieter-portal')
 
 type FilterKey = 'alle' | AppCategory
 
@@ -56,10 +56,10 @@ export default function AppsPage() {
           <div className="flex flex-wrap items-center justify-center gap-2">
             {[
               { key: 'alle' as FilterKey, label: 'Alle Apps', icon: '🌐' },
-              ...Object.entries(APP_CATEGORIES).map(([key, label]) => ({
+              ...Object.entries(APP_CATEGORIES).map(([key, cat]) => ({
                 key: key as FilterKey,
-                label,
-                icon: key === 'immobilien' ? '🏠' : key === 'finanzen' ? '🧮' : key === 'lifestyle' ? '🌱' : '🚀',
+                label: (cat as { label: string }).label,
+                icon: (cat as { icon: string }).icon,
               })),
             ].map((f) => (
               <button
@@ -92,7 +92,7 @@ export default function AppsPage() {
                       {app.description}
                     </p>
                     <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground capitalize">
-                      {APP_CATEGORIES[app.category]}
+                      {(APP_CATEGORIES[app.category] as { label: string }).label}
                     </span>
                   </div>
                 </div>
