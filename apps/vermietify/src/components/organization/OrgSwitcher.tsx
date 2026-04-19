@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronsUpDown, Plus, Check, Building2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useMyOrganizations, useSwitchOrganization } from "@/hooks/useOrganization";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -20,70 +20,33 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-interface Organization {
-  id: string;
-  name: string;
-  is_personal: boolean;
-}
-
 export function OrgSwitcher() {
   const [open, setOpen] = useState(false);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
-  const { profile, refreshProfile } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchOrganizations();
-  }, [profile?.organization_id]);
+  // Alle Organisationen des Nutzers laden (via organization_members)
+  const { data: organizations = [], isLoading } = useMyOrganizations();
+  const switchOrg = useSwitchOrganization();
 
-  const fetchOrganizations = async () => {
-    // Fetch organizations where user is a member
-    const { data: memberships } = await supabase
-      .from("org_memberships")
-      .select("organization_id")
-      .eq("accepted_at", "NOT NULL");
+  // Aktuelle Organisation aus der Liste ermitteln
+  const selectedOrg = organizations.find(
+    (o) => o.id === profile?.organization_id
+  ) ?? organizations[0];
 
-    // Also include current organization
-    const { data: currentOrg } = await supabase
-      .from("organizations")
-      .select("id, name, is_personal")
-      .eq("id", profile?.organization_id || "")
-      .single();
-
-    if (currentOrg) {
-      setSelectedOrg(currentOrg);
-      
-      // For now, just show the current org
-      // Multi-org support will come from memberships
-      setOrganizations([currentOrg]);
-    }
-  };
-
-  const handleSelectOrg = async (org: Organization) => {
+  const handleSelectOrg = (org: (typeof organizations)[0]) => {
     if (org.id === selectedOrg?.id) {
       setOpen(false);
       return;
     }
-
-    // Update profile with new organization_id
-    const { error } = await supabase
-      .from("profiles")
-      .update({ organization_id: org.id })
-      .eq("id", profile?.id);
-
-    if (!error) {
-      setSelectedOrg(org);
-      await refreshProfile();
-      // Refresh the page to load new org data
-      window.location.reload();
-    }
-
+    // Organisation wechseln (aktualisiert profiles.organization_id + reload)
+    switchOrg.mutate(org.id);
     setOpen(false);
   };
 
-  if (organizations.length <= 1) {
-    return null; // Don't show switcher if only one org
+  // Switcher nur anzeigen wenn mehrere Organisationen vorhanden
+  if (isLoading || organizations.length <= 1) {
+    return null;
   }
 
   return (
@@ -123,7 +86,7 @@ export function OrgSwitcher() {
                     )}
                   />
                   <span className="truncate">{org.name}</span>
-                  {org.is_personal && (
+                  {org.type === "personal" && (
                     <span className="ml-auto text-xs text-muted-foreground">
                       Privat
                     </span>
