@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, Briefcase, Zap, Shield, TrendingUp, Calculator, FileText, Star } from 'lucide-react'
+import { ArrowRight, Briefcase, Zap, Shield, TrendingUp, Calculator, FileText, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: FileText, title: 'Rechnungen in Sekunden', desc: 'Professionelle Rechnungen erstellen und per E-Mail versenden — in unter 60 Sekunden.' },
@@ -28,7 +28,7 @@ export function FintuttoBizPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function FintuttoBizPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-violet-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-violet-600 font-bold px-10 py-4 rounded-xl hover:bg-violet-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

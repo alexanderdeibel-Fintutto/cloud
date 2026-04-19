@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, Leaf, Zap, Shield, Star, Leaf, TrendingUp, Brain } from 'lucide-react'
+import { ArrowRight, Leaf, Zap, Shield, TrendingUp, Brain, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: Leaf, title: 'Pflanzen-Datenbank', desc: 'Über 5.000 Pflanzenarten mit detaillierten Pflegehinweisen.' },
@@ -28,7 +28,7 @@ export function PflanzenPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function PflanzenPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-green-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-green-600 font-bold px-10 py-4 rounded-xl hover:bg-green-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

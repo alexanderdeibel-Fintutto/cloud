@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, TrendingUp, Zap, Shield, Star, Lock, TrendingUp, Brain } from 'lucide-react'
+import { ArrowRight, TrendingUp, Zap, Shield, Lock, Brain, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: TrendingUp, title: 'Multi-Bank-Anbindung', desc: 'Verbinde alle deine Konten und behalte den Überblick über alle Ausgaben und Einnahmen.' },
@@ -28,7 +28,7 @@ export function FinanceCoachPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function FinanceCoachPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-emerald-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-emerald-600 font-bold px-10 py-4 rounded-xl hover:bg-emerald-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, Users, Users, Shield, TrendingUp, Star, FileText, Brain } from 'lucide-react'
+import { ArrowRight, Users, Shield, TrendingUp, FileText, Brain, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: Shield, title: 'Anspruchs-Rechner', desc: 'Berechne deinen Anspruch auf ALG I und Bürgergeld — schnell und verständlich.' },
@@ -28,7 +28,7 @@ export function ArbeitslosPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function ArbeitslosPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-rose-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-rose-600 font-bold px-10 py-4 rounded-xl hover:bg-rose-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

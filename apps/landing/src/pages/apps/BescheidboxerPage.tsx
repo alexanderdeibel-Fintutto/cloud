@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, Shield, Shield, Star, Calculator, Lock, FileText, Brain } from 'lucide-react'
+import { ArrowRight, Shield, Calculator, Lock, FileText, Brain, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: Shield, title: 'Automatische Prüfung', desc: 'Lade deinen Bescheid hoch — die KI prüft ihn auf häufige Fehler und Unstimmigkeiten.' },
@@ -28,7 +28,7 @@ export function BescheidboxerPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function BescheidboxerPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-orange-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-orange-600 font-bold px-10 py-4 rounded-xl hover:bg-orange-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

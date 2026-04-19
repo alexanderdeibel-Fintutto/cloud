@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, Building2, Zap, FileText, Users, Shield, Calculator, TrendingUp } from 'lucide-react'
+import { ArrowRight, Building2, Zap, FileText, Users, Shield, Calculator, TrendingUp } from 'lucide-react'
 
 const FEATURES = [
   { icon: Users, title: 'Mieterverwaltung', desc: 'Alle Mieter, Verträge und Kontakte an einem Ort — immer aktuell und abrufbar.' },
@@ -28,7 +28,7 @@ export function VermietifyPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function VermietifyPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-sky-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-sky-600 font-bold px-10 py-4 rounded-xl hover:bg-sky-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, Globe, Zap, Globe, Shield, Star, FileText, Brain } from 'lucide-react'
+import { ArrowRight, Globe, Zap, Shield, FileText, Brain, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: Globe, title: '20+ Sprachen', desc: 'Deutsch, Englisch, Französisch, Spanisch, Italienisch, Japanisch, Chinesisch und viele mehr.' },
@@ -28,7 +28,7 @@ export function TranslatorPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -68,7 +68,7 @@ export function TranslatorPage() {
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
           <p className="text-indigo-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
+            href="#"
             className="inline-block bg-white text-indigo-600 font-bold px-10 py-4 rounded-xl hover:bg-indigo-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten

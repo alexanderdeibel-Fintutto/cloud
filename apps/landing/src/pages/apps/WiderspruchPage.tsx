@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Star, FileText, Zap, Users, Shield, Star, FileText, Brain } from 'lucide-react'
+import { ArrowRight, FileText, Zap, Users, Shield, Brain, Star } from 'lucide-react'
 
 const FEATURES = [
   { icon: FileText, title: 'Widerspruchs-Generator', desc: 'Erstelle rechtssichere Widersprüche gegen Jobcenter-Bescheide.' },
@@ -28,7 +28,7 @@ export function WiderspruchPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <a
-              href={href_app}
+              href="#"
               className="w-full sm:w-auto bg-slate-600 hover:bg-slate-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-base shadow-lg"
             >
               Jetzt kostenlos starten
@@ -63,13 +63,13 @@ export function WiderspruchPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-gradient-to-br from-slate-600 to-zinc-600">
+      <section className="py-20 bg-gradient-to-br from-slate-700 to-zinc-700">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl font-extrabold text-white mb-4">Bereit loszulegen?</h2>
-          <p className="text-slate-200 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
+          <p className="text-slate-300 text-lg mb-8">14 Tage kostenlos testen. Kein Risiko.</p>
           <a
-            href={href_app}
-            className="inline-block bg-white text-slate-600 font-bold px-10 py-4 rounded-xl hover:bg-slate-50 transition-colors text-base shadow-xl"
+            href="#"
+            className="inline-block bg-white text-slate-700 font-bold px-10 py-4 rounded-xl hover:bg-slate-50 transition-colors text-base shadow-xl"
           >
             Jetzt starten
           </a>
