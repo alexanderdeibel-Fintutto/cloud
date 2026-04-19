@@ -1,43 +1,186 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useEffect } from 'react'
-import { Toaster } from 'sonner'
-import { supabase } from '@/lib/supabase'
-import { logActivity } from '@/lib/activityLogger'
-import Layout from '@/components/layout/Layout'
-import DashboardPage from '@/pages/DashboardPage'
-import OcrScanPage from '@/pages/OcrScanPage'
-import RechnungenPage from '@/pages/RechnungenPage'
-import EinstellungenPage from '@/pages/EinstellungenPage'
-import AdminDashboardPage from '@/pages/AdminDashboardPage'
-import MeterDetailPage from '@/pages/MeterDetailPage'
-import MeterListPage from '@/pages/MeterListPage'
+import { Suspense, lazy } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
-function App() {
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') logActivity('login')
-      if (event === 'SIGNED_OUT') logActivity('logout')
-      if (event === 'USER_UPDATED') logActivity('signup')
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+// Lazy load pages for code splitting
+const Landing = lazy(() => import("./pages/Landing"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const BuildingNew = lazy(() => import("./pages/BuildingNew"));
+const BuildingDetail = lazy(() => import("./pages/BuildingDetail"));
+const Units = lazy(() => import("./pages/Units"));
+const UnitDetail = lazy(() => import("./pages/UnitDetail"));
+const MeterDetail = lazy(() => import("./pages/MeterDetail"));
+const ReadMeter = lazy(() => import("./pages/ReadMeter"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Success = lazy(() => import("./pages/Success"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Referrals = lazy(() => import("./pages/Referrals"));
 
+// NEW: Feature pages
+const ConsumptionAnalysis = lazy(() => import("./pages/ConsumptionAnalysis"));
+const Contracts = lazy(() => import("./pages/Contracts"));
+const ProviderComparison = lazy(() => import("./pages/ProviderComparison"));
+const SavingsPotential = lazy(() => import("./pages/SavingsPotential"));
+const SolarDashboard = lazy(() => import("./pages/SolarDashboard"));
+const WeatherCorrelation = lazy(() => import("./pages/WeatherCorrelation"));
+const BKIntegration = lazy(() => import("./pages/BKIntegration"));
+
+// Phase B: Core feature pages
+const TariffManager = lazy(() => import("./pages/TariffManager"));
+const HeatPumpDashboard = lazy(() => import("./pages/HeatPumpDashboard"));
+const SmartAlerts = lazy(() => import("./pages/SmartAlerts"));
+const MeterSchedule = lazy(() => import("./pages/MeterSchedule"));
+const CostCalculation = lazy(() => import("./pages/CostCalculation"));
+const BatchScanner = lazy(() => import("./pages/BatchScanner"));
+
+// Phase C: Analysis & AI pages
+const ConsumptionHeatmap = lazy(() => import("./pages/ConsumptionHeatmap"));
+const SavingsSimulator = lazy(() => import("./pages/SavingsSimulator"));
+const EnergyChat = lazy(() => import("./pages/EnergyChat"));
+const EnergyFlow = lazy(() => import("./pages/EnergyFlow"));
+
+// Phase D: Reports & Export
+const ReportBuilder = lazy(() => import("./pages/ReportBuilder"));
+const MeterQRCodeGenerator = lazy(() => import("./pages/MeterQRCodeGenerator"));
+
+// Phase E: Utility Billing & Settlement
+const UtilityBilling = lazy(() => import("./pages/UtilityBilling"));
+const UtilitySettlementManager = lazy(() => import("./pages/UtilitySettlementManager"));
+const EnergyPassportManager = lazy(() => import("./pages/EnergyPassportManager"));
+const MieterStromDashboard = lazy(() => import("./pages/MieterStromDashboard"));
+
+// Phase B: Invoice OCR
+const InvoiceOCRDialog = lazy(() => import("./pages/InvoiceOCRDialog"));
+
+const queryClient = new QueryClient();
+
+function LoadingFallback() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="ocr" element={<OcrScanPage />} />
-          <Route path="rechnungen" element={<RechnungenPage />} />
-          <Route path="einstellungen" element={<EinstellungenPage />} />
-          <Route path="admin" element={<AdminDashboardPage />} />
-          <Route path="zaehler" element={<MeterListPage />} />
-          <Route path="zaehler/:id" element={<MeterDetailPage />} />
-        </Route>
-      </Routes>
-      <Toaster position="top-right" richColors />
-    </BrowserRouter>
-  )
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
 }
 
-export default App
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingFallback />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingFallback />;
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function AppRoutes() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        {/* Public landing page */}
+        <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
+
+        {/* Public auth routes */}
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+
+        {/* Protected routes - Core */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/buildings/new" element={<ProtectedRoute><BuildingNew /></ProtectedRoute>} />
+        <Route path="/buildings/:id" element={<ProtectedRoute><BuildingDetail /></ProtectedRoute>} />
+        <Route path="/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />
+        <Route path="/units/new" element={<ProtectedRoute><BuildingNew /></ProtectedRoute>} />
+        <Route path="/units/:id" element={<ProtectedRoute><UnitDetail /></ProtectedRoute>} />
+        <Route path="/meters/:id" element={<ProtectedRoute><MeterDetail /></ProtectedRoute>} />
+        <Route path="/read" element={<ProtectedRoute><ReadMeter /></ProtectedRoute>} />
+        <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+        <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
+        <Route path="/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
+
+        {/* Protected routes - NEW Feature Pages */}
+        <Route path="/analysis" element={<ProtectedRoute><ConsumptionAnalysis /></ProtectedRoute>} />
+        <Route path="/contracts" element={<ProtectedRoute><Contracts /></ProtectedRoute>} />
+        <Route path="/comparison" element={<ProtectedRoute><ProviderComparison /></ProtectedRoute>} />
+        <Route path="/savings" element={<ProtectedRoute><SavingsPotential /></ProtectedRoute>} />
+        <Route path="/solar" element={<ProtectedRoute><SolarDashboard /></ProtectedRoute>} />
+        <Route path="/weather" element={<ProtectedRoute><WeatherCorrelation /></ProtectedRoute>} />
+        <Route path="/bk-integration" element={<ProtectedRoute><BKIntegration /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase B Feature Pages */}
+        <Route path="/tariffs" element={<ProtectedRoute><TariffManager /></ProtectedRoute>} />
+        <Route path="/heat-pump" element={<ProtectedRoute><HeatPumpDashboard /></ProtectedRoute>} />
+        <Route path="/alerts" element={<ProtectedRoute><SmartAlerts /></ProtectedRoute>} />
+        <Route path="/schedule" element={<ProtectedRoute><MeterSchedule /></ProtectedRoute>} />
+        <Route path="/costs" element={<ProtectedRoute><CostCalculation /></ProtectedRoute>} />
+        <Route path="/batch-scan" element={<ProtectedRoute><BatchScanner /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase C Analysis & AI */}
+        <Route path="/heatmap" element={<ProtectedRoute><ConsumptionHeatmap /></ProtectedRoute>} />
+        <Route path="/simulator" element={<ProtectedRoute><SavingsSimulator /></ProtectedRoute>} />
+        <Route path="/energy-chat" element={<ProtectedRoute><EnergyChat /></ProtectedRoute>} />
+        <Route path="/energy-flow" element={<ProtectedRoute><EnergyFlow /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase B Invoice OCR */}
+        <Route path="/invoice-ocr" element={<ProtectedRoute><InvoiceOCRDialog /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase D Reports */}
+        <Route path="/reports" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
+        <Route path="/qr-codes" element={<ProtectedRoute><MeterQRCodeGenerator /></ProtectedRoute>} />
+
+        {/* Protected routes - Phase E Utility Billing & Settlement */}
+        <Route path="/utility-billing" element={<ProtectedRoute><UtilityBilling /></ProtectedRoute>} />
+        <Route path="/settlements" element={<ProtectedRoute><UtilitySettlementManager /></ProtectedRoute>} />
+        <Route path="/energy-passport" element={<ProtectedRoute><EnergyPassportManager /></ProtectedRoute>} />
+        <Route path="/mieterstrom" element={<ProtectedRoute><MieterStromDashboard /></ProtectedRoute>} />
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
+  );
+}
+
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <main className="min-h-screen">
+            <AppRoutes />
+          </main>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
+);
+
+export default App;
