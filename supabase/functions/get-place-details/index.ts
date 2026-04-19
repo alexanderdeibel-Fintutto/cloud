@@ -1,80 +1,135 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-Deno.serve(async (req) => {
+interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
+interface PlaceDetails {
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  formattedAddress: string;
+  placeId: string;
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
+
   try {
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!GOOGLE_MAPS_API_KEY) {
+      throw new Error("GOOGLE_MAPS_API_KEY is not configured");
+    }
+
     const { placeId, sessionToken } = await req.json();
-    if (!placeId) {
+
+    if (!placeId || typeof placeId !== "string") {
       return new Response(
         JSON.stringify({ error: "placeId is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    const apiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
-    if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY not configured");
 
-    const fields = "addressComponents,formattedAddress,location";
-    const headers: Record<string, string> = {
-      "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": fields,
-      "Content-Type": "application/json",
-    };
-    if (sessionToken) headers["X-Goog-SessionToken"] = sessionToken;
+    // Use Google Places Details API
+    const url = new URL("https://maps.googleapis.com/maps/api/place/details/json");
+    url.searchParams.set("place_id", placeId);
+    url.searchParams.set("key", GOOGLE_MAPS_API_KEY);
+    url.searchParams.set("fields", "address_components,formatted_address,place_id");
+    url.searchParams.set("language", "de");
+    if (sessionToken) {
+      url.searchParams.set("sessiontoken", sessionToken);
+    }
 
-    const response = await fetch(
-      `https://places.googleapis.com/v1/places/${placeId}?languageCode=de`,
-      { method: "GET", headers }
-    );
-
+    const response = await fetch(url.toString());
     const data = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || data.status === "REQUEST_DENIED") {
+      console.error("Google Places API error:", data);
+      throw new Error(`Google Places API error: ${data.error_message || data.status}`);
+    }
+
+    if (data.status !== "OK" || !data.result) {
       return new Response(
-        JSON.stringify({ error: data.error?.message || "API error" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Place not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const components = data.addressComponents || [];
-    const getComponent = (type: string) =>
-      components.find((c: Record<string, unknown>) => (c.types as string[])?.includes(type))?.longText || "";
-    const getShortComponent = (type: string) =>
-      components.find((c: Record<string, unknown>) => (c.types as string[])?.includes(type))?.shortText || "";
+    // Parse address components
+    const components: AddressComponent[] = data.result.address_components || [];
+    
+    const getComponent = (types: string[]): string => {
+      const component = components.find((c) => 
+        types.some((type) => c.types.includes(type))
+      );
+      return component?.long_name || "";
+    };
 
-    const streetNumber = getComponent("street_number");
-    const route = getComponent("route");
-    const city =
-      getComponent("locality") ||
-      getComponent("sublocality") ||
-      getComponent("administrative_area_level_2");
-    const postalCode = getComponent("postal_code");
-    const country = getComponent("country");
-    const countryCode = getShortComponent("country");
-    const address = [route, streetNumber].filter(Boolean).join(" ");
-    const loc = data.location || {};
+    const streetNumber = getComponent(["street_number"]);
+    const route = getComponent(["route"]);
+    const city = getComponent(["locality", "sublocality", "administrative_area_level_3"]);
+    const postalCode = getComponent(["postal_code"]);
+    const country = getComponent(["country"]);
+
+    // Construct street address (German format: Street Number)
+    const address = streetNumber ? `${route} ${streetNumber}` : route;
+
+    const placeDetails: PlaceDetails = {
+      address: address.trim(),
+      city,
+      postalCode,
+      country,
+      formattedAddress: data.result.formatted_address || "",
+      placeId: data.result.place_id || placeId,
+    };
 
     return new Response(
-      JSON.stringify({
-        address,
-        city,
-        postalCode,
-        country,
-        countryCode,
-        formattedAddress: data.formattedAddress || "",
-        placeId,
-        lat: loc.latitude,
-        lng: loc.longitude,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify(placeDetails),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Error in get-place-details:", error);
+    
+    // Return safe error message to client
+    const safeMessage = "An error occurred while fetching address details. Please try again.";
+    
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+      JSON.stringify({ error: safeMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

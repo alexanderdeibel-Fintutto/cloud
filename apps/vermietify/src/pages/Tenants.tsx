@@ -16,8 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { tenantSchema } from "@/lib/validationSchemas";
 import { sanitizeErrorMessage } from "@/lib/errorHandler";
 import { BulkImportDialog } from "@/components/import/BulkImportDialog";
-import { AddressAutocomplete } from '@fintutto/shared/components/AddressAutocomplete';
-import type { PlaceDetails } from '@fintutto/shared/components/AddressAutocomplete';
 import { TenantAppInviteDialog } from "@/components/tenants/TenantAppInviteDialog";
 
 interface Tenant {
@@ -41,7 +39,6 @@ export default function Tenants() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [addressPlaceDetails, setAddressPlaceDetails] = useState<PlaceDetails | null>(null);
   const [inviteDialogTenant, setInviteDialogTenant] = useState<{ id: string; name: string; email: string | null } | null>(null);
 
   const [newTenant, setNewTenant] = useState({
@@ -100,76 +97,17 @@ export default function Tenants() {
 
     try {
       const validatedData = validationResult.data;
-      // SSOT: core_contact parallel erstellen/verknüpfen
-      let coreContactId: string | null = null;
-      try {
-        if (validatedData.email) {
-          const { data: existing } = await supabase
-            .from('core_contacts')
-            .select('id')
-            .eq('email', validatedData.email)
-            .maybeSingle();
-          if (existing) coreContactId = existing.id;
-        }
-        if (!coreContactId) {
-          const { data: newContact } = await supabase
-            .from('core_contacts')
-            .insert({
-              contact_type: 'person',
-              first_name: validatedData.first_name,
-              last_name: validatedData.last_name,
-              email: validatedData.email || null,
-              phone: validatedData.phone || null,
-              organization_id: profile?.organization_id,
-            })
-            .select('id')
-            .single();
-          if (newContact) {
-            coreContactId = newContact.id;
-            if (addressPlaceDetails) {
-              const { data: addr } = await supabase
-                .from('core_addresses')
-                .insert({
-                  street: addressPlaceDetails.address,
-                  postal_code: addressPlaceDetails.postalCode,
-                  city: addressPlaceDetails.city,
-                  country: addressPlaceDetails.country || 'Deutschland',
-                  google_place_id: addressPlaceDetails.placeId,
-                  formatted: addressPlaceDetails.formattedAddress,
-                  latitude: addressPlaceDetails.lat,
-                  longitude: addressPlaceDetails.lng,
-                })
-                .select('id')
-                .single();
-              if (addr) {
-                await supabase.from('core_contact_addresses').insert({
-                  contact_id: coreContactId,
-                  address_id: addr.id,
-                  address_type: 'primary',
-                  is_primary: true,
-                });
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('core_contact creation failed (non-critical):', e);
-      }
-
       const { error } = await supabase
         .from('tenants')
         .insert({
-          // org_id is the actual DB column; organization_id is a generated alias (cannot be set directly)
-          org_id: profile?.organization_id,
+          organization_id: profile?.organization_id,
           first_name: validatedData.first_name,
           last_name: validatedData.last_name,
           email: validatedData.email || null,
           phone: validatedData.phone || null,
-          // Map UI field names to actual DB column names
-          correspondence_street: validatedData.address || null,
-          correspondence_city: validatedData.city || null,
-          correspondence_zip: validatedData.postal_code || null,
-          core_contact_id: coreContactId,
+          address: validatedData.address || null,
+          city: validatedData.city || null,
+          postal_code: validatedData.postal_code || null,
         });
 
       if (error) throw error;
@@ -185,7 +123,7 @@ export default function Tenants() {
         const { data: newTenants } = await supabase
           .from("tenants")
           .select("id")
-          .eq("org_id", profile?.organization_id)
+          .eq("organization_id", profile?.organization_id)
           .eq("email", validatedData.email)
           .order("created_at", { ascending: false })
           .limit(1);
@@ -377,38 +315,21 @@ export default function Tenants() {
                 ))}
               </div>
             ) : filteredTenants.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                {searchTerm ? (
-                  <>
-                    <Search className="h-14 w-14 text-muted-foreground/30 mb-5" />
-                    <h3 className="text-xl font-semibold mb-2">Keine Mieter gefunden</h3>
-                    <p className="text-muted-foreground mb-6 max-w-sm">
-                      Für <strong>&ldquo;{searchTerm}&rdquo;</strong> wurden keine Mieter gefunden. Prüfen Sie die Schreibweise oder suchen Sie nach einem anderen Begriff.
-                    </p>
-                    <Button variant="outline" onClick={() => setSearchTerm("")}>
-                      Suche zurücksetzen
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <div className="rounded-full bg-primary/10 p-6 mb-5">
-                      <Users className="h-12 w-12 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Noch keine Mieter angelegt</h3>
-                    <p className="text-muted-foreground mb-6 max-w-sm">
-                      Legen Sie Ihren ersten Mieter an, um Mietverträge zu verwalten, Zahlungen zu verfolgen und die Kommunikation zu organisieren.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-3">
-                      <Button onClick={() => setIsDialogOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Ersten Mieter anlegen
-                      </Button>
-                      <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Aus CSV importieren
-                      </Button>
-                    </div>
-                  </>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Users className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {searchTerm ? "Keine Mieter gefunden" : "Noch keine Mieter"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchTerm
+                    ? "Versuchen Sie einen anderen Suchbegriff"
+                    : "Fügen Sie Ihren ersten Mieter hinzu"}
+                </p>
+                {!searchTerm && (
+                  <Button onClick={() => setIsDialogOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Mieter hinzufügen
+                  </Button>
                 )}
               </div>
             ) : (

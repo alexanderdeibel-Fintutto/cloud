@@ -310,7 +310,7 @@ export default function CO2Dashboard() {
             description="Erstellen Sie zuerst ein Gebäude, um CO2-Berechnungen durchzuführen."
             action={
               <Button variant="outline" asChild>
-                <a href="/immobilien">Zu den Immobilien</a>
+                <a href="/properties">Zu den Immobilien</a>
               </Button>
             }
           />

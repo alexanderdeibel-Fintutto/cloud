@@ -10,7 +10,7 @@ export default function TenantDetail() {
     <MainLayout 
       title="Mieterdetails" 
       breadcrumbs={[
-        { label: "Mieter", href: "/mieter" },
+        { label: "Mieter", href: "/tenants" },
         { label: "Details" }
       ]}
     >

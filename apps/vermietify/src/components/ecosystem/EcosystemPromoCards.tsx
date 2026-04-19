@@ -11,21 +11,21 @@ interface EcosystemPromoCardsProps {
   compact?: boolean;
 }
 
-function formatPrice(cents: number | null | undefined): string {
-  if (!cents || cents === 0) return "Kostenlos";
+function formatPrice(cents: number): string {
+  if (cents === 0) return "Kostenlos";
   return `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 }
 
-function calcSavingsPercent(monthly: number | null | undefined, yearly: number | null | undefined): number {
-  if (!monthly || !yearly || monthly === 0 || yearly === 0) return 0;
+function calcSavingsPercent(monthly: number, yearly: number): number {
+  if (monthly === 0 || yearly === 0) return 0;
   const fullYear = monthly * 12;
   return Math.round(((fullYear - yearly) / fullYear) * 100);
 }
 
 function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite: (app: EcosystemApp) => void; compact?: boolean }) {
-  const isFree = !app.price_monthly_cents || app.price_monthly_cents === 0;
+  const isFree = app.price_monthly_cents === 0;
   const savingsPercent = calcSavingsPercent(app.price_monthly_cents, app.price_yearly_cents);
-  const yearlySavedCents = ((app.price_monthly_cents ?? 0) * 12) - (app.price_yearly_cents ?? 0);
+  const yearlySavedCents = (app.price_monthly_cents * 12) - app.price_yearly_cents;
 
   return (
     <Card className="group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -58,13 +58,13 @@ function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite: (app
 
         {!compact && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {(app.features ?? []).slice(0, 3).map((f) => (
+            {app.features.slice(0, 3).map((f) => (
               <span key={f} className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                 {f}
               </span>
             ))}
-            {(app.features?.length ?? 0) > 3 && (
-              <span className="text-[10px] text-muted-foreground px-1">+{(app.features?.length ?? 0) - 3}</span>
+            {app.features.length > 3 && (
+              <span className="text-[10px] text-muted-foreground px-1">+{app.features.length - 3}</span>
             )}
           </div>
         )}

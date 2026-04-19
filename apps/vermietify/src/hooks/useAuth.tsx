@@ -1,15 +1,14 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { logActivity } from '@/lib/activityLogger';
 
 interface Profile {
   id: string;
-  email: string | null;
-  full_name: string | null;
+  user_id: string;
   organization_id: string | null;
+  first_name: string | null;
+  last_name: string | null;
   avatar_url: string | null;
-  role: string | null;
   onboarding_completed: boolean | null;
 }
 
@@ -36,25 +35,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
     
     if (error) {
       // Profile doesn't exist - create one (common for OAuth users)
       if (error.code === 'PGRST116') {
         console.log('No profile found, creating one for OAuth user...');
-        const fullName = (
-          userMetadata?.full_name ||
-          [userMetadata?.first_name, userMetadata?.last_name].filter(Boolean).join(' ') ||
-          ''
-        ) as string;
+        const firstName = (userMetadata?.first_name || userMetadata?.full_name?.toString().split(' ')[0] || '') as string;
+        const lastName = (userMetadata?.last_name || userMetadata?.full_name?.toString().split(' ').slice(1).join(' ') || '') as string;
         
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
-            id: userId,
-            email: (userMetadata?.email || null) as string | null,
-            full_name: fullName || null,
+            user_id: userId,
+            first_name: firstName,
+            last_name: lastName,
             avatar_url: (userMetadata?.avatar_url || userMetadata?.picture || null) as string | null,
             onboarding_completed: false,
           })
@@ -88,10 +84,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Aktivität loggen
-          if (event === 'SIGNED_IN') {
-            logActivity('login', 'user', session.user.id);
-          }
           // Use setTimeout to avoid potential deadlock with Supabase client
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id, session.user.user_metadata);
@@ -99,9 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
           }, 0);
         } else {
-          if (event === 'SIGNED_OUT') {
-            logActivity('logout');
-          }
           setProfile(null);
           setIsLoading(false);
         }
@@ -135,7 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         emailRedirectTo: window.location.origin,
         data: {
-          full_name: [firstName, lastName].filter(Boolean).join(' '),
+          first_name: firstName,
+          last_name: lastName,
         }
       }
     });
@@ -149,16 +139,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: data.user.id,
-          email: email,
-          full_name: [firstName, lastName].filter(Boolean).join(' ') || null,
+          user_id: data.user.id,
+          first_name: firstName,
+          last_name: lastName,
         });
 
       if (profileError) {
         console.error('Error creating profile:', profileError);
       }
-      // Registrierung loggen
-      logActivity('signup', 'user', data.user.id, { email });
     }
 
     return { error: null };
@@ -169,15 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
     });
-    // Login-Fehler loggen
-    if (error) {
-      logActivity('error', 'auth', undefined, { action: 'signIn', message: error.message });
-    }
+
     return { error };
   };
 
   const signOut = async () => {
-    logActivity('logout');
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);

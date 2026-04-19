@@ -59,7 +59,7 @@ export function OnboardingChecklist({ onDismiss }: OnboardingChecklistProps) {
       label: "Erste Einheit anlegen",
       description: "Erstellen Sie eine Wohneinheit",
       icon: <Home className="h-5 w-5" />,
-      href: "/einheiten",
+      href: "/immobilien",
       completed: progress?.first_unit_created || false,
     },
     {

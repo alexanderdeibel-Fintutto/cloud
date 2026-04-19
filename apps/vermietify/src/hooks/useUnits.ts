@@ -85,14 +85,13 @@ export function useUnits() {
       const insertData: UnitInsert = {
         building_id: data.building_id,
         unit_number: data.unit_number,
-        name: data.unit_number,
         floor: data.floor,
-        living_area_sqm: data.area,
-        room_count: data.rooms,
-        // rent_amount is a GENERATED ALWAYS column — do NOT insert it
-        target_rent: data.rent_amount,
-        target_utilities: data.utility_advance || 0,
-        occupancy_status: 'vacant',
+        area: data.area,
+        rooms: data.rooms,
+        rent_amount: data.rent_amount,
+        utility_advance: data.utility_advance || 0,
+        status: data.status,
+        notes: data.notes,
       };
 
       const { data: unit, error } = await supabase
@@ -128,11 +127,12 @@ export function useUnits() {
       
       if (data.unit_number !== undefined) updateData.unit_number = data.unit_number;
       if (data.floor !== undefined) updateData.floor = data.floor;
-      if (data.area !== undefined) updateData.living_area_sqm = data.area;
-      if (data.rooms !== undefined) updateData.room_count = data.rooms;
-      if (data.rent_amount !== undefined) { updateData.target_rent = data.rent_amount; } // rent_amount is GENERATED ALWAYS
-      if (data.utility_advance !== undefined) updateData.target_utilities = data.utility_advance;
+      if (data.area !== undefined) updateData.area = data.area;
+      if (data.rooms !== undefined) updateData.rooms = data.rooms;
+      if (data.rent_amount !== undefined) updateData.rent_amount = data.rent_amount;
+      if (data.utility_advance !== undefined) updateData.utility_advance = data.utility_advance;
       if (data.status !== undefined) updateData.status = data.status;
+      if (data.notes !== undefined) updateData.notes = data.notes;
 
       const { data: unit, error } = await supabase
         .from("units")
