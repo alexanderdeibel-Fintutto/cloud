@@ -1,8 +1,7 @@
 {
   "framework": "vite",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- . || exit 1",
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm run build",
+  "buildCommand": "cd ../.. && pnpm install && pnpm --filter landing build",
   "outputDirectory": "dist",
   "rewrites": [
     {
