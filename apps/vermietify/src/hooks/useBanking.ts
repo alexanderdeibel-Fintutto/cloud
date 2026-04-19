@@ -242,7 +242,7 @@
      }) => {
        // Direct DB update instead of Edge Function (avoids JWT algorithm mismatch)
        const updateData: Record<string, unknown> = {
-         match_status: 'manual',
+         match_status: 'matched',
        };
        if (params.tenantId) updateData.matched_tenant_id = params.tenantId;
        if (params.leaseId) updateData.matched_lease_id = params.leaseId;
