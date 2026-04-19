@@ -107,7 +107,7 @@
        const { data, error } = await supabase
          .from('bank_accounts')
          .select('*, connection:finapi_connections!inner(*)')
-         .eq('is_active', true);
+         .neq('sync_status', 'inactive');
        if (error) throw error;
        // Filter by organization
        return (data as unknown as Array<BankAccount & { connection: BankConnection }>)
