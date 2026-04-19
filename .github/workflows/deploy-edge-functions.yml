@@ -1,0 +1,195 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+  workflow_dispatch:
+    inputs:
+      function_name:
+        description: 'Einzelne Function deployen (leer = alle)'
+        required: false
+        default: ''
+
+concurrency:
+  group: deploy-edge-functions-${{ github.ref }}
+  cancel-in-progress: false  # Nie abbrechen — Deployments müssen vollständig sein
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Erkennt welche Edge Functions sich geändert haben
+  # ─────────────────────────────────────────────────────────────────────────
+  detect-changes:
+    name: Geänderte Functions erkennen
+    runs-on: ubuntu-latest
+    outputs:
+      changed_functions: ${{ steps.detect.outputs.changed_functions }}
+      deploy_all: ${{ steps.detect.outputs.deploy_all }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Geänderte Functions ermitteln
+        id: detect
+        run: |
+          # Bei workflow_dispatch mit spezifischer Function
+          if [ -n "${{ github.event.inputs.function_name }}" ]; then
+            echo "changed_functions=${{ github.event.inputs.function_name }}" >> $GITHUB_OUTPUT
+            echo "deploy_all=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Bei workflow_dispatch ohne Eingabe → alle deployen
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "deploy_all=true" >> $GITHUB_OUTPUT
+            echo "changed_functions=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Bei Push → nur geänderte Functions deployen
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- 'supabase/functions/**' \
+            | grep -oP 'supabase/functions/\K[^/]+' \
+            | sort -u \
+            | tr '\n' ' ')
+
+          if [ -z "$CHANGED" ]; then
+            echo "Keine Functions geändert"
+            echo "deploy_all=false" >> $GITHUB_OUTPUT
+            echo "changed_functions=" >> $GITHUB_OUTPUT
+          else
+            echo "Geänderte Functions: $CHANGED"
+            echo "deploy_all=false" >> $GITHUB_OUTPUT
+            echo "changed_functions=$CHANGED" >> $GITHUB_OUTPUT
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Deployt alle oder nur geänderte Edge Functions
+  # ─────────────────────────────────────────────────────────────────────────
+  deploy:
+    name: Edge Functions deployen
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.changed_functions != '' || needs.detect-changes.outputs.deploy_all == 'true'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Supabase CLI installieren
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Supabase Projekt verlinken
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Alle Functions deployen
+        if: needs.detect-changes.outputs.deploy_all == 'true'
+        run: |
+          echo "Deploye alle Edge Functions..."
+          FAILED=()
+          SUCCESS=()
+
+          for fn_dir in supabase/functions/*/; do
+            fn_name=$(basename "$fn_dir")
+            echo "→ Deploye: $fn_name"
+            if supabase functions deploy "$fn_name" --no-verify-jwt 2>&1; then
+              SUCCESS+=("$fn_name")
+              echo "  ✓ $fn_name erfolgreich"
+            else
+              FAILED+=("$fn_name")
+              echo "  ✗ $fn_name FEHLGESCHLAGEN"
+            fi
+          done
+
+          echo ""
+          echo "=== Zusammenfassung ==="
+          echo "✓ Erfolgreich (${#SUCCESS[@]}): ${SUCCESS[*]}"
+          echo "✗ Fehlgeschlagen (${#FAILED[@]}): ${FAILED[*]}"
+
+          if [ ${#FAILED[@]} -gt 0 ]; then
+            exit 1
+          fi
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Geänderte Functions deployen
+        if: needs.detect-changes.outputs.deploy_all == 'false' && needs.detect-changes.outputs.changed_functions != ''
+        run: |
+          FAILED=()
+          SUCCESS=()
+
+          for fn_name in ${{ needs.detect-changes.outputs.changed_functions }}; do
+            if [ -d "supabase/functions/$fn_name" ]; then
+              echo "→ Deploye: $fn_name"
+              if supabase functions deploy "$fn_name" --no-verify-jwt 2>&1; then
+                SUCCESS+=("$fn_name")
+                echo "  ✓ $fn_name erfolgreich"
+              else
+                FAILED+=("$fn_name")
+                echo "  ✗ $fn_name FEHLGESCHLAGEN"
+              fi
+            else
+              echo "  ⚠ $fn_name — Verzeichnis nicht gefunden, übersprungen"
+            fi
+          done
+
+          echo ""
+          echo "=== Zusammenfassung ==="
+          echo "✓ Erfolgreich (${#SUCCESS[@]}): ${SUCCESS[*]}"
+          echo "✗ Fehlgeschlagen (${#FAILED[@]}): ${FAILED[*]}"
+
+          if [ ${#FAILED[@]} -gt 0 ]; then
+            exit 1
+          fi
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deployment-Status als PR-Kommentar
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ **Edge Functions deployed** auf `${{ secrets.SUPABASE_PROJECT_REF }}`'
+            })
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Supabase Secrets synchronisieren (nur bei Änderungen an secrets-Dateien)
+  # ─────────────────────────────────────────────────────────────────────────
+  sync-secrets:
+    name: Supabase Secrets synchronisieren
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Supabase CLI installieren
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Supabase Projekt verlinken
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Secrets aus GitHub Secrets setzen
+        run: |
+          supabase secrets set \
+            OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" \
+            RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" \
+            GOOGLE_MAPS_API_KEY="${{ secrets.GOOGLE_MAPS_API_KEY }}" \
+            STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+            ELEVENLABS_API_KEY="${{ secrets.ELEVENLABS_API_KEY }}"
+          echo "✓ Secrets synchronisiert"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
