@@ -280,9 +280,9 @@ export default function Properties() {
                       }}
                       onPlaceSelect={handlePlaceSelect}
                     />
-                    {!isAddressValidated && newBuilding.address.length > 0 && (
-                      <p className="text-xs text-destructive">
-                        Bitte wählen Sie eine Adresse aus den Vorschlägen aus
+                    {!isAddressValidated && newBuilding.address.length > 0 && (!newBuilding.postal_code || !newBuilding.city) && (
+                      <p className="text-xs text-muted-foreground">
+                        Tipp: Adresse aus Vorschlägen wählen, oder PLZ und Stadt manuell ausfüllen
                       </p>
                     )}
                   </div>
