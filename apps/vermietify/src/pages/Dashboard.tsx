@@ -15,6 +15,7 @@ import { DashboardActivityFeed } from "@/components/dashboard/DashboardActivityF
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
 import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
+import { RentDemandsWidget } from "@/components/rent-demands/RentDemandsWidget";
 
 interface DashboardStats {
   totalRent: number;
@@ -404,6 +405,9 @@ export default function Dashboard() {
 
         {/* Portal Tools Promo */}
         <PortalToolPromo maxTools={4} />
+
+        {/* Offene Forderungen */}
+        <RentDemandsWidget maxItems={5} />
 
         {/* Activity Feed */}
         <DashboardActivityFeed />
