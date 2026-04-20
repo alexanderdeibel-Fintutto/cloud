@@ -1,4 +1,7 @@
 import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
 import { useImportWizard, ImportTarget, ImportFormat, ImportMapping, WizardStep } from '@/hooks/useImportWizard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +33,7 @@ const TARGET_OPTIONS: { value: ImportTarget; label: string; icon: React.ElementT
 
 const FORMAT_OPTIONS: { value: ImportFormat; label: string; extension: string }[] = [
   { value: 'csv', label: 'CSV', extension: '.csv' },
+  { value: 'pdf', label: 'PDF Kontoauszug', extension: '.pdf' },
   { value: 'xlsx', label: 'Excel', extension: '.xlsx' },
   { value: 'json', label: 'JSON', extension: '.json' },
   { value: 'datev', label: 'DATEV', extension: '.csv' },
@@ -81,8 +85,41 @@ const Import = () => {
     }
   }, [handleFileUpload]);
 
+  const { user } = useAuth();
+  const { selectedCompany } = useCompany();
+
   const handleImport = useCallback(async () => {
     const importHandler = async (data: Record<string, string>[]) => {
+      if (target === 'transactions') {
+        // Transaktionen in bank_transactions speichern
+        const rows = data.map(row => ({
+          user_id: user?.id,
+          company_id: selectedCompany?.id,
+          account_id: null,
+          booking_date: row.date || new Date().toISOString().split('T')[0],
+          value_date: row.valueDate || row.date || new Date().toISOString().split('T')[0],
+          amount: parseFloat(String(row.amount).replace(',', '.').replace(/[^\d.-]/g, '')) || 0,
+          purpose: row.description || '',
+          counterpart_name: row.counterparty || null,
+          counterpart_iban: row.iban || null,
+          match_status: 'unmatched' as const,
+          source: 'import',
+        }));
+
+        const results: { success: boolean; error?: string }[] = [];
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+          const batch = rows.slice(i, i + BATCH_SIZE);
+          const { error } = await supabase.from('bank_transactions').insert(batch);
+          if (error) {
+            batch.forEach(() => results.push({ success: false, error: error.message }));
+          } else {
+            batch.forEach(() => results.push({ success: true }));
+          }
+        }
+        return results;
+      }
+      // Fallback für andere Ziele
       await new Promise(resolve => setTimeout(resolve, 500));
       return data.map(() => ({ success: true }));
     };
@@ -93,7 +130,7 @@ const Import = () => {
         description: `${importResult.imported} Einträge wurden importiert.`,
       });
     }
-  }, [executeImport, toast]);
+  }, [executeImport, toast, target, user, selectedCompany]);
 
   const handleDownloadTemplate = useCallback(() => {
     const headerRow = targetFields.map(f => f.label).join(';');
@@ -208,6 +245,20 @@ const Import = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label>Format</Label>
+                  <Select defaultValue="csv" onValueChange={(v) => setFormat(v as any)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Format wählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FORMAT_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label>Trennzeichen</Label>
                   <Select value={delimiter} onValueChange={(v) => setDelimiter(v)}>
                     <SelectTrigger>
@@ -233,7 +284,7 @@ const Import = () => {
                   <Label>Datei auswählen</Label>
                   <Input
                     type="file"
-                    accept=".csv,.xlsx,.json,.sta,.xml"
+                    accept=".csv,.xlsx,.json,.sta,.xml,.pdf"
                     onChange={handleFileSelect}
                     className="cursor-pointer"
                   />

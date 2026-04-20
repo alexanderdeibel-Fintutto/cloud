@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
+import { parsePDFStatement } from '@/utils/pdfBankParser';
 
-export type ImportFormat = 'csv' | 'json' | 'xlsx' | 'mt940' | 'datev' | 'camt';
+export type ImportFormat = 'csv' | 'json' | 'xlsx' | 'mt940' | 'datev' | 'camt' | 'pdf';
 export type ImportTarget = 'contacts' | 'invoices' | 'receipts' | 'bookings' | 'transactions' | 'accounts';
 
 export interface ImportMapping {
@@ -103,7 +104,7 @@ const SUPPORTED_FORMATS: Record<ImportTarget, ImportFormat[]> = {
   invoices: ['csv', 'json', 'datev'],
   receipts: ['csv', 'json'],
   bookings: ['csv', 'json', 'datev'],
-  transactions: ['csv', 'mt940', 'camt'],
+  transactions: ['csv', 'mt940', 'camt', 'pdf'],
   accounts: ['csv', 'json', 'datev'],
 };
 
@@ -196,6 +197,38 @@ export function useImportWizard(target: ImportTarget) {
             required: field.required,
           }));
           setMappings(initialMappings);
+        }
+      } else if (format === 'pdf') {
+        // PDF-Kontoauszug parsen
+        const pdfResult = await parsePDFStatement(uploadedFile);
+        if (pdfResult.transactions.length > 0) {
+          // Transaktionen in rawData umwandeln
+          const pdfHeaders = ['date', 'valueDate', 'description', 'counterparty', 'iban', 'amount', 'reference'];
+          const pdfRows = pdfResult.transactions.map(t => [
+            t.date || '',
+            t.valueDate || '',
+            t.description || '',
+            t.counterparty || '',
+            t.iban || '',
+            String(t.amount),
+            t.reference || '',
+          ]);
+          setHeaders(pdfHeaders);
+          setRawData(pdfRows);
+          // Auto-Mapping für PDF
+          const pdfMappings: ImportMapping[] = [
+            { sourceColumn: 'date', targetField: 'date', transform: 'date', required: true },
+            { sourceColumn: 'valueDate', targetField: 'valueDate', transform: 'date', required: false },
+            { sourceColumn: 'description', targetField: 'description', transform: 'none', required: true },
+            { sourceColumn: 'counterparty', targetField: 'counterparty', transform: 'none', required: false },
+            { sourceColumn: 'iban', targetField: 'iban', transform: 'none', required: false },
+            { sourceColumn: 'amount', targetField: 'amount', transform: 'currency', required: true },
+            { sourceColumn: 'reference', targetField: 'reference', transform: 'none', required: false },
+          ];
+          setMappings(pdfMappings);
+          setStep('preview'); // PDF überspringt Mapping-Schritt
+        } else {
+          console.error('Keine Transaktionen im PDF gefunden', pdfResult.parseErrors);
         }
       } else if (format === 'json') {
         const jsonData = JSON.parse(content);
