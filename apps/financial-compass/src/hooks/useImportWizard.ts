@@ -166,9 +166,31 @@ export function useImportWizard(target: ImportTarget) {
             setRawData(parsed);
           }
 
-          // Auto-create initial mappings
+          // Auto-mapping: match headers to target fields by name
+          const headerLower = parsed[0].map(h => h.toLowerCase().trim());
+          const autoMatchColumn = (fieldName: string): string => {
+            const patterns: Record<string, string[]> = {
+              date: ['datum', 'date', 'buchungsdatum', 'buchungs'],
+              valueDate: ['valuta', 'wertstellung', 'value date'],
+              amount: ['betrag', 'amount', 'umsatz', 'summe', 'wert'],
+              description: ['zweck', 'verwendungszweck', 'buchungstext', 'betreff', 'notiz', 'description'],
+              counterparty: ['name', 'empf\u00e4nger', 'auftraggeber', 'empfaenger', 'beg\u00fcnstigter'],
+              iban: ['iban', 'nummer', 'kontonummer'],
+              reference: ['referenz', 'reference', 'mandatsreferenz'],
+              name: ['name', 'firma', 'company'],
+              email: ['email', 'e-mail', 'mail'],
+              phone: ['telefon', 'phone', 'tel'],
+              vendor: ['lieferant', 'vendor', 'name'],
+            };
+            const aliases = patterns[fieldName] || [fieldName.toLowerCase()];
+            for (const alias of aliases) {
+              const idx = headerLower.findIndex(h => h.includes(alias));
+              if (idx >= 0) return parsed[0][idx];
+            }
+            return '';
+          };
           const initialMappings: ImportMapping[] = targetFields.map(field => ({
-            sourceColumn: '',
+            sourceColumn: autoMatchColumn(field.field),
             targetField: field.field,
             transform: field.type === 'date' ? 'date' : field.type === 'currency' ? 'currency' : 'none',
             required: field.required,
@@ -254,7 +276,13 @@ export function useImportWizard(target: ImportTarget) {
 
           // Apply transform
           if (mapping.transform === 'date' && value) {
-            const date = new Date(value);
+            // Support DD.MM.YYYY format (German date format)
+            let dateValue = value;
+            const germanDate = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+            if (germanDate) {
+              dateValue = `${germanDate[3]}-${germanDate[2].padStart(2,'0')}-${germanDate[1].padStart(2,'0')}`;
+            }
+            const date = new Date(dateValue);
             if (!isNaN(date.getTime())) {
               value = date.toISOString().split('T')[0];
             }
