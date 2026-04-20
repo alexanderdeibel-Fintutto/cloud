@@ -154,17 +154,30 @@ export function useDocuments() {
 
       const fileUrl = urlData.publicUrl;
 
-      // 3. Secondbrain-Eintrag anlegen (sb_documents) für OCR und zentrale Dokumentenverwaltung
+      // 3. Secondbrain-Eintrag anlegen (sb_documents) für zentrale Dokumentenverwaltung
+      // source_app='vermietify' markiert den Eintrag als Vermietify-Beleg:
+      //   - SecondBrain zeigt ihn nur wenn Nutzer 'Alle Apps' aktiviert
+      //   - Löschen nur aus Vermietify möglich (RLS-Policy + source_app-Check)
+      const fileType2 = input.file.type.startsWith('image/') ? 'image'
+        : input.file.type === 'application/pdf' ? 'pdf'
+        : input.file.type.startsWith('text/') ? 'text'
+        : 'other'
       const { data: sbDoc, error: sbError } = await supabase
         .from("sb_documents")
         .insert({
           user_id: userId,
           title: input.title,
-          source: "upload",
+          file_name: input.file.name,
           file_url: fileUrl,
-          file_type: input.file.type,
+          file_type: fileType2,
+          mime_type: input.file.type,
           file_size: input.file.size,
-          ocr_status: "pending",
+          storage_path: fileName,
+          source_app: 'vermietify',
+          document_type: input.document_type || 'other',
+          ocr_status: 'skipped',  // OCR nur auf expliziten Wunsch
+          tags: [],
+          is_favorite: false,
         })
         .select()
         .single();
