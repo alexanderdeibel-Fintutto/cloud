@@ -121,6 +121,7 @@
            zip: form.zip || null,
            city: form.city || null,
            chart_of_accounts: form.chartOfAccounts,
+           user_id: user.id,
          })
          .select()
          .single();

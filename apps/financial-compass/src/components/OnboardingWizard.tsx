@@ -88,19 +88,22 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
     if (!companyData.name || !user) return;
 
     setLoading(true);
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('companies')
       .insert({
         name: companyData.name,
-        legal_form: companyData.legalForm || null,
-      });
+        legal_form: companyData.legalForm || 'einzelunternehmen',
+        user_id: user.id,
+      })
+      .select();
 
     setLoading(false);
 
     if (error) {
+      console.error('Firma erstellen Fehler:', error);
       toast({
         title: 'Fehler',
-        description: 'Firma konnte nicht erstellt werden.',
+        description: `Firma konnte nicht erstellt werden: ${error.message}`,
         variant: 'destructive',
       });
       return;
