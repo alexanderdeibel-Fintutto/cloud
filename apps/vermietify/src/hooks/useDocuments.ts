@@ -87,9 +87,10 @@ export interface AnalysisResult {
 }
 
 export function useDocuments() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const queryClient = useQueryClient();
   const organizationId = profile?.organization_id;
+  const userId = user?.id;
 
   // Fetch all documents with OCR results
   const {
@@ -131,23 +132,49 @@ export function useDocuments() {
   const uploadDocument = useMutation({
     mutationFn: async (input: UploadDocumentInput) => {
       if (!organizationId) throw new Error("Keine Organisation");
+      if (!userId) throw new Error("Nicht angemeldet");
 
-      // 1. Upload file to storage
+      // 1. Upload in secondbrain-documents Bucket unter {user_id}/vermietify/...
+      //    Die RLS-Policy verlangt: (storage.foldername(name))[1] = auth.uid()::text
       const fileExt = input.file.name.split('.').pop();
-      const fileName = `${organizationId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const fileName = `${userId}/vermietify/${timestamp}-${random}.${fileExt}`;
+
       const { error: uploadError } = await supabase.storage
-        .from("documents")
-        .upload(fileName, input.file);
-      
+        .from("secondbrain-documents")
+        .upload(fileName, input.file, { upsert: false });
+
       if (uploadError) throw uploadError;
 
-      // 2. Get public URL
+      // 2. Signed URL (privater Bucket) oder Public URL ermitteln
       const { data: urlData } = supabase.storage
-        .from("documents")
+        .from("secondbrain-documents")
         .getPublicUrl(fileName);
 
-      // 3. Create document record
+      const fileUrl = urlData.publicUrl;
+
+      // 3. Secondbrain-Eintrag anlegen (sb_documents) für OCR und zentrale Dokumentenverwaltung
+      const { data: sbDoc, error: sbError } = await supabase
+        .from("sb_documents")
+        .insert({
+          user_id: userId,
+          title: input.title,
+          source: "upload",
+          file_url: fileUrl,
+          file_type: input.file.type,
+          file_size: input.file.size,
+          ocr_status: "pending",
+        })
+        .select()
+        .single();
+
+      if (sbError) {
+        // Secondbrain-Eintrag ist optional – Fehler loggen aber nicht abbrechen
+        console.warn("Secondbrain-Eintrag konnte nicht angelegt werden:", sbError.message);
+      }
+
+      // 4. Vermietify documents-Eintrag anlegen (verknüpft mit Gebäude/Einheit/Mieter)
       const docType = (input.document_type || "other") as "contract" | "correspondence" | "insurance" | "invoice" | "other" | "protocol" | "tax";
       const { data: doc, error: docError } = await supabase
         .from("documents")
@@ -155,7 +182,7 @@ export function useDocuments() {
           organization_id: organizationId,
           title: input.title,
           document_type: docType,
-          file_url: urlData.publicUrl,
+          file_url: fileUrl,
           file_size: input.file.size,
           building_id: input.building_id || null,
           tenant_id: input.tenant_id || null,
@@ -163,10 +190,10 @@ export function useDocuments() {
         })
         .select()
         .single();
-      
+
       if (docError) throw docError;
 
-      return doc;
+      return { ...doc, sb_document_id: sbDoc?.id || null };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });

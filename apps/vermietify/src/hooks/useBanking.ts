@@ -246,6 +246,10 @@
        transactionType?: string;
        createRule?: boolean;
        ruleConditions?: Array<{ field: string; operator: string; value: string }>;
+       // Steuer-Felder (Anlage V)
+       tax_category?: string;
+       anlage_v_zeile?: string;
+       is_tax_deductible?: boolean;
      }) => {
        // Direct DB update instead of Edge Function (avoids JWT algorithm mismatch)
        const updateData: Record<string, unknown> = {
@@ -253,6 +257,11 @@
        };
        if (params.tenantId) updateData.matched_tenant_id = params.tenantId;
        if (params.leaseId) updateData.matched_lease_id = params.leaseId;
+       if (params.transactionType) updateData.transaction_type = params.transactionType;
+       // Steuer-Felder speichern
+       if (params.tax_category !== undefined) updateData.tax_category = params.tax_category;
+       if (params.anlage_v_zeile !== undefined) updateData.anlage_v_zeile = params.anlage_v_zeile;
+       if (params.is_tax_deductible !== undefined) updateData.is_tax_deductible = params.is_tax_deductible;
        const { error } = await supabase
          .from('bank_transactions')
          .update(updateData)

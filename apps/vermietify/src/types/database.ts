@@ -394,6 +394,17 @@ export interface BuildingFormData {
   total_area?: number;
   year_built?: number;
   notes?: string;
+  // Steuer / AfA-Felder (Anlage V)
+  purchase_price?: number;
+  purchase_date?: string;
+  land_value?: number;
+  building_value?: number;
+  afa_basis?: number;
+  afa_rate?: number;
+  afa_start_year?: number;
+  afa_method?: 'linear' | 'degressive';
+  tax_number?: string;
+  elster_id?: string;
 }
 
 export interface UnitFormData {
