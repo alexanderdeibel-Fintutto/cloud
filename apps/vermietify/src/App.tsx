@@ -152,6 +152,7 @@ import HandoverPDF from "./pages/handover/HandoverPDF";
 
 // Rent Adjustment Pages
 import RentAdjustments from "./pages/rent/RentAdjustments";
+import RentDemandsPage from "./pages/rent/RentDemandsPage";
 
 // CO2 Pages
 import CO2Dashboard from "./pages/co2/CO2Dashboard";
@@ -396,8 +397,10 @@ const App = () => (
             <Route path="/uebergaben/:id" element={<ProtectedRoute><HandoverProtocol /></ProtectedRoute>} />
             <Route path="/uebergaben/:id/pdf" element={<ProtectedRoute><HandoverPDF /></ProtectedRoute>} />
 
-            {/* Rent Adjustments */}
+            {/* Rent Adjustments & Demands */}
             <Route path="/miete/anpassungen" element={<ProtectedRoute><RentAdjustments /></ProtectedRoute>} />
+            <Route path="/miete/forderungen" element={<ProtectedRoute><RentDemandsPage /></ProtectedRoute>} />
+            <Route path="/rent/demands" element={<ProtectedRoute><RentDemandsPage /></ProtectedRoute>} />
 
             {/* Analytics */}
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
