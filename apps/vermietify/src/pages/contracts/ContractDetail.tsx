@@ -25,8 +25,10 @@ import {
   CheckCircle,
   AlertTriangle,
   Clock,
+  TrendingUp,
 } from "lucide-react";
 import { useContracts } from "@/hooks/useContracts";
+import { LeaseAmendmentsTab } from "@/components/lease-amendments/LeaseAmendmentsTab";
 import { format, differenceInMonths } from "date-fns";
 import { de } from "date-fns/locale";
 import { formatCurrency } from "@/lib/utils";
@@ -393,6 +395,24 @@ export default function ContractDetail() {
             </CardContent>
           </Card>
         )}
+
+        {/* Vertragsänderungen & Mieterhöhungen */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <h3 className="text-base font-semibold">Vertragsänderungen & Mieterhöhungen</h3>
+          </div>
+          <LeaseAmendmentsTab
+            leaseId={contract.id}
+            currentValues={{
+              base_rent: contract.rent_amount > 1000 ? contract.rent_amount / 100 : contract.rent_amount,
+              utility_prepayment: (contract.utility_advance || 0) > 500 ? (contract.utility_advance || 0) / 100 : (contract.utility_advance || 0),
+              heating_prepayment: 0,
+              other_costs: 0,
+            }}
+            tenantName={tenant ? `${tenant.first_name} ${tenant.last_name}` : undefined}
+          />
+        </div>
 
         {/* Dokumente */}
         <Card>
