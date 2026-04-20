@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import DocumentUpload from '@/components/documents/DocumentUpload'
 import { useUploadDocument } from '@/hooks/useDocuments'
+import { useOcrUsage } from '@/hooks/useOcrUsage'
 import { supabase } from '@/integrations/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
@@ -80,6 +81,8 @@ export default function UploadPage() {
   const uploadDocument = useUploadDocument()
   const [entityContext, setEntityContext] = useState<EntityContext | null>(null)
   const [isResolvingLabel, setIsResolvingLabel] = useState(false)
+  const [enableOcr, setEnableOcr] = useState(false)
+  const { tierSupportsOcr, ocrLimit, ocrUsed, ocrRemaining } = useOcrUsage()
 
   // URL-Kontext-Parameter auslesen: ?context=building&id=<uuid>
   useEffect(() => {
@@ -97,9 +100,9 @@ export default function UploadPage() {
     }
   }, [searchParams])
 
-  const handleUpload = async (files: File[]) => {
+  const handleUpload = async (files: File[], ocr: boolean) => {
     try {
-      const uploadedDocs = await uploadDocument.mutateAsync(files)
+      const uploadedDocs = await uploadDocument.mutateAsync({ files, options: { enableOcr: ocr } })
 
       // Wenn ein Kontext vorhanden ist, direkt verknüpfen
       if (entityContext && uploadedDocs?.length) {
@@ -140,7 +143,7 @@ export default function UploadPage() {
           Dokumente hochladen
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Lade Dokumente hoch — sie werden automatisch per KI analysiert und durchsuchbar gemacht.
+          Lade Dokumente hoch — OCR-Texterkennung kann optional beim Upload aktiviert werden.
         </p>
       </div>
 
@@ -172,7 +175,15 @@ export default function UploadPage() {
       )}
 
       {/* Upload Zone */}
-      <DocumentUpload onUpload={handleUpload} />
+      <DocumentUpload
+        onUpload={handleUpload}
+        enableOcr={enableOcr}
+        onOcrToggle={setEnableOcr}
+        tierSupportsOcr={tierSupportsOcr}
+        ocrLimit={ocrLimit}
+        ocrUsed={ocrUsed}
+        ocrRemaining={ocrRemaining}
+      />
 
       {/* Features */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

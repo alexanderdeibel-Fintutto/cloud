@@ -10,9 +10,10 @@ interface BankingAccountCardProps {
     id: string;
     account_name: string;
     iban: string;
-    balance_cents: number;
-    balance_date: string | null;
-    connection_id: string;
+    balance: number;
+    balance_updated_at: string | null;
+    finapi_connection_id: string | null;
+    bank_name?: string | null;
   };
   connection?: {
     id: string;
@@ -25,7 +26,7 @@ interface BankingAccountCardProps {
     variant: "default" | "secondary" | "destructive" | "outline";
     icon: React.ReactNode;
   };
-  formatCurrency: (cents: number) => string;
+  formatCurrency: (amount: number) => string;
   onSync: () => void;
   onDelete: () => void;
   isSyncing: boolean;
@@ -77,11 +78,11 @@ export function BankingAccountCard({
           {maskIban(account.iban)}
         </p>
         <p className="text-3xl font-bold text-foreground tracking-tight">
-          {formatCurrency(account.balance_cents)}
+          {formatCurrency(account.balance)}
         </p>
-        {account.balance_date && (
+        {account.balance_updated_at && (
           <p className="text-xs text-muted-foreground mt-1">
-            Stand: {format(new Date(account.balance_date), "dd.MM.yyyy HH:mm", { locale: de })}
+            Stand: {format(new Date(account.balance_updated_at), "dd.MM.yyyy HH:mm", { locale: de })}
           </p>
         )}
       </div>

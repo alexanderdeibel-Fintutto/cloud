@@ -1,6 +1,5 @@
 {
   "framework": "vite",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- . ../../packages/shared/src/ ../../src/ || exit 1",
   "installCommand": "pnpm install",
   "buildCommand": "pnpm run build",
   "outputDirectory": "dist",

@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase';
 
 /**
  * Loggt eine Nutzeraktivität via Supabase RPC log_activity().

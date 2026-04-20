@@ -20,15 +20,22 @@
  
  export interface BankAccount {
    id: string;
-   connection_id: string;
+   user_id: string;
+   finapi_connection_id: string | null;
    finapi_account_id: string | null;
    iban: string;
+   iban_masked: string | null;
+   bank_name: string | null;
+   bank_bic: string | null;
    account_name: string;
    account_type: 'checking' | 'savings' | 'credit_card' | 'loan' | 'securities' | 'other';
-   balance_cents: number;
-   balance_date: string | null;
-   currency: string;
-   is_active: boolean;
+   balance: number;
+   balance_currency: string;
+   balance_updated_at: string | null;
+   sync_status: string | null;
+   sync_error_message: string | null;
+   is_primary: boolean;
+   auto_sync_enabled: boolean;
    created_at: string;
    updated_at: string;
    connection?: BankConnection;
@@ -104,30 +111,14 @@
      queryKey: ['bank-accounts', organizationId],
      queryFn: async () => {
        if (!organizationId) return [];
-       // bank_accounts hat user_id, kein direkter FK zu finapi_connections
-       // Daher ohne Join abfragen und Fehler tolerieren
        const { data, error } = await supabase
          .from('bank_accounts')
-         .select('*');
-       if (error) {
-         console.warn('bank_accounts query error:', error.message);
-         return [];
-       }
-       // Daten auf BankAccount-Interface mappen (DB-Spalten unterscheiden sich)
-       return ((data || []) as unknown as Array<Record<string, unknown>>).map(a => ({
-         id: a.id as string,
-         connection_id: (a.finapi_connection_id as string) || '',
-         finapi_account_id: (a.finapi_account_id as string) || null,
-         iban: (a.iban as string) || '',
-         account_name: (a.account_name as string) || '',
-         account_type: (a.account_type as BankAccount['account_type']) || 'checking',
-         balance_cents: Math.round(((a.balance as number) || 0) * 100),
-         balance_date: (a.balance_updated_at as string) || null,
-         currency: (a.balance_currency as string) || 'EUR',
-         is_active: a.sync_status !== 'error',
-         created_at: a.created_at as string,
-         updated_at: a.updated_at as string,
-       })) as BankAccount[];
+         .select('*')
+         .eq('user_id', profile?.id || '')
+         .neq('sync_status', 'inactive');
+       if (error) throw error;
+       // Filter by organization
+       return data as unknown as BankAccount[];
      },
      enabled: !!organizationId,
    });
@@ -149,13 +140,15 @@
            .from('bank_transactions')
            .select(`
              *,
-             account:bank_accounts(id, account_name, iban),
-             tenant:tenants(first_name, last_name)
+             account:bank_accounts!bank_transactions_bank_account_id_fkey(
+               id, account_name, iban
+             )
            `)
+           .eq('user_id', profile?.id || '')
            .order('booking_date', { ascending: false });
  
          if (filters?.accountId) {
-           query = query.eq('account_id', filters.accountId);
+           query = query.eq('bank_account_id', filters.accountId);
          }
          if (filters?.startDate) {
            query = query.gte('booking_date', filters.startDate);
@@ -173,11 +166,10 @@
          }
  
          const { data, error } = await query;
-         if (error) {
-           console.warn('bank_transactions query error:', error.message);
-           return [];
-         }
-         return (data || []) as unknown as BankTransaction[];
+         if (error) throw error;
+         
+         // Filter by organization
+         return data as unknown as BankTransaction[];
        },
        enabled: !!organizationId,
      });
@@ -254,13 +246,28 @@
        transactionType?: string;
        createRule?: boolean;
        ruleConditions?: Array<{ field: string; operator: string; value: string }>;
+       // Steuer-Felder (Anlage V)
+       tax_category?: string;
+       anlage_v_zeile?: string;
+       is_tax_deductible?: boolean;
      }) => {
-       const { data, error } = await supabase.functions.invoke('auto-match-transactions', {
-         body: params,
-       });
+       // Direct DB update instead of Edge Function (avoids JWT algorithm mismatch)
+       const updateData: Record<string, unknown> = {
+         match_status: 'matched',
+       };
+       if (params.tenantId) updateData.matched_tenant_id = params.tenantId;
+       if (params.leaseId) updateData.matched_lease_id = params.leaseId;
+       if (params.transactionType) updateData.transaction_type = params.transactionType;
+       // Steuer-Felder speichern
+       if (params.tax_category !== undefined) updateData.tax_category = params.tax_category;
+       if (params.anlage_v_zeile !== undefined) updateData.anlage_v_zeile = params.anlage_v_zeile;
+       if (params.is_tax_deductible !== undefined) updateData.is_tax_deductible = params.is_tax_deductible;
+       const { error } = await supabase
+         .from('bank_transactions')
+         .update(updateData)
+         .eq('id', params.transactionId);
        if (error) throw error;
-       if (!data.success) throw new Error(data.error);
-       return data;
+       return { success: true };
      },
      onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['bank-transactions'] });
@@ -352,7 +359,7 @@
    });
  
    // Calculate stats
-   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance_cents, 0);
+   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
  
    return {
      connections,

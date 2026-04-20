@@ -53,13 +53,7 @@ export default function Settings() {
       
       if (profile.organization_id) {
         fetchOrganization();
-      } else {
-        // Kein Organisations-Datensatz vorhanden — Ladevorgang beenden
-        setIsLoading(false);
       }
-    } else if (profile === null) {
-      // Profil explizit null (nicht undefined = noch ladend)
-      setIsLoading(false);
     }
   }, [profile]);
 

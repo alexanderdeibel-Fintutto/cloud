@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, Wrench, AlertCircle, TrendingUp, Calendar, CheckSquare, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Building2, Users, Wrench, AlertCircle, TrendingUp, Calendar, CheckSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -16,7 +15,6 @@ import { DashboardActivityFeed } from "@/components/dashboard/DashboardActivityF
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
 import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
-
 
 interface DashboardStats {
   totalRent: number;
@@ -88,13 +86,13 @@ export default function Dashboard() {
         // Bank transactions this month (income)
         supabase
           .from('bank_transactions')
-          .select('amount_cents, booking_date')
+          .select('amount_cents, booking_date, account:bank_accounts!inner(connection:finapi_connections!inner(organization_id))')
           .gte('booking_date', currentMonthStart)
           .lte('booking_date', currentMonthEnd),
         // Bank transactions last 12 months for chart
         supabase
           .from('bank_transactions')
-          .select('amount_cents, booking_date')
+          .select('amount_cents, booking_date, account:bank_accounts!inner(connection:finapi_connections!inner(organization_id))')
           .gte('booking_date', twelveMonthsAgo),
       ]);
 
@@ -410,37 +408,9 @@ export default function Dashboard() {
         {/* Activity Feed */}
         <DashboardActivityFeed />
 
-        {/* Fintutto Ecosystem Cross-Sell — ausklappbar */}
-        <EcosystemSection />
+        {/* Fintutto Ecosystem Cross-Sell */}
+        <EcosystemPromoCards />
       </div>
     </MainLayout>
-  );
-}
-
-function EcosystemSection() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border rounded-xl overflow-hidden">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted/70 transition-colors text-sm font-medium"
-      >
-        <span className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          Fintutto Ökosystem entdecken
-          <span className="text-xs text-muted-foreground font-normal">– Alle Apps, eine Plattform</span>
-        </span>
-        {open ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-        )}
-      </button>
-      {open && (
-        <div className="p-4">
-          <EcosystemPromoCards compact />
-        </div>
-      )}
-    </div>
   );
 }

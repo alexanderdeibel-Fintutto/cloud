@@ -1,5 +1,4 @@
  import { useState } from "react";
-import jsPDF from 'jspdf';
  import { useNavigate } from "react-router-dom";
  import { MainLayout } from "@/components/layout/MainLayout";
  import { PageHeader } from "@/components/shared/PageHeader";
@@ -94,96 +93,11 @@ import jsPDF from 'jspdf';
    };
  
    const handleExport = () => {
-     try {
-       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-       const pageW = doc.internal.pageSize.getWidth();
-       const margin = 20;
-       let y = 20;
-
-       // Header-Balken
-       doc.setFillColor(30, 64, 175);
-       doc.rect(0, 0, pageW, 30, 'F');
-       doc.setTextColor(255, 255, 255);
-       doc.setFontSize(18);
-       doc.setFont('helvetica', 'bold');
-       doc.text('Anlage V', margin, 18);
-       doc.setFontSize(11);
-       doc.setFont('helvetica', 'normal');
-       doc.text(`Einkünfte aus Vermietung und Verpachtung — Steuerjahr ${currentYear}`, margin, 25);
-       y = 45;
-
-       // Steuerpflichtiger
-       doc.setTextColor(0, 0, 0);
-       doc.setFontSize(10);
-       doc.setFont('helvetica', 'bold');
-       doc.text('Steuerpflichtiger', margin, y);
-       doc.setFont('helvetica', 'normal');
-       y += 6;
-       if (profile?.full_name) { doc.text(`Name: ${profile.full_name}`, margin, y); y += 5; }
-       y += 5;
-
-       // Ausgewählte Objekte
-       doc.setFont('helvetica', 'bold');
-       doc.text('Vermietete Objekte', margin, y); y += 6;
-       doc.setFont('helvetica', 'normal');
-       selectedBuildingData.forEach((b, i) => {
-         doc.text(`${i + 1}. ${b.name || 'Objekt'} — ${b.address || ''}`, margin, y); y += 5;
-       });
-       y += 5;
-
-       // Einnahmen
-       doc.setFillColor(240, 245, 255);
-       doc.rect(margin, y - 3, pageW - 2 * margin, 8, 'F');
-       doc.setFont('helvetica', 'bold');
-       doc.text('Einnahmen', margin, y + 2); y += 10;
-       doc.setFont('helvetica', 'normal');
-       doc.text('Mieteinnahmen (brutto):', margin, y);
-       doc.text(`${(rentalIncome / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`, pageW - margin, y, { align: 'right' });
-       y += 10;
-
-       // Werbungskosten
-       doc.setFillColor(240, 245, 255);
-       doc.rect(margin, y - 3, pageW - 2 * margin, 8, 'F');
-       doc.setFont('helvetica', 'bold');
-       doc.text('Werbungskosten', margin, y + 2); y += 10;
-       doc.setFont('helvetica', 'normal');
-       werbungskosten.forEach(w => {
-         if (w.amount > 0) {
-           doc.text(`${w.name}:`, margin, y);
-           doc.text(`${(w.amount / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`, pageW - margin, y, { align: 'right' });
-           y += 5;
-         }
-       });
-       if (totalAfA > 0) {
-         doc.text('AfA (Abschreibung):', margin, y);
-         doc.text(`${(totalAfA / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`, pageW - margin, y, { align: 'right' });
-         y += 5;
-       }
-       y += 5;
-
-       // Ergebnis
-       doc.setDrawColor(30, 64, 175);
-       doc.line(margin, y, pageW - margin, y); y += 6;
-       doc.setFont('helvetica', 'bold');
-       doc.setFontSize(12);
-       const label = taxableIncome >= 0 ? 'Zu versteuernde Einkünfte:' : 'Überschuss der Werbungskosten:';
-       doc.text(label, margin, y);
-       doc.setTextColor(taxableIncome >= 0 ? 220 : 30, taxableIncome >= 0 ? 38 : 64, taxableIncome >= 0 ? 38 : 175);
-       doc.text(`${(Math.abs(taxableIncome) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`, pageW - margin, y, { align: 'right' });
-       y += 15;
-
-       // Footer
-       doc.setTextColor(150, 150, 150);
-       doc.setFontSize(8);
-       doc.setFont('helvetica', 'normal');
-       doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')} — Vermietify — Nur zur Vorabkalkulation, kein amtliches Dokument`, margin, 285);
-
-       doc.save(`Anlage_V_${currentYear}.pdf`);
-       toast({ title: 'PDF erstellt', description: `Anlage_V_${currentYear}.pdf wurde heruntergeladen.` });
-     } catch (err) {
-       console.error('PDF error:', err);
-       toast({ title: 'Fehler', description: 'PDF konnte nicht erstellt werden.', variant: 'destructive' });
-     }
+     toast({
+       title: "Export gestartet",
+       description: "Die Anlage V wird als PDF generiert...",
+     });
+     // TODO: Implement actual PDF generation
    };
  
    if (isLoading) {

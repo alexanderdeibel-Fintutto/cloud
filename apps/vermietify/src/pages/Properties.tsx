@@ -140,22 +140,12 @@ export default function Properties() {
 
     try {
       const validatedData = validationResult.data;
-      // address ist eine generierte Spalte (street + house_number) - nicht direkt befüllbar
-      // Adresse aufteilen: letztes Wort als Hausnummer, Rest als Straße
-      const addressParts = validatedData.address.trim().split(' ');
-      const houseNumber = addressParts.length > 1 && /^\d/.test(addressParts[addressParts.length - 1])
-        ? addressParts[addressParts.length - 1]
-        : null;
-      const streetName = houseNumber
-        ? addressParts.slice(0, -1).join(' ')
-        : validatedData.address.trim();
       const { error } = await supabase
         .from('buildings')
         .insert({
           organization_id: profile.organization_id,
           name: validatedData.name,
-          street: streetName,
-          house_number: houseNumber,
+          address: validatedData.address,
           city: validatedData.city,
           postal_code: validatedData.postal_code,
           building_type: validatedData.building_type as any,
@@ -290,9 +280,9 @@ export default function Properties() {
                       }}
                       onPlaceSelect={handlePlaceSelect}
                     />
-                    {!isAddressValidated && newBuilding.address.length > 0 && (
-                      <p className="text-xs text-destructive">
-                        Bitte wählen Sie eine Adresse aus den Vorschlägen aus
+                    {!isAddressValidated && newBuilding.address.length > 0 && (!newBuilding.postal_code || !newBuilding.city) && (
+                      <p className="text-xs text-muted-foreground">
+                        Tipp: Adresse aus Vorschlägen wählen, oder PLZ und Stadt manuell ausfüllen
                       </p>
                     )}
                   </div>
@@ -304,7 +294,6 @@ export default function Properties() {
                         placeholder="12345"
                         value={newBuilding.postal_code}
                         onChange={(e) => setNewBuilding({ ...newBuilding, postal_code: e.target.value })}
-                        disabled={isAddressValidated}
                         required
                       />
                     </div>
@@ -315,7 +304,6 @@ export default function Properties() {
                         placeholder="Berlin"
                         value={newBuilding.city}
                         onChange={(e) => setNewBuilding({ ...newBuilding, city: e.target.value })}
-                        disabled={isAddressValidated}
                         required
                       />
                     </div>
@@ -365,7 +353,7 @@ export default function Properties() {
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Abbrechen
                   </Button>
-                  <Button type="submit" disabled={isSubmitting || !isAddressValidated}>
+                  <Button type="submit" disabled={isSubmitting || (!isAddressValidated && (!newBuilding.address || !newBuilding.postal_code || !newBuilding.city))}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Anlegen
                   </Button>

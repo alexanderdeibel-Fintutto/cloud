@@ -1,44 +1,9 @@
 import { createRoot } from "react-dom/client";
-import { Component, ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
+import React from "react";
 import App from "./App.tsx";
 import "./i18n";
 import "./index.css";
-
-// Global Error Boundary
-class GlobalErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, info: { componentStack: string }) {
-    console.error("GlobalErrorBoundary caught:", error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: "20px", color: "white", background: "#1a1a2e", minHeight: "100vh" }}>
-          <h1>App-Fehler</h1>
-          <pre style={{ whiteSpace: "pre-wrap", fontSize: "12px" }}>
-            {this.state.error?.message}
-            {"\n"}
-            {this.state.error?.stack}
-          </pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 // Register service worker for PWA
 if ("serviceWorker" in navigator) {
@@ -49,10 +14,49 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Temporärer Error Boundary zur Fehlerdiagnose
+class DiagnosticErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error("DIAGNOSTIC_ERROR:", error.message, error.stack, info.componentStack);
+  }
+
+  render() {
+    if (this.state.error) {
+      return React.createElement(
+        "pre",
+        {
+          style: {
+            color: "red",
+            padding: "20px",
+            background: "#111",
+            fontSize: "12px",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
+          },
+        },
+        `RENDER ERROR:\n${this.state.error.name}: ${this.state.error.message}\n\n${this.state.error.stack}`
+      );
+    }
+    return this.props.children;
+  }
+}
+
 createRoot(document.getElementById("root")!).render(
-  <GlobalErrorBoundary>
+  <DiagnosticErrorBoundary>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <App />
     </ThemeProvider>
-  </GlobalErrorBoundary>
+  </DiagnosticErrorBoundary>
 );

@@ -35,13 +35,19 @@ export function useDocuments(options?: { category?: string; favorites?: boolean;
   })
 }
 
+export interface UploadOptions {
+  enableOcr?: boolean
+}
+
 export function useUploadDocument() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (files: File[]) => {
+    mutationFn: async ({ files, options }: { files: File[]; options?: UploadOptions }) => {
       if (!user) throw new Error('Not authenticated')
+
+      const enableOcr = options?.enableOcr ?? false
 
       const results = []
       for (const file of files) {
@@ -60,6 +66,9 @@ export function useUploadDocument() {
           : file.type.startsWith('text/') ? 'text'
           : 'other'
 
+        // OCR-Status: 'pending' wenn OCR aktiviert, 'skipped' wenn nicht
+        const ocrStatus = enableOcr ? 'pending' : 'skipped'
+
         const { data, error: dbError } = await supabase
           .from('sb_documents')
           .insert({
@@ -70,7 +79,7 @@ export function useUploadDocument() {
             file_size: file.size,
             mime_type: file.type,
             storage_path: filePath,
-            ocr_status: 'pending',
+            ocr_status: ocrStatus,
             tags: [],
             is_favorite: false,
           })
@@ -80,10 +89,12 @@ export function useUploadDocument() {
         if (dbError) throw dbError
         results.push(data)
 
-        // Trigger OCR processing (edge function)
-        supabase.functions.invoke('secondbrain-ocr', {
-          body: { documentId: data.id, storagePath: filePath, fileType, mimeType: file.type },
-        }).catch(console.error)
+        // OCR nur auslösen wenn explizit aktiviert
+        if (enableOcr) {
+          supabase.functions.invoke('secondbrain-ocr', {
+            body: { documentId: data.id, storagePath: filePath, fileType, mimeType: file.type },
+          }).catch(console.error)
+        }
       }
 
       return results
@@ -158,8 +169,41 @@ export function useDocumentStats() {
         favorites: docs.filter((d) => d.is_favorite).length,
         ocrCompleted: docs.filter((d) => d.ocr_status === 'completed').length,
         ocrPending: docs.filter((d) => d.ocr_status === 'pending' || d.ocr_status === 'processing').length,
+        ocrSkipped: docs.filter((d) => d.ocr_status === 'skipped').length,
       }
     },
     enabled: !!user,
+  })
+}
+
+/**
+ * Manuell OCR für ein einzelnes Dokument auslösen (z.B. aus der Dokumentenliste)
+ */
+export function useTriggerOcr() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (doc: Document) => {
+      // Status auf 'pending' setzen
+      await supabase
+        .from('sb_documents')
+        .update({ ocr_status: 'pending' })
+        .eq('id', doc.id)
+
+      // Edge Function aufrufen
+      const { error } = await supabase.functions.invoke('secondbrain-ocr', {
+        body: {
+          documentId: doc.id,
+          storagePath: doc.storage_path,
+          fileType: doc.file_type,
+          mimeType: doc.mime_type || '',
+        },
+      })
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+    },
   })
 }

@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function ManualAccountDialog({ open, onOpenChange }: Props) {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -40,7 +40,10 @@ export function ManualAccountDialog({ open, onOpenChange }: Props) {
   });
 
   const handleSave = async () => {
-    if (!profile?.organization_id) return;
+    if (!profile?.organization_id) {
+      toast.error("Kein Profil gefunden – bitte Seite neu laden");
+      return;
+    }
     if (!form.bankName || !form.accountName || !form.iban) {
       toast.error("Bitte füllen Sie alle Pflichtfelder aus");
       return;
@@ -48,7 +51,7 @@ export function ManualAccountDialog({ open, onOpenChange }: Props) {
 
     setSaving(true);
     try {
-      // Create a manual connection first
+      // 1. Manuelle finapi_connection anlegen
       const { data: connection, error: connErr } = await supabase
         .from("finapi_connections")
         .insert({
@@ -63,18 +66,21 @@ export function ManualAccountDialog({ open, onOpenChange }: Props) {
 
       if (connErr) throw connErr;
 
-      // Create the account
-      const balanceCents = form.initialBalance
-        ? Math.round(parseFloat(form.initialBalance.replace(",", ".")) * 100)
+      // 2. Bankkonto anlegen — echte DB-Spalten verwenden
+      const initialBalance = form.initialBalance
+        ? parseFloat(form.initialBalance.replace(",", "."))
         : 0;
 
       const { error: accErr } = await supabase.from("bank_accounts").insert({
-        connection_id: connection.id,
+        user_id: user?.id,
+        finapi_connection_id: connection.id,
         iban: form.iban.replace(/\s/g, ""),
+        bank_name: form.bankName,
         account_name: form.accountName,
         account_type: form.accountType,
-        balance_cents: balanceCents,
-        balance_date: new Date().toISOString(),
+        balance: initialBalance,
+        balance_currency: "EUR",
+        sync_status: "manual",
       });
 
       if (accErr) throw accErr;
@@ -90,9 +96,10 @@ export function ManualAccountDialog({ open, onOpenChange }: Props) {
         accountType: "checking",
         initialBalance: "",
       });
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error("Fehler beim Anlegen des Kontos");
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Fehler beim Anlegen des Kontos: ${msg}`);
     } finally {
       setSaving(false);
     }

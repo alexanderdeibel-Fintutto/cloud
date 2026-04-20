@@ -19,6 +19,7 @@ const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
+const PricingPage = lazy(() => import('@/pages/PricingPage'))
 
 function PageLoader() {
   return (
@@ -44,6 +45,7 @@ function App() {
               <Route path="favoriten" element={<FavoritesPage />} />
               <Route path="verlauf" element={<HistoryPage />} />
               <Route path="einstellungen" element={<SettingsPage />} />
+              <Route path="pricing" element={<PricingPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="registrieren" element={<RegisterPage />} />
               <Route path="*" element={<NotFoundPage />} />

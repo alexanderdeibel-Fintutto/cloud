@@ -33,7 +33,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
    unmatched: { label: "Offen", variant: "outline" },
    auto: { label: "Auto", variant: "secondary" },
    manual: { label: "Manuell", variant: "default" },
+   matched: { label: "Zugeordnet", variant: "default" },
    ignored: { label: "Ignoriert", variant: "destructive" },
+   rejected: { label: "Abgelehnt", variant: "destructive" },
  };
  
  export default function Transactions() {
@@ -156,7 +158,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
        accessorKey: "match_status",
        header: "Zuordnung",
        cell: ({ row }) => {
-         const status = matchStatusConfig[row.original.match_status];
+         const status = matchStatusConfig[row.original.match_status] ?? { label: row.original.match_status || 'Unbekannt', variant: 'outline' as const };
          const tenant = row.original.tenant;
          
          return (

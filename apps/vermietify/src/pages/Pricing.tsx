@@ -62,19 +62,9 @@ export default function Pricing() {
     setCheckoutLoading(plan.id);
 
     try {
-      const priceId = billingPeriod === 'monthly' ? plan.priceIdMonthly : plan.priceIdYearly;
-      if (!priceId) {
-        toast({
-          title: 'Fehler',
-          description: 'Dieser Plan ist noch nicht verfuegbar.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
-          priceId,
+          priceId: plan.priceId,
           successUrl: `${window.location.origin}/payment-success`,
           cancelUrl: `${window.location.origin}/pricing`,
         },

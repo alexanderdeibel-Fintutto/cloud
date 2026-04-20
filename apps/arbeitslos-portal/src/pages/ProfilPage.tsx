@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Settings, CreditCard, Shield, Download, Trash2, Key, Bell, MapPin, Users, Mail, ArrowRight, CheckCircle2, AlertCircle, User as UserIcon, ScanSearch, MessageCircle, Upload, HardDrive } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,8 +13,9 @@ import useDocumentTitle from '@/hooks/useDocumentTitle'
 
 export default function ProfilPage() {
   useDocumentTitle('Mein Profil - BescheidBoxer')
-  const { profile } = useAuth()
+  const { profile, deleteAccount } = useAuth()
   const { credits } = useCreditsContext()
+  const navigate = useNavigate()
 
   // Demo form state
   const [name, setName] = useState(profile?.name || 'Max Mustermann')
@@ -66,10 +67,15 @@ export default function ProfilPage() {
     e.target.value = ''
   }
 
-  const handleDeleteAccount = () => {
-    if (confirm('ACHTUNG: Moechten Sie Ihr Konto wirklich unwiderruflich loeschen? Alle Ihre Daten gehen verloren.')) {
-      console.log('Konto loeschen angefordert')
-      // TODO: Implement account deletion
+  const handleDeleteAccount = async () => {
+    if (confirm('ACHTUNG: Moechten Sie Ihr Konto wirklich unwiderruflich löschen? Alle Ihre Daten (Anträge, Widerspruchsschreiben, Forum-Beiträge) gehen verloren und können nicht wiederhergestellt werden.')) {
+      try {
+        await deleteAccount()
+        navigate('/login')
+      } catch (err) {
+        console.error('Fehler beim Löschen des Kontos:', err)
+        alert('Fehler beim Löschen des Kontos. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support.')
+      }
     }
   }
 

@@ -280,22 +280,22 @@ export function BulkImportDialog({
             const { error } = await supabase.from("tenants").update({
               email: t.email || undefined,
               phone: t.phone || undefined,
-              correspondence_street: t.address || undefined, // DB column name
-              correspondence_city: t.city || undefined,       // DB column name
-              correspondence_zip: t.postal_code || undefined, // DB column name
+              address: t.address || undefined,
+              city: t.city || undefined,
+              postal_code: t.postal_code || undefined,
               notes: t.notes || undefined,
             }).eq("id", t._existingMatch.id);
             if (error) { console.error(error); failed++; } else { success++; }
           } else {
             const { error } = await supabase.from("tenants").insert({
-              org_id: organizationId!, // organization_id is a generated column in DB
+              organization_id: organizationId!,
               first_name: t.first_name,
               last_name: t.last_name,
               email: t.email || null,
               phone: t.phone || null,
-              correspondence_street: t.address || null, // DB column name
-              correspondence_city: t.city || null,       // DB column name
-              correspondence_zip: t.postal_code || null, // DB column name
+              address: t.address || null,
+              city: t.city || null,
+              postal_code: t.postal_code || null,
               notes: t.notes || null,
             });
             if (error) { console.error(error); failed++; } else { success++; }

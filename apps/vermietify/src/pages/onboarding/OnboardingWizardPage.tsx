@@ -74,7 +74,7 @@ function StepProfile({ onNext, isLoading }: StepProps) {
       const { error } = await supabase
         .from("profiles")
         .update({ first_name: firstName, last_name: lastName })
-        .eq("user_id", user?.id);
+        .eq("id", user?.id);
 
       if (error) throw error;
 
@@ -514,7 +514,7 @@ function StepTenant({ onNext, onBack, onSkip }: StepProps) {
     setSaving(true);
     try {
       const { error } = await supabase.from("tenants").insert({
-        org_id: profile?.organization_id, // organization_id is a generated column in DB
+        organization_id: profile?.organization_id,
         first_name: firstName,
         last_name: lastName,
         email: email || null,
@@ -635,7 +635,7 @@ function StepComplete() {
     await supabase
       .from("profiles")
       .update({ onboarding_completed: true })
-      .eq("user_id", user?.id);
+      .eq("id", user?.id);
 
     navigate("/dashboard");
   };

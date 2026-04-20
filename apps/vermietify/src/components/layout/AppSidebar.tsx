@@ -1,23 +1,43 @@
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  FileText, 
-  MessageSquare, 
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  FileText,
+  MessageSquare,
   Settings,
   LogOut,
   ChevronDown,
   CreditCard,
+  FileSignature,
   Receipt,
+  Gauge,
   CheckSquare,
+  DoorOpen,
   ChevronRight,
   Mail,
   Calculator,
+  PenTool,
   MessageCircle,
   CalendarDays,
+  TrendingUp,
+  Leaf,
+  Home,
   Zap,
   HelpCircle,
+  History,
+  Shield,
   Sparkles,
+  BarChart3,
+  Database,
+  ShieldCheck,
+  UserCog,
+  BookOpen,
+  FileBarChart,
+  ClipboardCheck,
+  Wallet,
+  Scale,
+  Send,
+  Bell,
   Wrench,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -29,7 +49,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -53,50 +72,79 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import vermietifyLogo from "@/assets/vermietify-logo.svg";
 
-// Primäre Kernnavigation — täglich genutzte Funktionen
-const coreNavigationItems = [
+const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { 
-    title: "Immobilien", 
+  {
+    title: "Immobilien",
     icon: Building2,
     subItems: [
-      { title: "Gebäude", url: "/immobilien" },
+      { title: "Gebäude", url: "/properties" },
       { title: "Einheiten", url: "/einheiten" },
+      { title: "Eigentümer", url: "/eigentuemer" },
       { title: "Betriebskosten", url: "/betriebskosten" },
       { title: "Zähler", url: "/zaehler" },
     ]
   },
-  { 
-    title: "Mieter", 
+  {
+    title: "Mieter",
     icon: Users,
     subItems: [
-      { title: "Übersicht", url: "/mieter" },
+      { title: "Übersicht", url: "/tenants" },
       { title: "Mietangebote", url: "/angebote" },
       { title: "Verträge", url: "/vertraege" },
+      { title: "Kündigungen", url: "/kuendigungen" },
       { title: "Unterschriften", url: "/unterschriften" },
-      { title: "Mietanpassungen", url: "/mietanpassung" },
+      { title: "Mietanpassungen", url: "/miete/anpassungen" },
       { title: "Inserate", url: "/inserate" },
       { title: "KdU-Richtwerte", url: "/kdu-richtwerte" },
     ]
   },
-  { 
-    title: "Finanzen", 
+  {
+    title: "Finanzen",
     icon: CreditCard,
     subItems: [
       { title: "Übersicht", url: "/finanzen" },
       { title: "Zahlungen", url: "/zahlungen" },
+      { title: "Rechnungen", url: "/rechnungen" },
+      { title: "Budget", url: "/budget" },
       { title: "Banking", url: "/banking" },
-      { title: "Transaktionen", url: "/banking/transaktionen" },
-      { title: "Konto verbinden", url: "/banking/verbinden" },
-      { title: "Zuordnungsregeln", url: "/banking/regeln" },
+      { title: "Portfolio", url: "/portfolio" },
+      { title: "Vermögen", url: "/vermoegen" },
+    ]
+  },
+  {
+    title: "Steuern",
+    icon: Receipt,
+    subItems: [
+      { title: "Dashboard", url: "/steuern" },
+      { title: "Erklärungen", url: "/steuern/erklaerungen" },
+      { title: "Absetzungen", url: "/steuern/absetzungen" },
+      { title: "Fristen", url: "/steuern/fristen" },
+      { title: "Szenarien", url: "/steuern/szenarien" },
+      { title: "Optimierung", url: "/steuern/optimierung" },
+      { title: "Formulare", url: "/steuern/formulare" },
+      { title: "ELSTER", url: "/steuern/elster" },
+      { title: "DATEV", url: "/steuern/datev" },
+      { title: "Compliance", url: "/steuern/compliance" },
+      { title: "Export", url: "/steuern/export" },
+    ]
+  },
+  {
+    title: "Rechner",
+    icon: Calculator,
+    subItems: [
+      { title: "Alle Rechner", url: "/rechner" },
+      { title: "AfA-Rechner", url: "/rechner/afa" },
+      { title: "Kaufpreis", url: "/rechner/kaufpreis" },
+      { title: "Rendite", url: "/rechner/rendite" },
+      { title: "Tilgung", url: "/rechner/tilgung" },
+      { title: "Cashflow", url: "/rechner/cashflow" },
+      { title: "Wertentwicklung", url: "/rechner/wertentwicklung" },
+      { title: "CO₂-Kosten", url: "/co2" },
     ]
   },
   { title: "Kalender", url: "/kalender", icon: CalendarDays },
   { title: "Aufgaben", url: "/aufgaben", icon: CheckSquare },
-];
-
-// Sekundäre Erweiterungen — gelegentlich genutzte Tools
-const toolsNavigationItems = [
   { title: "Automatisierung", url: "/automatisierung", icon: Zap },
   { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
   { 
@@ -104,7 +152,7 @@ const toolsNavigationItems = [
     icon: Calculator,
     subItems: [
       { title: "Alle Tools", url: "/portal" },
-      { title: "CO₂-Kosten", url: "/co2" },
+      { title: "CO\u2082-Kosten", url: "/co2" },
     ]
   },
   { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
@@ -116,90 +164,69 @@ const toolsNavigationItems = [
       { title: "Massenimport", url: "/massenimport" },
     ],
   },
-  { title: "Steuern", url: "/steuern", icon: Receipt },
   { 
-    title: "Kommunikation", 
-    icon: MessageSquare,
+    title: "Steuern & ELSTER", 
+    icon: Receipt,
     subItems: [
-      { title: "E-Mail verfassen", url: "/kommunikation/verfassen" },
-      { title: "E-Mail-Vorlagen", url: "/kommunikation/vorlagen" },
-      { title: "E-Mail-Verlauf", url: "/kommunikation/verlauf" },
-      { title: "E-Mail-Eingang", url: "/eingehende-emails" },
-      { title: "Empfangsadresse", url: "/eingehende-emails/warteschlange" },
+      { title: "Steuer\u00fcbersicht", url: "/steuern" },
+      { title: "KI-Steuerberater", url: "/steuern/ki-berater" },
+      { title: "Anlage V Wizard", url: "/steuern/anlage-v" },
+      { title: "Steuerdokumente", url: "/steuern/dokumente" },
+      { title: "ELSTER Dashboard", url: "/elster" },
+      { title: "ELSTER Einreichen", url: "/elster/einreichen" },
     ]
   },
+  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Benachrichtigungen", url: "/benachrichtigungen", icon: Bell },
+  {
+    title: "Kommunikation",
+    icon: MessageSquare,
+    subItems: [
+      { title: "E-Mail verfassen", url: "/kommunikation/senden" },
+      { title: "E-Mail-Vorlagen", url: "/kommunikation/vorlagen" },
+      { title: "E-Mail-Verlauf", url: "/kommunikation/verlauf" },
+      { title: "E-Mail-Eingang", url: "/kommunikation/eingang" },
+      { title: "Empfangsadresse", url: "/kommunikation/empfang" },
+      { title: "WhatsApp", url: "/whatsapp" },
+      { title: "Massen-Nachrichten", url: "/kommunikation/bulk" },
+      { title: "Analytics", url: "/kommunikation/analytics" },
+    ]
+  },
+  {
+    title: "Berichte",
+    icon: BarChart3,
+    subItems: [
+      { title: "Report-Center", url: "/berichte" },
+      { title: "Report-Builder", url: "/berichte/builder" },
+      { title: "Analytics", url: "/berichte/analytics" },
+    ]
+  },
+  {
+    title: "Compliance",
+    icon: ShieldCheck,
+    subItems: [
+      { title: "Dashboard", url: "/compliance" },
+      { title: "Checkliste", url: "/compliance/checkliste" },
+      { title: "Audit-Bereitschaft", url: "/compliance/audit" },
+    ]
+  },
+  {
+    title: "Daten",
+    icon: Database,
+    subItems: [
+      { title: "Import/Export", url: "/daten" },
+      { title: "Universal-Import", url: "/daten/import" },
+    ]
+  },
+  {
+    title: "Versicherungen",
+    url: "/versicherungen",
+    icon: Shield,
+  },
+  { title: "Energie", url: "/energie", icon: Leaf },
+  { title: "Wissen", url: "/wissen", icon: BookOpen },
+  { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
 ];
-
-type NavItem = {
-  title: string;
-  icon: React.ElementType;
-  url?: string;
-  subItems?: { title: string; url: string }[];
-};
-
-function NavGroup({ items, openSubmenu, setOpenSubmenu, isActive, isSubmenuActive }: {
-  items: NavItem[];
-  openSubmenu: string | null;
-  setOpenSubmenu: (v: string | null) => void;
-  isActive: (url: string) => boolean;
-  isSubmenuActive: (subItems: { url: string }[]) => boolean;
-}) {
-  return (
-    <SidebarMenu>
-      {items.map((item) => {
-        if (item.subItems) {
-          const submenuActive = isSubmenuActive(item.subItems);
-          return (
-            <Collapsible
-              key={item.title}
-              open={openSubmenu === item.title || submenuActive}
-              onOpenChange={(open) => setOpenSubmenu(open ? item.title : null)}
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton className="w-full justify-between">
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </div>
-                    <ChevronRight className={`h-4 w-4 transition-transform ${openSubmenu === item.title || submenuActive ? 'rotate-90' : ''}`} />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.subItems.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild isActive={isActive(subItem.url.split('#')[0])}>
-                          <NavLink to={subItem.url}>
-                            {subItem.title}
-                          </NavLink>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          );
-        }
-
-        return (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild isActive={isActive(item.url!)}>
-              <NavLink
-                to={item.url!}
-                className="flex items-center gap-3"
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.title}</span>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        );
-      })}
-    </SidebarMenu>
-  );
-}
 
 export function AppSidebar() {
   const location = useLocation();
@@ -239,35 +266,61 @@ export function AppSidebar() {
       <SidebarSeparator className="bg-white/20" />
 
       <SidebarContent>
-        {/* Kernfunktionen — täglich genutzte Bereiche */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <NavGroup
-              items={coreNavigationItems}
-              openSubmenu={openSubmenu}
-              setOpenSubmenu={setOpenSubmenu}
-              isActive={isActive}
-              isSubmenuActive={isSubmenuActive}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
+            <SidebarMenu>
+              {navigationItems.map((item) => {
+                if (item.subItems) {
+                  const submenuActive = isSubmenuActive(item.subItems);
+                  return (
+                    <Collapsible
+                      key={item.title}
+                      open={openSubmenu === item.title || submenuActive}
+                      onOpenChange={(open) => setOpenSubmenu(open ? item.title : null)}
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton className="w-full justify-between">
+                            <div className="flex items-center gap-3">
+                              <item.icon className="h-5 w-5" />
+                              <span>{item.title}</span>
+                            </div>
+                            <ChevronRight className={`h-4 w-4 transition-transform ${openSubmenu === item.title || submenuActive ? 'rotate-90' : ''}`} />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.subItems.map((subItem) => (
+                              <SidebarMenuSubItem key={subItem.title}>
+                                <SidebarMenuSubButton asChild isActive={isActive(subItem.url.split('#')[0])}>
+                                  <NavLink to={subItem.url}>
+                                    {subItem.title}
+                                  </NavLink>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                }
 
-        <SidebarSeparator className="bg-white/10 mx-4" />
-
-        {/* Erweiterungen — Tools und Zusatzfunktionen */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-white/40 text-xs uppercase tracking-wider px-4 py-2 flex items-center gap-2">
-            <Wrench className="h-3 w-3" />
-            Erweiterungen
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavGroup
-              items={toolsNavigationItems}
-              openSubmenu={openSubmenu}
-              setOpenSubmenu={setOpenSubmenu}
-              isActive={isActive}
-              isSubmenuActive={isSubmenuActive}
-            />
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink
+                        to={item.url}
+                        className="flex items-center gap-3"
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
@@ -293,8 +346,8 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={location.pathname === '/einstellungen'}>
-              <NavLink to="/einstellungen" className="flex items-center gap-3">
+            <SidebarMenuButton asChild isActive={location.pathname === '/settings'}>
+              <NavLink to="/settings" className="flex items-center gap-3">
                 <Settings className="h-5 w-5" />
                 <span>Einstellungen</span>
               </NavLink>

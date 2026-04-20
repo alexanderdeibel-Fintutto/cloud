@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Coins, ChevronRight } from 'lucide-react'
 import { useCredits } from '../contexts/CreditsContext'
-import { PLANS, formatCreditsDisplay } from '../lib/credits'
+import { formatCreditsDisplay } from '../lib/credits'
+import { ALL_PLANS } from '../../../../packages/shared/src/credits'
 
 export function CreditsDisplay() {
   const { credits, isLoading } = useCredits()
@@ -27,7 +28,7 @@ export function CreditsDisplay() {
     )
   }
 
-  const plan = PLANS[credits.plan]
+  const plan = ALL_PLANS[credits.plan]
   const isUnlimited = plan.monthlyCredits === -1
   const creditsDisplay = formatCreditsDisplay(credits.creditsRemaining)
   const maxCredits = formatCreditsDisplay(plan.monthlyCredits)
@@ -60,10 +61,8 @@ export function CreditsDisplay() {
 
 export function CreditsCard() {
   const { credits, isLoading } = useCredits()
-
   if (isLoading || !credits) return null
-
-  const plan = PLANS[credits.plan]
+  const plan = ALL_PLANS[credits.plan]
   const isUnlimited = plan.monthlyCredits === -1
   const percentage = isUnlimited ? 100 : (credits.creditsRemaining / plan.monthlyCredits) * 100
 

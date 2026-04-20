@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { DataTable } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreHorizontal, Edit, Trash2, Eye, Upload } from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Eye, Upload, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +32,31 @@ export function BuildingUnitsTab({ building, onAddUnit }: BuildingUnitsTabProps)
   const navigate = useNavigate();
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const units = building.units || [];
+
+  // Mieter-Daten aus leases + tenants laden
+  const unitIds = units.map((u) => u.id).filter(Boolean);
+  const { data: leaseData } = useQuery({
+    queryKey: ["building-unit-tenants", unitIds],
+    enabled: unitIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leases")
+        .select("unit_id, is_active, tenant:tenants(id, first_name, last_name, email)")
+        .in("unit_id", unitIds)
+        .eq("is_active", true);
+      if (error) throw error;
+      // Map: unit_id -> Mieter-Name
+      const map: Record<string, string> = {};
+      for (const lease of data || []) {
+        const t = lease.tenant as { first_name?: string | null; last_name?: string | null; email?: string | null } | null;
+        if (t && lease.unit_id) {
+          const name = [t.first_name, t.last_name].filter(Boolean).join(" ") || t.email || "Unbekannt";
+          map[lease.unit_id] = name;
+        }
+      }
+      return map;
+    },
+  });
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -94,9 +121,17 @@ export function BuildingUnitsTab({ building, onAddUnit }: BuildingUnitsTabProps)
       id: "tenant",
       header: "Mieter",
       cell: ({ row }) => {
-        // TODO: Fetch tenant info from lease
+        const tenantName = leaseData?.[row.original.id];
+        if (tenantName) {
+          return (
+            <span className="flex items-center gap-1.5 text-sm">
+              <User className="h-3.5 w-3.5 text-muted-foreground" />
+              {tenantName}
+            </span>
+          );
+        }
         if (row.original.status === "rented") {
-          return <span className="text-muted-foreground">Mieter vorhanden</span>;
+          return <span className="text-muted-foreground text-sm italic">Wird geladen…</span>;
         }
         return <span className="text-muted-foreground">-</span>;
       },

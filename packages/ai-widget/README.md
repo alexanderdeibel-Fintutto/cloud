@@ -9,7 +9,7 @@ Füge diesen Script-Tag in **jede App** ein (vor `</body>`):
 ```html
 <script
   src="https://cdn.jsdelivr.net/gh/alexanderdeibel-Fintutto/fintutto-ecosystem@main/packages/ai-widget/dist/fintutto-ai-widget.js"
-  data-app-id="vermieterportal"
+  data-app-id="vermieter-portal"
   data-supabase-url="https://aaefocdqgdgexkcrjhks.supabase.co"
   data-supabase-key="DEIN_ANON_KEY">
 </script>
@@ -19,7 +19,7 @@ Füge diesen Script-Tag in **jede App** ein (vor `</body>`):
 
 | Attribut | Beschreibung | Beispiel |
 |----------|--------------|----------|
-| `data-app-id` | App-Identifier | `mieterportal`, `vermieterportal`, `vermietify`, etc. |
+| `data-app-id` | App-Identifier | `mieterportal`, `vermieter-portal`, `vermietify`, etc. |
 | `data-supabase-url` | Supabase URL | `https://xxx.supabase.co` |
 | `data-supabase-key` | Supabase Anon Key | `eyJ...` |
 | `data-color` | (Optional) Custom Farbe | `#ff0000` |
@@ -28,12 +28,14 @@ Füge diesen Script-Tag in **jede App** ein (vor `</body>`):
 ## Verfügbare App-IDs
 
 - `mieterportal` - Grün, Du-Form
-- `vermieterportal` - Indigo, Sie-Form
+- `vermieter-portal` - Lila (#7c3aed), Du-Form (Rechner & Formulare)
 - `vermietify` - Indigo, Sie-Form
 - `mieterapp` - Grün, Du-Form
 - `formulare` - Lila, Sie-Form
 - `rechner` - Orange, Sie-Form
 - `betriebskosten` - Blau, Sie-Form
+
+> **Hinweis:** `vermieterportal` (alt) ist ein Legacy-Alias und wird intern auf `vermieter-portal` umgeleitet.
 
 ## Selbst hosten
 
@@ -53,7 +55,7 @@ Kopiere `dist/fintutto-ai-widget.js` auf deinen Server oder CDN.
   <!-- Fintutto AI Widget -->
   <script
     src="./fintutto-ai-widget.js"
-    data-app-id="vermieterportal"
+    data-app-id="vermieter-portal"
     data-supabase-url="https://aaefocdqgdgexkcrjhks.supabase.co"
     data-supabase-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
   </script>

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useCreditsContext } from '@/contexts/CreditsContext'
+import { supabase } from '@/integrations/supabase/client'
 import { type SgbCategory } from '@/lib/sgb-knowledge'
 
 const CATEGORY_OPTIONS: { id: SgbCategory; label: string }[] = [
@@ -34,6 +35,7 @@ export default function ForumNewPostPage() {
   const [content, setContent] = useState('')
   const [category, setCategory] = useState<SgbCategory | ''>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const isValid = title.trim().length >= 10 && content.trim().length >= 30 && category !== ''
 
@@ -42,12 +44,49 @@ export default function ForumNewPostPage() {
     if (!isValid || !forumCheck.allowed) return
 
     setIsSubmitting(true)
+    setError(null)
 
-    // TODO: Save to Supabase
-    // For now, simulate and redirect
-    setTimeout(() => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('Bitte melde dich an, um einen Beitrag zu schreiben.')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Anzeigename aus Profil laden
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single()
+
+      const authorName = profile?.first_name
+        ? `${profile.first_name} ${profile.last_name || ''}`.trim()
+        : (user.email?.split('@')[0] ?? 'Anonym')
+
+      const { error: insertError } = await supabase
+        .from('amt_forum_posts')
+        .insert({
+          user_id: user.id,
+          author_name: authorName,
+          title: title.trim(),
+          content: content.trim(),
+          category: category,
+        })
+
+      if (insertError) {
+        setError('Fehler beim Speichern: ' + insertError.message)
+        return
+      }
+
       navigate('/forum')
-    }, 500)
+    } catch (err) {
+      setError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.')
+      console.error('Forum post error:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!forumCheck.allowed) {
@@ -79,6 +118,12 @@ export default function ForumNewPostPage() {
         <div className="md:col-span-2">
           <Card>
             <CardContent className="p-6">
+              {error && (
+                <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Category */}
                 <div>

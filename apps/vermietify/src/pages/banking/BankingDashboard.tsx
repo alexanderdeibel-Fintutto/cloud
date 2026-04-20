@@ -75,16 +75,17 @@ export default function BankingDashboard() {
   
   const incomeThisMonth = monthlyTransactions
     .filter(t => t.amount_cents > 0)
-    .reduce((sum, t) => sum + t.amount_cents, 0);
+    .reduce((sum, t) => sum + t.amount_cents / 100, 0);
   
   const expensesThisMonth = monthlyTransactions
     .filter(t => t.amount_cents < 0)
-    .reduce((sum, t) => sum + Math.abs(t.amount_cents), 0);
+    .reduce((sum, t) => sum + Math.abs(t.amount_cents) / 100, 0);
   
   const unmatchedCount = transactions.filter(t => t.match_status === 'unmatched').length;
 
-  const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+  const formatCurrency = (amount: number) => {
+    // balance ist in Euro (DECIMAL), nicht in Cents
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   if (isLoading) return <MainLayout title="Banking"><LoadingState /></MainLayout>;
@@ -154,18 +155,7 @@ export default function BankingDashboard() {
           formatCurrency={formatCurrency}
         />
 
-        {/* Charts Row — nur anzeigen wenn Transaktionen vorhanden */}
-        {transactions.length === 0 ? (
-          <Card className="backdrop-blur-md bg-card/40 border-border/30">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <BarChart3 className="h-12 w-12 text-muted-foreground/30 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Noch keine Transaktionsdaten</h3>
-              <p className="text-muted-foreground text-sm max-w-sm">
-                Verbinden Sie ein Bankkonto oder importieren Sie Transaktionen, um Ihren Cashflow und Saldo-Verlauf zu sehen.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
+        {/* Charts Row */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Monthly Cash Flow Bar Chart */}
           <Card className="backdrop-blur-md bg-card/40 border-border/30">
@@ -213,7 +203,7 @@ export default function BankingDashboard() {
             </CardHeader>
             <CardContent>
               {(() => {
-                let runningBalance = totalBalance / 100;
+                let runningBalance = totalBalance;
                 const balanceData = Array.from({ length: 6 }, (_, i) => {
                   const date = subMonths(new Date(), i);
                   const monthStr = format(date, "MMM", { locale: de });
@@ -241,8 +231,6 @@ export default function BankingDashboard() {
             </CardContent>
           </Card>
         </div>
-
-        )}
 
         {/* Connected Accounts */}
         <div>
@@ -279,7 +267,7 @@ export default function BankingDashboard() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {accounts.map((account) => {
-                const connection = connections.find(c => c.id === account.connection_id);
+                const connection = connections.find(c => c.id === account.finapi_connection_id);
                 const status = statusConfig[connection?.status || 'pending'];
                 
                 return (
@@ -290,7 +278,7 @@ export default function BankingDashboard() {
                     status={status}
                     formatCurrency={formatCurrency}
                     onSync={() => syncTransactions.mutate({ accountId: account.id })}
-                    onDelete={() => setDeleteConnectionId(account.connection_id)}
+                    onDelete={() => setDeleteConnectionId(account.finapi_connection_id || '')}
                     isSyncing={syncTransactions.isPending}
                   />
                 );
