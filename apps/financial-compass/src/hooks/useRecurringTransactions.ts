@@ -198,7 +198,7 @@ export function useRecurringTransactions() {
       if (!currentCompany) return null;
 
       // Create the actual transaction
-      const { error, data } = await supabase.from('transactions').insert({
+      const { error, data } = await supabase.from('fc_transactions').insert({
         company_id: currentCompany.id,
         type: recurring.type,
         amount: recurring.amount,

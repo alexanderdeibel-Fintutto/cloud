@@ -53,7 +53,7 @@
      try {
        // Fetch transactions within date range
        let query = supabase
-         .from('transactions')
+         .from('fc_transactions')
          .select('*')
          .eq('company_id', currentCompany.id)
          .gte('date', dateFrom.toISOString().split('T')[0])

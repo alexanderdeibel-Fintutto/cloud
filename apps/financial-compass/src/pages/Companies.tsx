@@ -77,13 +77,13 @@
      for (const company of companies) {
        // Fetch transaction count
        const { count: transactionCount } = await supabase
-         .from('transactions')
+         .from('fc_transactions')
          .select('*', { count: 'exact', head: true })
          .eq('company_id', company.id);
  
        // Fetch total revenue (income transactions)
        const { data: incomeData } = await supabase
-         .from('transactions')
+         .from('fc_transactions')
          .select('amount')
          .eq('company_id', company.id)
          .eq('type', 'income');

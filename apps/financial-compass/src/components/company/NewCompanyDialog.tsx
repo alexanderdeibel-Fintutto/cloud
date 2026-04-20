@@ -132,6 +132,7 @@
        if (form.bankName && form.iban) {
          await supabase.from('bank_accounts').insert({
            company_id: company.id,
+           user_id: user.id,
            name: form.bankName,
            iban: form.iban,
            bic: form.bic || null,

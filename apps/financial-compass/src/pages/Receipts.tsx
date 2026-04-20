@@ -160,7 +160,7 @@ export default function Receipts() {
     try {
       // 1. Create transaction
       const { data: transactionData, error: transactionError } = await supabase
-        .from('transactions')
+        .from('fc_transactions')
         .insert({
           company_id: currentCompany.id,
           type: 'expense',

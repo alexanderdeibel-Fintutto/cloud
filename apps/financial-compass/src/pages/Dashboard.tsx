@@ -156,14 +156,14 @@ export default function Dashboard() {
         
         // Current month transactions
         supabase
-          .from('transactions')
+          .from('fc_transactions')
           .select('*')
           .eq('company_id', currentCompany.id)
           .gte('date', startOfMonth.toISOString().split('T')[0]),
         
         // Previous month transactions
         supabase
-          .from('transactions')
+          .from('fc_transactions')
           .select('*')
           .eq('company_id', currentCompany.id)
           .gte('date', startOfPreviousMonth.toISOString().split('T')[0])
@@ -171,7 +171,7 @@ export default function Dashboard() {
         
         // Yearly transactions (for charts)
         supabase
-          .from('transactions')
+          .from('fc_transactions')
           .select('*')
           .eq('company_id', currentCompany.id)
           .gte('date', startOfYear.toISOString().split('T')[0])
@@ -179,7 +179,7 @@ export default function Dashboard() {
         
         // Recent transactions
         supabase
-          .from('transactions')
+          .from('fc_transactions')
           .select('*')
           .eq('company_id', currentCompany.id)
           .order('date', { ascending: false })

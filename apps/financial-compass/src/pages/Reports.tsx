@@ -140,7 +140,7 @@ export default function Reports() {
     const { startDate, endDate } = getDateRange(selectedPeriod);
     
     const { data: transactions } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .gte('date', startDate.toISOString().split('T')[0])
@@ -152,7 +152,7 @@ export default function Reports() {
     prevMonthEnd.setDate(0);
 
     const { data: prevTransactions } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .gte('date', prevMonthStart.toISOString().split('T')[0])
