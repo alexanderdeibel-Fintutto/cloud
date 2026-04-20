@@ -48,8 +48,7 @@ const TRANSFORM_OPTIONS = [
 
 const Import = () => {
   const { toast } = useToast();
-  const [target, setTarget] = useState<ImportTarget>('contacts');
-  const [format, setFormat] = useState<ImportFormat>('csv');
+  const [target, setTarget] = useState<ImportTarget>('transactions');
 
   const {
     step,
@@ -63,50 +62,31 @@ const Import = () => {
     hasHeaders,
     delimiter,
     canProceed,
-    setFile: setImportFile,
-    setFormat: setImportFormat,
+    targetFields,
+    handleFileUpload,
+    setFormat,
     setHasHeaders,
     setDelimiter,
-    parseFile,
-    initializeMappings,
     updateMapping,
     generatePreview,
     executeImport,
     reset,
     goToStep,
-    getTargetFields,
-  } = useImportWizard();
+  } = useImportWizard(target);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      setImportFile(selectedFile);
-      setImportFormat(format);
+      handleFileUpload(selectedFile);
     }
-  }, [format, setImportFile, setImportFormat]);
-
-  const handleParseFile = useCallback(async () => {
-    if (!file) return;
-    await parseFile();
-    const fields = getTargetFields(target);
-    initializeMappings(fields.map(f => ({
-      sourceColumn: '',
-      targetField: f.field,
-      transform: f.type === 'date' ? 'date' : f.type === 'currency' ? 'currency' : 'none',
-      required: f.required,
-    })));
-  }, [file, parseFile, target, getTargetFields, initializeMappings]);
+  }, [handleFileUpload]);
 
   const handleImport = useCallback(async () => {
-    // Mock import handler - in production, this would call an API
     const importHandler = async (data: Record<string, string>[]) => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       return data.map(() => ({ success: true }));
     };
-
     const importResult = await executeImport(importHandler);
-
     if (importResult.imported > 0) {
       toast({
         title: 'Import erfolgreich',
@@ -116,9 +96,8 @@ const Import = () => {
   }, [executeImport, toast]);
 
   const handleDownloadTemplate = useCallback(() => {
-    const fields = getTargetFields(target);
-    const headerRow = fields.map(f => f.label).join(';');
-    const exampleRow = fields.map(f => {
+    const headerRow = targetFields.map(f => f.label).join(';');
+    const exampleRow = targetFields.map(f => {
       switch (f.type) {
         case 'date': return '2024-01-15';
         case 'currency': return '1234.56';
@@ -127,14 +106,13 @@ const Import = () => {
         default: return 'Beispielwert';
       }
     }).join(';');
-
     const csv = `${headerRow}\n${exampleRow}`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `vorlage_${target}.csv`;
     link.click();
-  }, [target, getTargetFields]);
+  }, [target, targetFields]);
 
   const stepNumber = (s: WizardStep): number => {
     const steps: WizardStep[] = ['upload', 'mapping', 'preview', 'import', 'complete'];
@@ -142,11 +120,11 @@ const Import = () => {
   };
 
   const STEPS = [
-    { id: 'upload', label: '1. Datei hochladen' },
-    { id: 'mapping', label: '2. Zuordnung' },
-    { id: 'preview', label: '3. Vorschau' },
-    { id: 'import', label: '4. Import' },
-    { id: 'complete', label: '5. Fertig' },
+    { id: 'upload', label: 'Datei hochladen' },
+    { id: 'mapping', label: 'Zuordnung' },
+    { id: 'preview', label: 'Vorschau' },
+    { id: 'import', label: 'Import' },
+    { id: 'complete', label: 'Fertig' },
   ];
 
   return (
@@ -180,7 +158,7 @@ const Import = () => {
                 }`}>
                   {stepNumber(step) > idx + 1 ? <Check className="h-4 w-4" /> : idx + 1}
                 </div>
-                <span className="hidden sm:inline text-sm">{s.label.split('. ')[1]}</span>
+                <span className="hidden sm:inline text-sm">{s.label}</span>
               </div>
               {idx < STEPS.length - 1 && (
                 <div className={`w-12 lg:w-24 h-0.5 mx-2 ${stepNumber(step) > idx + 1 ? 'bg-primary' : 'bg-muted'}`} />
@@ -189,7 +167,7 @@ const Import = () => {
           ))}
         </div>
 
-        {/* Step Content */}
+        {/* Step 1: Upload */}
         {step === 'upload' && (
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Target Selection */}
@@ -230,52 +208,34 @@ const Import = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Format</Label>
-                  <Select value={format} onValueChange={(v) => setFormat(v as ImportFormat)}>
+                  <Label>Trennzeichen</Label>
+                  <Select value={delimiter} onValueChange={(v) => setDelimiter(v)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FORMAT_OPTIONS.map(f => (
-                        <SelectItem key={f.value} value={f.value}>
-                          {f.label} ({f.extension})
-                        </SelectItem>
-                      ))}
+                      <SelectItem value=";">Semikolon (;)</SelectItem>
+                      <SelectItem value=",">Komma (,)</SelectItem>
+                      <SelectItem value={"\t"}>Tab</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {format === 'csv' && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Trennzeichen</Label>
-                      <Select value={delimiter} onValueChange={setDelimiter}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value=";">Semikolon (;)</SelectItem>
-                          <SelectItem value=",">Komma (,)</SelectItem>
-                          <SelectItem value="\t">Tab</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Kopfzeile</Label>
-                      <div className="flex items-center gap-2 h-10">
-                        <Checkbox id="hasHeaders" checked={hasHeaders} onCheckedChange={(c) => setHasHeaders(!!c)} />
-                        <Label htmlFor="hasHeaders" className="font-normal">Erste Zeile enthält Spaltenüberschriften</Label>
-                      </div>
-                    </div>
+                <div className="space-y-2">
+                  <Label>Kopfzeile</Label>
+                  <div className="flex items-center gap-2 h-10">
+                    <Checkbox id="hasHeaders" checked={hasHeaders} onCheckedChange={(c) => setHasHeaders(!!c)} />
+                    <Label htmlFor="hasHeaders" className="font-normal">Erste Zeile enthält Spaltenüberschriften</Label>
                   </div>
-                )}
+                </div>
 
                 <div className="space-y-2">
-                  <Label>Datei</Label>
+                  <Label>Datei auswählen</Label>
                   <Input
                     type="file"
-                    accept={FORMAT_OPTIONS.find(f => f.value === format)?.extension}
+                    accept=".csv,.xlsx,.json,.sta,.xml"
                     onChange={handleFileSelect}
+                    className="cursor-pointer"
                   />
                 </div>
 
@@ -286,7 +246,14 @@ const Import = () => {
                       <p className="font-medium">{file.name}</p>
                       <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
                     </div>
-                    <Badge variant="secondary">{format.toUpperCase()}</Badge>
+                    <Badge variant="secondary">CSV</Badge>
+                  </div>
+                )}
+
+                {isProcessing && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Datei wird analysiert...
                   </div>
                 )}
 
@@ -298,8 +265,8 @@ const Import = () => {
                 </Button>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" disabled={!file} onClick={handleParseFile}>
-                  Datei analysieren
+                <Button className="w-full" disabled={!file || isProcessing} onClick={() => goToStep('mapping')}>
+                  Weiter zur Spaltenzuordnung
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </CardFooter>
@@ -307,12 +274,18 @@ const Import = () => {
           </div>
         )}
 
+        {/* Step 2: Mapping */}
         {step === 'mapping' && (
           <Card>
             <CardHeader>
               <CardTitle>Spaltenzuordnung</CardTitle>
               <CardDescription>
                 Ordnen Sie die Spalten Ihrer Datei den Zielfeldern zu. Mit * markierte Felder sind Pflichtfelder.
+                {headers.length > 0 && (
+                  <span className="block mt-1 text-xs text-muted-foreground">
+                    Erkannte Spalten: {headers.join(', ')}
+                  </span>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -329,7 +302,7 @@ const Import = () => {
                   {mappings.map((mapping, idx) => (
                     <TableRow key={mapping.targetField}>
                       <TableCell className="font-medium">
-                        {getTargetFields(target).find(f => f.field === mapping.targetField)?.label}
+                        {targetFields.find(f => f.field === mapping.targetField)?.label || mapping.targetField}
                         {mapping.required && <span className="text-red-500 ml-1">*</span>}
                       </TableCell>
                       <TableCell>
@@ -381,7 +354,7 @@ const Import = () => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Zurück
               </Button>
-              <Button disabled={!canProceed} onClick={generatePreview}>
+              <Button onClick={generatePreview}>
                 Vorschau
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -389,12 +362,13 @@ const Import = () => {
           </Card>
         )}
 
+        {/* Step 3: Preview */}
         {step === 'preview' && (
           <Card>
             <CardHeader>
               <CardTitle>Import-Vorschau</CardTitle>
               <CardDescription>
-                Überprüfen Sie die ersten 10 Zeilen vor dem Import. {preview.filter(p => p.isValid).length} von {preview.length} Zeilen sind gültig.
+                Überprüfen Sie die ersten Zeilen vor dem Import. {preview.filter(p => p.isValid).length} von {preview.length} Zeilen sind gültig.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -404,7 +378,7 @@ const Import = () => {
                     <TableRow>
                       <TableHead className="w-12">#</TableHead>
                       <TableHead className="w-16">Status</TableHead>
-                      {getTargetFields(target).map(f => (
+                      {targetFields.map(f => (
                         <TableHead key={f.field}>{f.label}</TableHead>
                       ))}
                     </TableRow>
@@ -420,7 +394,7 @@ const Import = () => {
                             <Badge variant="destructive"><X className="h-3 w-3" /></Badge>
                           )}
                         </TableCell>
-                        {getTargetFields(target).map(f => (
+                        {targetFields.map(f => (
                           <TableCell key={f.field} className={row.errors.some(e => e.column === f.field) ? 'text-red-600' : ''}>
                             {row.data[f.field] || '-'}
                           </TableCell>
@@ -454,6 +428,7 @@ const Import = () => {
           </Card>
         )}
 
+        {/* Step 4: Import running */}
         {step === 'import' && (
           <Card>
             <CardContent className="py-12 text-center">
@@ -465,6 +440,7 @@ const Import = () => {
           </Card>
         )}
 
+        {/* Step 5: Complete */}
         {step === 'complete' && result && (
           <Card>
             <CardContent className="py-12 text-center">
