@@ -100,7 +100,7 @@
        }
        
        const { data: transactions } = await supabase
-         .from('transactions')
+         .from('fc_transactions')
          .select('*')
          .eq('company_id', currentCompany.id)
          .gte('date', startDate)

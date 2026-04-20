@@ -121,6 +121,7 @@
            zip: form.zip || null,
            city: form.city || null,
            chart_of_accounts: form.chartOfAccounts,
+           user_id: user.id,
          })
          .select()
          .single();
@@ -131,6 +132,7 @@
        if (form.bankName && form.iban) {
          await supabase.from('bank_accounts').insert({
            company_id: company.id,
+           user_id: user.id,
            name: form.bankName,
            iban: form.iban,
            bic: form.bic || null,

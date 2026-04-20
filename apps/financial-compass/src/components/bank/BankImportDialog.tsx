@@ -29,6 +29,7 @@
  import { Badge } from '@/components/ui/badge';
  import { supabase } from '@/integrations/supabase/client';
  import { useCompany } from '@/contexts/CompanyContext';
+ import { useAuth } from '@/contexts/AuthContext';
  import { useToast } from '@/hooks/use-toast';
  import {
    BankTransaction,
@@ -75,6 +76,7 @@
  
  export function BankImportDialog({ open, onOpenChange, accounts, onSuccess }: BankImportDialogProps) {
    const { currentCompany } = useCompany();
+   const { user } = useAuth();
    const { toast } = useToast();
  
    const [selectedAccountId, setSelectedAccountId] = useState<string>('');
@@ -98,7 +100,7 @@
      if (!currentCompany) return;
  
      const { data: transactions } = await supabase
-       .from('transactions')
+       .from('fc_transactions')
        .select('date, amount')
        .eq('company_id', currentCompany.id)
        .order('date', { ascending: false })
@@ -245,8 +247,9 @@
      
      try {
        for (const tx of selectedTransactions) {
-         const { error } = await supabase.from('transactions').insert({
+         const { error } = await supabase.from('fc_transactions').insert({
            company_id: currentCompany.id,
+           user_id: user?.id,
            bank_account_id: selectedAccountId,
            date: tx.date || new Date().toISOString().split('T')[0],
            type: tx.amount >= 0 ? 'income' : 'expense',

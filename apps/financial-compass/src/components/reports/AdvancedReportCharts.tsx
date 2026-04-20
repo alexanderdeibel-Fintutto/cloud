@@ -67,7 +67,7 @@ export function ComparisonChart() {
     const endDate = new Date(currentYear, 11, 31);
 
     const { data: transactions } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .gte('date', startDate.toISOString().split('T')[0])
@@ -182,7 +182,7 @@ export function ProfitTrendChart() {
     const endDate = new Date(currentYear, 11, 31);
 
     const { data: transactions } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .gte('date', startDate.toISOString().split('T')[0])
@@ -292,7 +292,7 @@ export function CashFlowForecastChart() {
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     const { data: transactions } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .gte('date', sixMonthsAgo.toISOString().split('T')[0]);
@@ -503,7 +503,7 @@ export function ExpenseBreakdownChart() {
     const endDate = new Date(currentYear, 11, 31);
 
     const { data: transactions } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .eq('type', 'expense')

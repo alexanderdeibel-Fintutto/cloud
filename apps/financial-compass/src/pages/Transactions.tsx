@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCompany } from '@/contexts/CompanyContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -50,6 +51,7 @@ const categories = [
 
 export default function Transactions() {
   const { currentCompany } = useCompany();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,7 +79,7 @@ export default function Transactions() {
 
     setLoading(true);
     const { data } = await supabase
-      .from('transactions')
+      .from('fc_transactions')
       .select('*')
       .eq('company_id', currentCompany.id)
       .order('date', { ascending: false });
@@ -130,8 +132,9 @@ export default function Transactions() {
       return;
     }
 
-    const { error } = await supabase.from('transactions').insert({
+    const { error } = await supabase.from('fc_transactions').insert({
       company_id: currentCompany.id,
+      user_id: user?.id,
       type: newTransaction.type,
       amount: amount,
       description: newTransaction.description || null,
