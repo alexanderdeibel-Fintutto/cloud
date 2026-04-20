@@ -160,7 +160,9 @@ export function useChartOfAccounts() {
   }, []);
 
   useEffect(() => {
-    const skr = (currentCompany?.chart_of_accounts as SKRType) || '03';
+    // Normalisiere SKR-Format: 'SKR03' → '03', 'SKR04' → '04'
+    const raw = (currentCompany?.chart_of_accounts as string) || '03';
+    const skr = (raw.replace(/^SKR/i, '') as SKRType) || '03';
     setActiveSKR(skr);
     loadAccounts(skr);
   }, [currentCompany?.id, loadAccounts]);
