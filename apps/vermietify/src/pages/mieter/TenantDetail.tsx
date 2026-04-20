@@ -30,6 +30,7 @@ import {
  import { TenantDocumentsTab } from "@/components/tenants/TenantDocumentsTab";
  import { TenantCommunicationTab } from "@/components/tenants/TenantCommunicationTab";
  import { TenantActivitiesTab } from "@/components/tenants/TenantActivitiesTab";
+import { TenantRentDemands } from "@/components/rent-demands/TenantRentDemands";
  import { format } from "date-fns";
  import { de } from "date-fns/locale";
  
@@ -219,7 +220,10 @@ import {
            </TabsContent>
  
            <TabsContent value="payments">
-             <TenantPaymentsTab tenantId={id!} leaseId={tenant.activeLease?.id} />
+             <div className="space-y-6">
+               <TenantRentDemands tenantId={id!} tenantName={fullName} />
+               <TenantPaymentsTab tenantId={id!} leaseId={tenant.activeLease?.id} />
+             </div>
            </TabsContent>
  
            <TabsContent value="documents">
