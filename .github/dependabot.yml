@@ -1,41 +1,6 @@
 version: 2
-updates:
-  # Alle npm-Abhängigkeiten im gesamten Monorepo (Root + alle Apps)
-  # Vorher: 5 separate Einträge × je bis zu 5 PRs = bis zu 14 PRs/Woche
-  #         = 14 Vercel-Preview-Builds × ~20 Apps = hunderte Build-Minuten
-  # Jetzt:  1 Eintrag, 1 Gruppe, 1 PR/Woche = 1 Vercel-Preview-Build
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
-    # Maximal 1 offene PR gleichzeitig → verhindert parallele Vercel-Builds
-    open-pull-requests-limit: 1
-    groups:
-      # Alle Updates in einer einzigen PR bündeln (wie im world-Repo)
-      all-dependencies:
-        patterns:
-          - "*"
-    labels:
-      - "dependencies"
-      - "automated"
-    commit-message:
-      prefix: "chore(deps)"
-
-  # GitHub Actions separat (löst keine Vercel-Deployments aus)
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
-    open-pull-requests-limit: 3
-    labels:
-      - "dependencies"
-      - "github-actions"
-      - "automated"
-    commit-message:
-      prefix: "chore(actions)"
+# Dependabot ist deaktiviert.
+# Grund: Jeder Dependabot-PR erzeugt Vercel-Preview-Deployments für alle ~20 Apps.
+# Das verursacht hunderte unnötige Builds und überschreibt echte Deployments.
+# Abhängigkeiten werden manuell aktualisiert wenn nötig.
+updates: []
