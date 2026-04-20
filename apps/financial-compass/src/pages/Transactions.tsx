@@ -25,6 +25,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useChartOfAccounts } from '@/hooks/useChartOfAccounts';
 
 interface Transaction {
   id: string;
@@ -53,11 +54,13 @@ export default function Transactions() {
   const { currentCompany } = useCompany();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { accounts } = useChartOfAccounts();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>('all');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [accountSearch, setAccountSearch] = useState('');
 
   // Form state
   const [newTransaction, setNewTransaction] = useState({
@@ -65,8 +68,18 @@ export default function Transactions() {
     amount: '',
     description: '',
     category: '',
+    skrAccount: '',
     date: new Date().toISOString().split('T')[0],
   });
+
+  // Gefilterte Konten für Suche
+  const filteredAccounts = useMemo(() => {
+    if (!accountSearch) return accounts.slice(0, 50);
+    const q = accountSearch.toLowerCase();
+    return accounts.filter(a =>
+      a.number.includes(q) || a.name.toLowerCase().includes(q)
+    ).slice(0, 50);
+  }, [accounts, accountSearch]);
 
   useEffect(() => {
     if (currentCompany) {
@@ -138,7 +151,9 @@ export default function Transactions() {
       type: newTransaction.type,
       amount: amount,
       description: newTransaction.description || null,
-      category: newTransaction.category || null,
+      category: newTransaction.skrAccount
+        ? `${newTransaction.skrAccount} - ${newTransaction.category || ''}`.trim().replace(/ - $/, '')
+        : (newTransaction.category || null),
       date: newTransaction.date,
     });
 
@@ -159,8 +174,10 @@ export default function Transactions() {
         amount: '',
         description: '',
         category: '',
+        skrAccount: '',
         date: new Date().toISOString().split('T')[0],
       });
+      setAccountSearch('');
       fetchTransactions();
     }
   };
@@ -246,6 +263,39 @@ export default function Transactions() {
                   value={newTransaction.description}
                   onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="skrAccount">SKR-Konto (optional)</Label>
+                <Input
+                  id="skrAccount"
+                  placeholder="Kontonummer oder Name suchen..."
+                  value={accountSearch}
+                  onChange={(e) => setAccountSearch(e.target.value)}
+                />
+                {accountSearch && filteredAccounts.length > 0 && (
+                  <div className="border rounded-md max-h-40 overflow-y-auto bg-background">
+                    {filteredAccounts.map(acc => (
+                      <div
+                        key={acc.id}
+                        className={`px-3 py-2 cursor-pointer hover:bg-muted text-sm flex items-center gap-2 ${
+                          newTransaction.skrAccount === acc.number ? 'bg-primary/10 text-primary' : ''
+                        }`}
+                        onClick={() => {
+                          setNewTransaction({ ...newTransaction, skrAccount: acc.number });
+                          setAccountSearch(`${acc.number} - ${acc.name}`);
+                        }}
+                      >
+                        <span className="font-mono font-medium">{acc.number}</span>
+                        <span className="text-muted-foreground">{acc.name}</span>
+                        {acc.tax_key && <span className="ml-auto text-xs text-muted-foreground">USt: {acc.tax_key}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {newTransaction.skrAccount && (
+                  <p className="text-xs text-muted-foreground">Ausgewählt: Konto {newTransaction.skrAccount}</p>
+                )}
               </div>
 
               <div className="space-y-2">
