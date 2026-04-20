@@ -91,11 +91,33 @@ const Import = () => {
   const handleImport = useCallback(async () => {
     const importHandler = async (data: Record<string, string>[]) => {
       if (target === 'transactions') {
+        // Zuerst ein Standard-Bankkonto für den Import suchen oder erstellen
+        let bankAccountId: string | null = null;
+        const { data: existingAccounts } = await supabase
+          .from('bank_accounts')
+          .select('id')
+          .eq('user_id', user?.id)
+          .limit(1);
+        if (existingAccounts && existingAccounts.length > 0) {
+          bankAccountId = existingAccounts[0].id;
+        } else {
+          const { data: newAccount } = await supabase
+            .from('bank_accounts')
+            .insert({
+              user_id: user?.id,
+              company_id: selectedCompany?.id,
+              account_name: 'Import-Konto',
+              account_type: 'checking',
+            })
+            .select('id')
+            .single();
+          bankAccountId = newAccount?.id || null;
+        }
         // Transaktionen in bank_transactions speichern
         const rows = data.map(row => ({
           user_id: user?.id,
           company_id: selectedCompany?.id,
-          account_id: null,
+          bank_account_id: bankAccountId,
           booking_date: row.date || new Date().toISOString().split('T')[0],
           value_date: row.valueDate || row.date || new Date().toISOString().split('T')[0],
           amount: parseFloat(String(row.amount).replace(',', '.').replace(/[^\d.-]/g, '')) || 0,
@@ -103,7 +125,6 @@ const Import = () => {
           counterpart_name: row.counterparty || null,
           counterpart_iban: row.iban || null,
           match_status: 'unmatched' as const,
-          source: 'import',
         }));
 
         const results: { success: boolean; error?: string }[] = [];
