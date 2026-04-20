@@ -3,7 +3,15 @@ import { supabase } from '@/integrations/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Document } from '@/components/documents/DocumentCard'
 
-export function useDocuments(options?: { category?: string; favorites?: boolean; search?: string }) {
+export function useDocuments(options?: {
+  category?: string
+  favorites?: boolean
+  search?: string
+  /** Wenn true: zeigt auch Dokumente aus anderen Apps (FC, Vermietify) — abhängig von Nutzer-Einstellung */
+  showExternalDocs?: boolean
+  /** Nur Dokumente einer bestimmten App anzeigen */
+  sourceApp?: string
+}) {
   const { user } = useAuth()
 
   return useQuery({
@@ -25,6 +33,16 @@ export function useDocuments(options?: { category?: string; favorites?: boolean;
       }
       if (options?.search) {
         query = query.or(`title.ilike.%${options.search}%,ocr_text.ilike.%${options.search}%`)
+      }
+
+      // source_app Filter:
+      // - Standard: nur SecondBrain-eigene Dokumente (source_app IS NULL oder 'secondbrain')
+      // - showExternalDocs=true: alle Dokumente (FC, Vermietify etc.) — Nutzer-Einstellung
+      // - sourceApp='financial-compass': nur FC-Belege
+      if (options?.sourceApp) {
+        query = query.eq('source_app', options.sourceApp)
+      } else if (!options?.showExternalDocs) {
+        query = query.or('source_app.is.null,source_app.eq.secondbrain')
       }
 
       const { data, error } = await query
@@ -128,6 +146,13 @@ export function useDeleteDocument() {
 
   return useMutation({
     mutationFn: async (doc: Document) => {
+      // Löschen-Schutz: FC- und Vermietify-Dokumente können nur aus der jeweiligen App gelöscht werden
+      if (doc.source_app && doc.source_app !== 'secondbrain') {
+        throw new Error(
+          `Dieses Dokument gehört zu ${doc.source_app === 'financial-compass' ? 'Financial Compass' : 'Vermietify'} und kann nur dort gelöscht werden.`
+        )
+      }
+
       // Delete from storage
       await supabase.storage.from('secondbrain-docs').remove([doc.storage_path])
 
