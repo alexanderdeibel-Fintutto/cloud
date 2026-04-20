@@ -1,6 +1,9 @@
 version: 2
 updates:
-  # pnpm-Abhängigkeiten im Root (mieter-checker + shared)
+  # Alle npm-Abhängigkeiten im gesamten Monorepo (Root + alle Apps)
+  # Vorher: 5 separate Einträge × je bis zu 5 PRs = bis zu 14 PRs/Woche
+  #         = 14 Vercel-Preview-Builds × ~20 Apps = hunderte Build-Minuten
+  # Jetzt:  1 Eintrag, 1 Gruppe, 1 PR/Woche = 1 Vercel-Preview-Build
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -8,78 +11,20 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Europe/Berlin"
-    open-pull-requests-limit: 5
+    # Maximal 1 offene PR gleichzeitig → verhindert parallele Vercel-Builds
+    open-pull-requests-limit: 1
     groups:
-      vite-ecosystem:
+      # Alle Updates in einer einzigen PR bündeln (wie im world-Repo)
+      all-dependencies:
         patterns:
-          - "vite"
-          - "@vitejs/*"
-          - "vitest"
-      react-ecosystem:
-        patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react*"
-      typescript-tooling:
-        patterns:
-          - "typescript"
-          - "@typescript-eslint/*"
-          - "eslint*"
+          - "*"
     labels:
       - "dependencies"
       - "automated"
     commit-message:
       prefix: "chore(deps)"
 
-  # pnpm-Abhängigkeiten in apps/vermietify
-  - package-ecosystem: "npm"
-    directory: "/apps/vermietify"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
-    open-pull-requests-limit: 3
-    labels:
-      - "dependencies"
-      - "vermietify"
-      - "automated"
-    commit-message:
-      prefix: "chore(deps/vermietify)"
-
-  # pnpm-Abhängigkeiten in apps/fintutto-portal
-  - package-ecosystem: "npm"
-    directory: "/apps/fintutto-portal"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
-    open-pull-requests-limit: 3
-    labels:
-      - "dependencies"
-      - "fintutto-portal"
-      - "automated"
-    commit-message:
-      prefix: "chore(deps/fintutto-portal)"
-
-  # pnpm-Abhängigkeiten in apps/secondbrain
-  - package-ecosystem: "npm"
-    directory: "/apps/secondbrain"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
-    open-pull-requests-limit: 3
-    labels:
-      - "dependencies"
-      - "secondbrain"
-      - "automated"
-    commit-message:
-      prefix: "chore(deps/secondbrain)"
-
-  # GitHub Actions
+  # GitHub Actions separat (löst keine Vercel-Deployments aus)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -87,7 +32,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Europe/Berlin"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     labels:
       - "dependencies"
       - "github-actions"

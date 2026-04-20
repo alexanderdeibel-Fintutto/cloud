@@ -3,7 +3,7 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm run build",
   "outputDirectory": "dist",
-  "ignoreCommand": "exit 1",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- apps/ams/ || exit 1",
   "rewrites": [
     {
       "source": "/(.*)",
