@@ -154,30 +154,17 @@ export function useDocuments() {
 
       const fileUrl = urlData.publicUrl;
 
-      // 3. Secondbrain-Eintrag anlegen (sb_documents) für zentrale Dokumentenverwaltung
-      // source_app='vermietify' markiert den Eintrag als Vermietify-Beleg:
-      //   - SecondBrain zeigt ihn nur wenn Nutzer 'Alle Apps' aktiviert
-      //   - Löschen nur aus Vermietify möglich (RLS-Policy + source_app-Check)
-      const fileType2 = input.file.type.startsWith('image/') ? 'image'
-        : input.file.type === 'application/pdf' ? 'pdf'
-        : input.file.type.startsWith('text/') ? 'text'
-        : 'other'
+      // 3. Secondbrain-Eintrag anlegen (sb_documents) für OCR und zentrale Dokumentenverwaltung
       const { data: sbDoc, error: sbError } = await supabase
         .from("sb_documents")
         .insert({
           user_id: userId,
           title: input.title,
-          file_name: input.file.name,
+          source: "upload",
           file_url: fileUrl,
-          file_type: fileType2,
-          mime_type: input.file.type,
+          file_type: input.file.type,
           file_size: input.file.size,
-          storage_path: fileName,
-          source_app: 'vermietify',
-          document_type: input.document_type || 'other',
-          ocr_status: 'skipped',  // OCR nur auf expliziten Wunsch
-          tags: [],
-          is_favorite: false,
+          ocr_status: "pending",
         })
         .select()
         .single();
@@ -341,9 +328,13 @@ export function useDocuments() {
       // Get file URL to delete from storage
       const doc = documents.find((d) => d.id === id);
       if (doc?.file_url) {
-        const path = doc.file_url.split("/documents/")[1];
-        if (path) {
-          await supabase.storage.from("documents").remove([path]);
+        // Pfad aus secondbrain-documents Bucket extrahieren
+        // URL-Format: .../storage/v1/object/public/secondbrain-documents/{userId}/vermietify/...
+        const bucketMarker = "/secondbrain-documents/";
+        const idx = doc.file_url.indexOf(bucketMarker);
+        if (idx !== -1) {
+          const storagePath = doc.file_url.substring(idx + bucketMarker.length);
+          await supabase.storage.from("secondbrain-documents").remove([storagePath]);
         }
       }
       const { error } = await supabase.from("documents").delete().eq("id", id);
