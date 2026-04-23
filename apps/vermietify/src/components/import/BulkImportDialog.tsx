@@ -245,28 +245,32 @@ export function BulkImportDialog({
           const { error } = await supabase.from("units").insert({
             building_id: buildingId!,
             unit_number: unit.unit_number || "Unbekannt",
+            name: unit.unit_number || "Unbekannt",
             floor: unit.floor ?? null,
-            area: unit.area ?? 0,
-            rooms: unit.rooms ?? 1,
+            living_area_sqm: unit.area ?? 0,          // area → living_area_sqm
+            room_count: unit.rooms ?? 1,               // rooms → room_count
             rent_amount: unit.rent_amount ?? 0,
-            utility_advance: unit.utility_advance ?? 0,
+            target_utilities: unit.utility_advance ?? 0, // utility_advance → target_utilities
             status: (unit.status as any) || "vacant",
-            notes: unit.notes ?? null,
           });
           if (error) { console.error(error); failed++; } else { success++; }
         }
       } else if (type === "buildings") {
         for (const b of extractedBuildings.filter((b) => b._selected)) {
+          // Adresse aufteilen: "Musterstr. 5" → street + house_number
+          const addrParts = (b.address || "").trim().split(/\s+/);
+          const houseNum = addrParts.length > 1 ? addrParts.pop()! : "";
+          const streetName = addrParts.join(" ") || b.address || "";
           const { error } = await supabase.from("buildings").insert({
             organization_id: organizationId!,
             name: b.name || "Unbenannt",
-            address: b.address || "",
+            street: streetName,
+            house_number: houseNum,
             postal_code: b.postal_code || "",
             city: b.city || "",
             building_type: (b.building_type as any) || "apartment",
             year_built: b.year_built ?? null,
             total_area: b.total_area ?? null,
-            notes: b.notes ?? null,
           });
           if (error) { console.error(error); failed++; } else { success++; }
         }
@@ -312,12 +316,11 @@ export function BulkImportDialog({
             unit_id: c._matchedUnitId,
             start_date: c.start_date || new Date().toISOString().split("T")[0],
             end_date: c.end_date || null,
-            rent_amount: c.rent_amount ?? 0,
-            utility_advance: c.utility_advance ?? 0,
+            base_rent: c.rent_amount ?? 0,              // rent_amount → base_rent
+            utility_prepayment: c.utility_advance ?? 0, // utility_advance → utility_prepayment
             deposit_amount: c.deposit_amount ?? 0,
-            payment_day: c.payment_day ?? 1,
+            payment_due_day: c.payment_day ?? 1,        // payment_day → payment_due_day
             is_active: true,
-            notes: c.notes || null,
           });
           if (error) { console.error(error); failed++; } else { success++; }
         }
