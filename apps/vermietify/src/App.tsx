@@ -249,9 +249,13 @@ const App = () => (
             <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/properties" element={<ProtectedRoute><Properties /></ProtectedRoute>} />
+            {/* Alias: /gebaeude → /properties (Sidebar-Link) */}
+            <Route path="/gebaeude" element={<Navigate to="/properties" replace />} />
             <Route path="/gebaeude/:id" element={<ProtectedRoute><BuildingDetail /></ProtectedRoute>} />
             <Route path="/einheiten" element={<ProtectedRoute><UnitsList /></ProtectedRoute>} />
             <Route path="/einheiten/:id" element={<ProtectedRoute><UnitDetail /></ProtectedRoute>} />
+            {/* Alias: /einheiten/:id/bearbeiten → /einheiten/:id (BuildingUnitsTab Bearbeiten-Link) */}
+            <Route path="/einheiten/:id/bearbeiten" element={<ProtectedRoute><UnitDetail /></ProtectedRoute>} />
             <Route path="/tenants" element={<ProtectedRoute><Tenants /></ProtectedRoute>} />
             <Route path="/mieter/:id" element={<ProtectedRoute><TenantDetailNew /></ProtectedRoute>} />
 
@@ -309,6 +313,9 @@ const App = () => (
 
             {/* Documents */}
             <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+            {/* Aliases: /dokumente und /massenimport (Sidebar-Links) */}
+            <Route path="/dokumente" element={<Navigate to="/documents" replace />} />
+            <Route path="/massenimport" element={<Navigate to="/daten/import" replace />} />
 
             {/* Tax Routes (Phase 1) */}
             <Route path="/taxes" element={<ProtectedRoute><Taxes /></ProtectedRoute>} />
