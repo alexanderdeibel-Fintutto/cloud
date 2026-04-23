@@ -193,6 +193,7 @@ export function BuildingUnitsTab({ building, onAddUnit }: BuildingUnitsTabProps)
         searchPlaceholder="Einheiten durchsuchen..."
         pagination={units.length > 10}
         pageSize={10}
+        onRowClick={(unit) => navigate(`/einheiten/${unit.id}`)}
       />
 
       <BulkImportDialog
